@@ -1,8 +1,8 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.AttributesValuesDto;
+import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesDto;
 import com.example.webapp_shop_ecommerce.entity.AttributesValues;
-import com.example.webapp_shop_ecommerce.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IAttributesValueService;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
 import org.modelmapper.ModelMapper;

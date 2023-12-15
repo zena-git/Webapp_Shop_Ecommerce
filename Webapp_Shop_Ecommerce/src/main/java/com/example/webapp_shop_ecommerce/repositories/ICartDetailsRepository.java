@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
-import com.example.backend_web_truong_huong.entity.CartDetails;
+import com.example.webapp_shop_ecommerce.entity.CartDetails;
 import org.springframework.stereotype.Repository;
 
 @Repository

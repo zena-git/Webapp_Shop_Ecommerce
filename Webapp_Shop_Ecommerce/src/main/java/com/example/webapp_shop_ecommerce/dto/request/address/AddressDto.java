@@ -1,5 +1,6 @@
-package com.example.webapp_shop_ecommerce.dto;
+package com.example.webapp_shop_ecommerce.dto.request.address;
 
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +11,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class AttributesDto {
+public class AddressDto {
     private Long id;
     private String name;
-
-
+    private CustomerDto customer;
 }

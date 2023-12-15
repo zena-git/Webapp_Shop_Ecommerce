@@ -1,7 +1,7 @@
 package com.example.webapp_shop_ecommerce.service;
 
 
-import com.example.backend_web_truong_huong.entity.Product;
+import com.example.webapp_shop_ecommerce.entity.Product;
 
 import java.util.Optional;
 

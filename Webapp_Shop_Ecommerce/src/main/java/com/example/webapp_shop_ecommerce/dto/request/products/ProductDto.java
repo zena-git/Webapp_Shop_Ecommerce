@@ -1,7 +1,7 @@
-package com.example.webapp_shop_ecommerce.dto;
+package com.example.webapp_shop_ecommerce.dto.request.products;
 
-import com.example.backend_web_truong_huong.entity.Category;
-import com.example.backend_web_truong_huong.entity.ProductDetails;
+import com.example.webapp_shop_ecommerce.entity.Category;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

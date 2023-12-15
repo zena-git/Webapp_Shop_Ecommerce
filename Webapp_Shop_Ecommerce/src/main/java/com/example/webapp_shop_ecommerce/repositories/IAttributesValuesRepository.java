@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
-import com.example.backend_web_truong_huong.entity.AttributesValues;
+import com.example.webapp_shop_ecommerce.entity.AttributesValues;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 

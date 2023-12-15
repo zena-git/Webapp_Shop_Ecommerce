@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
-import com.example.backend_web_truong_huong.entity.BaseEntity;
+import com.example.webapp_shop_ecommerce.entity.BaseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

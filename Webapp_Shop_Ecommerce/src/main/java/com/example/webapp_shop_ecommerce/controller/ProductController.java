@@ -1,8 +1,8 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.ProductDto;
+import com.example.webapp_shop_ecommerce.dto.request.products.ProductDto;
 import com.example.webapp_shop_ecommerce.entity.Product;
-import com.example.webapp_shop_ecommerce.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
 import com.example.webapp_shop_ecommerce.service.IProductService;
 import org.modelmapper.ModelMapper;

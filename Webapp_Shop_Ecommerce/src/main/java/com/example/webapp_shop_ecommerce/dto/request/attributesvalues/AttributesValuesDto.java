@@ -1,5 +1,6 @@
-package com.example.webapp_shop_ecommerce.dto;
+package com.example.webapp_shop_ecommerce.dto.request.attributesvalues;
 
+import com.example.webapp_shop_ecommerce.dto.request.attributes.AttributesDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

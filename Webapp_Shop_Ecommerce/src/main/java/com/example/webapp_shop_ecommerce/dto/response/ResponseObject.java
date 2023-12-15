@@ -1,5 +1,4 @@
-package com.example.webapp_shop_ecommerce.dto;
-
+package com.example.webapp_shop_ecommerce.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,8 +11,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class HistoryBillDto {
-    private Long id;
-    private BillDto bill;
-    private String describe;
+public class ResponseObject {
+    private String status;
+    private String message;
+    private int errCode;
+    private Object data;
 }

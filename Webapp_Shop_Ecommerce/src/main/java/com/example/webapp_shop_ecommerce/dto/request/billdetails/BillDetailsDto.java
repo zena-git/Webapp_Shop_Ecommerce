@@ -1,5 +1,7 @@
-package com.example.webapp_shop_ecommerce.dto;
+package com.example.webapp_shop_ecommerce.dto.request.billdetails;
 
+import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetailsDto;
+import com.example.webapp_shop_ecommerce.dto.request.bill.BillDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

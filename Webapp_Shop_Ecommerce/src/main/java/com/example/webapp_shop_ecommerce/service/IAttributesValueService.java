@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.service;
 
-import com.example.backend_web_truong_huong.entity.AttributesValues;
+import com.example.webapp_shop_ecommerce.entity.AttributesValues;
 
 import java.util.Optional;
 
