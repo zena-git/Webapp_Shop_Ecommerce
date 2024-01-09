@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.bill.BillDto;
+import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -42,15 +42,15 @@ public class BillController {
 
 
     @GetMapping
-    public ResponseEntity<List<BillDto>> findProductAll(){
-        List<BillDto> lst = new ArrayList<>();
+    public ResponseEntity<List<BillRequest>> findProductAll(){
+        List<BillRequest> lst = new ArrayList<>();
         List<Bill> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(entity -> mapper.map(entity, BillDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(entity -> mapper.map(entity, BillRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillDto billDto){
+    public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillRequest billDto){
         return baseService.createNew(mapper.map(billDto, Bill.class));
     }
 
@@ -60,7 +60,7 @@ public class BillController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillDto billDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillRequest billDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Bill bill = null;
         Optional<Bill>  otp = baseService.findById(id);

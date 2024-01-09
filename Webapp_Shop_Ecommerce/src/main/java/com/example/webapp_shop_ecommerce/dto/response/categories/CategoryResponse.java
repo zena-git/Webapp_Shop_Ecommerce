@@ -1,4 +1,4 @@
-package com.example.webapp_shop_ecommerce.dto.request.categories;
+package com.example.webapp_shop_ecommerce.dto.response.categories;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CategoryDto {
+public class CategoryResponse {
     private Long id;
     private String name;
     private String description;

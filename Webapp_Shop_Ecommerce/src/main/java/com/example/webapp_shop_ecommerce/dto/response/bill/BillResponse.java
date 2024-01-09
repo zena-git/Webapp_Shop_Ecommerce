@@ -1,6 +1,5 @@
-package com.example.webapp_shop_ecommerce.dto.request.bill;
+package com.example.webapp_shop_ecommerce.dto.response.bill;
 
-import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
-public class BillDto {
+public class BillResponse {
     private Long id;
     private String codeBill;
     private String status;
@@ -23,7 +22,7 @@ public class BillDto {
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;
-    private CustomerDto customer;
+    private Long customer;
 
 //    private UserDto user;
 

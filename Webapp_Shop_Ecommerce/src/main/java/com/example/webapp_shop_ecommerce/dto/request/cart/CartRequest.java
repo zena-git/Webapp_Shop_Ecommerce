@@ -1,4 +1,4 @@
-package com.example.webapp_shop_ecommerce.dto.request.address;
+package com.example.webapp_shop_ecommerce.dto.request.cart;
 
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class AddressRequest {
+public class CartRequest {
+    private Long id;
     private Long customer;
-    private String name;
 }

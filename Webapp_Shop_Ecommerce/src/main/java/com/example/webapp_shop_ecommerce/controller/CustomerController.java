@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerDto;
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -43,15 +43,15 @@ public class CustomerController {
 
 
     @GetMapping
-    public ResponseEntity<List<CustomerDto>> findProductAll(){
-        List<CustomerDto> lst = new ArrayList<>();
+    public ResponseEntity<List<CustomerRequest>> findProductAll(){
+        List<CustomerRequest> lst = new ArrayList<>();
         List<Customer> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(cto -> mapper.map(cto, CustomerDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(cto -> mapper.map(cto, CustomerRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody CustomerDto CustomerDto){
+    public ResponseEntity<ResponseObject> saveProduct(@RequestBody CustomerRequest CustomerDto){
         return baseService.createNew(mapper.map(CustomerDto, Customer.class));
     }
 
@@ -61,7 +61,7 @@ public class CustomerController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody CustomerDto customerDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateProduct(@RequestBody CustomerRequest customerDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Customer customer = null;
         Optional<Customer>  otp = baseService.findById(id);

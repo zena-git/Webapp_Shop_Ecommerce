@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.attributes.AttributesDto;
+import com.example.webapp_shop_ecommerce.dto.request.attributes.AttributesRequest;
 import com.example.webapp_shop_ecommerce.entity.Attributes;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -40,40 +40,40 @@ public class AttributesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AttributesDto>> findAll(){
+    public ResponseEntity<List<AttributesRequest>> findAll(){
 
 //        List<Attributes> attributes = attributesService.findAll(null, Pageable.unpaged()).getContent();
         List<Attributes> attributes = attributesService.findAllDeletedFalse( Pageable.unpaged()).getContent();
-        List<AttributesDto> attributesDto = attributes.stream().map(attr -> mapper.map(attr, AttributesDto.class)).collect(Collectors.toList());
-        return new ResponseEntity<>(attributesDto, HttpStatus.OK);
+        List<AttributesRequest> attributesRequest = attributes.stream().map(attr -> mapper.map(attr, AttributesRequest.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(attributesRequest, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> add(@RequestBody AttributesDto attributesDto){
+    public ResponseEntity<ResponseObject> add(@RequestBody AttributesRequest attributesRequest){
 
-        Optional<Attributes> opt = attributesServiceImpl.findByName(attributesDto.getName());
+        Optional<Attributes> opt = attributesServiceImpl.findByName(attributesRequest.getName());
         if (opt.isPresent()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, attributesDto), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, attributesRequest), HttpStatus.BAD_REQUEST);
         }
-        Attributes attributes = mapper.map(attributesDto, Attributes.class);
+        Attributes attributes = mapper.map(attributesRequest, Attributes.class);
         return attributesService.createNew(attributes);
 
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody AttributesDto attributesDto, @PathVariable Long id){
+    public ResponseEntity<ResponseObject> update(@RequestBody AttributesRequest attributesRequest, @PathVariable Long id){
         Optional<Attributes> opt = attributesService.findById(id);
         if (opt.isEmpty()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, attributesDto), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, attributesRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (attributesServiceImpl.findByName(attributesDto.getName()).isPresent()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, attributesDto), HttpStatus.BAD_REQUEST);
+        if (attributesServiceImpl.findByName(attributesRequest.getName()).isPresent()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, attributesRequest), HttpStatus.BAD_REQUEST);
         }
 
         //        Attributes attributes = mapper.map(attributesDto, Attributes.class);
         Attributes attributes = opt.get();
 //        attributes.setId(id);
-        attributes.setName(attributesDto.getName());
+        attributes.setName(attributesRequest.getName());
         return attributesService.update(attributes);
     }
     @DeleteMapping("/{id}")

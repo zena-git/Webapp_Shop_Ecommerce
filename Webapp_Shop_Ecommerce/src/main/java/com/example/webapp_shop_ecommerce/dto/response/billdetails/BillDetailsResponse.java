@@ -1,7 +1,6 @@
-package com.example.webapp_shop_ecommerce.dto.request.billdetails;
+package com.example.webapp_shop_ecommerce.dto.response.billdetails;
 
-import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetailsDto;
-import com.example.webapp_shop_ecommerce.dto.request.bill.BillDto;
+import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,12 +14,12 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Builder
-public class BillDetailsDto {
+public class BillDetailsResponse {
 
     private Long id;
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
-    private BillDto bill;
-    private ProductDetailsDto productDetails;
+    private BillResponse bill;
+    private Long productDetails;
 }

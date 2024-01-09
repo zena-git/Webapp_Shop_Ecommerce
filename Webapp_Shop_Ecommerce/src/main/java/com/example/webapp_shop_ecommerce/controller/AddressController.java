@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.address.AddressDto;
+import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
 import com.example.webapp_shop_ecommerce.entity.Address;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IAddressService;
@@ -42,16 +42,16 @@ public class AddressController {
 
 
     @GetMapping
-    public ResponseEntity<List<AddressDto>> findAll(){
-        List<AddressDto> lst = new ArrayList<>();
+    public ResponseEntity<List<AddressRequest>> findAll(){
+        List<AddressRequest> lst = new ArrayList<>();
         List<Address> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(entity -> mapper.map(entity, AddressDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(entity -> mapper.map(entity, AddressRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> save(@RequestBody AddressDto addressDto){
+    public ResponseEntity<ResponseObject> save(@RequestBody AddressRequest addressDto){
         return baseService.createNew(mapper.map(addressDto, Address.class));
     }
 
@@ -61,7 +61,7 @@ public class AddressController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody AddressDto addressDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> update(@RequestBody AddressRequest addressDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Address address = null;
         Optional<Address>  otp = baseService.findById(id);

@@ -98,6 +98,5 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
     public Page<E> findAllDeletedFalse(Pageable page) {
         Specification<E> spec = EntitySpecifications.isNotDeleted();
         return repository.findAll(spec, page);
-
     }
 }

@@ -1,7 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.request.productdetails;
 
-import com.example.webapp_shop_ecommerce.dto.request.products.ProductDto;
-import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesDto;
+import com.example.webapp_shop_ecommerce.dto.request.products.ProductRequest;
+import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +15,10 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @ToString
-public class ProductDetailsDto {
+public class ProductDetailsRequest {
     private Long id;
+    private Long product;
+    private Long attributesValues;
     private String codeProductDetail;
     private String imageUrl;
     private BigDecimal price;
@@ -25,7 +27,5 @@ public class ProductDetailsDto {
     private Integer quantity;
     private String barcode;
     private Integer status;
-    private ProductDto product;
-    private AttributesValuesDto attributesValues;
 
 }

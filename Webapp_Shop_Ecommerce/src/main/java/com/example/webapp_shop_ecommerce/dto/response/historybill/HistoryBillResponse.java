@@ -1,7 +1,7 @@
-package com.example.webapp_shop_ecommerce.dto.request.historybill;
+package com.example.webapp_shop_ecommerce.dto.response.historybill;
 
 
-import com.example.webapp_shop_ecommerce.dto.request.bill.BillDto;
+import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,8 +13,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class HistoryBillDto {
+public class HistoryBillResponse {
     private Long id;
-    private BillDto bill;
+    private BillResponse bill;
     private String describe;
 }

@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.cart.CartDto;
+import com.example.webapp_shop_ecommerce.dto.request.cart.CartRequest;
 import com.example.webapp_shop_ecommerce.entity.Cart;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -43,15 +43,15 @@ public class CartController {
 
 
     @GetMapping
-    public ResponseEntity<List<CartDto>> findCartAll(){
-        List<CartDto> lst = new ArrayList<>();
+    public ResponseEntity<List<CartRequest>> findCartAll(){
+        List<CartRequest> lst = new ArrayList<>();
         List<Cart> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(entity -> mapper.map(entity, CartDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(entity -> mapper.map(entity, CartRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveCart(@RequestBody CartDto cartDto){
+    public ResponseEntity<ResponseObject> saveCart(@RequestBody CartRequest cartDto){
         return baseService.createNew(mapper.map(cartDto, Cart.class));
     }
 
@@ -61,7 +61,7 @@ public class CartController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateCart(@RequestBody CartDto cartDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateCart(@RequestBody CartRequest cartDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Cart cart = null;
         Optional<Cart> otp = baseService.findById(id);

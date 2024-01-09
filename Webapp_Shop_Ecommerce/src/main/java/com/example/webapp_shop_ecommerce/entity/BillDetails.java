@@ -25,11 +25,6 @@ public class BillDetails extends BaseEntity{
     private Integer quantity;
     @Column(name = "unit_price")
     private BigDecimal unitPrice;
-    @Column(name = "import_price")
-    private BigDecimal importPrice;
-    @Column(name = "Total_amount")
-    private BigDecimal totalPrice;
-
     @ManyToOne
     @JoinColumn(name = "bill_id")
     private Bill bill;

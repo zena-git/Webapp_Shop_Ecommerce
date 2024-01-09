@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.categories.CategoryDto;
+import com.example.webapp_shop_ecommerce.dto.request.categories.CategoryRequest;
 import com.example.webapp_shop_ecommerce.entity.Category;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -38,25 +38,25 @@ public class CategoryController {
         this.baseService = baseService;
     }
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> findCategoryAll(){
-        List<CategoryDto> lst = new ArrayList<>();
+    public ResponseEntity<List<CategoryRequest>> findCategoryAll(){
+        List<CategoryRequest> lst = new ArrayList<>();
         List<Category> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(pro -> mapper.map(pro, CategoryDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(pro -> mapper.map(pro, CategoryRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveCategory(@RequestBody CategoryDto categoryDto){
-        Optional<Category> otp = CategoryService.findByName(categoryDto.getName());
+    public ResponseEntity<ResponseObject> saveCategory(@RequestBody CategoryRequest categoryRequest){
+        Optional<Category> otp = CategoryService.findByName(categoryRequest.getName());
         if (otp.isPresent()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, categoryDto), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
 //        Optional<Category> otp2 = CategoryService.findByCodeCategory(CategoryDto.getCodeCategory());
 //        if (otp2.isPresent()){
 //            return new ResponseEntity<>(new ResponseObject("Fail", "Code sản phẩm đã tồn tại", 1, CategoryDto), HttpStatus.BAD_REQUEST);
 //        }
-        return baseService.createNew(mapper.map(categoryDto, Category.class));
+        return baseService.createNew(mapper.map(categoryRequest, Category.class));
     }
 
     @DeleteMapping("/{id}")
@@ -65,24 +65,24 @@ public class CategoryController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateCategory(@RequestBody CategoryDto categoryDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateCategory(@RequestBody CategoryRequest categoryRequest, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Category Category = null;
         Optional<Category>  otp = baseService.findById(id);
         if (otp.isEmpty()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, categoryDto), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (CategoryService.findByName(categoryDto.getName()).isPresent()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên Thể Loại đã tồn tại", 1, categoryDto), HttpStatus.BAD_REQUEST);
+        if (CategoryService.findByName(categoryRequest.getName()).isPresent()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
         if (otp.isPresent()){
             Category = otp.get();
-            Category = mapper.map(categoryDto, Category.class);
+            Category = mapper.map(categoryRequest, Category.class);
 //            Category.setCodeCategory(otp.get().getCodeCategory());
             return baseService.update(Category);
         }
-        return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, categoryDto), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, categoryRequest), HttpStatus.BAD_REQUEST);
 
 
     }

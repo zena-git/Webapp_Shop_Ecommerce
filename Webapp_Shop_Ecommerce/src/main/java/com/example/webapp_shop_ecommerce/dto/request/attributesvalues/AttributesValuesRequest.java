@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.request.attributesvalues;
 
-import com.example.webapp_shop_ecommerce.dto.request.attributes.AttributesDto;
+import com.example.webapp_shop_ecommerce.dto.request.attributes.AttributesRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +13,9 @@ import lombok.ToString;
 @Setter
 @ToString
 
-public class AttributesValuesDto {
+public class AttributesValuesRequest {
     private Long id;
     private String name;
-    private AttributesDto attribute;
+    private Long attribute;
 
 }

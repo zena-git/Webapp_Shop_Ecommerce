@@ -1,7 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.request.cartdetails;
 
-import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetailsDto;
-import com.example.webapp_shop_ecommerce.dto.request.cart.CartDto;
+import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetailsRequest;
+import com.example.webapp_shop_ecommerce.dto.request.cart.CartRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +12,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class CartDetailDto {
+public class CartDetailRequest {
     private Long id;
-    private CartDto cart;
-    private ProductDetailsDto productDetails;
+    private Long cart;
+    private Long productDetails;
 }

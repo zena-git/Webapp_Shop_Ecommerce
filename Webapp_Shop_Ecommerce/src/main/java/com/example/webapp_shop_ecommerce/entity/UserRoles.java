@@ -17,15 +17,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@IdClass(UserRolesId.class)
-public class UserRoles {
 
-    @Id
+public class UserRoles extends BaseEntity {
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private Users users;
-
-    @Id
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Roles roles;

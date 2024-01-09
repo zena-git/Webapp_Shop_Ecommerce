@@ -13,7 +13,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-public class CustomerDto {
+public class CustomerRequest {
 
     private Long id;
     private String codeCustomer;

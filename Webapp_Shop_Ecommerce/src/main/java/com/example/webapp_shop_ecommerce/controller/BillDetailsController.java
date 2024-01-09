@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsDto;
+import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -42,15 +42,15 @@ public class BillDetailsController {
     private IBillDetailsService billDetailsService;
 
     @GetMapping
-    public ResponseEntity<List<BillDetailsDto>> findProductAll(){
-        List<BillDetailsDto> lst = new ArrayList<>();
+    public ResponseEntity<List<BillDetailsRequest>> findProductAll(){
+        List<BillDetailsRequest> lst = new ArrayList<>();
         List<BillDetails> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(entity -> mapper.map(entity, BillDetailsDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(entity -> mapper.map(entity, BillDetailsRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillDetailsDto billDetailsDto){
+    public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillDetailsRequest billDetailsDto){
         return baseService.createNew(mapper.map(billDetailsDto, BillDetails.class));
     }
 
@@ -60,7 +60,7 @@ public class BillDetailsController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillDetailsDto billDetailsDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillDetailsRequest billDetailsDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         BillDetails billDetails = null;
         Optional<BillDetails>  otp = baseService.findById(id);

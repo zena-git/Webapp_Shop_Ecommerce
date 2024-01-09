@@ -22,13 +22,11 @@ import java.math.BigDecimal;
 @ToString
 public class ProductDetails extends BaseEntity{
     @Column(name = "code_product_detail")
-    private String codeProductDetail;
+    private String code;
     @Column(name = "image_url")
     private String imageUrl;
     @Column(name = "price")
     private BigDecimal price;
-    @Column(name = "import_price")
-    private BigDecimal importPrice;
     @Column(name = "quantity")
     private Integer quantity;
     @Column(name = "barcode")

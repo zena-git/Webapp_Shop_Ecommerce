@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillDto;
+import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -41,15 +41,15 @@ public class HistoryBillController {
 
 
     @GetMapping
-    public ResponseEntity<List<HistoryBillDto>> findProductAll(){
-        List<HistoryBillDto> lst = new ArrayList<>();
+    public ResponseEntity<List<HistoryBillRequest>> findProductAll(){
+        List<HistoryBillRequest> lst = new ArrayList<>();
         List<HistoryBill> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(entity -> mapper.map(entity, HistoryBillDto.class)).collect(Collectors.toList());
+        lst = lstPro.stream().map(entity -> mapper.map(entity, HistoryBillRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody HistoryBillDto historyBillDto){
+    public ResponseEntity<ResponseObject> saveProduct(@RequestBody HistoryBillRequest historyBillDto){
         return baseService.createNew(mapper.map(historyBillDto, HistoryBill.class));
     }
 
@@ -59,7 +59,7 @@ public class HistoryBillController {
         return baseService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody HistoryBillDto historyBillDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateProduct(@RequestBody HistoryBillRequest historyBillDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         HistoryBill historyBill = null;
         Optional<HistoryBill> otp = baseService.findById(id);

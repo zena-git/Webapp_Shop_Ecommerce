@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller;
 
-import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesDto;
+import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesRequest;
 import com.example.webapp_shop_ecommerce.entity.AttributesValues;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IAttributesValueService;
@@ -39,15 +39,15 @@ public class AttributesValuesController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<AttributesValuesDto>> findAll(){
+    public ResponseEntity<List<AttributesValuesRequest>> findAll(){
 //        List<AttributesValues> result = baseService.findAll(null, Pageable.unpaged()).getContent();
         List<AttributesValues> result = baseService.findAllDeletedFalse( Pageable.unpaged()).getContent();
-        List<AttributesValuesDto> resultDto = result.stream().map(attr -> mapper.map(attr, AttributesValuesDto.class)).collect(Collectors.toList());
+        List<AttributesValuesRequest> resultDto = result.stream().map(attr -> mapper.map(attr, AttributesValuesRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> add(@RequestBody AttributesValuesDto attributesValuesDto){
+    public ResponseEntity<ResponseObject> add(@RequestBody AttributesValuesRequest attributesValuesDto){
         Optional<AttributesValues> opt = attributesValuesService.findByName(attributesValuesDto.getName());
 //        if (opt.isPresent()) {
 //            return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, attributesValuesDto), HttpStatus.BAD_REQUEST);
@@ -58,7 +58,7 @@ public class AttributesValuesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody AttributesValuesDto attributesValuesDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> update(@RequestBody AttributesValuesRequest attributesValuesDto, @PathVariable("id") Long id){
         Optional<AttributesValues> opt = baseService.findById(id);
         if (opt.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, attributesValuesDto), HttpStatus.BAD_REQUEST);

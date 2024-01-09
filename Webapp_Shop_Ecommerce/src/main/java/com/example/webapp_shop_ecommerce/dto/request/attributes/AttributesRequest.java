@@ -1,6 +1,5 @@
-package com.example.webapp_shop_ecommerce.dto.request.cart;
+package com.example.webapp_shop_ecommerce.dto.request.attributes;
 
-import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class CartDto {
+public class AttributesRequest {
     private Long id;
-    private CustomerDto customer;
+    private String name;
+
+
 }
