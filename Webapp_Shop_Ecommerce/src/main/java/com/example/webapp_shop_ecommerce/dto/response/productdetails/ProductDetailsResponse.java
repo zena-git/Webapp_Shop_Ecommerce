@@ -1,5 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.response.productdetails;
 
+import com.example.webapp_shop_ecommerce.entity.AttributesValues;
+import com.example.webapp_shop_ecommerce.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,15 +17,13 @@ import java.math.BigDecimal;
 @ToString
 public class ProductDetailsResponse {
     private Long id;
-    private Long product;
-    private Long attributesValues;
-    private String codeProductDetail;
+    private String code;
     private String imageUrl;
     private BigDecimal price;
-    private BigDecimal listedPrice;
-    private BigDecimal capitalPrice;
     private Integer quantity;
     private String barcode;
     private Integer status;
+    private Product product;
+    private AttributesValues attributesValues;
 
 }

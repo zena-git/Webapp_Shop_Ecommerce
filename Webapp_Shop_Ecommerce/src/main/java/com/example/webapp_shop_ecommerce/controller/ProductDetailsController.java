@@ -5,6 +5,7 @@ import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDeta
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductDetailConverter;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import org.modelmapper.ModelMapper;
@@ -38,7 +39,7 @@ public class ProductDetailsController {
     private final IBaseService<ProductDetails, Long> baseService;
     @Autowired
     private IProductDetailsService productDetailsService;
-
+    private ProductDetailConverter productDetailConverter;
     @Autowired
     public ProductDetailsController(IBaseService<ProductDetails, Long> baseService) {
         this.baseService = baseService;
@@ -82,10 +83,11 @@ public class ProductDetailsController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> save(@RequestBody ProductDetailsRequest productDetailsDto) {
-        ProductDetails productDetails = mapper.map(productDetailsDto, ProductDetails.class);
-        return baseService.createNew(productDetails);
+    public ResponseEntity<?> save(@RequestBody ProductDetailsRequest productDetailsRequest) {
+        ProductDetails productDetails = productDetailConverter.convertRequestToEntity(productDetailsRequest);
 
+//        return baseService.createNew(productDetails);
+        return  new ResponseEntity<>(productDetails, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
