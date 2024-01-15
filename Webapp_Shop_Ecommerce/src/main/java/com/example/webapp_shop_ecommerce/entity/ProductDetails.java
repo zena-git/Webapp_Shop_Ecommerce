@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Builder
 public class ProductDetails extends BaseEntity{
     @Column(name = "code_product_detail")

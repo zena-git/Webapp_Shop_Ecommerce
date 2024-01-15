@@ -3,7 +3,6 @@ package com.example.webapp_shop_ecommerce.controller;
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.service.IBaseService;
 import com.example.webapp_shop_ecommerce.service.ICustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,48 +31,42 @@ public class CustomerController {
 
     @Autowired
     private ModelMapper mapper;
-    private final IBaseService<Customer, Long> baseService;
+
     @Autowired
     private ICustomerService customerService;
-    
-    @Autowired
-    public CustomerController(IBaseService<Customer, Long> baseService) {
-        this.baseService = baseService;
-    }
-
 
     @GetMapping
     public ResponseEntity<List<CustomerRequest>> findProductAll(){
         List<CustomerRequest> lst = new ArrayList<>();
-        List<Customer> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
+        List<Customer> lstPro = customerService.findAllDeletedFalse(Pageable.unpaged()).getContent();
         lst = lstPro.stream().map(cto -> mapper.map(cto, CustomerRequest.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping()
     public ResponseEntity<ResponseObject> saveProduct(@RequestBody CustomerRequest CustomerDto){
-        return baseService.createNew(mapper.map(CustomerDto, Customer.class));
+        return customerService.createNew(mapper.map(CustomerDto, Customer.class));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteProduct( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
-        return baseService.delete(id);
+        return customerService.delete(id);
     }
     @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> updateProduct(@RequestBody CustomerRequest customerDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Customer customer = null;
-        Optional<Customer>  otp = baseService.findById(id);
+        Optional<Customer>  otp = customerService.findById(id);
         if (otp.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, customerDto), HttpStatus.BAD_REQUEST);
         }
 
         if (otp.isPresent()){
-            customer = baseService.findById(id).orElseThrow(IllegalArgumentException::new);
+            customer = customerService.findById(id).orElseThrow(IllegalArgumentException::new);
             customer = mapper.map(customerDto, Customer.class);
             customer.setId(id);
-            return baseService.update(customer);
+            return customerService.update(customer);
         }
         return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, customerDto), HttpStatus.BAD_REQUEST);
 

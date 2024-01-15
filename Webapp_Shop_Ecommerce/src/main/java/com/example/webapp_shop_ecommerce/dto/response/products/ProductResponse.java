@@ -17,9 +17,5 @@ public class ProductResponse {
     private String name;
     private Long category;
     private String description;
-//    private String createdBy;
-//    private LocalDateTime createdDate;
-//    private String lastModifiedBy;
-//    private LocalDateTime lastModifiedDate;
 
 }

@@ -20,6 +20,9 @@ public class ProductDetailConverter {
     public ProductDetails convertRequestToEntity(ProductDetailsRequest request) {
         AttributesValues attributesValues = attributesValuesRepo.findById(request.getAttributesValues()).orElse(null);
         Product product = productRepo.findById(request.getProduct()).orElse(null);
+        if (attributesValues == null || product == null) {
+            return null;
+        }
         return ProductDetails.builder().code(request.getCode()).imageUrl(request
                 .getImageUrl()).price(request.getPrice()).quantity(request.getQuantity())
                 .barcode(request.getBarcode()).status(request.getStatus())

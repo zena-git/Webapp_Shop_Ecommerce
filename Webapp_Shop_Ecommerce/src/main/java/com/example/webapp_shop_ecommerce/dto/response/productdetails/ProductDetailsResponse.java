@@ -1,5 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.response.productdetails;
 
+import com.example.webapp_shop_ecommerce.dto.response.attributesvalues.AttributesValuesResponse;
+import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.AttributesValues;
 import com.example.webapp_shop_ecommerce.entity.Product;
 import lombok.AllArgsConstructor;
@@ -23,7 +25,7 @@ public class ProductDetailsResponse {
     private Integer quantity;
     private String barcode;
     private Integer status;
-    private Product product;
-    private AttributesValues attributesValues;
+    private ProductResponse product;
+    private AttributesValuesResponse attributesValues;
 
 }
