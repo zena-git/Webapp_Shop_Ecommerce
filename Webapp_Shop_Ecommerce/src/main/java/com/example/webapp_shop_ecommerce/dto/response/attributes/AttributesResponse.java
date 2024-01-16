@@ -13,6 +13,4 @@ import lombok.Setter;
 public class AttributesResponse {
     private Long id;
     private String name;
-
-
 }

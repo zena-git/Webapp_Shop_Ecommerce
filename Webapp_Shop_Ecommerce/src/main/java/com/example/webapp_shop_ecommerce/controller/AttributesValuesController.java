@@ -1,12 +1,15 @@
 package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesRequest;
+import com.example.webapp_shop_ecommerce.dto.response.attributesvalues.AttributesValuesResponse;
+import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.entity.AttributesValues;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.service.IAttributesValueService;
-import com.example.webapp_shop_ecommerce.service.IBaseService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -30,22 +34,33 @@ import java.util.stream.Collectors;
 public class AttributesValuesController {
     @Autowired
     private ModelMapper mapper;
-    private final IBaseService<AttributesValues, Long> baseService;
     @Autowired
     private IAttributesValueService attributesValuesService;
-    @Autowired
-    public AttributesValuesController(IBaseService<AttributesValues, Long> baseService) {
-        this.baseService = baseService;
-    }
-
+  
     @GetMapping()
-    public ResponseEntity<List<AttributesValuesRequest>> findAll(){
-//        List<AttributesValues> result = baseService.findAll(null, Pageable.unpaged()).getContent();
-        List<AttributesValues> result = baseService.findAllDeletedFalse( Pageable.unpaged()).getContent();
-        List<AttributesValuesRequest> resultDto = result.stream().map(attr -> mapper.map(attr, AttributesValuesRequest.class)).collect(Collectors.toList());
+    public ResponseEntity<?> findAll(
+            @RequestParam(value = "page", defaultValue = "-1") Integer page,
+            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+        Pageable pageable = Pageable.unpaged();
+        if (size < 0) {
+            size = 5;
+        }
+        if (page >= 0) {
+            pageable = PageRequest.of(page, size);
+        }
+        List<AttributesValues> result = attributesValuesService.findAllDeletedFalse(pageable).getContent();
+        List<AttributesValuesResponse> resultDto = result.stream().map(attr -> mapper.map(attr, AttributesValuesResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
+        Optional<AttributesValues> otp = attributesValuesService.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        AttributesValuesResponse attributesValues = otp.map(pro -> mapper.map(pro, AttributesValuesResponse.class)).orElseThrow(IllegalArgumentException::new);
+        return new ResponseEntity<>(attributesValues, HttpStatus.OK);
+    }
     @PostMapping()
     public ResponseEntity<ResponseObject> add(@RequestBody AttributesValuesRequest attributesValuesDto){
         Optional<AttributesValues> opt = attributesValuesService.findByName(attributesValuesDto.getName());
@@ -53,13 +68,13 @@ public class AttributesValuesController {
 //            return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, attributesValuesDto), HttpStatus.BAD_REQUEST);
 //        }
         AttributesValues attributesValues = mapper.map(attributesValuesDto, AttributesValues.class);
-        return baseService.createNew(attributesValues);
+        return attributesValuesService.createNew(attributesValues);
 
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> update(@RequestBody AttributesValuesRequest attributesValuesDto, @PathVariable("id") Long id){
-        Optional<AttributesValues> opt = baseService.findById(id);
+        Optional<AttributesValues> opt = attributesValuesService.findById(id);
         if (opt.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, attributesValuesDto), HttpStatus.BAD_REQUEST);
         }
@@ -68,11 +83,11 @@ public class AttributesValuesController {
         }
 
         if (opt.isPresent()){
-            AttributesValues attributesValues = baseService.findById(id).orElseThrow(IllegalArgumentException::new);
+            AttributesValues attributesValues = attributesValuesService.findById(id).orElseThrow(IllegalArgumentException::new);
             mapper.map(attributesValues, attributesValuesDto);
             attributesValues.setName(attributesValuesDto.getName());
             attributesValues.setId(id);
-            return baseService.update(attributesValues);
+            return attributesValuesService.update(attributesValues);
         }
         return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, attributesValuesDto), HttpStatus.BAD_REQUEST);
 
@@ -80,6 +95,6 @@ public class AttributesValuesController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> delete(@PathVariable Long id){
 
-        return baseService.delete(id);
+        return attributesValuesService.delete(id);
     }
 }

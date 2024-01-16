@@ -1,6 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.response.billdetails;
 
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,5 +22,5 @@ public class BillDetailsResponse {
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
     private BillResponse bill;
-    private Long productDetails;
+    private ProductDetailsResponse productDetails;
 }

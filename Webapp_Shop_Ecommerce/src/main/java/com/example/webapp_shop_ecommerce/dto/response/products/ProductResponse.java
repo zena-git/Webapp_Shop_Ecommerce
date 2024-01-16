@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.response.products;
 
+import com.example.webapp_shop_ecommerce.dto.response.categories.CategoryResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class ProductResponse {
     private Long id;
     private String imageUrl;
     private String name;
-    private Long category;
+    private CategoryResponse category;
     private String description;
 
 }

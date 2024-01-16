@@ -1,12 +1,15 @@
 package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
+import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsResponse;
+import com.example.webapp_shop_ecommerce.dto.response.cart.CartResponse;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.service.IBaseService;
+import com.example.webapp_shop_ecommerce.entity.Cart;
 import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -32,46 +36,58 @@ public class BillDetailsController {
 
     @Autowired
     private ModelMapper mapper;
-    private final IBaseService<BillDetails, Long> baseService;
-    @Autowired
-    public BillDetailsController(IBaseService<BillDetails, Long> baseService) {
-        this.baseService = baseService;
-    }
 
     @Autowired
     private IBillDetailsService billDetailsService;
 
     @GetMapping
-    public ResponseEntity<List<BillDetailsRequest>> findProductAll(){
-        List<BillDetailsRequest> lst = new ArrayList<>();
-        List<BillDetails> lstPro = baseService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        lst = lstPro.stream().map(entity -> mapper.map(entity, BillDetailsRequest.class)).collect(Collectors.toList());
+    public ResponseEntity<?> findProductAll(
+            @RequestParam(value = "page", defaultValue = "-1") Integer page,
+            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+        Pageable pageable = Pageable.unpaged();
+        if (size < 0) {
+            size = 5;
+        }
+        if (page >= 0) {
+            pageable = PageRequest.of(page, size);
+        }
+        System.out.println("page=" + page + " size=" + size);
+        List<BillDetails> lstPro = billDetailsService.findAllDeletedFalse(pageable).getContent();
+        List<BillDetailsResponse> lst = lstPro.stream().map(entity -> mapper.map(entity, BillDetailsResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
+        Optional<BillDetails> otp = billDetailsService.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        BillDetailsResponse billDetail = otp.map(pro -> mapper.map(pro, BillDetailsResponse.class)).orElseThrow(IllegalArgumentException::new);
+        return new ResponseEntity<>(billDetail, HttpStatus.OK);
+    }
     @PostMapping()
     public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillDetailsRequest billDetailsDto){
-        return baseService.createNew(mapper.map(billDetailsDto, BillDetails.class));
+        return billDetailsService.createNew(mapper.map(billDetailsDto, BillDetails.class));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteProduct( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
-        return baseService.delete(id);
+        return billDetailsService.delete(id);
     }
     @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillDetailsRequest billDetailsDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         BillDetails billDetails = null;
-        Optional<BillDetails>  otp = baseService.findById(id);
+        Optional<BillDetails>  otp = billDetailsService.findById(id);
         if (otp.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, billDetailsDto), HttpStatus.BAD_REQUEST);
         }
         if (otp.isPresent()){
-            billDetails = baseService.findById(id).orElseThrow(IllegalArgumentException::new);
+            billDetails = billDetailsService.findById(id).orElseThrow(IllegalArgumentException::new);
             billDetails = mapper.map(billDetailsDto, BillDetails.class);
             billDetails.setId(id);
-            return baseService.update(billDetails);
+            return billDetailsService.update(billDetails);
         }
         return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, billDetailsDto), HttpStatus.BAD_REQUEST);
     }

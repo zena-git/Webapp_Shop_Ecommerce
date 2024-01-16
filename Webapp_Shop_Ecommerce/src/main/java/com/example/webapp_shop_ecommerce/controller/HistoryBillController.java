@@ -2,10 +2,8 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
 import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillResponse;
-import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.entity.Product;
 import com.example.webapp_shop_ecommerce.service.IHistoryBillService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +37,8 @@ public class HistoryBillController {
     private IHistoryBillService historyBillService;
 
     @GetMapping
-    public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
-                                            @RequestParam(value = "size", defaultValue = "-1") Integer size){
+    public ResponseEntity<?> findObjAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
+                                        @RequestParam(value = "size", defaultValue = "-1") Integer size){
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
             size = 5;
@@ -49,13 +47,13 @@ public class HistoryBillController {
             pageable = PageRequest.of(page, size);
         }
         System.out.println("page=" + page + " size=" + size);
-        List<HistoryBill> lstPro = historyBillService.findAllDeletedFalse(Pageable.unpaged()).getContent();
-        List<HistoryBillResponse> resultDto = lstPro.stream().map(entity -> mapper.map(entity, HistoryBillResponse.class)).collect(Collectors.toList());
+        List<HistoryBill> lstObj = historyBillService.findAllDeletedFalse(pageable).getContent();
+        List<HistoryBillResponse> resultDto = lstObj.stream().map(entity -> mapper.map(entity, HistoryBillResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findHistoryBillById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<HistoryBill> otp = historyBillService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
@@ -65,17 +63,17 @@ public class HistoryBillController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody HistoryBillRequest historyBillDto){
+    public ResponseEntity<?> saveObj(@RequestBody HistoryBillRequest historyBillDto){
         return historyBillService.createNew(mapper.map(historyBillDto, HistoryBill.class));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseObject> deleteProduct(@PathVariable("id") Long id){
+    public ResponseEntity<?> deleteObj(@PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
         return historyBillService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody HistoryBillRequest historyBillDto, @PathVariable("id") Long id){
+    public ResponseEntity<?> updateObj(@RequestBody HistoryBillRequest historyBillDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         HistoryBill historyBill = null;
         Optional<HistoryBill> otp = historyBillService.findById(id);
