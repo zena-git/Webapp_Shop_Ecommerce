@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.response.bill;
 
+import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class BillResponse {
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;
-    private Long customer;
+    private CustomerResponse customer;
 
 //    private UserDto user;
 

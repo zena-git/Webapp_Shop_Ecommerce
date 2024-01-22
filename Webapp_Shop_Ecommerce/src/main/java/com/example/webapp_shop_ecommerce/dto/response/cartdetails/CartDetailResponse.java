@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.response.cartdetails;
 
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,5 +14,5 @@ import lombok.Setter;
 public class CartDetailResponse {
     private Long id;
     private Long cart;
-    private Long productDetails;
+    private ProductDetailsResponse productDetails;
 }

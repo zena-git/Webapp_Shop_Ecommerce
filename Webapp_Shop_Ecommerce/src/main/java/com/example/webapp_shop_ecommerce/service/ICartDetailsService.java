@@ -1,4 +1,6 @@
 package com.example.webapp_shop_ecommerce.service;
 
-public interface ICartDetailsService {
+import com.example.webapp_shop_ecommerce.entity.CartDetails;
+
+public interface ICartDetailsService extends IBaseService<CartDetails, Long>{
 }

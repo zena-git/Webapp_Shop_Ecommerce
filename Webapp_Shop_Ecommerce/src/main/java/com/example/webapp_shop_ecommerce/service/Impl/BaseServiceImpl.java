@@ -12,13 +12,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
-public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R extends IBaseReporitory<E ,ID>> implements
-        IBaseService<E, ID> {
+public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R extends IBaseReporitory<E ,ID>>
+        implements IBaseService<E, ID> {
     protected R repository;
 
     @Autowired

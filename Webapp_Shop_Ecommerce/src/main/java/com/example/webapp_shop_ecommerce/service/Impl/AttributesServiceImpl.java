@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+
 public class AttributesServiceImpl extends BaseServiceImpl<Attributes, Long, IAttributesRepository> implements IAttributesService {
 
     @Override

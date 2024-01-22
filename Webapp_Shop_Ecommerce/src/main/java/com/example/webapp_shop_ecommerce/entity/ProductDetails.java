@@ -6,6 +6,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@Builder
 public class ProductDetails extends BaseEntity{
     @Column(name = "code_product_detail")
     private String code;

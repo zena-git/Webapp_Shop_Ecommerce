@@ -4,7 +4,6 @@ import com.example.webapp_shop_ecommerce.dto.request.products.ProductRequest;
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.Product;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.service.IBaseService;
 import com.example.webapp_shop_ecommerce.service.IProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +34,9 @@ public class ProductController {
 
     @Autowired
     private ModelMapper mapper;
-    private final IBaseService<Product, Long> baseService;
     @Autowired
     private IProductService productService;
-
-    @Autowired
-    public ProductController(IBaseService<Product, Long> baseService) {
-        this.baseService = baseService;
-    }
-
+    
     @GetMapping
     public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
                                             @RequestParam(value = "size", defaultValue = "-1") Integer size) {
@@ -55,15 +48,14 @@ public class ProductController {
             pageable = PageRequest.of(page, size);
         }
         System.out.println("page=" + page + " size=" + size);
-        List<ProductRequest> lst = new ArrayList<>();
-        List<Product> lstPro = baseService.findAllDeletedFalse(pageable).getContent();
-        lst = lstPro.stream().map(pro -> mapper.map(pro, ProductRequest.class)).collect(Collectors.toList());
-        return new ResponseEntity<>(lst, HttpStatus.OK);
+        List<Product> lstPro = productService.findAllDeletedFalse(pageable).getContent();
+        List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findProductById(@PathVariable("id") Long id) {
-        Optional<Product> otp = baseService.findById(id);
+        Optional<Product> otp = productService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
@@ -83,19 +75,19 @@ public class ProductController {
         if (otp.isPresent()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, productDto), HttpStatus.BAD_REQUEST);
         }
-        return baseService.createNew(mapper.map(productDto, Product.class));
+        return productService.createNew(mapper.map(productDto, Product.class));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable("id") Long id) {
         System.out.println("Delete ID: " + id);
-        return baseService.delete(id);
+        return productService.delete(id);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@RequestBody ProductRequest productDto, @PathVariable("id") Long id) {
         System.out.println("Update ID: " + id);
-        Optional<Product> otp = baseService.findById(id);
+        Optional<Product> otp = productService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, productDto), HttpStatus.BAD_REQUEST);
         }
@@ -106,6 +98,6 @@ public class ProductController {
         Product product = otp.orElseThrow(IllegalArgumentException::new);
         product = mapper.map(productDto, Product.class);
         product.setId(id);
-        return baseService.update(product);
+        return productService.update(product);
     }
 }

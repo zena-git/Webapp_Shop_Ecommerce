@@ -2,10 +2,9 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
-import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.service.IBaseService;
+import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductDetailConverter;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +34,10 @@ import java.util.stream.Collectors;
 public class ProductDetailsController {
     @Autowired
     private ModelMapper mapper;
-    private final IBaseService<ProductDetails, Long> baseService;
     @Autowired
     private IProductDetailsService productDetailsService;
-
     @Autowired
-    public ProductDetailsController(IBaseService<ProductDetails, Long> baseService) {
-        this.baseService = baseService;
-    }
+    private ProductDetailConverter productDetailConverter;
 
     @GetMapping
     public ResponseEntity<?> getProductDetailsAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
@@ -59,15 +54,14 @@ public class ProductDetailsController {
         if (productId > 0) {
             lstProductDetails = productDetailsService.findAllByProduct(Long.valueOf(productId), pageable).getContent();
         }else {
-            lstProductDetails = baseService.findAllDeletedFalse(pageable).getContent();
+            lstProductDetails = productDetailsService.findAllDeletedFalse(pageable).getContent();
         }
-        System.out.println(lstProductDetails);
-        List<ProductDetailsRequest> resultDto = lstProductDetails.stream().map(attr -> mapper.map(attr, ProductDetailsRequest.class)).collect(Collectors.toList());
+        List<ProductDetailsResponse> resultDto = lstProductDetails.stream().map(attr -> mapper.map(attr, ProductDetailsResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductDetailsById(@PathVariable("id") Long id) {
-        Optional<ProductDetails> otp = baseService.findById(id);
+        Optional<ProductDetails> otp = productDetailsService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
@@ -78,26 +72,29 @@ public class ProductDetailsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        return baseService.delete(id);
+        return productDetailsService.delete(id);
     }
 
     @PostMapping()
-    public ResponseEntity<?> save(@RequestBody ProductDetailsRequest productDetailsDto) {
-        ProductDetails productDetails = mapper.map(productDetailsDto, ProductDetails.class);
-        return baseService.createNew(productDetails);
-
+    public ResponseEntity<?> save(@RequestBody ProductDetailsRequest productDetailsRequest) {
+        ProductDetails productDetails = productDetailConverter.convertRequestToEntity(productDetailsRequest);
+        if (productDetails == null) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Lỗi", 1, null), HttpStatus.BAD_REQUEST);
+        }
+//        return productDetailsService.createNew(productDetails);
+        return  new ResponseEntity<>(productDetails, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody ProductDetailsRequest productDetailsDto) {
-        Optional<ProductDetails> otp = baseService.findById(id);
+        Optional<ProductDetails> otp = productDetailsService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm thấy id", 1, productDetailsDto), HttpStatus.BAD_REQUEST);
         }
-        ProductDetails productDetails = baseService.findById(id).orElseThrow(IllegalArgumentException::new);
+        ProductDetails productDetails = productDetailsService.findById(id).orElseThrow(IllegalArgumentException::new);
         productDetails = mapper.map(productDetailsDto, ProductDetails.class);
         productDetails.setId(id);
         System.out.println(productDetails.toString());
-        return baseService.update(productDetails);
+        return productDetailsService.update(productDetails);
     }
 }

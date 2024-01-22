@@ -1,4 +1,7 @@
 package com.example.webapp_shop_ecommerce.service;
 
-public interface IBillDetailsService {
+import com.example.webapp_shop_ecommerce.entity.Bill;
+import com.example.webapp_shop_ecommerce.entity.BillDetails;
+
+public interface IBillDetailsService extends IBaseService<BillDetails,Long> {
 }
