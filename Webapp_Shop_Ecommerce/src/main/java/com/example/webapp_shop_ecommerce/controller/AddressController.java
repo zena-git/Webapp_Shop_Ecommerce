@@ -2,10 +2,8 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
 import com.example.webapp_shop_ecommerce.dto.response.address.AddressResponse;
-import com.example.webapp_shop_ecommerce.dto.response.attributes.AttributesResponse;
 import com.example.webapp_shop_ecommerce.entity.Address;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.entity.Attributes;
 import com.example.webapp_shop_ecommerce.service.IAddressService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package com.example.webapp_shop_ecommerce.dto.request.attributes;
+package com.example.webapp_shop_ecommerce.dto.response.style;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,9 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class AttributesRequest {
+public class StyleResponse {
     private Long id;
     private String name;
-
-
 }

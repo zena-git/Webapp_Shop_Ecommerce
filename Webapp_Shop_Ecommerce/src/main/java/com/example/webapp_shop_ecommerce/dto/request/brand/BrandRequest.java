@@ -1,4 +1,4 @@
-package com.example.webapp_shop_ecommerce.dto.response.attributes;
+package com.example.webapp_shop_ecommerce.dto.request.brand;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class AttributesResponse {
-    private Long id;
+public class BrandRequest {
     private String name;
 }

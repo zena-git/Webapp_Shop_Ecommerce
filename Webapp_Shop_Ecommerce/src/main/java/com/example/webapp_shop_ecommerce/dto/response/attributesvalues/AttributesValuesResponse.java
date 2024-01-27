@@ -1,6 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.response.attributesvalues;
 
-import com.example.webapp_shop_ecommerce.dto.response.attributes.AttributesResponse;
+import com.example.webapp_shop_ecommerce.dto.response.brand.BrandResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +16,6 @@ import lombok.ToString;
 public class AttributesValuesResponse {
     private Long id;
     private String name;
-    private AttributesResponse attribute;
+    private BrandResponse attribute;
 
 }
