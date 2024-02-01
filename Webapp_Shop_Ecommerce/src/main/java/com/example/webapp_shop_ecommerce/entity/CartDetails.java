@@ -25,4 +25,6 @@ public class CartDetails extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetails productDetails;
+
+    private Integer quantity;
 }

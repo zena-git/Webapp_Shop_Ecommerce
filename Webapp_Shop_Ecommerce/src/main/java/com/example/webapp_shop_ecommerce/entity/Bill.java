@@ -24,8 +24,19 @@ import java.util.Date;
 public class Bill extends BaseEntity{
     @Column(name = "code_bill")
     private String codeBill;
-    @Column(name = "total_amount")
-    private BigDecimal totalPrice;
+
+    @Column(name = "bill_type")
+    private String billType;
+
+    @Column(name = "cash")
+    private BigDecimal cash;
+
+    @Column(name = "digital_currency")
+    private BigDecimal digitalCurrency;
+
+    @Column(name = "total_money")
+    private BigDecimal totalMoney;
+
     @Column(name = "into_money")
     private BigDecimal intoMoney;
     @Column(name = "status")
