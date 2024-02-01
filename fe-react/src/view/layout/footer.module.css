@@ -1,0 +1,50 @@
+.networkContainer a {
+    color: #555;
+    font-size: 15px;
+    padding-right: 5px;
+    text-decoration: none;
+}
+
+.contactContainer a {
+    color: #555556;
+    text-decoration: none;
+    padding-right: 15px;
+    &:hover {
+        text-decoration: 1px underline #555556;
+    }
+}
+
+.infomationContainer {
+    color: #555556;
+    padding-bottom: 15px;
+}
+
+.row {
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.col1{
+    width: 60%;
+}
+
+.col2{
+    display: contents;
+    width: 40%;
+}
+
+.col2 a{
+    text-decoration: none;
+}
+
+.col2 a img{
+    max-width: 150px;
+}
+
+.footerDes{
+    margin-bottom: 10px;
+    line-height: 24px;
+}

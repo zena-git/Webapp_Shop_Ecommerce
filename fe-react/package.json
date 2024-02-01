@@ -8,12 +8,15 @@
     "@testing-library/user-event": "^13.5.0",
     "antd": "^5.13.2",
     "echart": "^0.1.3",
+    "jquery": "^3.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
     "react-owl-carousel": "^2.3.3",
     "react-router-dom": "^6.21.3",
     "react-scripts": "5.0.1",
+    "react-slick": "^0.29.0",
+    "slick-carousel": "^1.8.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

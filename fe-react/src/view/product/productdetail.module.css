@@ -1,0 +1,90 @@
+.discountContainer {
+    background: linear-gradient(to right, #06DECD, #744DEF);
+    padding: 3px 8px;
+    width: 370px;
+    margin-top: 5px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 17px;
+    color: #ffffff;
+}
+
+.hoverLink {
+    color: #fff;
+    font-style: italic;
+
+    &:hover {
+        cursor: pointer;
+        color: black;
+        text-decoration: none;
+    }
+}
+
+.nav a {
+    text-decoration: none;
+    padding-right: 15px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #000000;
+    font-size: 16px;
+    margin-right: 2px;
+    border-radius: 0 0 0 0;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.colorPicker {
+    margin-bottom: 15px;
+    color: #1b1b1b;
+    margin-top: 5px;
+}
+
+.colorBtn {
+    height: 45px;
+    width: 45px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    margin-right: 5px;
+
+    &:hover {
+        border: 2px solid black;
+    }
+}
+
+.colorContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.sizePicker {
+    margin-bottom: 15px;
+    color: #1b1b1b;
+    margin-top: 5px;
+
+}
+
+.sizeBtn {
+    height: 45px;
+    width: 45px;
+    cursor: pointer;
+    margin-right: 5px;
+    border: 2px solid darkgray;
+
+    &:hover {
+        border: 2px solid black;
+    }
+}
+
+.red{
+    background-color: #06DECD;
+}
+
+.sizeContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
