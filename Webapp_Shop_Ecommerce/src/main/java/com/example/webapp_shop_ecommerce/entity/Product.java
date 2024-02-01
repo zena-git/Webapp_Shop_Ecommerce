@@ -24,16 +24,34 @@ import java.util.Set;
 @Setter
 @Builder
 public class Product extends BaseEntity{
+    @Column(name = "code_product")
+    private String code;
 
     @Column(name = "name")
     private String name;
+
     @ManyToOne()
     @JoinColumn(name = "id_category")
     private Category category;
+
+    @ManyToOne()
+    @JoinColumn(name = "id_brand")
+    private Brand brand;
+
+    @ManyToOne()
+    @JoinColumn(name = "id_material")
+    private Material material;
+
+    @ManyToOne()
+    @JoinColumn(name = "id_style")
+    private Style style;
+
     @Column(name = "image_url")
     private String imageUrl;
+
     @Column(name = "description")
     private String description;
+
     @JsonIgnore
     @OneToMany(mappedBy = "product")
     private Set<ProductDetails> lstProductDetails;

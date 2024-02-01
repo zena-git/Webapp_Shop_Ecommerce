@@ -1,12 +1,5 @@
 package com.example.webapp_shop_ecommerce.dto.request.productdetails;
 
-import com.example.webapp_shop_ecommerce.dto.request.products.ProductRequest;
-import com.example.webapp_shop_ecommerce.dto.request.attributesvalues.AttributesValuesRequest;
-import com.example.webapp_shop_ecommerce.entity.AttributesValues;
-import com.example.webapp_shop_ecommerce.entity.Product;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
