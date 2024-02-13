@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface IBrandService extends IBaseService<Brand, Long>{
     Optional<Brand> findByName(String name);
+
+    boolean existsByName(String name);
 }

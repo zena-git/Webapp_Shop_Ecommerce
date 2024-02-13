@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface IColorRepository extends IBaseReporitory<Color, Long> {
     @Query("SELECT b FROM Color b WHERE b.name = ?1 and b.deleted = false")
     Optional<Color> findByName(String name);
+
+
 }

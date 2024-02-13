@@ -16,5 +16,4 @@ public interface IBaseReporitory<E extends BaseEntity, ID extends Serializable> 
     @Query("select e from #{#entityName} e where e.id = ?1 and e.deleted = false")
     Optional<E> findByIdAndDeletedFalses(ID id);
 
-
 }

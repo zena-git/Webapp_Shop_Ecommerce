@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface IBrandRepository extends IBaseReporitory<Brand, Long> {
     @Query("SELECT b FROM Brand b WHERE b.name = ?1 and b.deleted = false")
     Optional<Brand> findByName(String name);
+
+    boolean existsBrandByName(String name);
+
 }

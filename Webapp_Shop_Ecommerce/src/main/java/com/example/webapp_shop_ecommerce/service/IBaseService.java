@@ -24,6 +24,7 @@ public interface IBaseService<E extends BaseEntity, ID extends Serializable> {
 
     Optional<E> findById(ID id);
 
+    Boolean existsById(ID id);
     Page<E> findAll(@Nullable Specification<E> spec, Pageable page);
     Page<E> findAllDeletedFalse(Pageable page);
 }
