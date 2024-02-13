@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/address")
 public class AddressController {
@@ -46,6 +45,7 @@ public class AddressController {
         if (size < 0) {
             size = 5;
         }
+
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
@@ -88,7 +88,9 @@ public class AddressController {
             address = mapper.map(addressDto, Address.class);
             address.setId(id);
             return addressService.update(address);
+
         }
+
         return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, addressDto), HttpStatus.BAD_REQUEST);
 
 

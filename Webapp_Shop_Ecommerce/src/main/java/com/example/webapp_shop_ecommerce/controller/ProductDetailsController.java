@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/productDetail")
 public class ProductDetailsController {
@@ -77,12 +76,12 @@ public class ProductDetailsController {
 
     @PostMapping()
     public ResponseEntity<?> save(@RequestBody ProductDetailsRequest productDetailsRequest) {
-        ProductDetails productDetails = productDetailConverter.convertRequestToEntity(productDetailsRequest);
-        if (productDetails == null) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Lỗi", 1, null), HttpStatus.BAD_REQUEST);
-        }
-//        return productDetailsService.createNew(productDetails);
-        return  new ResponseEntity<>(productDetails, HttpStatus.OK);
+//        ProductDetails productDetails = productDetailConverter.convertRequestToEntity(productDetailsRequest);
+//        if (productDetails == null) {
+//            return new ResponseEntity<>(new ResponseObject("Fail", "Lỗi", 1, null), HttpStatus.BAD_REQUEST);
+//        }
+        return productDetailsService.createNew(new ProductDetails());
+//        return  new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
