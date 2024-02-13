@@ -7,4 +7,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CartServiceImpl extends BaseServiceImpl<Cart, Long, ICartRepository> implements ICartService {
+    public void method(){
+        // chức
+    }
+
 }
