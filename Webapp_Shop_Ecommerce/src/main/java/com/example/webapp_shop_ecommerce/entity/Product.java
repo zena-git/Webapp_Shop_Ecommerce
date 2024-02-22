@@ -52,6 +52,8 @@ public class Product extends BaseEntity{
     @Column(name = "description")
     private String description;
 
+    @Column(name = "status")
+    private Integer status;
     @JsonIgnore
     @OneToMany(mappedBy = "product")
     private Set<ProductDetails> lstProductDetails;
