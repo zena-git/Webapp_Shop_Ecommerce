@@ -31,6 +31,8 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
         entity.setDeleted(false);
         entity.setCreatedBy("Admin");
         entity.setCreatedDate(LocalDateTime.now());
+        entity.setLastModifiedDate(LocalDateTime.now());
+        entity.setLastModifiedBy("Admin");
         repository.save(entity);
         return new ResponseEntity<>(new ResponseObject("Success", "Thêm Mới Thành Công", 0, entity), HttpStatus.CREATED);
     }

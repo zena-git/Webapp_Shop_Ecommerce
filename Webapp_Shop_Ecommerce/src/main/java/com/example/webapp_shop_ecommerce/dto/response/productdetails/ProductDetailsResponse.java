@@ -25,7 +25,6 @@ public class ProductDetailsResponse {
     private Integer quantity;
     private String barcode;
     private Integer status;
-    private ProductResponse product;
     private SizeResponse size;
     private ColorResponse color;
 

@@ -47,6 +47,8 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                         entity.setDeleted(false);
                         entity.setCreatedBy("Admin");
                         entity.setCreatedDate(LocalDateTime.now());
+                        entity.setLastModifiedDate(LocalDateTime.now());
+                        entity.setLastModifiedBy("Admin");
                     }
                     return entity;
                 })
@@ -85,5 +87,10 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
         Integer lstSize = repository.saveAll(lst).size();
         return new ResponseEntity<>(new ResponseObject("Success", "Update Thành Công "+ lstSize +" Item", 0, lst), HttpStatus.CREATED);
 
+    }
+
+    @Override
+    public void updateProductDetailsByProductId(Long id) {
+        repository.updateProductDetailsByProductId(id);
     }
 }

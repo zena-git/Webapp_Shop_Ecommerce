@@ -1,15 +1,20 @@
 package com.example.webapp_shop_ecommerce.dto.response.products;
 
+import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.response.brand.BrandResponse;
 import com.example.webapp_shop_ecommerce.dto.response.categories.CategoryResponse;
 import com.example.webapp_shop_ecommerce.dto.response.material.MaterialResponse;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.style.StyleResponse;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +22,8 @@ import java.time.LocalDateTime;
 @Setter
 public class ProductResponse {
     private Long id;
+    private String code;
+
     private String imageUrl;
     private String name;
     private CategoryResponse category;
@@ -24,5 +31,7 @@ public class ProductResponse {
     private MaterialResponse material;
     private StyleResponse style;
     private String description;
+    private Set<ProductDetailsResponse> lstProductDetails;
+
 
 }

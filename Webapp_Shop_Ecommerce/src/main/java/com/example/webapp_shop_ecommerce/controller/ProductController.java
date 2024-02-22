@@ -47,14 +47,14 @@ public class ProductController {
             pageable = PageRequest.of(page, size);
         }
         System.out.println("page=" + page + " size=" + size);
-        List<Product> lstPro = productService.findAllDeletedFalse(pageable).getContent();
+        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted(pageable).getContent();
         List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findProductById(@PathVariable("id") Long id) {
-        Optional<Product> otp = productService.findById(id);
+        Optional<Product> otp = productService.findProductByIdAndDetailsNotDeleted(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
@@ -70,11 +70,10 @@ public class ProductController {
 
     @PostMapping()
     public ResponseEntity<?> saveProduct(@RequestBody ProductRequest productDto) {
-        Optional<Product> otp = productService.findByName(productDto.getName());
-        if (otp.isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, productDto), HttpStatus.BAD_REQUEST);
-        }
-        return productService.createNew(mapper.map(productDto, Product.class));
+
+
+//        return productService.createNew(mapper.map(productDto, Product.class));
+        return productService.saveOrUpdate(productDto);
     }
 
     @DeleteMapping("/{id}")
@@ -85,18 +84,8 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@RequestBody ProductRequest productDto, @PathVariable("id") Long id) {
-        System.out.println("Update ID: " + id);
-        Optional<Product> otp = productService.findById(id);
-        if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, productDto), HttpStatus.BAD_REQUEST);
-        }
 
-        if (productService.findByName(productDto.getName()).isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, productDto), HttpStatus.BAD_REQUEST);
-        }
-        Product product = otp.orElseThrow(IllegalArgumentException::new);
-        product = mapper.map(productDto, Product.class);
-        product.setId(id);
-        return productService.update(product);
+;
+        return productService.saveOrUpdate(productDto, id);
     }
 }
