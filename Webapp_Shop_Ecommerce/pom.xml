@@ -74,6 +74,22 @@
             <artifactId>javase</artifactId>
             <version>3.4.1</version>
         </dependency>
+
+        <!-- Apache POI -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.1.0</version> <!-- Thay version tùy theo phiên bản bạn muốn sử dụng -->
+        </dependency>
+
+        <!-- Apache POI for Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.1.0</version> <!-- Thay version tùy theo phiên bản bạn muốn sử dụng -->
+        </dependency>
+
+
     </dependencies>
 
     <build>
