@@ -86,6 +86,10 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
                 return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
             }
             entity = productConverter.convertRequestToEntity(request);
+            if (entity==null) {
+                return new ResponseEntity<>(new ResponseObject("Fail", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
+            }
+
             entity.setId(null);
             entity.setDeleted(false);
             entity.setCreatedBy("Admin");
