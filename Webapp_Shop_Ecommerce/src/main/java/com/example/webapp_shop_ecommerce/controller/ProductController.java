@@ -38,7 +38,9 @@ public class ProductController {
     
     @GetMapping
     public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
-                                            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+                                            @RequestParam(value = "size", defaultValue = "-1") Integer size,
+                                            @RequestParam(value = "search", defaultValue = "") String search
+    ) {
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
             size = 5;
@@ -46,8 +48,8 @@ public class ProductController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        System.out.println("page=" + page + " size=" + size);
-        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted(pageable).getContent();
+        System.out.println("page=" + page + " size=" + size + "search=" + search);
+        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted(pageable, search).getContent();
         List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }

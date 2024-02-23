@@ -118,8 +118,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     }
 
     @Override
-    public Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable) {
-        return repository.findProductsAndDetailsNotDeleted(pageable);
+    public Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable,String name) {
+        return repository.findProductsAndDetailsNotDeleted(pageable,name);
     }
 
     @Override
