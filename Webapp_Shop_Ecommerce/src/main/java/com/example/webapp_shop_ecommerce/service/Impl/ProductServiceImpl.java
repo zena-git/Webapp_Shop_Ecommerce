@@ -139,10 +139,18 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     }
 
     @Override
-    public Optional<Product> findProductByIdAndDetailsNotDeleted(Long id) {
-
-
-        return repository.findProductByIdAndDetailsNotDeleted(id);
+    public Optional<Product> findProductByIdAndDetailsNotDeleted(Long id,Map<String,String> keyWork) {
+        Optional<Product> otp = repository.findProductByIdAndDetailsNotDeleted(id,keyWork);
+        if (otp.isEmpty()) {
+            keyWork = Map.of(
+                    "size", "",
+                    "color", "",
+                    "min", "0",
+                    "max", "9999999999999999999999"
+            );
+            otp = repository.findProductByIdAndDetailsNotDeleted(id,keyWork);
+        }
+        return otp;
     }
     private boolean isValidNumber(String str) {
         try {

@@ -26,7 +26,7 @@ public interface IProductService extends IBaseService<Product, Long> {
     ResponseEntity<ResponseObject> saveOrUpdate(ProductRequest request,Long... idProduct);
 //    Optional<Product> findByCodeProduct(String code);
     Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, Map<String,String> keyWork);
-    Optional<Product> findProductByIdAndDetailsNotDeleted(Long id);
+    Optional<Product> findProductByIdAndDetailsNotDeleted(Long id,Map<String,String> keyWork);
 
     ResponseEntity<Resource> generateBarcodes(@RequestParam("data") List<String> dataList) throws IOException;
 

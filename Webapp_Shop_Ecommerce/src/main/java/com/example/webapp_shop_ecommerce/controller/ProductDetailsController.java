@@ -61,7 +61,7 @@ public class ProductDetailsController {
     public ResponseEntity<?> getProductDetailsById(@PathVariable("id") Long id) {
         Optional<ProductDetails> otp = productDetailsService.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
 
         ProductDetailsResponse product = otp.map(pro -> mapper.map(pro, ProductDetailsResponse.class)).orElseThrow(IllegalArgumentException::new);

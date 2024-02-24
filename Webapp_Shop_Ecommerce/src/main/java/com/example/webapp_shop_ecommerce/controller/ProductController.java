@@ -88,8 +88,19 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findProductById(@PathVariable("id") Long id) {
-        Optional<Product> otp = productService.findProductByIdAndDetailsNotDeleted(id);
+    public ResponseEntity<?> findProductById(@PathVariable("id") Long id,
+                                             @RequestParam(value = "size", defaultValue = "") String size,
+                                             @RequestParam(value = "color", defaultValue = "") String color,
+                                             @RequestParam(value = "min", defaultValue = "0") String min,
+                                             @RequestParam(value = "max", defaultValue = "9999999999999999999999999999") String max
+    ) {
+        Map<String, String> keyWork = new HashMap<String, String>();
+        keyWork.put("size", size.trim());
+        keyWork.put("color", color.trim());
+        keyWork.put("min", min.trim());
+        keyWork.put("max", max.trim());
+
+        Optional<Product> otp = productService.findProductByIdAndDetailsNotDeleted(id,keyWork);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
