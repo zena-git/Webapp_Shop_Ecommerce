@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -20,9 +21,9 @@ public interface IProductRepository extends IBaseReporitory<Product, Long> {
 
     @Query("SELECT pro FROM Product pro WHERE pro.name LIKE %?1% and pro.deleted = false")
     List<Product> findProductByName(String name);
-
-    @Query("SELECT p FROM Product p JOIN FETCH p.lstProductDetails pd WHERE p.name like %:name% and p.deleted = false and pd.deleted = false")
-    Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, @Param("name") String name);
+    // SpEL (Spring Expression Language)
+    @Query("SELECT p FROM Product p JOIN FETCH p.lstProductDetails pd WHERE p.name like %:#{#keyWork['search']}% and p.category.name like %:#{#keyWork['category']}% and p.material.name like %:#{#keyWork['material']}% and p.brand.name like %:#{#keyWork['brand']}% and p.style.name like %:#{#keyWork['style']}% and p.status like %:#{#keyWork['status']}% and p.deleted = false and pd.deleted = false")
+    Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, @Param("keyWork") Map<String,String> keyWork);
     @Query("SELECT pro FROM Product pro JOIN FETCH pro.lstProductDetails pd WHERE pro.id = ?1 and pro.deleted = false and pd.deleted = false")
     Optional<Product> findProductByIdAndDetailsNotDeleted(Long id);
 }

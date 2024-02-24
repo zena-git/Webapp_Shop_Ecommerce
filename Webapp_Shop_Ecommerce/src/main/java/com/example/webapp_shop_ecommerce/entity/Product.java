@@ -53,7 +53,7 @@ public class Product extends BaseEntity{
     private String description;
 
     @Column(name = "status")
-    private Integer status;
+    private String status;
     @JsonIgnore
     @OneToMany(mappedBy = "product")
     private Set<ProductDetails> lstProductDetails;

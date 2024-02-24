@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -92,6 +93,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
 
             entity.setId(null);
             entity.setDeleted(false);
+            entity.setStatus("0");
             entity.setCreatedBy("Admin");
             entity.setCreatedDate(LocalDateTime.now());
             entity.setLastModifiedBy("Admin");
@@ -131,8 +133,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     }
 
     @Override
-    public Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable,String name) {
-        return repository.findProductsAndDetailsNotDeleted(pageable,name);
+    public Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, Map<String,String> keyWork) {
+
+        return repository.findProductsAndDetailsNotDeleted(pageable,keyWork);
     }
 
     @Override

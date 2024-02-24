@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface IProductService extends IBaseService<Product, Long> {
@@ -24,7 +25,7 @@ public interface IProductService extends IBaseService<Product, Long> {
     List<Product> findProductByName(String name);
     ResponseEntity<ResponseObject> saveOrUpdate(ProductRequest request,Long... idProduct);
 //    Optional<Product> findByCodeProduct(String code);
-    Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable,String name);
+    Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, Map<String,String> keyWork);
     Optional<Product> findProductByIdAndDetailsNotDeleted(Long id);
 
     ResponseEntity<Resource> generateBarcodes(@RequestParam("data") List<String> dataList) throws IOException;

@@ -35,7 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -52,7 +54,12 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
                                             @RequestParam(value = "size", defaultValue = "-1") Integer size,
-                                            @RequestParam(value = "search", defaultValue = "") String search
+                                            @RequestParam(value = "search", defaultValue = "") String search,
+                                            @RequestParam(value = "category", defaultValue = "") String category,
+                                            @RequestParam(value = "material", defaultValue = "") String material,
+                                            @RequestParam(value = "brand", defaultValue = "") String brand,
+                                            @RequestParam(value = "style", defaultValue = "") String style,
+                                            @RequestParam(value = "status", defaultValue = "") String status
     ) {
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
@@ -61,8 +68,21 @@ public class ProductController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        System.out.println("page=" + page + " size=" + size + "search=" + search);
-        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted(pageable, search).getContent();
+
+
+        //Dong goi praram
+        Map<String, String> keyWork = new HashMap<String, String>();
+        keyWork.put("search", search);
+        keyWork.put("category", category);
+        keyWork.put("material", material);
+        keyWork.put("brand", brand);
+        keyWork.put("style", style);
+        keyWork.put("status", status);
+
+
+
+        System.out.println("page=" + page + " size=" + size + "search=" + keyWork.get("search"));
+        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted(pageable, keyWork).getContent();
         List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
