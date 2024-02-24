@@ -5,12 +5,15 @@ import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.style.StyleResponse;
 import com.example.webapp_shop_ecommerce.entity.Style;
 import com.example.webapp_shop_ecommerce.service.Impl.StyleServiceImpl;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,8 +49,6 @@ public class StyleController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Style> otp = styleService.findById(id);
-        Boolean check = styleService.existsById(id);
-        System.out.println(check);
 
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
@@ -56,8 +57,16 @@ public class StyleController {
         return new ResponseEntity<>(style, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> add(@RequestBody StyleRequest styleRequest){
-
+    public ResponseEntity<ResponseObject> add(@Valid @RequestBody StyleRequest styleRequest, BindingResult result){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, styleRequest), HttpStatus.BAD_REQUEST);
+        }
         Optional<Style> opt = styleService.findByName(styleRequest.getName());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, styleRequest), HttpStatus.BAD_REQUEST);
@@ -68,7 +77,17 @@ public class StyleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody StyleRequest styleRequest, @PathVariable Long id){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody StyleRequest styleRequest, @PathVariable Long id, BindingResult result){
+
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, styleRequest), HttpStatus.BAD_REQUEST);
+        }
         Optional<Style> opt = styleService.findById(id);
         if (opt.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, styleRequest), HttpStatus.BAD_REQUEST);

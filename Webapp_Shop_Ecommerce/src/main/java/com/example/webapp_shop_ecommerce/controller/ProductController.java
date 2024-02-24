@@ -72,12 +72,12 @@ public class ProductController {
 
         //Dong goi praram
         Map<String, String> keyWork = new HashMap<String, String>();
-        keyWork.put("search", search);
-        keyWork.put("category", category);
-        keyWork.put("material", material);
-        keyWork.put("brand", brand);
-        keyWork.put("style", style);
-        keyWork.put("status", status);
+        keyWork.put("search", search.trim());
+        keyWork.put("category", category.trim());
+        keyWork.put("material", material.trim());
+        keyWork.put("brand", brand.trim());
+        keyWork.put("style", style.trim());
+        keyWork.put("status", status.trim());
 
 
 

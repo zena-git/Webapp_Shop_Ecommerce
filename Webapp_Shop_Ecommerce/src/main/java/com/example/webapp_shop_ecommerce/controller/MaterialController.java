@@ -6,12 +6,15 @@ import com.example.webapp_shop_ecommerce.dto.response.material.MaterialResponse;
 import com.example.webapp_shop_ecommerce.entity.Brand;
 import com.example.webapp_shop_ecommerce.entity.Material;
 import com.example.webapp_shop_ecommerce.service.Impl.MaterialServiceImpl;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,8 +50,6 @@ public class MaterialController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Material> otp = materialService.findById(id);
-        Boolean check = materialService.existsById(id);
-        System.out.println(check);
 
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
@@ -57,8 +58,16 @@ public class MaterialController {
         return new ResponseEntity<>(brand, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> add(@RequestBody MaterialRequest MaterialRequest){
-
+    public ResponseEntity<ResponseObject> add(@Valid @RequestBody MaterialRequest MaterialRequest, BindingResult result){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, MaterialRequest), HttpStatus.BAD_REQUEST);
+        }
         Optional<Material> opt = materialService.findByName(MaterialRequest.getName());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, MaterialRequest), HttpStatus.BAD_REQUEST);
@@ -69,7 +78,17 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody MaterialRequest MaterialRequest, @PathVariable Long id){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody MaterialRequest MaterialRequest, @PathVariable Long id, BindingResult result){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, MaterialRequest), HttpStatus.BAD_REQUEST);
+        }
+
         Optional<Material> opt = materialService.findById(id);
         if (opt.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, MaterialRequest), HttpStatus.BAD_REQUEST);
