@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductDetailConverter;
 import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
+import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,9 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
     ProductDetailConverter productDetailConverter;
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    RandomStringGenerator randomStringGenerator;
     @Override
     public Page<ProductDetails> findAllByProductToPage(Long productId, Pageable page) {
         return repository.findAllByProductToPage(productId, page);
@@ -43,12 +47,23 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                 .map(productDetailsDto -> {
                     ProductDetails entity = productDetailConverter.convertRequestToEntity(productDetailsDto);
                     if (entity != null) {
+
+                        if (entity.getCode() !=null){
+                            if (repository.existsByCode(entity.getCode())){
+                                entity.setCode("PDS"+randomStringGenerator.generateRandomString(6));
+                            }
+                        }else {
+                            entity.setCode("PDS"+randomStringGenerator.generateRandomString(6));
+                        }
+
                         entity.setId(null);
                         entity.setDeleted(false);
+                        entity.setStatus("0");
                         entity.setCreatedBy("Admin");
                         entity.setCreatedDate(LocalDateTime.now());
                         entity.setLastModifiedDate(LocalDateTime.now());
                         entity.setLastModifiedBy("Admin");
+                        entity.setBarcode("BC"+randomStringGenerator.generateRandomString(6));
                     }
                     return entity;
                 })

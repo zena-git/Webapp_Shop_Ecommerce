@@ -50,7 +50,7 @@ public class ProductDetails extends BaseEntity{
     private String barcode;
 
     @Column(name = "status")
-    private Integer status;
+    private String status;
 
 
 }

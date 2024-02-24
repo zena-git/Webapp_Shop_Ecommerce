@@ -26,4 +26,6 @@ public interface IProductRepository extends IBaseReporitory<Product, Long> {
     Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, @Param("keyWork") Map<String,String> keyWork);
     @Query("SELECT pro FROM Product pro LEFT JOIN FETCH pro.lstProductDetails pd WHERE pro.id = :id and pd.color.name like %:#{#keyWork['color']}% and pd.size.name like %:#{#keyWork['size']}% and pd.price BETWEEN :#{#keyWork['min']} and :#{#keyWork['max']} and pro.deleted = false and pd.deleted = false")
     Optional<Product> findProductByIdAndDetailsNotDeleted(@Param("id") Long id,@Param("keyWork") Map<String,String> keyWork);
+    boolean existsByCode(String code);
+
 }

@@ -24,4 +24,6 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
     @Modifying
     @Query("UPDATE ProductDetails pd SET pd.deleted = true WHERE pd.product.id = ?1")
     void updateProductDetailsByProductId(Long id);
+
+    boolean existsByCode(String code);
 }

@@ -27,7 +27,7 @@ public class ProductDetailsRequest {
     @Min(value = 1, message = "Số lượng phải lớn hơn 0")
     private Integer quantity;
     private String barcode;
-    private Integer status;
+    private String status;
     private Long product;
     @NotNull(message = "Màu không được để trống")
     private Long color;

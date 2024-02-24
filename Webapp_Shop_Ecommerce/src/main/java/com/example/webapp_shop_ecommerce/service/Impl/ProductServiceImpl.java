@@ -11,6 +11,7 @@ import com.example.webapp_shop_ecommerce.repositories.IProductRepository;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import com.example.webapp_shop_ecommerce.service.IProductService;
 import com.example.webapp_shop_ecommerce.ultiltes.GenBarcode;
+import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import com.example.webapp_shop_ecommerce.ultiltes.exportExcel.ExportProduct;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -58,7 +59,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     ExportProduct exportProduct;
     @Autowired
     GenBarcode genBarcode;
-
+    @Autowired
+    RandomStringGenerator randomStringGenerator;
     @Override
     public Optional<Product> findByName(String name) {
         return repository.findByName(name);
@@ -87,6 +89,14 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             entity = productConverter.convertRequestToEntity(request);
             if (entity==null) {
                 return new ResponseEntity<>(new ResponseObject("error", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
+            }
+
+            if (entity.getCode() !=null){
+                if (repository.existsByCode(entity.getCode())){
+                    return new ResponseEntity<>(new ResponseObject("error", "Mã đã có trong hệ thống", 1, request), HttpStatus.BAD_REQUEST);
+                }
+            }else {
+                entity.setCode("PD"+randomStringGenerator.generateRandomString(6));
             }
 
             entity.setId(null);
