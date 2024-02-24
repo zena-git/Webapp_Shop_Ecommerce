@@ -35,10 +35,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -149,6 +147,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
                     "max", "9999999999999999999999"
             );
             otp = repository.findProductByIdAndDetailsNotDeleted(id,keyWork);
+            if (otp.isPresent()){{
+                Product product = otp.orElse(new Product());
+                Set<ProductDetails> newDetails = new HashSet<>();
+                product.setLstProductDetails(newDetails);
+                otp = Optional.ofNullable(product);
+            }}
         }
         return otp;
     }
