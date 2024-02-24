@@ -34,7 +34,7 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
         entity.setLastModifiedDate(LocalDateTime.now());
         entity.setLastModifiedBy("Admin");
         repository.save(entity);
-        return new ResponseEntity<>(new ResponseObject("Success", "Thêm Mới Thành Công", 0, entity), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ResponseObject("success", "Thêm Mới Thành Công", 0, entity), HttpStatus.CREATED);
     }
 
     @Override
@@ -44,9 +44,9 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
             entity.setLastModifiedBy("Admin");
             entity.setDeleted(false);
             repository.save(entity);
-            return new ResponseEntity<>(new ResponseObject("Success", "Cập Nhật Thành Công", 0, entity), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Thành Công", 0, entity), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Đối tượng không hợp lệ", 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Đối tượng không hợp lệ", 1, null), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -54,11 +54,11 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
     public ResponseEntity<ResponseObject> physicalDelete(ID id) {
         Optional<E> otp = findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID",1,null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy ID",1,null), HttpStatus.BAD_REQUEST);
         }
 
         repository.deleteById(id);
-        return new ResponseEntity<>(new ResponseObject("Success", "Đã Xóa Vĩnh Viên Thành Công", 0, otp.get()), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseObject("success", "Đã Xóa Vĩnh Viên Thành Công", 0, otp.get()), HttpStatus.OK);
 
     }
 
@@ -68,9 +68,9 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
                 .map(entity -> {
                     entity.setDeleted(true);
                     repository.save(entity);
-                    return new ResponseEntity<>(new ResponseObject("Success", "Đã Xóa Thành Công", 0, entity), HttpStatus.OK);
+                    return new ResponseEntity<>(new ResponseObject("success", "Đã Xóa Thành Công", 0, entity), HttpStatus.OK);
                 })
-                .orElseGet(() -> new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, null), HttpStatus.BAD_REQUEST));
+                .orElseGet(() -> new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy ID", 1, null), HttpStatus.BAD_REQUEST));
     }
 
     @Override
@@ -78,9 +78,9 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
         if (entity != null) {
             entity.setDeleted(true);
             repository.save(entity);
-            return new ResponseEntity<>(new ResponseObject("Success", "Đã Xóa Thành Công", 0, entity), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseObject("success", "Đã Xóa Thành Công", 0, entity), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Đối tượng không hợp lệ", 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Đối tượng không hợp lệ", 1, null), HttpStatus.BAD_REQUEST);
         }
 
     }

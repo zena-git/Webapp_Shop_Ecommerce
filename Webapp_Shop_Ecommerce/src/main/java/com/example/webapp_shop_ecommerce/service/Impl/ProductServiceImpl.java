@@ -83,11 +83,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             //create
             Optional<Product> otp = findByName(request.getName());
             if (otp.isPresent()) {
-                return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
             }
             entity = productConverter.convertRequestToEntity(request);
             if (entity==null) {
-                return new ResponseEntity<>(new ResponseObject("Fail", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ResponseObject("error", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
             }
 
             entity.setId(null);
@@ -101,7 +101,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             System.out.println("Update ID: " + idProduct[0]);
             Optional<Product> otp = productRepo.findById(idProduct[0]);
             if (otp.isEmpty()) {
-                return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, request), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, request), HttpStatus.BAD_REQUEST);
             }
             entity = otp.orElse(null);
             entity = productConverter.convertRequestToEntity(request);
@@ -126,7 +126,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             System.out.println(lst);
             productDetailsService.saveAll(lst);
         }
-        return new ResponseEntity<>(new ResponseObject("Success", "Thêm Mới Thành Công", 0, request), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, request), HttpStatus.CREATED);
 
     }
 
@@ -180,14 +180,14 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         }
         // Kiểm tra xem tất cả các phần tử trong ids có phải là số (Long) không
         if (dataList.stream().anyMatch(id -> id == null || !isValidNumber(id))) {
-            return ResponseEntity.badRequest().body(new ByteArrayResource("ID không hợp lệ".getBytes()));
+            return ResponseEntity.badRequest().body(new ByteArrayResource("ID khong hop le".getBytes()));
         }
 
         List<Long> idNumbers = dataList.stream().map(Long::valueOf).toList();
         List<Product> lst = productRepo.findAllById(idNumbers);
 
         if (lst.size() == 0) {
-            return ResponseEntity.badRequest().body(new ByteArrayResource("Không hợp lệ".getBytes()));
+            return ResponseEntity.badRequest().body(new ByteArrayResource("Khong tim thay ID Product hop le".getBytes()));
         }
 
         Workbook workbook = exportProduct.writeExcel(lst);

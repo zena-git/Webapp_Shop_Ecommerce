@@ -5,6 +5,7 @@ import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.Product;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IProductService;
+import jakarta.validation.Valid;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -20,6 +21,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,7 +71,7 @@ public class ProductController {
     public ResponseEntity<?> findProductById(@PathVariable("id") Long id) {
         Optional<Product> otp = productService.findProductByIdAndDetailsNotDeleted(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
         ProductResponse product = otp.map(pro -> mapper.map(pro, ProductResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(product, HttpStatus.OK);
@@ -81,10 +84,19 @@ public class ProductController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> saveProduct(@RequestBody ProductRequest productDto) {
-
+    public ResponseEntity<?> saveProduct(@Valid @RequestBody ProductRequest productDto, BindingResult result) {
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, productDto), HttpStatus.BAD_REQUEST);
+        }
 
 //        return productService.createNew(mapper.map(productDto, Product.class));
+
         return productService.saveOrUpdate(productDto);
     }
 
@@ -95,9 +107,16 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductRequest productDto, @PathVariable("id") Long id) {
-
-;
+    public ResponseEntity<?> updateProduct(@Valid @RequestBody ProductRequest productDto, @PathVariable("id") Long id, BindingResult result) {
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, productDto), HttpStatus.BAD_REQUEST);
+        }
         return productService.saveOrUpdate(productDto, id);
     }
 
