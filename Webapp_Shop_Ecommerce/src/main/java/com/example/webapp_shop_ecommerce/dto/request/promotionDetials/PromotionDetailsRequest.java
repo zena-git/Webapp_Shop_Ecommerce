@@ -18,5 +18,4 @@ import lombok.Setter;
 public class PromotionDetailsRequest {
     private Long promotion;
     private Long productDetails;
-    private Float value;
 }
