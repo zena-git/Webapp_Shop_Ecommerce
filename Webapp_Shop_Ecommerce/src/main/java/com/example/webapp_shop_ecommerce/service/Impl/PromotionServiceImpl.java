@@ -40,7 +40,6 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
     @Override
     public ResponseEntity<ResponseObject> save(PromotionRequest promotionRequest) {
         Promotion entity = mapper.map(promotionRequest, Promotion.class);
-        System.out.println(promotionRequest.getLstProductDetails());
         List<ProductDetails> lstProductDetails = productDetailsRepo.findAllById(promotionRequest.getLstProductDetails());
         entity.setId(null);
         entity.setDeleted(false);

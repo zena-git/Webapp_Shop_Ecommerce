@@ -1,13 +1,13 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "Voucher")
@@ -26,6 +26,9 @@ public class Voucher extends BaseEntity {
     @Column(name = "value")
     private BigDecimal value;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "quantity")
     private Integer quantity;
 
@@ -34,5 +37,9 @@ public class Voucher extends BaseEntity {
 
     @Column(name = "end_date")
     private LocalDateTime endDate;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "voucher")
+    Set<VoucherDetails> lstVoucherDetails;
 
 }

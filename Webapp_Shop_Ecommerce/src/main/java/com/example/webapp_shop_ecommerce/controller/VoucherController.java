@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,7 +33,14 @@ public class VoucherController {
     @GetMapping
     public ResponseEntity<?> findAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
-            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+            @RequestParam(value = "size", defaultValue = "-1") Integer size,
+            @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "status", defaultValue = "") String status) {
+
+        Map<String, String> keyWork = new HashMap<String, String>();
+        keyWork.put("search", search);
+        keyWork.put("status", status);
+
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
             size = 5;
@@ -40,7 +49,7 @@ public class VoucherController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        List<Voucher> lstEty = voucherService.findAllDeletedFalse(pageable).getContent();
+        List<Voucher> lstEty = voucherService.findVoucherByKeyWorkAndDeletedFalse(pageable, keyWork).getContent();
         List<VoucherResponse> lst  = lstEty.stream().map(entity -> mapper.map(entity, VoucherResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
@@ -57,7 +66,7 @@ public class VoucherController {
 
     @PostMapping()
     public ResponseEntity<ResponseObject> save(@RequestBody VoucherRequest objDto){
-        return voucherService.createNew(mapper.map(objDto, Voucher.class));
+        return voucherService.save(objDto);
     }
 
     @DeleteMapping("/{id}")
@@ -68,22 +77,6 @@ public class VoucherController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> update(@RequestBody VoucherRequest addressDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
-        Voucher obj = null;
-        Optional<Voucher>  otp = voucherService.findById(id);
-        if (otp.isEmpty()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, addressDto), HttpStatus.BAD_REQUEST);
-        }
-
-        if (otp.isPresent()){
-            obj = voucherService.findById(id).orElseThrow(IllegalArgumentException::new);
-            obj = mapper.map(addressDto, Voucher.class);
-            obj.setId(id);
-            return voucherService.update(obj);
-
-        }
-
-        return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, addressDto), HttpStatus.BAD_REQUEST);
-
-
+        return voucherService.update(addressDto, id);
     }
 }

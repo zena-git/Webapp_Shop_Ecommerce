@@ -28,6 +28,6 @@ public class VoucherDetailsResponse {
     private VoucherResponse voucher;
     private CustomerResponse customer;
     private BillResponse bill;
-    private Integer status;
-    private Date usedDate;
+    private String status;
+    private LocalDateTime usedDate;
 }
