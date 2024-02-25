@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionRespons
 import com.example.webapp_shop_ecommerce.entity.Promotion;
 import com.example.webapp_shop_ecommerce.service.IPromotionService;
 import com.example.webapp_shop_ecommerce.service.Impl.PromotionServiceImpl;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -67,7 +70,17 @@ public class PromotionController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> save(@RequestBody PromotionRequest objDto){
+    public ResponseEntity<ResponseObject> save(@Valid @RequestBody PromotionRequest objDto, BindingResult result){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, objDto), HttpStatus.BAD_REQUEST);
+        }
+
         return promotionService.save(objDto);
     }
 
@@ -77,9 +90,16 @@ public class PromotionController {
         return promotionService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody PromotionRequest objDto, @PathVariable("id") Long id){
-        System.out.println("Update ID: " + id);
-
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody PromotionRequest objDto, BindingResult result, @PathVariable("id") Long id){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, objDto), HttpStatus.BAD_REQUEST);
+        }
         return promotionService.update(objDto,id);
     }
 }
