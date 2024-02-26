@@ -22,6 +22,7 @@ public class ProductDetailsRequest {
     private String barcode;
     private Integer status;
     private Long product;
-    private Long attributesValues;
+    private Long color;
+    private Long size;
 
 }

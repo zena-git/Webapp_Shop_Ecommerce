@@ -14,4 +14,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<Material, Long, IMateri
     public Optional<Material> findByName(String name) {
         return repository.findByName(name);
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return repository.existsBrandByName(name);
+    }
 }

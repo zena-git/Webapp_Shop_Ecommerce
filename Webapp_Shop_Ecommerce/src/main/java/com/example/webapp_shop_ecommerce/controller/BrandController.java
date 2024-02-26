@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/brand")
 public class BrandController {
@@ -49,13 +48,16 @@ public class BrandController {
             pageable = PageRequest.of(page, size);
         }
         List<Brand> brand = brandService.findAllDeletedFalse(pageable).getContent();
-        List<BrandResponse> BrandRequest = brand.stream().map(attr -> mapper.map(attr, BrandResponse.class)).collect(Collectors.toList());
-        return new ResponseEntity<>(BrandRequest, HttpStatus.OK);
+        List<BrandResponse> result = brand.stream().map(attr -> mapper.map(attr, BrandResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Brand> otp = brandService.findById(id);
+        Boolean check = brandService.existsById(id);
+        System.out.println(check);
+
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }

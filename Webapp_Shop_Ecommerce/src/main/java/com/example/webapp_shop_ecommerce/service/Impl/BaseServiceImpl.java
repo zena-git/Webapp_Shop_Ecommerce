@@ -88,6 +88,11 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
         return repository.findByIdAndDeletedFalses(id);
     }
 
+    @Override
+    public Boolean existsById(ID id) {
+        return existsById(id);
+    }
+
 
     @Override
     public Page<E> findAll(Specification<E> spec, Pageable page) {

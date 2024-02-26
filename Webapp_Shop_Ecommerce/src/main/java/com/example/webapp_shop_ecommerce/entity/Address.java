@@ -19,8 +19,23 @@ import lombok.Setter;
 @Getter
 @Builder
 public class Address extends BaseEntity{
-    @Column(name = "name")
-    private String name;
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    @Column(name = "detail")
+    private String detail;
+
+    @Column(name = "commune")
+    private String commune;
+
+    @Column(name = "district")
+    private String district;
+
+    @Column(name = "province")
+    private String province;
     @ManyToOne()
     @JoinColumn(name = "customer_id")
     private Customer customer;

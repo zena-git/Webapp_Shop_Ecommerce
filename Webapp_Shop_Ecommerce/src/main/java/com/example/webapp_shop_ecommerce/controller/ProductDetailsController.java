@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/productDetail")
 public class ProductDetailsController {
@@ -36,8 +35,7 @@ public class ProductDetailsController {
     private ModelMapper mapper;
     @Autowired
     private IProductDetailsService productDetailsService;
-    @Autowired
-    private ProductDetailConverter productDetailConverter;
+
 
     @GetMapping
     public ResponseEntity<?> getProductDetailsAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
@@ -52,7 +50,7 @@ public class ProductDetailsController {
             pageable = PageRequest.of(page, size);
         }
         if (productId > 0) {
-            lstProductDetails = productDetailsService.findAllByProduct(Long.valueOf(productId), pageable).getContent();
+            lstProductDetails = productDetailsService.findAllByProductToPage(Long.valueOf(productId), pageable).getContent();
         }else {
             lstProductDetails = productDetailsService.findAllDeletedFalse(pageable).getContent();
         }
@@ -76,25 +74,13 @@ public class ProductDetailsController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> save(@RequestBody ProductDetailsRequest productDetailsRequest) {
-        ProductDetails productDetails = productDetailConverter.convertRequestToEntity(productDetailsRequest);
-        if (productDetails == null) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Lỗi", 1, null), HttpStatus.BAD_REQUEST);
-        }
-//        return productDetailsService.createNew(productDetails);
-        return  new ResponseEntity<>(productDetails, HttpStatus.OK);
+    public ResponseEntity<?> save(@RequestBody List<ProductDetailsRequest> lstProductDetails) {
+
+        return productDetailsService.saveAll(lstProductDetails);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestBody ProductDetailsRequest productDetailsDto) {
-        Optional<ProductDetails> otp = productDetailsService.findById(id);
-        if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm thấy id", 1, productDetailsDto), HttpStatus.BAD_REQUEST);
-        }
-        ProductDetails productDetails = productDetailsService.findById(id).orElseThrow(IllegalArgumentException::new);
-        productDetails = mapper.map(productDetailsDto, ProductDetails.class);
-        productDetails.setId(id);
-        System.out.println(productDetails.toString());
-        return productDetailsService.update(productDetails);
+    @PutMapping()
+    public ResponseEntity<?> update( @RequestBody List<ProductDetailsRequest> lstProductDetails) {
+        return productDetailsService.updateAll(lstProductDetails);
     }
 }

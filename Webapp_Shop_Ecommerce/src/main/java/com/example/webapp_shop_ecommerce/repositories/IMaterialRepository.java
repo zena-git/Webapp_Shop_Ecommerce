@@ -11,5 +11,5 @@ public interface IMaterialRepository extends IBaseReporitory<Material, Long>{
     @Query("SELECT e FROM Material e WHERE e.name = ?1 and e.deleted = false")
     Optional<Material> findByName(String name);
 
-
+    boolean existsBrandByName(String name);
 }

@@ -15,4 +15,9 @@ public class BrandServiceImpl extends BaseServiceImpl<Brand, Long, IBrandReposit
     public Optional<Brand> findByName(String name) {
         return repository.findByName(name);
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return repository.existsBrandByName(name);
+    }
 }
