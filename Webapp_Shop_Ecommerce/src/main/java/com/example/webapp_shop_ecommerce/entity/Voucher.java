@@ -24,7 +24,7 @@ public class Voucher extends BaseEntity {
     private String name;
 
     @Column(name = "value")
-    private BigDecimal value;
+    private Float value;
 
     @Column(name = "status")
     private String status;

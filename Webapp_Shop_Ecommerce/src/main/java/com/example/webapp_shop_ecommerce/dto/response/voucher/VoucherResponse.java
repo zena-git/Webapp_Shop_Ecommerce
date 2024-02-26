@@ -20,7 +20,7 @@ public class VoucherResponse {
     private Long id;
     private String code;
     private String name;
-    private BigDecimal value;
+    private Float value;
     private Integer quantity;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

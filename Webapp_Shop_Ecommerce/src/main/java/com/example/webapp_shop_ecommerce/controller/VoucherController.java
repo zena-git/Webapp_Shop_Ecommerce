@@ -5,12 +5,15 @@ import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
 import com.example.webapp_shop_ecommerce.entity.Voucher;
 import com.example.webapp_shop_ecommerce.service.IVoucherService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -65,7 +68,17 @@ public class VoucherController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> save(@RequestBody VoucherRequest objDto){
+    public ResponseEntity<ResponseObject> save(@Valid @RequestBody VoucherRequest objDto, BindingResult result){
+
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, objDto), HttpStatus.BAD_REQUEST);
+        }
         return voucherService.save(objDto);
     }
 
@@ -75,8 +88,17 @@ public class VoucherController {
         return voucherService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody VoucherRequest addressDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody VoucherRequest objDto, BindingResult result, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
-        return voucherService.update(addressDto, id);
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, objDto), HttpStatus.BAD_REQUEST);
+        }
+        return voucherService.update(objDto, id);
     }
 }
