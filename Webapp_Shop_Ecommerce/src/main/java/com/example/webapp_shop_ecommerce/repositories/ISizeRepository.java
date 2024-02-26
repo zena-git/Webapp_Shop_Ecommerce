@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface ISizeRepository extends IBaseReporitory<Size, Long> {
     @Query("SELECT b FROM Size b WHERE b.name = ?1 and b.deleted = false")
     Optional<Size> findByName(String name);
+
 }

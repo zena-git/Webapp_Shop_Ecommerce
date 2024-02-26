@@ -55,7 +55,6 @@ function Footer() {
                             <div className={styles.col1}>
                                 <p className={styles.footerDes}>CÔNG TY TNHH LOLITA ALICE</p>
                                 <p className={styles.footerDes}>GPKD số 0313980043 do Sở Kế hoạch và Đầu tư TP Hồ Chí Minh cấp ngày 25/08/2016</p>
-
                             </div>
                             <div className={styles.col2}>
                                 <Link to={"/"}>
