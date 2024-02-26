@@ -1,6 +1,9 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
 import com.example.webapp_shop_ecommerce.entity.Product;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
