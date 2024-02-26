@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.entity.Promotion;
 import com.example.webapp_shop_ecommerce.entity.Voucher;
 import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.ICustomerRepository;
 import com.example.webapp_shop_ecommerce.repositories.IVoucherDetailsRepository;
 import com.example.webapp_shop_ecommerce.repositories.IVoucherRepository;
@@ -47,10 +48,10 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
         entity.setCreatedDate(LocalDateTime.now());
         entity.setLastModifiedDate(LocalDateTime.now());
         entity.setLastModifiedBy("Admin");
-        entity.setStatus("0");
+        entity.setStatus(TrangThaiGiamGia.SAP_DIEN_RA.getLabel());
         //check ngay start;
         if (true){
-            entity.setStatus("0");
+//            entity.setStatus("0");
         }
 
         Voucher voucher = repository.save(entity);
@@ -96,7 +97,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
         entity.setLastModifiedDate(LocalDateTime.now());
         entity.setLastModifiedBy("Admin");
         entity.setDeleted(false);
-        entity.setStatus("0");
+//        entity.setStatus("0");
         //check ngay start;
         if (true){
             entity.setStatus("0");
