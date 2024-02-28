@@ -1,54 +1,41 @@
-import { Button } from 'antd';
+import { Fragment } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import React from 'react';
-import { Layout, Flex } from 'antd';
+import { privateRouter, publicRouter } from '~/routes';
 
-import Menu from './components/Menu';
-const { Header, Footer, Sider, Content } = Layout;
+import DefaultLayout from './components/Layout/DefaultLayout';
 
-const headerStyle = {
-  textAlign: 'center',
-  color: '#000000',
-  height: 64,
-  paddingInline: 48,
-  lineHeight: '64px',
-  backgroundColor: '#4096ff',
-};
-const contentStyle = {
-  textAlign: 'center',
-  minHeight: 120,
-  lineHeight: '120px',
-  color: '#000000',
-  backgroundColor: 'white',
-};
-const siderStyle = {
-  color: '#000000',
-  backgroundColor: 'white',
-};
-const footerStyle = {
-  textAlign: 'center',
-  color: '#000000',
-  backgroundColor: '#4096ff',
-};
-const layoutStyle = {
-  overflow: 'hidden',
-  width: 'calc(100%)',
-  height: 'calc(100vh)',
-  maxWidth: 'calc(100%)',
-};
+
 function App() {
   return (
-    <div className="App">
-      <Layout style={layoutStyle}>
-        <Sider width="15%" style={siderStyle}>
-          <Menu></Menu>
-        </Sider>
-        <Layout>
-          <Header style={headerStyle}>Header</Header>
-          <Content style={contentStyle}>Content</Content>
-          <Footer style={footerStyle}>Footer</Footer>
-        </Layout>
-      </Layout>
-    </div>
+    <Router>
+      <div className="App">
+        {/* <DefaultLayout> */}
+        <Routes>
+          {privateRouter.map(
+            (route, index) => {
+              const Page = route.component;
+
+              let Layout = DefaultLayout;
+              if(route.layout){
+                Layout = route.layout;
+              }else if(route.layout === null){
+                Layout = Fragment
+              }
+              
+              return (
+                <Route key={index} path={route.path} element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                } />
+              );
+            }
+          )}
+        </Routes>
+        {/* </DefaultLayout> */}
+      </div>
+    </Router>
   );
 }
 
