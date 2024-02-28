@@ -1,3 +1,5 @@
+@tailwind components;
+@tailwind utilities;
 @import 'normalize.css';
 
 :root {
@@ -5,7 +7,6 @@
 * {
     box-sizing: border-box;
     margin: 0;
-
 }
 
 html {
