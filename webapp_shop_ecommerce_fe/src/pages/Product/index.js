@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Radio, Select, Input , Space } from 'antd';
+import { Button, Table, Radio, Select, Input, Space, Dropdown } from 'antd';
 import axios from 'axios';
+import { useDebounce } from '~/hooks';
+import { ToolOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+
 const columns = [
     {
         title: '#',
@@ -51,19 +55,26 @@ const columns = [
         title: 'Action',
         dataIndex: 'action',
         key: 'action',
-        render: () => <a>Delete</a>,
+
     },
 ];
 
 const Product = () => {
-    var call = 0;
 
     const [valueRadio, setValueRadio] = useState("");
     const [valueSearch, setValueSearch] = useState("");
     const [valueCategory, setValueCategory] = useState("");
     const [valueMaterial, setValueMaterial] = useState("");
     const [valueBrand, setValueBrand] = useState("");
-    const [valueStyle, setStyle] = useState("");
+    const [valueStyle, setValueStyle] = useState("");
+
+    const debounceSearch = useDebounce(valueSearch, 500)
+
+    const [optionCategory, setOptionCategory] = useState([]);
+    const [optionMaterial, setOptionMaterial] = useState([]);
+    const [optionBrand, setOptionBrand] = useState([]);
+    const [optionStyle, setOptionStyle] = useState([]);
+
 
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -76,7 +87,7 @@ const Product = () => {
         axios.get('http://localhost:8080/api/v1/product', {
             params: {
                 status: valueRadio,
-                search: valueSearch,
+                search: debounceSearch,
                 category: valueCategory,
                 material: valueMaterial,
                 brand: valueBrand,
@@ -86,6 +97,17 @@ const Product = () => {
             .then(function (response) {
                 setLoading(true);
                 const data = response.data.map((data, index) => {
+                    const items = [
+                        {
+                            label: <Link to={`/products/${data.id}`}>Chi tiết </Link>,
+                            key: '0',
+                        },
+                        {
+                            label: <div><DeleteOutlined />Delete</div>,
+                            key: '1',
+                        }
+                    ];
+
                     let quantity = data.lstProductDetails.reduce((total, product) => total + product.quantity, 0);
 
                     let product = {
@@ -99,6 +121,18 @@ const Product = () => {
                         style: data.style.name,
                         brand: data.brand.name,
                         status: data.status === "0" ? "Đang Hoạt Động" : "Ngừng Hoạt Động",
+                        action: <Dropdown
+                            menu={{
+                                items,
+                            }}
+                            trigger={['click']}
+                        >
+                            <Button onClick={(e) => e.preventDefault()}>
+                                <Space>
+                                    <ToolOutlined />
+                                </Space>
+                            </Button>
+                        </Dropdown>
                     }
                     return product
                 });
@@ -115,7 +149,7 @@ const Product = () => {
             })
 
 
-    }, [valueRadio, valueSearch, valueCategory, valueMaterial, valueBrand, valueStyle]);
+    }, [valueRadio, debounceSearch, valueCategory, valueMaterial, valueBrand, valueStyle]);
 
 
     const dowloadExcel = () => {
@@ -145,7 +179,7 @@ const Product = () => {
         downloadExcel();
 
     };
-
+    //checkd box table
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -161,51 +195,201 @@ const Product = () => {
         setValueRadio(e.target.value);
     };
     const onChangeSearch = (e) => {
-        console.log(e.target.value);
-        
+        setValueSearch(e.target.value);
+
     };
     const hasSelected = selectedRowKeys.length > 0;
 
 
-    const handleChange = (value) => {
+    // find product
+    // selectcategory
+    const handleChangeCategory = (value) => {
+        setValueCategory(value)
         console.log(`selected ${value}`);
     };
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/category')
+            .then((response) => {
+                const newCategories = response.data.map(category => ({
+                    value: category.name,
+                    label: category.name,
+                    key: category.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionCategory([
+                    {
+                        value: '',
+                        label: 'Tất Cả',
+                    },
+                    ...newCategories
+                ]);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+
+    //select Material 
+    const handleChangeMaterial = (value) => {
+        setValueMaterial(value)
+        console.log(`selected ${value}`);
+    };
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/material')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionMaterial([
+                    {
+                        value: '',
+                        label: 'Tất Cả',
+                    },
+                    ...newObj
+                ]);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+
+    //select Brand
+    const handleChangeBrand = (value) => {
+        setValueBrand(value)
+        console.log(`selected ${value}`);
+    };
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/brand')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionBrand([
+                    {
+                        value: '',
+                        label: 'Tất Cả',
+                    },
+                    ...newObj
+                ]);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+
+    //select Style
+    const handleChangeStyle = (value) => {
+        setValueStyle(value)
+        console.log(`selected ${value}`);
+    };
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/style')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionStyle([
+                    {
+                        value: '',
+                        label: 'Tất Cả',
+                    },
+                    ...newObj
+                ]);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+    // 
+
+
+
 
     return (
         <div className='bg-white p-4'>
-            <div className='flex flex-col '>
-            <Input placeholder="Tìm Kiếm Sản Phẩm" onChange={onChangeSearch} />
+            <div className='font-medium mb-10'>
+                <div>
+                    <label>Tìm Kiếm</label>
+                    <div className='grid grid-cols-7 gap-4 my-4'>
+                        <Input className='col-span-6' placeholder="Tìm Kiếm Sản Phẩm" onChange={onChangeSearch} />
 
-                <Select
-                    defaultValue=""
-                    onChange={handleChange}
-                    options={[
-                        {
-                            value: '',
-                            label: 'Tất Cả',
-                        },
-                        {
-                            value: '0',
-                            label: 'Đang Hoạt Động',
-                        },
-                        {
-                            value: '1',
-                            label: 'Ngừng Hoạt Động',
-                        }
-                    ]}
-                />
-                <label>Trạng Thái</label>
-                <Radio.Group onChange={onChangeRadio} value={valueRadio}>
-                    <Radio value={""}>Tất Cả</Radio>
-                    <Radio value={"0"}>Đang Hoạt Động</Radio>
-                    <Radio value={"1"}>Ngừng Hoạt Động</Radio>
-                </Radio.Group>
+                        <Button type="primary"><Link to={`/product/add`}>Thêm Mới Sản Phẩm</Link></Button>
+                    </div>
+                </div>
+
+                <div className='grid grid-cols-4 gap-4 my-4'>
+                    <div>
+                        <label>Loại</label>
+                        <Select className="w-full mt-4"
+                            defaultValue=""
+                            onChange={handleChangeCategory}
+                            options={optionCategory}
+                        />
+                    </div>
+
+                    <div>
+                        <label>Chất Liệu</label>
+                        <Select className="w-full mt-4"
+                            defaultValue=""
+                            onChange={handleChangeMaterial}
+                            options={optionMaterial}
+                        />
+                    </div>
+
+                    <div>
+                        <label>Phong Cách</label>
+                        <Select className="w-full mt-4"
+                            defaultValue=""
+                            onChange={handleChangeStyle}
+                            options={optionStyle}
+                        />
+                    </div>
+
+                    <div>
+                        <label>Thương Hiệu</label>
+                        <Select className="w-full mt-4"
+                            defaultValue=""
+                            onChange={handleChangeBrand}
+                            options={optionBrand}
+                        />
+                    </div>
+
+                </div>
+
+
+                <div className=''>
+                    <label>Trạng Thái</label>
+                    <div className='my-4 font-normal'>
+                        <Radio.Group onChange={onChangeRadio} value={valueRadio}>
+                            <Radio value={""}>Tất Cả</Radio>
+                            <Radio value={"0"}>Đang Hoạt Động</Radio>
+                            <Radio value={"1"}>Ngừng Hoạt Động</Radio>
+                        </Radio.Group>
+                    </div>
+                </div>
+
+
+
+
+
 
             </div>
 
             <div className='mb-4'>
                 <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
                     Excell
+                </Button>
+                <Button type="primary">
+                    <DeleteOutlined />
                 </Button>
             </div>
             <Table rowSelection={rowSelection} columns={columns} dataSource={dataColum} />

@@ -1,4 +1,5 @@
 import Product from '~/pages/Product';
+import ProductAdd from '~/pages/Product/add';
 import Oder from '~/pages/Oder';
 import Voucher from '~/pages/Voucher'
 import Category from '~/pages/Category'
@@ -18,7 +19,7 @@ const publicRouter = [
 const privateRouter = [
     { path: '/', component: Home },
     { path: '/product', component: Product },
-    { path: '/product/category', component: Category },
+    { path: '/product/add', component: ProductAdd },
     { path: '/product/brand', component: Brand },
     { path: '/product/material', component: Material },
     { path: '/product/style', component: Style },

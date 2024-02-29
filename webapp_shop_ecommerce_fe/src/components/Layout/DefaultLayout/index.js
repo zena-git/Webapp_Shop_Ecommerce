@@ -1,7 +1,7 @@
-import { Layout } from 'antd';
+import { Layout, theme, Button } from 'antd';
 import Menu from '~/components/Menu';
-
-const { Header, Footer, Sider, Content } = Layout;
+import React from 'react';
+const { Header, Content, Footer, Sider } = Layout;
 const headerStyle = {
   textAlign: 'center',
   color: '#000000',
@@ -11,8 +11,18 @@ const headerStyle = {
 const siderStyle = {
   color: '#000000',
   backgroundColor: 'white',
-  
+  overflow: 'auto',
+  height: '100vh',
+  position: 'fixed',
+  left: 0,
+  top: 0,
+  bottom: 0,
+
 };
+const contentStyle = {
+  margin: '24px 16px 0',
+  overflow: 'initial',
+}
 const footerStyle = {
   textAlign: 'center',
   color: '#000000',
@@ -21,20 +31,29 @@ const footerStyle = {
 const layoutStyle = {
   overflow: 'hidden',
   width: 'calc(100%)',
+  marginLeft: 200,
   maxWidth: 'calc(100%)',
 };
 function DefaultLayout({ children }) {
+
+
   return (
     <div>
-      <Layout style={layoutStyle}>
-        <Sider width="15%" style={siderStyle} className='fixed top-0 left-0 '>
+      <Layout hasSider>
+        <Sider style={siderStyle} >
+        <div className="demo-logo-vertical" />
           <Menu></Menu>
         </Sider>
-        <Layout>
-          <Header style={headerStyle}>Header</Header>
-          <Content className='bg-zinc-300 px-3.5 pt-5 scroll-auto'>
+        <Layout style={layoutStyle}>
+
+          <Header style={headerStyle}>
+          
+          Header</Header>
+          <Content style={contentStyle}>
             {children}
-            <Footer style={footerStyle}>Footer</Footer>
+            <Footer style={footerStyle}>
+              Ant Design ©{new Date().getFullYear()} Created by Ant UED
+            </Footer>
           </Content>
         </Layout>
       </Layout>
@@ -43,3 +62,6 @@ function DefaultLayout({ children }) {
 }
 
 export default DefaultLayout;
+
+
+
