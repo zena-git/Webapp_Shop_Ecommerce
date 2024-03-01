@@ -5,6 +5,7 @@ import { useDebounce } from '~/hooks';
 import { ToolOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
+
 const columns = [
     {
         title: '#',
@@ -25,6 +26,10 @@ const columns = [
         title: 'Số Lượng',
         dataIndex: 'quantity',
         key: 'quantity',
+        render: (text, record) => {
+            console.log(text);
+        }
+
     },
     {
         title: 'Loại',
