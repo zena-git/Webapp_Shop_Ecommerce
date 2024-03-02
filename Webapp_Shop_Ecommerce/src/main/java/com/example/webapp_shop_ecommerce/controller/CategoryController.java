@@ -61,7 +61,7 @@ public class CategoryController {
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Category> otp = categoryService.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
         CategoryResponse category = otp.map(pro -> mapper.map(pro, CategoryResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(category, HttpStatus.OK);
@@ -80,7 +80,7 @@ public class CategoryController {
 
         Optional<Category> otp = categoryService.findByName(categoryRequest.getName());
         if (otp.isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
         return categoryService.createNew(mapper.map(categoryRequest, Category.class));
@@ -108,11 +108,11 @@ public class CategoryController {
         Category Category = null;
         Optional<Category> otp = categoryService.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
         if (categoryService.findByName(categoryRequest.getName()).isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
         if (otp.isPresent()) {
             Category = otp.get();
@@ -120,7 +120,7 @@ public class CategoryController {
 //            Category.setCodeCategory(otp.get().getCodeCategory());
             return categoryService.update(Category);
         }
-        return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ResponseObject("error", "Không Thế Update", 1, categoryRequest), HttpStatus.BAD_REQUEST);
 
 
     }

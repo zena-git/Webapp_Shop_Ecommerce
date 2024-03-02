@@ -23,7 +23,6 @@ import java.util.Set;
 public class ProductResponse {
     private Long id;
     private String code;
-
     private String imageUrl;
     private String name;
     private CategoryResponse category;
@@ -31,6 +30,11 @@ public class ProductResponse {
     private MaterialResponse material;
     private StyleResponse style;
     private String description;
+    private String status;
+    private String createdBy;
+    private LocalDateTime createdDate;
+
+
     private Set<ProductDetailsResponse> lstProductDetails;
 
 
