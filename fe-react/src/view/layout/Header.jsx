@@ -6,7 +6,6 @@ import { AiOutlineShoppingCart } from "react-icons/ai";
 import { TbSearch } from "react-icons/tb";
 import { Badge, Drawer } from "antd";
 import { useState } from "react";
-
 function Header() {
     const [openSearch, setOpenSearch] = useState(false)
     return (
@@ -59,7 +58,7 @@ function Header() {
                                     <img style={{
                                         width: "103px",
                                         height: "64px"
-                                    }} src="https://theme.hstatic.net/1000304367/1001071053/14/logo.png?v=952" alt="logo" />
+                                    }} src="/logo.jpg" alt="logo" />
                                 </a>
                             </div>
                             <div style={{
@@ -135,8 +134,8 @@ function Header() {
                                     fontWeight: 700,
                                     lineHeight: "16px",
                                     marginLeft: "6px"
-                                }}>
-                                    <AiOutlineShoppingCart /></span>
+                                }}><Link to={"/cart"}>
+                                    <AiOutlineShoppingCart /></Link></span>
                                 </Badge>
                             </div>
                         </div>

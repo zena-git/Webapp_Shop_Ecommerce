@@ -12,7 +12,7 @@ function HomeProduct() {
     const [data, setData] = useState(undefined)
     const [size, setSize] = useState(12)
     const [page, setPage] = useState(1)
-    const [content, setContent] = useState("FPT Polytechnic - 2024 - AHIHI")
+    // const [content, setContent] = useState("FPT Polytechnic - 2024 - AHIHI")
     async function handleGetProduct() {
         const data1 = await productApis.getProduct(page ? page - 1 : -1, size ? size : -1);
         setData(data1.data);
@@ -20,21 +20,20 @@ function HomeProduct() {
 
     useEffect(() => {
         handleGetProduct();
-
     }, [size, page]);
 
     const onShowSizeChange = (current, pageSize) => {
         setPage(current)
     };
 
-    useEffect(() => {
-        const i = setInterval(() => {
-            setContent(content.substring(1, content.length) + content[0])
-        }, 1000)
-        return () => {
-            clearInterval(i)
-        }
-    }, [content])
+    // useEffect(() => {
+    //     const i = setInterval(() => {
+    //         setContent(content.substring(1, content.length) + content[0])
+    //     }, 1000)
+    //     return () => {
+    //         clearInterval(i)
+    //     }
+    // }, [content])
     return (
         <>
             <div>
