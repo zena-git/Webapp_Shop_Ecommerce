@@ -26,9 +26,7 @@ const columns = [
         title: 'Số Lượng',
         dataIndex: 'quantity',
         key: 'quantity',
-        render: (text, record) => {
-            console.log(text);
-        }
+       
 
     },
     {
@@ -104,7 +102,7 @@ const Product = () => {
                 const data = response.data.map((data, index) => {
                     const items = [
                         {
-                            label: <Link to={`/products/${data.id}`}>Chi tiết </Link>,
+                            label: <Link to={`/product/${data.id}`}>Chi tiết </Link>,
                             key: '0',
                         },
                         {

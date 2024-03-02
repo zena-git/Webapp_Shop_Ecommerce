@@ -22,6 +22,8 @@ const siderStyle = {
 const contentStyle = {
   margin: '24px 16px 0',
   overflow: 'initial',
+  position: 'relative',
+
 }
 const footerStyle = {
   textAlign: 'center',

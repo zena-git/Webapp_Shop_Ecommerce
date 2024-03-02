@@ -1,58 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Table, Radio, Select, Input, Space, Dropdown, Divider, Tag, ColorPicker, InputNumber } from 'antd';
+import { Button, Table, Spin, Select, Input, Space, Dropdown, Divider, Tag, ColorPicker, InputNumber } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-
+import { useParams } from 'react-router-dom';
 const { TextArea } = Input;
 
-const columnsTable = [
-    {
-        title: 'Tên',
-        dataIndex: 'name',
-        key: 'name',
-    }
-    ,
-    {
-        title: 'Màu Sắc',
-        dataIndex: 'color',
-        key: 'color',
-        render: (color) => <Tag color={color.name}>{color.name}</Tag>,
 
-    },
-    {
-        title: 'Kích Thước',
-        dataIndex: 'size',
-        key: 'size',
-        render: (size) => <span>{size.name}</span>
-
-    },
-    {
-        title: 'Đơn Giá',
-        dataIndex: 'price',
-        key: 'price',
-    },
-    {
-        title: 'Số Lượng',
-        dataIndex: 'quantity',
-        key: 'quantity',
-    },
-    {
-        title: 'Action',
-        dataIndex: 'action',
-        key: 'action',
-
-    },
-    {
-        title: 'Upload IMG',
-        dataIndex: 'upload',
-        key: 'upload',
-
-    }
-
-];
 const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
     const onPreventMouseDown = (event) => {
@@ -80,14 +36,94 @@ const tagRender = (props) => {
 let index = 0;
 function ProductAdd() {
 
+    const { id } = useParams();
+
+    useEffect(() => {
+      // Thực hiện yêu cầu API để lấy thông tin sản phẩm dựa trên ID
+      // Fetch data and update the state
+      // axios.get(`/api/products/${id}`)
+      //   .then(response => setProduct(response.data))
+      //   .catch(error => console.error(error));
+      // Thay thế những dòng trên với cuộc gọi API thực tế của bạn
+      console.log(id);
+    }, [id]);
+
+
+    const columnsTable = [
+        {
+            title: 'Tên',
+            dataIndex: 'name',
+            key: 'name',
+        }
+        ,
+        {
+            title: 'Màu Sắc',
+            dataIndex: 'color',
+            key: 'color',
+            render: (color) => <Tag color={color.name}>{color.name}</Tag>,
+
+        },
+        {
+            title: 'Kích Thước',
+            dataIndex: 'size',
+            key: 'size',
+            render: (size) => <span>{size.name}</span>
+
+        },
+        {
+            title: 'Đơn Giá',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text, record) => (
+                <InputNumber
+                    defaultValue={record.price}
+                    min={1000}
+                    formatter={(value) => `${value}VNĐ`}
+                    parser={(value) => value.replace('VNĐ', '')}
+                    onChange={(value) => onChangePrice(record.key, value)}
+                />
+            ),
+        },
+        {
+            title: 'Số Lượng',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            render: (text, record) => (
+                <InputNumber min={1} defaultValue={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+            ),
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            key: 'action',
+            render: (text, record) => (
+                <Button danger onClick={() => handleDeleteProduct(record.key)}>
+                    {record.index + "_" + record.key}
+                    <DeleteOutlined />
+                </Button>
+            ),
+        },
+        {
+            title: 'Upload IMG',
+            dataIndex: 'upload',
+            key: 'upload',
+            render: (text, record) => (
+                'upload'
+            ),
+
+        }
+
+    ];
     const [dataRowProductDetail, setDataRowProductDetail] = useState([]);
     const [valueNameProduct, setValueNameProduct] = useState("");
+    const [valueCodeProduct, setValueCodeProduct] = useState("");
+    const [valueDecProduct, setValueDecProduct] = useState("");
 
 
-    const [valueCategory, setValueCategory] = useState("");
-    const [valueMaterial, setValueMaterial] = useState("");
-    const [valueBrand, setValueBrand] = useState("");
-    const [valueStyle, setValueStyle] = useState("");
+    const [valueCategory, setValueCategory] = useState(null);
+    const [valueMaterial, setValueMaterial] = useState(null);
+    const [valueBrand, setValueBrand] = useState(null);
+    const [valueStyle, setValueStyle] = useState(null);
     const [valueColor, setValueColor] = useState([]);
     const [valueSize, setValueSize] = useState([]);
 
@@ -118,6 +154,7 @@ function ProductAdd() {
     const inputRefStyle = useRef(null);
     const inputRefColor = useRef(null);
     const inputRefSize = useRef(null);
+
 
     // selectcategory
     const handleChangeCategory = (value) => {
@@ -392,23 +429,10 @@ function ProductAdd() {
 
         // setValueInputColor('');
     };
-    const handleColorPickerClick = (e) => {
-        // Ngăn chặn sự kiện click trên ColorPicker từ propagate lên đến Select
-        e.stopPropagation();
-    };
-
 
     //Table
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const start = () => {
-        setLoading(true);
-        // ajax request after empty completing
-        setTimeout(() => {
-            setSelectedRowKeys([]);
-            setLoading(false);
-        }, 1000);
-    };
+
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -423,8 +447,9 @@ function ProductAdd() {
         const lstProductDetails = valueColor.map((cl, index) => {
             return valueSize.map((size, i) => {
                 return {
-                    key: i,
-                    index: i,
+                    key: `${index}_${i}`,
+                    index: index,
+                    group: index,
                     name: valueNameProduct,
                     color: optionColor.filter((c) => c.value == cl)
                         .map((color) => {
@@ -441,51 +466,131 @@ function ProductAdd() {
                                 name: size.label
                             }
                         })[0],
-                    price: <InputNumber
-                        defaultValue={1000}
-                        min={1000}
-                        formatter={(value) => `${value}VNĐ`}
-                        parser={(value) => value.replace('VNĐ', '')}
-                    />,
-                    quantity: <InputNumber min={1} defaultValue={1} />,
-                    action: <Button  danger>
-                       <DeleteOutlined />
-                    </Button>,
-                    upload: "upload",
+                    price: 1000,
+                    quantity: 1,
+                    imageUrl: ''
                 }
             })
         })
-        console.log("---");
+        // console.log("---");
         console.log(lstProductDetails);
-        setDataRowProductDetail(lstProductDetails)
+        setDataRowProductDetail(lstProductDetails.flat())
+        // Cập nhật danh sách sản phẩm
     }, [valueColor, valueSize, valueNameProduct])
 
+    const handleDeleteProduct = (key) => {
+        // Assuming you have a productList state
+        const updatedProductList = dataRowProductDetail.filter(product => product.key !== key);
+        setDataRowProductDetail(updatedProductList);
+    };
 
-    const handleAddProduct = () => {
-        console.log(dataRowProductDetail);
+    const onChangePrice = (key, value) => {
+        // Update the data array or perform any other necessary action
+        const updatedProductList = dataRowProductDetail.map(product => {
+            if (product.key === key) {
+                return {
+                    ...product,
+                    price: value
+                };
+            }
+            return product;
+        });
+
+        setDataRowProductDetail(updatedProductList);
+    };
+
+    const onChangeQuantity = (key, value) => {
+        // Update the data array or perform any other necessary action
+        const updatedProductList = dataRowProductDetail.map(product => {
+            if (product.key === key) {
+                return {
+                    ...product,
+                    quantity: value
+                };
+            }
+            return product;
+        });
+
+        setDataRowProductDetail(updatedProductList);
+    };
+
+
+    //Add product
+    const [loading, setLoading] = useState(false);
+    const handleAddProduct = async (e) => {
+
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const lstProductDetails = dataRowProductDetail.map((product) => ({
+                imageUrl: null,
+                price: product.price,
+                quantity: product.quantity,
+                size: product.size.id,
+                color: product.color.id,
+            }));
+
+            const response = await axios.post('http://localhost:8080/api/v1/product', {
+                code: valueCodeProduct,
+                name: valueNameProduct,
+                description: valueDecProduct,
+                category: valueCategory,
+                brand: valueBrand,
+                material: valueMaterial,
+                style: valueMaterial,
+                status: '0',
+                lstProductDetails: lstProductDetails,
+            });
+            const { status, message, errCode } = response.data;
+            toast.success(message);
+            console.log(response.data);
+            resetModel();
+        } catch (error) {
+            const { status, message, errCode } = error.response.data;
+            toast.error(message);
+            console.log(error.response.data);
+        } finally {
+            setTimeout(() => {
+                setLoading(false);
+            }, 0);
+        }
+    };
+
+    const resetModel = () => {
+
+
+        setValueNameProduct('');
+        setValueCodeProduct('');
+        setValueDecProduct('');
+        setValueCategory(null)
+        setValueMaterial(null)
+        setValueStyle(null)
+        setValueBrand(null)
+        setValueSize([])
+        setValueColor([])
     }
-
 
     return (
         <div className='bg-white p-4'>
             <div>
                 <div>
                     <label>Mã Sản Phẩm</label>
-                    <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" />
+                    <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
                 </div>
 
                 <div>
                     <label>Tên Sản Phẩm</label>
-                    <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" onChange={e => setValueNameProduct(e.target.value)} />
+                    <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
                 </div>
                 <div>
                     <label>Mô Tả Sản Phẩm</label>
-                    <TextArea className="my-4" rows={4} placeholder="maxLength is 6" maxLength={6} />
+                    <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
                 </div>
                 <div className='grid grid-cols-4 gap-4 my-4'>
                     <div>
                         <label>Loại</label>
                         <Select className="w-full mt-4" placeholder="Chọn Loại"
+
                             dropdownRender={(menu) => (
                                 <>
                                     {menu}
@@ -506,6 +611,7 @@ function ProductAdd() {
                             )}
                             onChange={handleChangeCategory}
                             options={optionCategory}
+                            value={valueCategory}
                         />
                     </div>
 
@@ -532,6 +638,8 @@ function ProductAdd() {
                             )}
                             onChange={handleChangeMaterial}
                             options={optionMaterial}
+                            value={valueMaterial}
+
                         />
                     </div>
 
@@ -558,6 +666,8 @@ function ProductAdd() {
                             )}
                             onChange={handleChangeStyle}
                             options={optionStyle}
+                            value={valueStyle}
+
                         />
                     </div>
 
@@ -584,6 +694,7 @@ function ProductAdd() {
                             )}
                             onChange={handleChangeBrand}
                             options={optionBrand}
+                            value={valueBrand}
                         />
                     </div>
 
@@ -626,6 +737,7 @@ function ProductAdd() {
                             onChange={handleChangeColor}
 
                             options={optionColor}
+                            value={valueColor}
                         />
                     </div>
 
@@ -653,28 +765,46 @@ function ProductAdd() {
                             )}
                             onChange={handleChangeSize}
                             options={optionSize}
+                            value={valueSize}
                         />
                     </div>
                 </div>
 
                 <div>
-                    {
-                        dataRowProductDetail.map((pro, index) => (
-                            <Table
-                                key={index}
-                                columns={columnsTable}
-                                dataSource={pro}
-                                pagination={false}
-                            />
-                        ))
-                    }
+                    <Table
+                        columns={columnsTable}
+                        dataSource={dataRowProductDetail}
+                        pagination={false}
+                    />
                 </div>
 
                 <Button onClick={handleAddProduct}>adđ</Button>
+                <Button onClick={resetModel}>rêt</Button>
 
             </div>
 
             <ToastContainer />
+            {loading && (
+
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 1,
+                        backgroundColor: 'rgba(000, 000, 000, 0.08)',
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+
+                    }}
+                >
+                    <Spin size="large" tip="Adding product..." />
+                </div>
+            )}
         </div>
 
 
