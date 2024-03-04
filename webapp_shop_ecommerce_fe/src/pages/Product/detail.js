@@ -1,9 +1,11 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button, Descriptions, Tag } from 'antd';
+import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button, Descriptions, Tag, Slider, Select, Divider, Space, ColorPicker } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
+import hexToColorName from "~/ultils/HexToColorName";
+import { useDebounce } from '~/hooks';
 
 
 
@@ -52,9 +54,28 @@ function ProductDetail() {
     const [loading, setLoading] = useState(false);
     const [dataColum, setDataColum] = useState([]);
 
+    const [valueColor, setValueColor] = useState("");
+    const [valueSize, setValueSize] = useState("");
+    const [optionColor, setOptionColor] = useState([]);
+    const [optionSize, setOptionSize] = useState([]);
 
+    const [valueMin, setValueMin] = useState("0");
+    const [valueMax, setValueMax] = useState("99999999999999");
+    const debounceMin = useDebounce(valueMin, 500)
+    const debounceMax = useDebounce(valueMax, 500)
+
+    const [checkPrice, setCheckPrice] = useState(true);
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/v1/product/${id}`)
+        axios.get(`http://localhost:8080/api/v1/product/${id}`
+            , {
+                params: {
+                    size: valueSize,
+                    color: valueColor,
+                    min: valueMin,
+                    max: valueMax,
+                }
+            }
+        )
             .then(response => {
                 console.log(response.data);
                 setProduct(response.data);
@@ -77,11 +98,20 @@ function ProductDetail() {
                     }
                     return product;
                 })
+                if (checkPrice) {
+
+                    const highestPriceProduct = dataTable.reduce((maxPriceProduct, currentProduct) => {
+                        return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
+                    }, dataTable[0]);
+                    setInputValueMax(highestPriceProduct.price)
+                    setCheckPrice(false);
+                }
+
                 setDataColum(dataTable);
             })
             .catch(error => console.error(error));
         console.log(id);
-    }, [id,historyProductDetails]);
+    }, [id, historyProductDetails, valueSize, valueColor, debounceMin, debounceMax]);
 
 
 
@@ -229,7 +259,7 @@ function ProductDetail() {
                     setEditingKey('');
                 });
 
-            
+
         } catch (errInfo) {
             console.log('Validate Failed:', errInfo);
         }
@@ -324,6 +354,73 @@ function ProductDetail() {
             }),
         };
     });
+
+    const handleChangeColor = (value) => {
+        setValueColor(value)
+        console.log(`selected ${value}`);
+    };
+    const handleChangeSize = (value) => {
+        setValueSize(value)
+        console.log(`selected ${value}`);
+    };
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/color')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    emoji: rep.name,
+                    key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionColor([
+                    {
+                        value: '',
+                        emoji: '',
+                        label: 'Tất Cả',
+                    },
+                    ...newObj
+                ]);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/size')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionSize([
+                    {
+                        value: '',
+                        label: 'Tất Cả',
+
+                    },
+                    ...newObj
+                ]);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+    const [inputValueMin, setInputValueMin] = useState(0);
+    const [inputValueMax, setInputValueMax] = useState(10000000);
+
+    const onChangeSlider = (values) => {
+        // Xử lý logic khi giá trị của Slider thay đổi
+        console.log('Giá trị mới:', values);
+        // Thêm các bước xử lý khác tùy thuộc vào yêu cầu của bạn
+        setValueMin(values[0])
+        setValueMax(values[1])
+    };
+
     return (
         <div>
             <div>
@@ -333,13 +430,63 @@ function ProductDetail() {
                     column={4}
                 />
             </div>
+            <div>
+                <div className='grid grid-cols-4 gap-4 my-4'>
+                    <div>
+                        <label>Loại</label>
+                        <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
 
+
+                            dropdownRender={(menu) => (
+                                <>
+                                    {menu}
+
+                                </>
+                            )}
+                            optionRender={(option) => (
+                                <Space>
+                                    <span role="img" aria-label={option.data.label}>
+
+                                        <ColorPicker defaultValue={option.data.emoji} disabled size="small" />
+                                    </span>
+                                    {option.data.label + "-" + hexToColorName(option.data.emoji)}
+                                </Space>
+                            )}
+                            onChange={handleChangeColor}
+
+                            options={optionColor}
+                            value={valueColor}
+                        />
+                    </div>
+
+                    <div>
+                        <label>Kích Thước</label>
+                        <Select className="w-full mt-4"
+                            defaultValue=""
+                            onChange={handleChangeSize}
+                            options={optionSize}
+                        />
+                    </div>
+                    <div>
+                        <label>Khoảng Giá</label>
+                        <Slider
+                            className="w-full mt-4"
+                            range
+                            max={inputValueMax}
+                            defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
+                            onChange={onChangeSlider}
+                        />
+                    </div>
+                </div>
+
+
+            </div>
 
             <div>
                 <Button type="primary" disabled={!hasSelected} loading={loading} onClick={dowloadBarcode}>
                     BarCode
                 </Button>
-
+                <Button type="primary"><Link to={`/product/update/${id}`}>Update Sản Phẩm</Link></Button>
                 <Form form={form} component={false}>
                     <Table
                         rowSelection={rowSelection}

@@ -8,7 +8,6 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 const { TextArea } = Input;
 
-
 const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
     const onPreventMouseDown = (event) => {
@@ -33,73 +32,10 @@ const tagRender = (props) => {
 
 
 
-function ProductAdd() {
+function ProductUpdate() {
+    const { id } = useParams();
+    const [product, setProduct] = useState();
 
-    const columnsTable = [
-        {
-            title: 'Tên',
-            dataIndex: 'name',
-            key: 'name',
-        }
-        ,
-        {
-            title: 'Màu Sắc',
-            dataIndex: 'color',
-            key: 'color',
-            render: (color) => <Tag color={color.name}>{color.name}</Tag>,
-
-        },
-        {
-            title: 'Kích Thước',
-            dataIndex: 'size',
-            key: 'size',
-            render: (size) => <span>{size.name}</span>
-
-        },
-        {
-            title: 'Đơn Giá',
-            dataIndex: 'price',
-            key: 'price',
-            render: (text, record) => (
-                <InputNumber
-                    defaultValue={record.price}
-                    min={1000}
-                    formatter={(value) => `${value}VNĐ`}
-                    parser={(value) => value.replace('VNĐ', '')}
-                    onChange={(value) => onChangePrice(record.key, value)}
-                />
-            ),
-        },
-        {
-            title: 'Số Lượng',
-            dataIndex: 'quantity',
-            key: 'quantity',
-            render: (text, record) => (
-                <InputNumber min={1} defaultValue={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
-            ),
-        },
-        {
-            title: 'Action',
-            dataIndex: 'action',
-            key: 'action',
-            render: (text, record) => (
-                <Button danger onClick={() => handleDeleteProduct(record.key)}>
-                    {record.index + "_" + record.key}
-                    <DeleteOutlined />
-                </Button>
-            ),
-        },
-        {
-            title: 'Upload IMG',
-            dataIndex: 'upload',
-            key: 'upload',
-            render: (text, record) => (
-                'upload'
-            ),
-
-        }
-
-    ];
     const [dataRowProductDetail, setDataRowProductDetail] = useState([]);
     const [valueNameProduct, setValueNameProduct] = useState("");
     const [valueCodeProduct, setValueCodeProduct] = useState("");
@@ -140,6 +76,132 @@ function ProductAdd() {
     const inputRefStyle = useRef(null);
     const inputRefColor = useRef(null);
     const inputRefSize = useRef(null);
+
+    useEffect(() => {
+        axios.get(`http://localhost:8080/api/v1/product/${id}`)
+            .then(response => {
+                console.log(response.data);
+                setProduct(response.data);
+
+                fillDataProduct(response.data);
+                const dataTable = response.data.lstProductDetails.map((data, index) => {
+                    let product = {
+                        key: data.id,
+                        index: index + 1,
+                        barcode: data.barcode,
+                        code: data.code,
+                        color: data.color,
+                        size: data.size,
+                        price: data.price,
+                        quantity: data.quantity,
+                        action: <Button danger >
+                            <DeleteOutlined />
+                        </Button>,
+                        img: 'img'
+                    }
+                    return product;
+                })
+            })
+            .catch(error => console.error(error));
+        console.log(id);
+    }, [id]);
+
+    const fillDataProduct = (pro) => {
+        console.log(pro);
+        setValueCodeProduct(pro.code);
+        setValueNameProduct(pro.name);
+        setValueDecProduct(pro.description);
+        setValueCategory(pro.category.id);
+        setValueMaterial(pro.material.id);
+        setValueBrand(pro.brand.id);
+        setValueStyle(pro.style.id);
+
+        const lstProductDetail = pro.lstProductDetails;
+        const lstColor = lstProductDetail.map((product) => {
+            return product.color.id;
+        })
+        const uniqueColorIds = [...new Set(lstColor)];
+        console.log(uniqueColorIds);
+        setValueColor(uniqueColorIds)
+
+        const lstSize = lstProductDetail.map((product) => {
+            return product.size.id;
+        })
+        const uniqueSizeIds = [...new Set(lstSize)];
+        console.log(uniqueSizeIds);
+        setValueSize(uniqueSizeIds)
+        // setDataRowProductDetail(lstProductDetail);
+    }
+
+    const columnsTable = [
+        {
+            title: 'Tên',
+            dataIndex: 'name',
+            key: 'name',
+        }
+        ,
+        {
+            title: 'Màu Sắc',
+            dataIndex: 'color',
+            key: 'color',
+            render: (color) => <Tag color={color?.name||null}>{color?.name ||null}</Tag>,
+
+        },
+        {
+            title: 'Kích Thước',
+            dataIndex: 'size',
+            key: 'size',
+            render: (size) => <span>{size?.name ||null}</span>
+
+        },
+        {
+            title: 'Đơn Giá',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text, record) => (
+                <InputNumber
+                    defaultValue={record?.price ||null}
+                    min={1000}
+                    formatter={(value) => `${value}VNĐ`}
+                    parser={(value) => value.replace('VNĐ', '')}
+                    onChange={(value) => onChangePrice(record.key, value)}
+                />
+            ),
+        },
+        {
+            title: 'Số Lượng',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            render: (text, record) => (
+                <InputNumber min={1} defaultValue={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+            ),
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            key: 'action',
+            render: (text, record) => (
+                <Button danger onClick={() => handleDeleteProduct(record.key)}>
+                    {record.index + "_" + record.key}
+                    <DeleteOutlined />
+                </Button>
+            ),
+        },
+        {
+            title: 'Upload IMG',
+            dataIndex: 'upload',
+            key: 'upload',
+            render: (text, record) => (
+                'upload'
+            ),
+
+        }
+
+    ];
+
+
+
+
 
 
     // selectcategory
@@ -500,10 +562,9 @@ function ProductAdd() {
         setDataRowProductDetail(updatedProductList);
     };
 
-
-    //Add product
+    //update product
     const [loading, setLoading] = useState(false);
-    const handleAddProduct = async (e) => {
+    const handleUpdateProduct = async (e) => {
 
         e.preventDefault();
         setLoading(true);
@@ -515,8 +576,7 @@ function ProductAdd() {
                 size: product.size.id,
                 color: product.color.id,
             }));
-
-            const response = await axios.post('http://localhost:8080/api/v1/product', {
+            const response = await axios.put(`http://localhost:8080/api/v1/product/${id}`, {
                 code: valueCodeProduct,
                 name: valueNameProduct,
                 description: valueDecProduct,
@@ -530,7 +590,6 @@ function ProductAdd() {
             const { status, message, errCode } = response.data;
             toast.success(message);
             console.log(response.data);
-            resetModel();
         } catch (error) {
             const { status, message, errCode } = error.response.data;
             toast.error(message);
@@ -541,20 +600,6 @@ function ProductAdd() {
             }, 0);
         }
     };
-
-    const resetModel = () => {
-
-
-        setValueNameProduct('');
-        setValueCodeProduct('');
-        setValueDecProduct('');
-        setValueCategory(null)
-        setValueMaterial(null)
-        setValueStyle(null)
-        setValueBrand(null)
-        setValueSize([])
-        setValueColor([])
-    }
 
     return (
         <div className='bg-white p-4'>
@@ -764,7 +809,7 @@ function ProductAdd() {
                     />
                 </div>
 
-                <Button type="primary" onClick={handleAddProduct}>Thêm Sản Phẩm</Button>
+                <Button type="primary" onClick={handleUpdateProduct} >Update Sản Phẩm</Button>
 
             </div>
 
@@ -791,10 +836,7 @@ function ProductAdd() {
                 </div>
             )}
         </div>
-
-
-
     );
 }
 
-export default ProductAdd;
+export default ProductUpdate;

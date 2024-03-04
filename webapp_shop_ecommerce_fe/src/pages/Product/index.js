@@ -71,7 +71,7 @@ const Product = () => {
     const [valueBrand, setValueBrand] = useState("");
     const [valueStyle, setValueStyle] = useState("");
 
-    const debounceSearch = useDebounce(valueSearch, 500)
+    const debounceSearch = useDebounce(valueSearch.trim(), 500)
 
     const [optionCategory, setOptionCategory] = useState([]);
     const [optionMaterial, setOptionMaterial] = useState([]);
@@ -106,8 +106,12 @@ const Product = () => {
                             key: '0',
                         },
                         {
-                            label: <div><DeleteOutlined />Delete</div>,
+                            label: <Link to={`/product/update/${data.id}`}>Update </Link>,
                             key: '1',
+                        },
+                        {
+                            label: <div><DeleteOutlined />Delete</div>,
+                            key: '2',
                         }
                     ];
 

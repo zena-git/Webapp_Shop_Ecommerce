@@ -1,5 +1,6 @@
 import Product from '~/pages/Product';
 import ProductAdd from '~/pages/Product/add';
+import ProductUpdate from '~/pages/Product/update';
 import ProductDetail from '~/pages/Product/detail';
 import Oder from '~/pages/Oder';
 import Voucher from '~/pages/Voucher'
@@ -13,6 +14,7 @@ import Promotion from '~/pages/Promotion'
 import Customer from '~/pages/Customer'
 import User from '~/pages/User'
 import Home from '~/pages/Home';
+import Default from '~/pages/Default';
 const publicRouter = [
 
 ];
@@ -22,7 +24,7 @@ const privateRouter = [
     { path: '/product', component: Product },
     { path: '/product/:id', component: ProductDetail },
     { path: '/product/add', component: ProductAdd },
-    { path: '/product/update/:id', component: ProductAdd },
+    { path: '/product/update/:id', component: ProductUpdate },
     { path: '/product/brand', component: Brand },
     { path: '/product/material', component: Material },
     { path: '/product/style', component: Style },
@@ -33,6 +35,7 @@ const privateRouter = [
     { path: '/discount/promotion', component: Promotion },
     { path: '/user/staff', component: User },
     { path: '/user/customer', component: Customer },
+    { path: '/*', component: Default },
 ];
 
 export { publicRouter, privateRouter };
