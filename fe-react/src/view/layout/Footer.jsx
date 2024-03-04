@@ -11,7 +11,10 @@ function Footer() {
             <div style={{
                 backgroundColor: "#F4EFEC",
                 marginTop: "90px",
-                color: "#555556"
+                color: "#555556",
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%"
             }}>
                 <div style={{
                     marginLeft: "auto",
@@ -30,7 +33,7 @@ function Footer() {
                     }}>
 
                         <div>
-                            <p className={styles.networkContainer}>© 2024 OLV Boutique
+                            <p className={styles.networkContainer}>© 2024 LOLITA ALICE
                                 <Link style={{
                                     paddingLeft: "5px"
                                 }} to={"https://www.facebook.com"}>
@@ -54,7 +57,7 @@ function Footer() {
                         <div className={styles.row}>
                             <div className={styles.col1}>
                                 <p className={styles.footerDes}>CÔNG TY TNHH LOLITA ALICE</p>
-                                <p className={styles.footerDes}>GPKD số 0313980043 do Sở Kế hoạch và Đầu tư TP Hồ Chí Minh cấp ngày 25/08/2016</p>
+                                <p className={styles.footerDes}>GPKD số 0313980043 do Sở Kế hoạch và Đầu tư TP Hà Nội cấp ngày 25/08/2016</p>
 
                             </div>
                             <div className={styles.col2}>
