@@ -6,11 +6,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface IProductDetailsRepository extends IBaseReporitory<ProductDetails, Long> {
 //    @Query(value = "SELECT * FROM dbo.ProductDetail WHERE product_id = ?1", nativeQuery = true)
 //    List<ProductDetails> findAllByProduct(Long productId);
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where  proDetail.product.id = ?1")
-    Page<ProductDetails> findAllByProduct(Long idPro, Pageable pageable);
+    Page<ProductDetails> findAllByProductToPage(Long idPro, Pageable pageable);
+
+    @Query(value = "SELECT proDetail FROM ProductDetails proDetail where  proDetail.product.id = ?1")
+    List<ProductDetails> findAllByProduct(Long idPro);
 
 }
