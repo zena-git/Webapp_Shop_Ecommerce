@@ -17,7 +17,7 @@ import java.util.Set;
 @Getter
 @Builder
 public class Voucher extends BaseEntity {
-    @Column(name = "code_voucher")
+    @Column(name = "code")
     private String code;
 
     @Column(name = "name")
@@ -31,6 +31,21 @@ public class Voucher extends BaseEntity {
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    @Column(name = "max_discount_value")
+    private Float max_discount_value;
+
+    @Column(name = "order_min_value")
+    private Float order_min_value;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "target_type")
+    private String target_type;
+
+    @Column(name = "usage_limit")
+    private String usage_limit;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;

@@ -25,6 +25,25 @@ public class VoucherRequest {
     @NotNull(message = "Giá trị không được để trống")
     @NumberFormat(style = NumberFormat.Style.NUMBER)
     private Float value;
+
+    @NotNull(message = "Mục tiêu không được để trống")
+    @NumberFormat(style = NumberFormat.Style.NUMBER)
+    private Integer targetType;
+
+    @NotNull(message = "Loại giảm giá không được để trống")
+    @NumberFormat(style = NumberFormat.Style.NUMBER)
+    private Integer discountType;
+
+    @NumberFormat(style = NumberFormat.Style.NUMBER)
+    private Float maxDiscountValue;
+
+    @NotNull(message = "Giá trị tối thiểu không được để trống")
+    @NumberFormat(style = NumberFormat.Style.NUMBER)
+    private Float orderMinValue;
+
+    @NumberFormat(style = NumberFormat.Style.NUMBER)
+    private Integer usageLimit;
+
     @NotBlank(message = "Trạng thái không được để trống")
     private String status;
     @NotNull(message = "Số lượng không được để trống")
@@ -39,6 +58,6 @@ public class VoucherRequest {
     @Future(message = "Ngày kết thúc phải ở tương lai")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
-    @Size(min = 1, message = "Ít nhất phải có một chi tiết sản phẩm")
+    @Size(min = 1, message = "Ít nhất phải có một khách hàng")
     private List<Long> lstCustomer;
 }
