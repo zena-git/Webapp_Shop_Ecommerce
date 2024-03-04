@@ -33,9 +33,9 @@ function Header() {
                 boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
             }}>
                 <div style={{
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    width: "1200px",
+                    marginLeft:"auto",
+                    marginRight:"auto",
+                    width:"1200px",
                     padding: "0 15px",
                 }}>
                     <div
@@ -59,7 +59,7 @@ function Header() {
                                     <img style={{
                                         width: "103px",
                                         height: "64px"
-                                    }} src="/logo.png" alt="logo" />
+                                    }} src="https://theme.hstatic.net/1000304367/1001071053/14/logo.png?v=952" alt="logo" />
                                 </a>
                             </div>
                             <div style={{
@@ -93,7 +93,7 @@ function Header() {
                         <div style={{
                             display: "flex",
                             flexDirection: "row",
-                            padding: "0 15px"
+                            padding:"0 15px"
                         }}>
                             <div style={{
                                 display: "flex",
@@ -130,13 +130,13 @@ function Header() {
                             }}>
                                 <Badge count={5}>
                                     <span style={{
-                                        fontSize: "20px",
-                                        letterSpacing: "0.5px",
-                                        fontWeight: 700,
-                                        lineHeight: "16px",
-                                        marginLeft: "6px"
-                                    }}><Link to={"/cart"}>
-                                            <AiOutlineShoppingCart /></Link></span>
+                                    fontSize: "20px",
+                                    letterSpacing: "0.5px",
+                                    fontWeight: 700,
+                                    lineHeight: "16px",
+                                    marginLeft: "6px"
+                                }}>
+                                    <AiOutlineShoppingCart /></span>
                                 </Badge>
                             </div>
                         </div>

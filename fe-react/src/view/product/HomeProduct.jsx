@@ -6,7 +6,6 @@ import { fixMoney } from "../../extension/fixMoney";
 import { Link } from "react-router-dom";
 import { productApis } from "../../apis/Product";
 import { Pagination } from 'antd';
-import styles from "./homeproduct.module.css"
 
 function HomeProduct() {
     const [data, setData] = useState(undefined)
@@ -79,57 +78,7 @@ function HomeProduct() {
                     defaultCurrent={1}
                     total={20}
                 />
-                <div>
-                    <div className={styles.container}>
-                        <h2 style={{
-                            color: "#555556",
-                            margin: "90px 0",
-                            textAlign: "center",
-                            fontSize: "37px",
-                            fontWeight: 700,
-                            lineHeight: 1.4,
-                            textTransform: "uppercase"
-                        }}>Bộ sưu tập</h2>
-                        <div className={styles.clearFixRow}>
-                            <div className={styles.checkout1} >
-                                <img style={{
-                                    width: "100%",
-                                    border: "none",
-                                    height: "auto",
-                                    maxWidth: "100%",
-                                    verticalAlign: "middle"
-                                }} src="https://theme.hstatic.net/1000304367/1001071053/14/bst_1_1mobile.jpg?v=1088" alt="" />
-                                <Link to={"/product/:id"}>
-                                    <button>XEM THÊM</button></Link>
-                            </div>
-                            <div className={styles.checkout2}>
-                                <div className={styles.collection}>
-                                    <img style={{
-                                        height: "100%"
-                                    }} src="https://theme.hstatic.net/1000304367/1001071053/14/bst_1_2.jpg?v=1088" alt="" />
-                                    <Link to={"/product/:id"}>
-                                        <button>XEM THÊM</button>
-                                    </Link>
-                                </div>
-                                <div className={styles.collection}>
-                                    <img style={{
-                                        height: "100%"
-                                    }} src="https://theme.hstatic.net/1000304367/1001071053/14/bst_1_3.jpg?v=1088" alt="" />
-                                    <Link to={"/product/:id"}>
-                                        <button>XEM THÊM</button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                </div>
-                {/* <div style={{
-                    backgroundColor: "red",
-                    height: "40px",
-                    width: "100%",
-                    color: "#ffffff"
-                }}>{content}</div> */}
             </div>
         </>
     );
