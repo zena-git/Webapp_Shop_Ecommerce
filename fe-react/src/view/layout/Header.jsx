@@ -5,9 +5,12 @@ import { FaUser } from "react-icons/fa6";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { TbSearch } from "react-icons/tb";
 import { Badge, Drawer } from "antd";
-import { useState } from "react";
+import { useState ,useContext } from "react";
+import DataContext from "../../DataContext";
 function Header() {
     const [openSearch, setOpenSearch] = useState(false)
+    const { data, dataLength, updateData } = useContext(DataContext);
+
     return (
         <>
             <Drawer
@@ -127,7 +130,7 @@ function Header() {
                                 display: "flex",
                                 flexDirection: "row"
                             }}>
-                                <Badge count={5}>
+                                <Badge count={dataLength}>
                                     <span style={{
                                     fontSize: "20px",
                                     letterSpacing: "0.5px",

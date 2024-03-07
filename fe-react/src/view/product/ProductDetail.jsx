@@ -7,18 +7,19 @@ import { MdOutlineLocalShipping } from "react-icons/md";
 import { RiRefund2Line } from "react-icons/ri";
 import { LuBadgePercent } from "react-icons/lu";
 import styles from "./productdetail.module.css"
-import { useState, useEffect } from "react";
+import { useState, useEffect ,useContext } from "react";
 import { fixMoney } from "../../extension/fixMoney";
 import Footer from "../layout/Footer";
 import { Rate, Radio, ColorPicker, InputNumber } from 'antd'
 import { productApis } from "../../apis/Product";
+import DataContext from "../../DataContext";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 function ProductDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const { data, dataLength, updateData } = useContext(DataContext);
     const [product, setProduct] = useState([])
     const [lstProductDetails, setLstProductDetails] = useState([])
     const [color, setColor] = useState([])
@@ -149,6 +150,7 @@ function ProductDetail() {
             .then(res => {
                 console.log(res.data);
                 toast.success(res.data.message)
+                updateData();
             })
             .catch(err => {
                 console.log(err);

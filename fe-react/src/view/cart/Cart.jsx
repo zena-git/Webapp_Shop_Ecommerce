@@ -1,7 +1,63 @@
 import Footer from "../layout/Footer";
 import Header from "../layout/Header";
-
+import { useEffect, useState,useContext } from "react";
+import { Checkbox, Col, Row, Avatar, Button, InputNumber, Flex } from 'antd';
+import axios from "axios";
+import { Link } from 'react-router-dom';
+import { DeleteOutlined} from '@ant-design/icons';
+import DataContext from "../../DataContext";
+const CheckboxGroup = Checkbox.Group;
 function Cart() {
+
+    const [lstCart, setLstCart] = useState([]);
+    const [historyLstCart, setHistotyLstCart] = useState([]);
+    const [cartItems, setCartItems] = useState("cảttttt");
+    const { data, dataLength, updateData, deleteData,setLstDataCheckout } = useContext(DataContext);
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v2/cart')
+            .then(res => {
+                setLstCart(res.data.lstCartDetails);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }, [historyLstCart])
+
+ 
+    const [checkedList, setCheckedList] = useState([]);
+    const checkAll = lstCart.length === checkedList.length;
+    const indeterminate = checkedList.length > 0 && checkedList.length < lstCart.length;
+    const onChange = (list) => {
+        setCheckedList(list);
+    };
+    const onCheckAllChange = (e) => {
+        const lst = lstCart.map(pro =>{
+            return pro.id;
+        })
+        setCheckedList(e.target.checked ? lst : []);
+        console.log(lst);
+    };
+    const handleQuantityCart = (value, idCartdetail) => {
+        console.log('changed', value);
+        console.log('idCartdetail', idCartdetail);
+
+        axios.put(`http://localhost:8080/api/v2/cartDetails/`+idCartdetail, {
+            quantity: value
+        })
+         .then(res => {
+                console.log(res.data);
+            })
+         .catch(err => {
+                console.log(err);
+            })
+    }
+    const handleDeleteCart = async (itemId) => {
+        // Call the deleteData function to mark the item as selected and send delete request
+         deleteData(itemId);
+      };
+    const handleCheckOut = ()=>{
+        setLstDataCheckout(checkedList);
+    }
     return (
         <>
             <Header />
@@ -9,7 +65,8 @@ function Cart() {
                 marginTop: "99px",
                 marginLeft: "auto",
                 marginRight: "auto",
-                width: "1230px"
+                width: "1230px",
+
             }}>
                 <div style={{
                     marginLeft: "15px",
@@ -25,19 +82,134 @@ function Cart() {
                     }}>Giỏ hàng của tôi</h1>
                 </div>
 
+
                 <div>
 
+                    {lstCart.length === 0 ? (
+                        <p>Giỏ hàng trống rỗng</p>
+                    ) : (
+                        <div >
+                            <div
+                                style={{
+                                    width: '100%',
+                                    backgroundColor: '#ccc',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '10px',
+                                    fontSize: '16px',
+                                    paddingTop: '10px',
+                                    paddingBottom: '10px',
+
+                                }}>
+                                <div style={{ flex: '0.1', marginLeft: '10px' }}>
+                                    <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll}>
+                                    </Checkbox>
+                                </div>
+                                <div style={{ flex: '1', }}>Tên Sản Phẩm</div>
+                                <div style={{ flex: '0.3', }}>Đơn Giá</div>
+                                <div style={{ flex: '0.3', }}>Số Lượng</div>
+                                <div style={{ flex: '0.3', }}>Số Tiền</div>
+                                <div style={{ flex: '0.2', }}>Thao Tác</div>
+                            </div>
+                            <div style={{
+                                backgroundColor: 'white',
+                                width: '100%',
+                            }}>
+
+                                <Checkbox.Group onChange={onChange} value={checkedList}style={{
+                                    width: '100%',
+                                    fontSize: '16px'
+
+                                }}>
+                                    {data.map((cartDetail) => (
+                                        <div key={cartDetail.id} style={{
+                                            width: '100%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            borderBottom: '1px solid #ccc',
+                                            paddingTop: '4px',
+                                        }}>
+                                            <div style={{ flex: '0.1', marginLeft: '10px' }}>
+                                                <Checkbox value={cartDetail.id}>
+                                                </Checkbox>
+                                            </div>
+                                            <div style={{ flex: '1', display: 'flex', alignItems: 'start' }}>
+                                                <div>
+                                                    <img
+                                                        style={{
+                                                            width: '100px',
+                                                            height: '100px'
+                                                        }}
+                                                        src="https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-1/212869555_903187000546897_616635507650364142_n.jpg?stp=dst-jpg_p320x320&_nc_cat=108&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeHUtaFAQzZIuqBM3YYvro7jpMC7lk7KZ2ykwLuWTspnbCAaW_NKg-IMain8k07U_ys&_nc_ohc=vyrY0myh2f4AX_0b_xe&_nc_ht=scontent-hkg4-1.xx&oh=00_AfDplaPAhr9NgzTwlsIBmcx0e4aSDoKZyOSrV2vG4QvYsA&oe=65ED0660">
+
+                                                    </img>
+                                                </div>
+                                                <div style={{
+                                                    marginLeft: '10px'
+                                                }}>
+                                                    <h4 style={{
+                                                        margin: '0px'
+                                                    }}> {cartDetail.productDetails.product.name}
+                                                    </h4>
+                                                    <span>
+                                                        Phân loại: {cartDetail.productDetails.color.name} - {cartDetail.productDetails.size.name}
+                                                    </span>
+                                                </div>
+
+                                            </div>
+                                            <div style={{ flex: '0.3', }}>
+                                                <span>
+                                                    {cartDetail.productDetails.price}
+                                                </span>
+                                            </div>
+                                            <div style={{ flex: '0.3', }}>
+                                                <span>
+                                                <InputNumber min={1} max={cartDetail.productDetails.quantity} defaultValue={cartDetail.quantity} onChange={(value) => handleQuantityCart(value, cartDetail.id)} />
+                                                </span>
+                                            </div>
+                                            <div style={{ flex: '0.3', }}>
+                                                <span>
+                                                    {cartDetail.productDetails.price * cartDetail.quantity}
+                                                </span>
+                                            </div>
+                                            <div style={{ flex: '0.2', }}>
+                                            <Button onClick={()=>{handleDeleteCart(cartDetail.id)}}>
+                                                <DeleteOutlined />
+                                            </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </Checkbox.Group>
+                            </div>
+
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'end',
+                                marginTop: '20px',
+                                alignItems: 'center',
+                            }}>
+                                <div>
+                                    <label>
+                                    Tổng thanh toán: <span>231</span>
+                                    </label>    
+                                </div>
+                                <div style={{
+                                    marginLeft: '10px'
+                                }}>
+                                <Button onClick={()=>{handleCheckOut()}}>
+                                <Link to="/checkout" >Mua Ngay</Link>
+
+                                </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                    )}
+
+
                 </div>
-
-
-  
-  
-
-
-
-
-
-
             </div>
 
 
