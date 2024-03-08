@@ -40,7 +40,7 @@ public class BillController {
 
 
     @GetMapping
-    public ResponseEntity<?> findProductAll(
+    public ResponseEntity<?> findBillAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
             @RequestParam(value = "size", defaultValue = "-1") Integer size) {
         Pageable pageable = Pageable.unpaged();
@@ -64,17 +64,17 @@ public class BillController {
         return new ResponseEntity<>(bill, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillRequest billDto){
+    public ResponseEntity<ResponseObject> saveBill(@RequestBody BillRequest billDto){
         return billService.createNew(mapper.map(billDto, Bill.class));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseObject> deleteProduct( @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> deleteBill( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
         return billService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillRequest billDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateBill(@RequestBody BillRequest billDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Bill bill = null;
         Optional<Bill>  otp = billService.findById(id);

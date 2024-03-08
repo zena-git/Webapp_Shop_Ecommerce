@@ -39,22 +39,44 @@ public class Bill extends BaseEntity{
 
     @Column(name = "into_money")
     private BigDecimal intoMoney;
+
     @Column(name = "status")
     private String status;
+
     @Column(name = "booking_date")
     private Date bookingDate;
+
     @Column(name = "payment_date")
     private Date paymentDate;
+
     @Column(name = "delivery_date")
     private Date deliveryDate;
+
     @Column(name = "completion_date")
     private Date completionDate;
+
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "receiver_name")
     private String receiverName;
+
     @Column(name = "receiver_phone")
     private String receiverPhone;
-    @Column(name = "receiver_address")
-    private String receiverAddress;
+
+    @Column(name = "receiver_details")
+    private String receiverDetails;
+
+    @Column(name = "receiver_commune")
+    private String receiverCommune;
+
+    @Column(name = "receiver_district")
+    private String receiverDistrict;
+
+    @Column(name = "receiver_province")
+    private String receiverProvince;
+
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;

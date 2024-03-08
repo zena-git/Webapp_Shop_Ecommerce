@@ -7,6 +7,7 @@ import com.example.webapp_shop_ecommerce.entity.Cart;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
 import com.example.webapp_shop_ecommerce.service.ICartService;
+import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +40,7 @@ public class CartController {
     @Autowired
     private ICartService cartService;
 
+
     @GetMapping
     public ResponseEntity<?> findCartAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
@@ -64,10 +66,12 @@ public class CartController {
         CartResponse cart = otp.map(pro -> mapper.map(pro, CartResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
+
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveCart(@RequestBody CartRequest cartDto){
+    public ResponseEntity<ResponseObject> saveCart(@RequestBody CartRequest cartDto) {
         return cartService.createNew(mapper.map(cartDto, Cart.class));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteCart( @PathVariable("id") Long id){

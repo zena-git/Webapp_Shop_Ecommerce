@@ -27,7 +27,7 @@ public class BillDetails extends BaseEntity{
     private BigDecimal unitPrice;
 
     @Column(name = "status")
-    private Integer status;
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "bill_id")

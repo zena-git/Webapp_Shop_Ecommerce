@@ -1,12 +1,15 @@
 package com.example.webapp_shop_ecommerce.dto.request.bill;
 
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,16 +17,24 @@ import java.util.Date;
 @Setter
 public class BillRequest {
     private Long id;
-    private String codeBill;
+    private String billType;
+    private BigDecimal cash;
+    private BigDecimal digitalCurrency;
+    private BigDecimal totalMoney;
+    private BigDecimal intoMoney;
     private String status;
     private Date bookingDate;
     private Date paymentDate;
     private Date DeliveryDate;
     private Date completionDate;
+    private String email;
     private String receiverName;
     private String receiverPhone;
-    private String receiverAddress;
-    private Long customer;
+    private String receiverDetails;
+    private String receiverCommune;
+    private String receiverDistrict;
+    private String receiverProvince;
+    private List<Long> lstCartDetails;
 
 //    private UserDto user;
 
