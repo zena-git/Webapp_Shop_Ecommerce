@@ -1,18 +1,20 @@
 import Footer from "../layout/Footer";
 import Header from "../layout/Header";
 import { useEffect, useState,useContext } from "react";
-import { Checkbox, Col, Row, Avatar, Button, InputNumber, Flex } from 'antd';
+import { Checkbox, Col, Row, Avatar, Button, InputNumber, Flex, ColorPicker } from 'antd';
 import axios from "axios";
 import { Link } from 'react-router-dom';
 import { DeleteOutlined} from '@ant-design/icons';
 import DataContext from "../../DataContext";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const CheckboxGroup = Checkbox.Group;
 function Cart() {
 
     const [lstCart, setLstCart] = useState([]);
     const [historyLstCart, setHistotyLstCart] = useState([]);
     const [cartItems, setCartItems] = useState("cảttttt");
-    const { data, dataLength, updateData, deleteData,setLstDataCheckout } = useContext(DataContext);
+    const { data, dataLength, updateData, deleteData,setLstDataCheckout,totalPayment,setTotalPaymentMoney } = useContext(DataContext);
     useEffect(() => {
         axios.get('http://localhost:8080/api/v2/cart')
             .then(res => {
@@ -29,13 +31,18 @@ function Cart() {
     const indeterminate = checkedList.length > 0 && checkedList.length < lstCart.length;
     const onChange = (list) => {
         setCheckedList(list);
+        // console.log(list);
+        setTotalPaymentMoney(list);
+
     };
     const onCheckAllChange = (e) => {
         const lst = lstCart.map(pro =>{
-            return pro.id;
+            return pro.id ;
         })
         setCheckedList(e.target.checked ? lst : []);
         console.log(lst);
+        setTotalPaymentMoney(e.target.checked ?lst : []);
+
     };
     const handleQuantityCart = (value, idCartdetail) => {
         console.log('changed', value);
@@ -46,6 +53,7 @@ function Cart() {
         })
          .then(res => {
                 console.log(res.data);
+                updateData();
             })
          .catch(err => {
                 console.log(err);
@@ -109,7 +117,7 @@ function Cart() {
                                 <div style={{ flex: '1', }}>Tên Sản Phẩm</div>
                                 <div style={{ flex: '0.3', }}>Đơn Giá</div>
                                 <div style={{ flex: '0.3', }}>Số Lượng</div>
-                                <div style={{ flex: '0.3', }}>Số Tiền</div>
+                                <div style={{ flex: '0.3', }}>Thành Tiền</div>
                                 <div style={{ flex: '0.2', }}>Thao Tác</div>
                             </div>
                             <div style={{
@@ -153,8 +161,8 @@ function Cart() {
                                                         margin: '0px'
                                                     }}> {cartDetail.productDetails.product.name}
                                                     </h4>
-                                                    <span>
-                                                        Phân loại: {cartDetail.productDetails.color.name} - {cartDetail.productDetails.size.name}
+                                                    <span style={{display: 'flex', alignItems: 'center'}}>
+                                                        Phân loại: <ColorPicker style={{marginLeft: '10px', marginRight: '10px'}} disabled defaultValue={cartDetail.productDetails.color.name}/> - {cartDetail.productDetails.size.name}
                                                     </span>
                                                 </div>
 
@@ -192,7 +200,7 @@ function Cart() {
                             }}>
                                 <div>
                                     <label>
-                                    Tổng thanh toán: <span>231</span>
+                                    Tổng thanh toán: <span>{totalPayment}</span>
                                     </label>    
                                 </div>
                                 <div style={{
@@ -214,6 +222,8 @@ function Cart() {
 
 
             <Footer />
+            <ToastContainer />
+
         </>
     );
 }

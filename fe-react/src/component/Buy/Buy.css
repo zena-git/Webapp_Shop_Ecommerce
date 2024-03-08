@@ -2,7 +2,6 @@
     border: 1px solid #e7e7e7;
     border-radius: 6px;
     padding: 10px 8px;
-    width: 40%;
 }
 .box_buy-tile{
     border-bottom: 1px solid #e7e7e7;
@@ -29,6 +28,10 @@
 
 }
 
+.box_paymethot{
+
+    margin-bottom: 40px;
+}
 .buy_pay-item,
 .pay_logic-item{
     margin: 4px 0;
@@ -57,6 +60,6 @@
     height: 50px;
     margin-top: 20px;
 }
-.buy_pay{
-    margin-top: 10px;
-}
+
+
+

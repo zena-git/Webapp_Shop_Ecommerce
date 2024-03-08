@@ -1,9 +1,12 @@
 import './Buy.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useContext} from 'react';
 import { Button, Modal, Radio, Space, Input, Select } from 'antd';
 import axios from "axios";
+import DataContext from "../../DataContext";
 
 function Buy() {
+    const { data, paymentBill, updateData,setLstDataCheckout,totalPayment,setTotalPaymentMoney } = useContext(DataContext);
+
     return (
         <>
             <div className="box_buy">
@@ -31,7 +34,7 @@ function Buy() {
                     </div>
                     <div className='box_paymethot'>
                         <label>Phương Thức Thanh Toán</label>
-                        <Space  size="large"></Space>
+                        
                         <Radio.Group defaultValue="a" size="large" style={{width: '100%'}}>
                             <Radio.Button style={{width: '50%'}} value="a">Thanh Toán Khi Nhận Hàng</Radio.Button>
                             <Radio.Button  style={{width: '50%'}} value="b">Chuyển khoản ngân hàng</Radio.Button>
@@ -42,7 +45,7 @@ function Buy() {
                         <div className='buy_pay-logic'>
                             <div className='pay_logic-item'>
                                 <label>Tổng Tiền Hàng</label>
-                                <span>9999999</span>
+                                <span>{totalPayment}</span>
                             </div>
                             <div className='pay_logic-item'>
                                 <label>Phí Vận Chuyển</label>
@@ -50,16 +53,16 @@ function Buy() {
                             </div>
                             <div className='pay_logic-item'>
                                 <label>Giảm Giá</label>
-                                <span>9999999</span>
+                                <span>0</span>
                             </div>
                         </div>
 
                         <div className='buy_pay'>
                             <div className='buy_pay-item'>
                                 <label>Tổng thanh toán</label>
-                                <span>9999999</span>
+                                <span>0</span>
                             </div>
-                            <Button className='buy_pay-btn' type="primary">Thanh Toán</Button>
+                            <Button className='buy_pay-btn' type="primary" onClick={()=>{paymentBill()}}>Thanh Toán</Button>
                         </div>
                     </div>
 

@@ -1,12 +1,16 @@
 import './Address.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useContext} from 'react';
 import { Button, Modal, Radio, Space } from 'antd';
 import axios from "axios";
+import DataContext from "../../DataContext";
+
 function Address() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [addressCustomer, setAddressCustomer] = useState(1);
+    const [addressCustomerModal, setAddressCustomerModal] = useState();
     const [lstAddressCustomer, setLstAddressCustomer] = useState([]);
+    const {setAddressBillClient } = useContext(DataContext);
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/v2/address')
@@ -14,6 +18,7 @@ function Address() {
                 console.log(response);
                 setLstAddressCustomer(response.data)
                 setAddressCustomer(response.data[0])
+                setAddressBillClient(response.data[0])
             })
             .catch(error => {
                 console.log(error);
@@ -24,14 +29,17 @@ function Address() {
     };
     const handleOk = () => {
         setIsModalOpen(false);
+        console.log(addressCustomerModal);
+        setAddressCustomer(addressCustomerModal)
+        setAddressBillClient(addressCustomerModal)
     };
     const handleCancel = () => {
         setIsModalOpen(false);
     };
     const onChangeAddress = (e) => {
         const selectedAddress = lstAddressCustomer.find(address => address.id === e.target.value);
-        console.log('radio checked', selectedAddress);
-        setAddressCustomer(selectedAddress);
+        // console.log('radio checked', selectedAddress);
+        setAddressCustomerModal(selectedAddress)
     }
     return (
         <>
