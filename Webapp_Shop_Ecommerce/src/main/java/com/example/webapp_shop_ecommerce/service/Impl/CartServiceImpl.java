@@ -43,6 +43,11 @@ public class CartServiceImpl extends BaseServiceImpl<Cart, Long, ICartRepository
             return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm khong tồn tại", 1, cartRequest), HttpStatus.BAD_REQUEST);
         }
 
+        if (productDetails.get().getQuantity() < cartRequest.getQuantity()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Trong Kho Không Đủ", 1, cartRequest), HttpStatus.BAD_REQUEST);
+        }
+
+
         Optional<Cart> cart = cartRepo.findCartByCustomer(customer);
         if (cart.isEmpty()) {
             Cart newCart = new Cart();
@@ -59,9 +64,15 @@ public class CartServiceImpl extends BaseServiceImpl<Cart, Long, ICartRepository
         }
 
         Optional<CartDetails> cartDetails = cartDetailsRepo.findCartDetailsByCartAndProductDetails(cart.get(),productDetails.get());
+
         if (cartDetails.isPresent()) {
             cartDetail = cartDetails.get();
-            cartDetail.setQuantity(cartDetail.getQuantity() + cartRequest.getQuantity());
+
+            Integer quantity = cartDetail.getQuantity() + cartRequest.getQuantity();
+            if (quantity > productDetails.get().getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Trong Kho Không Đủ", 1, cartRequest), HttpStatus.BAD_REQUEST);
+            }
+            cartDetail.setQuantity(quantity);
             cartDetailsRepo.save(cartDetail);
             System.out.println("update CartDetails + don");
         }else {

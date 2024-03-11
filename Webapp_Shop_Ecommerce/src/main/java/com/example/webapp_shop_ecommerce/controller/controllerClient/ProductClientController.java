@@ -1,8 +1,12 @@
 package com.example.webapp_shop_ecommerce.controller.controllerClient;
 
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsClientResponse;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.Product;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
+import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import com.example.webapp_shop_ecommerce.service.IProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +30,8 @@ public class ProductClientController {
     private ModelMapper mapper;
     @Autowired
     private IProductService productService;
-
+    @Autowired
+    private IProductDetailsService productDetailsService;
     @GetMapping
     public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
                                             @RequestParam(value = "size", defaultValue = "-1") Integer size,
@@ -64,23 +69,13 @@ public class ProductClientController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findProductById(@PathVariable("id") Long id,
-                                             @RequestParam(value = "size", defaultValue = "") String size,
-                                             @RequestParam(value = "color", defaultValue = "") String color,
-                                             @RequestParam(value = "min", defaultValue = "0") String min,
-                                             @RequestParam(value = "max", defaultValue = "9999999999999999999999999999") String max
-    ) {
-        Map<String, String> keyWork = new HashMap<String, String>();
-        keyWork.put("size", size.trim());
-        keyWork.put("color", color.trim());
-        keyWork.put("min", min.trim());
-        keyWork.put("max", max.trim());
-
-        Optional<Product> otp = productService.findProductByIdAndDetailsNotDeleted(id,keyWork);
+    public ResponseEntity<?> findProductById(@PathVariable("id") Long id) {
+        Optional<Product> otp = productService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
-        ProductResponse product = otp.map(pro -> mapper.map(pro, ProductResponse.class)).orElseThrow(IllegalArgumentException::new);
-        return new ResponseEntity<>(product, HttpStatus.OK);
+        List<ProductDetails> lstProductDetails = productDetailsService.findAllByProductToPage(Long.valueOf(id), Pageable.unpaged()).getContent();
+        List<ProductDetailsClientResponse> resultDto = lstProductDetails.stream().map(attr -> mapper.map(attr, ProductDetailsClientResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.request.bill;
 
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
+import com.example.webapp_shop_ecommerce.entity.CartDetails;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,7 +35,9 @@ public class BillRequest {
     private String receiverCommune;
     private String receiverDistrict;
     private String receiverProvince;
-    private List<Long> lstCartDetails;
+//    private List<Long> lstCartDetails;
+    private List<CartDetails> lstCartDetails;
+
 
 //    private UserDto user;
 

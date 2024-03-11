@@ -15,7 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class BillResponse {
-//    private Long id;
+    private Long id;
     private String codeBill;
     private String status;
     private String billType;

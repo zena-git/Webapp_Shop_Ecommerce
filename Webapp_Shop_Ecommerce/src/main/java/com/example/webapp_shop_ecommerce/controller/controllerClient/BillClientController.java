@@ -2,7 +2,9 @@ package com.example.webapp_shop_ecommerce.controller.controllerClient;
 
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.address.AddressResponse;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
+import com.example.webapp_shop_ecommerce.entity.Address;
 import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.service.IBillService;
 import org.modelmapper.ModelMapper;
@@ -11,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v2/bill")
@@ -20,7 +24,11 @@ public class BillClientController {
     private ModelMapper mapper;
     @Autowired
     private IBillService billService;
-
+    @GetMapping()
+    public ResponseEntity<?> findAll() {
+        List<BillResponse> lst = billService.findBillByCustomer().stream().map(entity -> mapper.map(entity, BillResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Bill> otp = billService.findById(id);
@@ -33,5 +41,10 @@ public class BillClientController {
     @PostMapping()
     public ResponseEntity<ResponseObject> saveBill(@RequestBody BillRequest billDto){
         return billService.buyBillClient(billDto);
+    }
+
+    @PostMapping("/guest")
+    public ResponseEntity<ResponseObject> saveBillGuest(@RequestBody BillRequest billDto){
+        return billService.buyBillClientGuest(billDto);
     }
 }

@@ -27,6 +27,7 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
     }
     @Override
     public ResponseEntity<ResponseObject> createNew(E entity) {
+
         entity.setId(null);
         entity.setDeleted(false);
         entity.setCreatedBy("Admin");
