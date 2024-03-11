@@ -39,16 +39,12 @@ public class VoucherRequest {
 
     @NotNull(message = "Giá trị tối thiểu không được để trống")
     @NumberFormat(style = NumberFormat.Style.NUMBER)
-    private Float orderMinValue;
+    private Float order_min_value;
 
     @NumberFormat(style = NumberFormat.Style.NUMBER)
     private Integer usageLimit;
 
-    @NotBlank(message = "Trạng thái không được để trống")
     private String status;
-    @NotNull(message = "Số lượng không được để trống")
-    @NumberFormat(style = NumberFormat.Style.NUMBER)
-    private Integer quantity;
     //2024-02-26T03:12:22
     @NotNull(message = "Ngày bắt đầu không được để trống")
     @FutureOrPresent(message = "Ngày bắt đầu phải là hiện tại hoặc trong tương lai")
