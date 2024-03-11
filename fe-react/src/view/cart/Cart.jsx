@@ -1,20 +1,21 @@
 import Footer from "../layout/Footer";
 import Header from "../layout/Header";
-import { useEffect, useState,useContext } from "react";
+import { Link, useNavigate } from 'react-router-dom';
+
+import { useEffect, useState, useContext } from "react";
 import { Checkbox, Col, Row, Avatar, Button, InputNumber, Flex, ColorPicker } from 'antd';
 import axios from "axios";
-import { Link } from 'react-router-dom';
-import { DeleteOutlined} from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import DataContext from "../../DataContext";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const CheckboxGroup = Checkbox.Group;
 function Cart() {
-
+    const navigate = useNavigate();
     const [lstCart, setLstCart] = useState([]);
     const [historyLstCart, setHistotyLstCart] = useState([]);
     const [cartItems, setCartItems] = useState("cảttttt");
-    const { data, dataLength, updateData, deleteData,setLstDataCheckout,totalPayment,setTotalPaymentMoney } = useContext(DataContext);
+    const { data, moneyQuantity, updateData, deleteData, setLstDataCheckout, totalPayment, setTotalPaymentMoney } = useContext(DataContext);
     useEffect(() => {
         axios.get('http://localhost:8080/api/v2/cart')
             .then(res => {
@@ -25,10 +26,10 @@ function Cart() {
             })
     }, [historyLstCart])
 
- 
+
     const [checkedList, setCheckedList] = useState([]);
-    const checkAll = lstCart.length === checkedList.length;
-    const indeterminate = checkedList.length > 0 && checkedList.length < lstCart.length;
+    const checkAll = data.length === checkedList.length;
+    const indeterminate = checkedList.length > 0 && checkedList.length < data.length;
     const onChange = (list) => {
         setCheckedList(list);
         // console.log(list);
@@ -36,36 +37,31 @@ function Cart() {
 
     };
     const onCheckAllChange = (e) => {
-        const lst = lstCart.map(pro =>{
-            return pro.id ;
+        const lst = data.map(pro => {
+            return pro.id;
         })
         setCheckedList(e.target.checked ? lst : []);
         console.log(lst);
-        setTotalPaymentMoney(e.target.checked ?lst : []);
+        setTotalPaymentMoney(e.target.checked ? lst : []);
 
     };
     const handleQuantityCart = (value, idCartdetail) => {
-        console.log('changed', value);
-        console.log('idCartdetail', idCartdetail);
-
-        axios.put(`http://localhost:8080/api/v2/cartDetails/`+idCartdetail, {
-            quantity: value
-        })
-         .then(res => {
-                console.log(res.data);
-                updateData();
-            })
-         .catch(err => {
-                console.log(err);
-            })
+        moneyQuantity(value, idCartdetail);
     }
     const handleDeleteCart = async (itemId) => {
         // Call the deleteData function to mark the item as selected and send delete request
-         deleteData(itemId);
-      };
-    const handleCheckOut = ()=>{
+        deleteData(itemId);
+        updateData();
+
+    };
+    const handleCheckOut = () => {
+        if (checkedList.length <= 0) {
+            toast.error("Vui lòng chọn sản phẩm để mua hàng");
+            return;
+        }
         setLstDataCheckout(checkedList);
-    }
+        navigate('/checkout');
+    };
     return (
         <>
             <Header />
@@ -93,7 +89,7 @@ function Cart() {
 
                 <div>
 
-                    {lstCart.length === 0 ? (
+                    {data.length === 0 ? (
                         <p>Giỏ hàng trống rỗng</p>
                     ) : (
                         <div >
@@ -125,7 +121,7 @@ function Cart() {
                                 width: '100%',
                             }}>
 
-                                <Checkbox.Group onChange={onChange} value={checkedList}style={{
+                                <Checkbox.Group onChange={onChange} value={checkedList} style={{
                                     width: '100%',
                                     fontSize: '16px'
 
@@ -161,8 +157,16 @@ function Cart() {
                                                         margin: '0px'
                                                     }}> {cartDetail.productDetails.product.name}
                                                     </h4>
-                                                    <span style={{display: 'flex', alignItems: 'center'}}>
-                                                        Phân loại: <ColorPicker style={{marginLeft: '10px', marginRight: '10px'}} disabled defaultValue={cartDetail.productDetails.color.name}/> - {cartDetail.productDetails.size.name}
+                                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                                        Phân loại: <div style={{
+                                                            backgroundColor: cartDetail.productDetails.color.name,
+                                                            width: '24px',
+                                                            height: '24px',
+                                                            marginLeft: '10px',
+                                                            marginRight: '10px'
+                                                        }}>
+
+                                                        </div> - {cartDetail.productDetails.size.name}
                                                     </span>
                                                 </div>
 
@@ -174,7 +178,7 @@ function Cart() {
                                             </div>
                                             <div style={{ flex: '0.3', }}>
                                                 <span>
-                                                <InputNumber min={1} max={cartDetail.productDetails.quantity} defaultValue={cartDetail.quantity} onChange={(value) => handleQuantityCart(value, cartDetail.id)} />
+                                                    <InputNumber min={1} max={cartDetail.productDetails.quantity} defaultValue={cartDetail.quantity} onChange={(value) => handleQuantityCart(value, cartDetail.id)} />
                                                 </span>
                                             </div>
                                             <div style={{ flex: '0.3', }}>
@@ -183,9 +187,9 @@ function Cart() {
                                                 </span>
                                             </div>
                                             <div style={{ flex: '0.2', }}>
-                                            <Button onClick={()=>{handleDeleteCart(cartDetail.id)}}>
-                                                <DeleteOutlined />
-                                            </Button>
+                                                <Button onClick={() => { handleDeleteCart(cartDetail.id) }}>
+                                                    <DeleteOutlined />
+                                                </Button>
                                             </div>
                                         </div>
                                     ))}
@@ -200,16 +204,20 @@ function Cart() {
                             }}>
                                 <div>
                                     <label>
-                                    Tổng thanh toán: <span>{totalPayment}</span>
-                                    </label>    
+                                        Tổng thanh toán: <span>{totalPayment}</span>
+                                    </label>
                                 </div>
                                 <div style={{
                                     marginLeft: '10px'
                                 }}>
-                                <Button onClick={()=>{handleCheckOut()}}>
-                                <Link to="/checkout" >Mua Ngay</Link>
+                                    <Button style={{
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        textDecoration: 'none',
+                                        color: 'white',
+                                        backgroundColor: '#ff00a3',
+                                    }} onClick={handleCheckOut}>Mua Ngay</Button>
 
-                                </Button>
                                 </div>
                             </div>
                         </div>

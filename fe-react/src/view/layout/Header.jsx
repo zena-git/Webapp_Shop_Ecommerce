@@ -5,12 +5,29 @@ import { FaUser } from "react-icons/fa6";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { TbSearch } from "react-icons/tb";
 import { Badge, Drawer } from "antd";
-import { useState ,useContext } from "react";
+import { useState, useContext } from "react";
+import { Button, Dropdown, Space } from 'antd';
 import DataContext from "../../DataContext";
 function Header() {
     const [openSearch, setOpenSearch] = useState(false)
-    const { data, dataLength, updateData } = useContext(DataContext);
-
+    const { data, dataLength, isAccount } = useContext(DataContext);
+    const items = [
+        {
+            key: '1',
+            label: (<Link to="/profile">Thông Tin Cá Nhân</Link>),
+        },
+        {
+            key: '2',
+            label: (
+                <Link to="/oder">Quản Lý Đơn Hàng</Link>),
+        },
+        {
+            key: '3',
+            label: (
+                <Link to="/logout">Đăng Xuất</Link>
+            ),
+        },
+    ];
     return (
         <>
             <Drawer
@@ -35,9 +52,9 @@ function Header() {
                 boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
             }}>
                 <div style={{
-                    marginLeft:"auto",
-                    marginRight:"auto",
-                    width:"1200px",
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    width: "1200px",
                     padding: "0 15px",
                 }}>
                     <div
@@ -95,20 +112,44 @@ function Header() {
                         <div style={{
                             display: "flex",
                             flexDirection: "row",
-                            padding:"0 15px"
+                            padding: "0 15px"
                         }}>
                             <div style={{
                                 display: "flex",
                                 flexDirection: "row",
                                 marginRight: "28px"
                             }}>
-                                <FaUser />
-                                <span style={{
-                                    letterSpacing: "0.5px",
-                                    fontWeight: 500,
-                                    lineHeight: "16px",
-                                    marginLeft: "6px"
-                                }}>Người dùng</span>
+
+                                {isAccount ? <Dropdown menu={{ items }} placement="bottom" arrow={{ pointAtCenter: true }}
+                                >
+                                    <span style={{
+                                        letterSpacing: "0.5px",
+                                        fontWeight: 500,
+                                        lineHeight: "16px",
+                                        marginLeft: "6px",
+                                        backgroundColor: '#cccccc',
+                                        padding: '8px 12px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+
+                                    }}><FaUser /> Xin Chào ! ?</span>
+                                </Dropdown> :
+                                    <span style={{
+                                        letterSpacing: "0.5px",
+                                        fontWeight: 500,
+                                        lineHeight: "16px",
+                                        marginLeft: "6px",
+                                        backgroundColor: '#cccccc',
+                                        padding: '8px 12px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+
+                                    }}>Login</span>
+                                }
+
+
+
+
                             </div>
                             <div style={{
                                 display: "flex",
@@ -132,13 +173,13 @@ function Header() {
                             }}>
                                 <Badge count={dataLength}>
                                     <span style={{
-                                    fontSize: "20px",
-                                    letterSpacing: "0.5px",
-                                    fontWeight: 700,
-                                    lineHeight: "16px",
-                                    marginLeft: "6px"
-                                }}><Link to={"/cart"}>
-                                    <AiOutlineShoppingCart /></Link></span>
+                                        fontSize: "20px",
+                                        letterSpacing: "0.5px",
+                                        fontWeight: 700,
+                                        lineHeight: "16px",
+                                        marginLeft: "6px"
+                                    }}><Link to={"/cart"}>
+                                            <AiOutlineShoppingCart /></Link></span>
                                 </Badge>
                             </div>
                         </div>

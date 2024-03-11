@@ -6,7 +6,8 @@ import User from './view/user/User';
 import ProductDetail from './view/product/ProductDetail';
 import Cart from './view/cart/Cart';
 import CheckOut from './view/checkout';
-
+import HistoryOder from './view/HistoryOder/HistoryOder';
+import Profile from './view/profile/Profile';
 function App() {
   return (
     <>
@@ -18,6 +19,9 @@ function App() {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<CheckOut />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/oder" element={<HistoryOder />} />
+        <Route path="/address" element={<HistoryOder />} />
       </Routes>
     </>
   );

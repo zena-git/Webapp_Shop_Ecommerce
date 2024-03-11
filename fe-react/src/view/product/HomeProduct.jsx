@@ -45,14 +45,17 @@ function HomeProduct() {
                     marginTop: "12px"
                 }}>
                     {data && data.map((item, index) => {
+                        const sortedProductDetails =item.lstProductDetails.sort((a, b) => a.price - b.price);
                         return <Col key={index} span={6} style={{
                             padding: "0 15px",
                             marginBottom: "24px",
                         }}>
                             <Link to={"/product/" + item.id}>
                                 <img style={{
-                                    width: "100%"
-                                }} src={item.imageUrl} alt="" />
+                                    width: "100%",
+                                    minHeight: '380px',
+                                    
+                                }} src={item.imageUrl}  alt={item.name}/>
                                 <div style={{
                                     marginTop: "0px"
                                 }}>
@@ -71,7 +74,7 @@ function HomeProduct() {
                                             letterSpacing: "1px",
                                             fontSize: "100%",
                                             color: "#555556"
-                                        }}>{fixMoney(item.price)}</p>
+                                        }}>{fixMoney(sortedProductDetails[0].price) + " - " + fixMoney(sortedProductDetails[sortedProductDetails.length - 1].price)}</p>
                                     </div>
                                 </div>
                             </Link>

@@ -1,4 +1,4 @@
-import { Link, useParams ,useNavigate  } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
 import SyncSlider from "./SyncSlider";
 import Filter from "./Filter";
@@ -7,30 +7,36 @@ import { MdOutlineLocalShipping } from "react-icons/md";
 import { RiRefund2Line } from "react-icons/ri";
 import { LuBadgePercent } from "react-icons/lu";
 import styles from "./productdetail.module.css"
-import { useState, useEffect ,useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { fixMoney } from "../../extension/fixMoney";
 import Footer from "../layout/Footer";
-import { Rate, Radio, ColorPicker, InputNumber } from 'antd'
+import { Rate, Radio, Tooltip, InputNumber } from 'antd'
 import { productApis } from "../../apis/Product";
 import DataContext from "../../DataContext";
 import axios from "axios";
+import hexToColorName from '../../extension/HexToColorName'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 function ProductDetail() {
+
+
     const { id } = useParams();
     const navigate = useNavigate();
-    const { data, dataLength, updateData } = useContext(DataContext);
+    const { data, buyCart, updateData, addGioHang } = useContext(DataContext);
+
+
     const [product, setProduct] = useState([])
     const [lstProductDetails, setLstProductDetails] = useState([])
     const [color, setColor] = useState([])
     const [size, setSize] = useState([])
     const [idColor, setIdColor] = useState(null);
     const [idSize, setIdSize] = useState(null);
+    const [checkColor, setCheckColor] = useState(null);
 
     const [dataSlider, setDataSlider] = useState([]);
     const [nameProduct, setNameProduct] = useState("");
-    const [quantityStock, setQuantityStock] = useState("1000000");
-    const [pirceProduct, setPirceProduct] = useState("12132132312");
+    const [quantityStock, setQuantityStock] = useState("1");
+    const [pirceProduct, setPirceProduct] = useState("0");
 
     const [productDetails, setProductDetails] = useState(null)
     const [quantityProduct, setQuantityProduct] = useState(1);
@@ -58,12 +64,13 @@ function ProductDetail() {
         ])
         axios.get('http://localhost:8080/api/v2/product/' + id)
             .then(res => {
-                setNameProduct(res.data.name);
+                console.log(res.data);
+                setNameProduct(res.data[0].product.name);
                 setPirceProduct(res.data.price);
                 // fixMoney(1000000) 
-                const lstProductDetails = res.data.lstProductDetails;
+                const lstProductDetails = res.data;
                 setLstProductDetails(lstProductDetails)
-                // console.log(lstProductDetails);
+                console.log(lstProductDetails);
 
                 const totalQuantity = lstProductDetails.reduce((accumulator, productDetail) => {
                     return accumulator + productDetail.quantity;
@@ -126,14 +133,30 @@ function ProductDetail() {
     }, [idColor, idSize])
 
     function getProductDetail(color, size) {
-        if (idSize !== null && idColor !== null) {
+
+
+
+        if (size !== null && color !== null) {
+            console.log(size);
+            console.log(color);
             const filteredProductDetails = lstProductDetails.filter(productDetail => (
-                productDetail.color.id == idColor && productDetail.size.id == idSize
+                productDetail.color.id == color && productDetail.size.id == size
             ))[0];
             console.log(filteredProductDetails);
+            if (filteredProductDetails === undefined) {
+                console.log(filteredProductDetails);
+                //lua 
+                setQuantityStock("Sản Phẩm Hết Hàng")
+                setProductDetails(null)
+                return;
+            }
             setProductDetails(filteredProductDetails);
-            setPirceProduct(filteredProductDetails.price)
-            setQuantityStock(filteredProductDetails.quantity)
+            setPirceProduct(fixMoney(filteredProductDetails.price))
+            if (filteredProductDetails.quantity == 0) {
+                setQuantityStock("Sản Phẩm Hết Hàng")
+            } else {
+                setQuantityStock(filteredProductDetails.quantity)
+            }
             setQuantityProduct(1)
         }
 
@@ -142,45 +165,33 @@ function ProductDetail() {
 
     const handleAddGioHang = () => {
         console.log(productDetails);
+
+        if (productDetails == null) {
+            toast.error("Vui lòng chọn sản phẩm")
+            return;
+        }
+        console.log(productDetails);
         const productDetail = {
-            productDetail: productDetails.id,
+            productDetails: productDetails,
             quantity: quantityProduct
         }
-        axios.post('http://localhost:8080/api/v2/cart', productDetail)
-            .then(res => {
-                console.log(res.data);
-                toast.success(res.data.message)
-                updateData();
-            })
-            .catch(err => {
-                console.log(err);
-                toast.success(err.message)
-
-            })
+        addGioHang(productDetail);
 
     }
 
     const handleBuyCart = () => {
         console.log(productDetails);
 
-        if(productDetails == null){
+        if (productDetails == null) {
             toast.error("Vui lòng chọn sản phẩm")
             return;
         }
+        console.log(productDetails);
         const productDetail = {
-            productDetail: productDetails.id,
+            productDetails: productDetails,
             quantity: quantityProduct
         }
-        axios.post('http://localhost:8080/api/v2/cart', productDetail)
-            .then(res => {
-                console.log(res.data);
-                navigate('/cart');
-            })
-            .catch(err => {
-                console.log(err);
-                toast.success(err.message)
-
-            })
+        buyCart(productDetail)
 
     }
     const onChangeQuanTity = (value) => {
@@ -337,19 +348,33 @@ function ProductDetail() {
                                         {
                                             color.map((item, index) => {
                                                 return (
-                                                    <Radio.Button
-                                                        style={{
-                                                            borderRadius: '0px',
-                                                            marginLeft: '4px',
-                                                            marginRight: '4px',
-                                                        }}
-                                                        key={item.id}
-                                                        value={item.id}
+                                                    <Tooltip placement="top" title={item.name + "-" + hexToColorName(item.name)}>
+                                                        <Radio.Button
+                                                            style={{
+                                                                borderRadius: '0px',
+                                                                marginLeft: '4px',
+                                                                marginRight: '4px',
+                                                                minHeight: '20px',
+                                                                minWidth: '40px',
+                                                                padding: '2px',
+                                                            }}
+                                                            key={item.id}
+                                                            value={item.id}
+                                                        // disabled={productDetails?.color.id != item.id}
+                                                        >
+                                                            <div style={{
+                                                                backgroundColor: item.name,
+                                                                width: '100%',
+                                                                height: '100%',
+                                                            }}>
 
-                                                    >
-                                                        {item.name}
-                                                        {/* <ColorPicker disabled defaultValue={item.name} /> */}
-                                                    </Radio.Button>
+                                                            </div>
+
+                                                            {/* {item.name} */}
+
+                                                        </Radio.Button>
+                                                    </Tooltip>
+
                                                 )
                                             })
                                         }
