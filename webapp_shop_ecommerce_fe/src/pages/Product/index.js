@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Radio, Select, Input, Space, Dropdown } from 'antd';
+import { Button, Table, Radio, Select, Input, Space, Dropdown, Switch, Spin, Popconfirm, Tooltip, Modal } from 'antd';
 import axios from 'axios';
 import { useDebounce } from '~/hooks';
-import { ToolOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ToolOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, RedoOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPen } from '@fortawesome/free-solid-svg-icons';
 
 const columns = [
     {
@@ -26,7 +29,7 @@ const columns = [
         title: 'Số Lượng',
         dataIndex: 'quantity',
         key: 'quantity',
-       
+
 
     },
     {
@@ -61,7 +64,49 @@ const columns = [
 
     },
 ];
+const columnsDeleted = [
+    {
+        title: '#',
+        dataIndex: 'index', // Change 'index' to 'key'
+        key: 'index',
+    },
+    {
+        title: 'Mã',
+        dataIndex: 'code',
+        key: 'code',
+    },
+    {
+        title: 'Tên',
+        dataIndex: 'name',
+        key: 'name',
+    },
+    {
+        title: 'Loại',
+        dataIndex: 'category',
+        key: 'category',
+    },
+    {
+        title: 'Chất Liệu',
+        dataIndex: 'material',
+        key: 'material',
+    },
+    {
+        title: 'Phong Cách',
+        dataIndex: 'style',
+        key: 'style',
+    },
+    {
+        title: 'Thương Hiệu',
+        dataIndex: 'brand',
+        key: 'brand',
+    },
+    {
+        title: 'Action',
+        dataIndex: 'action',
+        key: 'action',
 
+    },
+];
 const Product = () => {
 
     const [valueRadio, setValueRadio] = useState("");
@@ -82,9 +127,12 @@ const Product = () => {
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingUpdate, setLoadingUpdate] = useState(false);
     const [dataColum, setDataColum] = useState([]);
+    const [dataColumDeleted, setDataColumDeleted] = useState([]);
+    const [historyData, setHistoryData] = useState([]);
 
-
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/v1/product', {
@@ -102,15 +150,31 @@ const Product = () => {
                 const data = response.data.map((data, index) => {
                     const items = [
                         {
-                            label: <Link to={`/product/${data.id}`}>Chi tiết </Link>,
+                            label: <Link style={{ color: '#ffa900' }} to={`/product/${data.id}`}> <InfoCircleOutlined /> Chi tiết </Link>,
                             key: '0',
                         },
                         {
-                            label: <Link to={`/product/update/${data.id}`}>Update </Link>,
+                            label: <Link style={{ color: 'green' }} to={`/product/update/${data.id}`}><FontAwesomeIcon icon={faPen} /> Update </Link>,
                             key: '1',
                         },
                         {
-                            label: <div><DeleteOutlined />Delete</div>,
+                            label: <>
+                                <Popconfirm
+                                    title="Bạn Có Chắc Muốn Xóa?"
+                                    icon={
+                                        <QuestionCircleOutlined
+                                            style={{
+                                                color: 'red',
+                                            }}
+                                        />
+                                    }
+                                    onConfirm={() => handleDeleteProduct(data.id)}
+                                >
+                                    <div style={{ color: 'red' }}>
+                                        <DeleteOutlined /> Delete
+                                    </div>
+                                </Popconfirm>
+                            </>,
                             key: '2',
                         }
                     ];
@@ -127,7 +191,9 @@ const Product = () => {
                         material: data.material.name,
                         style: data.style.name,
                         brand: data.brand.name,
-                        status: data.status === "0" ? "Đang Hoạt Động" : "Ngừng Hoạt Động",
+                        status: <Tooltip placement="top" title={data.status == '0' ? "Đang Bán" : "Ngừng Bán"} >
+                            <Switch value={data.status === '0'} onChange={(checked) => onChangeStatus(checked, data.id)} />
+                        </Tooltip>,
                         action: <Dropdown
                             menu={{
                                 items,
@@ -156,9 +222,50 @@ const Product = () => {
             })
 
 
-    }, [valueRadio, debounceSearch, valueCategory, valueMaterial, valueBrand, valueStyle]);
+    }, [valueRadio, debounceSearch, valueCategory, valueMaterial, valueBrand, valueStyle, historyData]);
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/product/deleted')
+            .then(function (response) {
+                const data = response.data.map((data, index) => {
+                    let product = {
+                        key: data.id,
+                        index: index + 1,
+                        code: data.code,
+                        name: data.name,
+                        category: data.category.name,
+                        material: data.material.name,
+                        style: data.style.name,
+                        brand: data.brand.name,
+                        action:
+                            <Popconfirm
+                                title="Recover"
+                                description={`Bạn có chắc muốn khôi phục sản phẩm "${data.name}"?`}
+
+                                onConfirm={() => handleProductRecover(data.id)}
+
+                            >
+                                <Button onClick={(e) => e.preventDefault()}>
+                                    <Space>
+                                        <RedoOutlined />
+                                    </Space>
+                                </Button>
+                            </Popconfirm>
+
+                    }
+                    return product
+                });
 
 
+                setDataColumDeleted(data);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+
+
+    }, [historyData]);
     const dowloadExcel = () => {
         setLoading(true);
         const downloadExcel = async () => {
@@ -317,10 +424,64 @@ const Product = () => {
             });
     }, []);
     // 
+    //onChangeStatus
+    const onChangeStatus = (checked, productId) => {
+        setLoadingUpdate(true);
+        // Gửi yêu cầu API hoặc thực hiện các xử lý cần thiết để cập nhật trạng thái
+        axios.put(`http://localhost:8080/api/v1/product/status/${productId}`, { status: checked ? '0' : '1' })
+            .then(response => {
+                toast.success("Trạng thái đã được cập nhật thành công.");
+                console.log('Trạng thái đã được cập nhật thành công.');
+                setHistoryData(response.data)
 
+            })
+            .catch(error => {
+                toast.success('Lỗi khi cập nhật trạng thái');
+                console.error('Lỗi khi cập nhật trạng thái:', error);
+            })
+            .finally(function () {
+                setTimeout(() => {
+                    setLoadingUpdate(false);
+                }, 1000);
+            });
+    };
 
+    const handleDeleteProduct = (id) => {
+        setLoadingUpdate(true);
+        // Gửi yêu cầu API hoặc thực hiện các xử lý cần thiết để cập nhật trạng thái
+        axios.delete(`http://localhost:8080/api/v1/product/${id}`)
+            .then(response => {
+                toast.success("Xóa Sản Phẩm Thành Công.");
+                setHistoryData(response.data)
+            })
+            .catch(error => {
+                toast.error('Lỗi Xóa Sản Phẩm.');
 
+            }).finally(() => {
+                setTimeout(() => {
+                    setLoadingUpdate(false);
+                }, 1000);
+            });
+    };
+    const handleProductRecover = (id) => {
+        // Gửi yêu cầu API hoặc thực hiện các xử lý cần thiết để cập nhật trạng thái
+        // setLoadingUpdate(true);
 
+        axios.put(`http://localhost:8080/api/v1/product/recover/${id}`)
+            .then(response => {
+                toast.success("Recover Sản Phẩm Thành Công.");
+                setHistoryData(response.data)
+
+            })
+            .catch(error => {
+                toast.error('Lỗi Recover Sản Phẩm.');
+
+            }).finally(() => {
+                // setTimeout(() => {
+                //     setLoadingUpdate(false);
+                // }, 1000);
+            });
+    };
     return (
         <div className='bg-white p-4'>
             <div className='font-medium mb-10'>
@@ -329,7 +490,7 @@ const Product = () => {
                     <div className='grid grid-cols-7 gap-4 my-4'>
                         <Input className='col-span-6' placeholder="Tìm Kiếm Sản Phẩm" onChange={onChangeSearch} />
 
-                        <Button type="primary"><Link to={`/product/add`}>Thêm Mới Sản Phẩm</Link></Button>
+                        <Link to={`/product/add`} ><Button type='primary'>Thêm Mới Sản Phẩm</Button></Link>
                     </div>
                 </div>
 
@@ -378,8 +539,8 @@ const Product = () => {
                     <div className='my-4 font-normal'>
                         <Radio.Group onChange={onChangeRadio} value={valueRadio}>
                             <Radio value={""}>Tất Cả</Radio>
-                            <Radio value={"0"}>Đang Hoạt Động</Radio>
-                            <Radio value={"1"}>Ngừng Hoạt Động</Radio>
+                            <Radio value={"0"}>Đang Bán</Radio>
+                            <Radio value={"1"}>Ngừng Bán</Radio>
                         </Radio.Group>
                     </div>
                 </div>
@@ -391,15 +552,57 @@ const Product = () => {
 
             </div>
 
-            <div className='mb-4'>
+            <div className='mb-4' >
                 <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
                     Excell
                 </Button>
-                <Button type="primary">
+                <Button type="primary" onClick={() => setOpen(true)} className='ml-4'>
                     <DeleteOutlined />
                 </Button>
+                <>
+                    <Modal
+                        title="Sản Phẩm Đã Xóa"
+                        centered
+                        open={open}
+                        onOk={() => { }}
+                        onCancel={() => setOpen(false)}
+                        width={1000}
+                        footer={null}
+                    >
+                        <div>
+                            <Table columns={columnsDeleted} pagination={{
+                                pageSize: 5,
+                            }} dataSource={dataColumDeleted} />
+                        </div>
+                    </Modal>
+                </>
             </div>
-            <Table rowSelection={rowSelection} columns={columns} dataSource={dataColum} />
+            <Table rowSelection={rowSelection} pagination={{
+                pageSize: 5,
+            }} columns={columns} dataSource={dataColum} />
+            <ToastContainer />
+
+            {loadingUpdate && (
+
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 1,
+                        backgroundColor: 'rgba(000, 000, 000, 0.08)',
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+
+                    }}
+                >
+                    <Spin size="large" tip="product..." />
+                </div>
+            )}
         </div>
     );
 };

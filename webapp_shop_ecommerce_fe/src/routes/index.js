@@ -30,6 +30,7 @@ const privateRouter = [
     { path: '/product/style', component: Style },
     { path: '/product/size', component: Size },
     { path: '/product/color', component: Color },
+    { path: '/product/category', component: Category },
     { path: '/oder', component: Oder },
     { path: '/discount/voucher', component: Voucher },
     { path: '/discount/promotion', component: Promotion },

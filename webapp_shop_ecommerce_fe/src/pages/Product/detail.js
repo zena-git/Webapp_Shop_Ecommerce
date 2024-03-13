@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button, Descriptions, Tag, Slider, Select, Divider, Space, ColorPicker } from 'antd';
+import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button, Descriptions, Tag, Slider, Select, Tooltip, Space, ColorPicker } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import hexToColorName from "~/ultils/HexToColorName";
@@ -65,54 +65,77 @@ function ProductDetail() {
     const debounceMax = useDebounce(valueMax, 500)
 
     const [checkPrice, setCheckPrice] = useState(true);
-    useEffect(() => {
-        axios.get(`http://localhost:8080/api/v1/product/${id}`
-            , {
+    const fetchData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/v1/product/${id}`, {
                 params: {
                     size: valueSize,
                     color: valueColor,
                     min: valueMin,
                     max: valueMax,
-                }
-            }
-        )
-            .then(response => {
-                console.log(response.data);
-                setProduct(response.data);
-                const sortedDataTable = [...response.data.lstProductDetails].sort((a, b) => a.id - b.id);
+                },
+            });
 
-                const dataTable = sortedDataTable.map((data, index) => {
-                    let product = {
-                        key: data.id,
-                        index: index + 1,
-                        barcode: data.barcode,
-                        code: data.code,
-                        color: data.color,
-                        size: data.size,
-                        price: data.price,
-                        quantity: data.quantity,
-                        action: <Button danger >
+            console.log(response.data);
+            setProduct(response.data);
+
+            const sortedDataTable = [...response.data.lstProductDetails].sort((a, b) => a.id - b.id);
+
+            const dataTable = sortedDataTable.map((data, index) => {
+                let product = {
+                    key: data.id,
+                    index: index + 1,
+                    name: (
+                        <>
+                            <div className='flex'>
+                                <div className='mr-4 '>{response.data.name}</div>
+                                <div className='flex'>
+                                    <Tooltip title={hexToColorName(data.color.name) + ' - ' + data.color.name} color={data.color.name} key={data.color.name}>
+                                        <div style={{ width: '20px', height: '20px', backgroundColor: data.color.name }}></div>
+                                    </Tooltip>
+                                    <span className='ml-2 mr-2'>-</span>
+                                    <span>{data.size.name}</span>
+                                </div>
+                            </div>
+                        </>
+                    ),
+                    code: data.code,
+                    color: data.color,
+                    size: data.size,
+                    price: data.price,
+                    quantity: data.quantity,
+                    action: (
+                        <Button danger>
                             <DeleteOutlined />
-                        </Button>,
-                        img: 'img'
-                    }
-                    return product;
-                })
-                if (checkPrice) {
+                        </Button>
+                    ),
+                    imageUrl: (
+                        <div>
+                            <img src={response.data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
+                        </div>
+                    ),
+                };
+                return product;
+            });
 
-                    const highestPriceProduct = dataTable.reduce((maxPriceProduct, currentProduct) => {
-                        return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
-                    }, dataTable[0]);
-                    setInputValueMax(highestPriceProduct.price)
-                    setCheckPrice(false);
-                }
+            if (checkPrice) {
+                const highestPriceProduct = dataTable.reduce((maxPriceProduct, currentProduct) => {
+                    return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
+                }, dataTable[0]);
+                console.log("setMaxx");
+                setInputValueMax(highestPriceProduct.price);
+                setCheckPrice(false);
+            }
 
-                setDataColum(dataTable);
-            })
-            .catch(error => console.error(error));
-        console.log(id);
+            setDataColum(dataTable);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
     }, [id, historyProductDetails, valueSize, valueColor, debounceMin, debounceMax]);
-
 
 
     const lstInfoProduct = [
@@ -246,7 +269,8 @@ function ProductDetail() {
                     setHistoryProductDetails(response.data.data);
                     toast.success(message);
                     console.log(response.data);
-
+                    setCheckPrice(true);
+                    fetchData();
                     setTimeout(() => {
                         setEditingKey('');
 
@@ -272,9 +296,16 @@ function ProductDetail() {
             key: 'index',
         },
         {
-            title: 'Barcode',
-            dataIndex: 'barcode',
-            key: 'barcode',
+            title: 'Ảnh',
+            dataIndex: 'imageUrl',
+            key: 'imageUrl',
+
+        },
+
+        {
+            title: 'Tên',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
             title: 'Màu Sắc',
@@ -330,12 +361,6 @@ function ProductDetail() {
                     </Typography.Link>
                 );
             },
-        },
-        {
-            title: 'IMG',
-            dataIndex: 'img',
-            key: 'img',
-
         }
 
     ];
@@ -423,88 +448,100 @@ function ProductDetail() {
 
     return (
         <div>
-            <div>
-                <Descriptions title="Thông Tin Sản Phẩm"
-                    layout="inline"
-                    items={lstInfoProduct}
-                    column={4}
-                />
+            <div className='bg-white p-4 mt-4'>
+
+                <div>
+                    <Descriptions title="Thông Tin Sản Phẩm"
+                        layout="inline"
+                        items={lstInfoProduct}
+                        column={4}
+                    />
+                </div>
+                <div >
+                    <div className='grid grid-cols-4 gap-4 my-4'>
+                        <div>
+                            <label>Loại</label>
+                            <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
+
+
+                                dropdownRender={(menu) => (
+                                    <>
+                                        {menu}
+
+                                    </>
+                                )}
+                                optionRender={(option) => (
+                                    <Space>
+                                        <span role="img" aria-label={option.data.label}>
+
+                                            <ColorPicker defaultValue={option.data.emoji} disabled size="small" />
+                                        </span>
+                                        {option.data.label + "-" + hexToColorName(option.data.emoji)}
+                                    </Space>
+                                )}
+                                onChange={handleChangeColor}
+
+                                options={optionColor}
+                                value={valueColor}
+                            />
+                        </div>
+
+                        <div>
+                            <label>Kích Thước</label>
+                            <Select className="w-full mt-4"
+                                defaultValue=""
+                                onChange={handleChangeSize}
+                                options={optionSize}
+                            />
+                        </div>
+                        <div>
+                            <label>Khoảng Giá</label>
+                            <Slider
+                                className="w-full mt-4"
+                                range
+                                max={inputValueMax}
+                                defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
+                                onChange={onChangeSlider}
+                            />
+                        </div>
+                    </div>
+
+
+                </div>
             </div>
-            <div>
-                <div className='grid grid-cols-4 gap-4 my-4'>
-                    <div>
-                        <label>Loại</label>
-                        <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
 
+            <div className='bg-white p-4 mt-6'>
 
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
+                <div >
 
-                                </>
-                            )}
-                            optionRender={(option) => (
-                                <Space>
-                                    <span role="img" aria-label={option.data.label}>
-
-                                        <ColorPicker defaultValue={option.data.emoji} disabled size="small" />
-                                    </span>
-                                    {option.data.label + "-" + hexToColorName(option.data.emoji)}
-                                </Space>
-                            )}
-                            onChange={handleChangeColor}
-
-                            options={optionColor}
-                            value={valueColor}
-                        />
+                    <div className='flex justify-between mb-4 mt-4'>
+                        <Button type="primary" disabled={!hasSelected} loading={loading} onClick={dowloadBarcode}>
+                            BarCode
+                        </Button>
+                        <Link to={`/product/update/${id}`}> <Button type="primary">Update Sản Phẩm</Button></Link>
                     </div>
 
-                    <div>
-                        <label>Kích Thước</label>
-                        <Select className="w-full mt-4"
-                            defaultValue=""
-                            onChange={handleChangeSize}
-                            options={optionSize}
+                    <Form form={form} component={false}>
+                        <Table
+                            rowSelection={rowSelection}
+                            components={{
+                                body: {
+                                    cell: EditableCell,
+                                },
+                            }}
+                            bordered
+                            dataSource={dataColum}
+                            columns={mergedColumns}
+                            rowClassName="editable-row"
+                            pagination={{
+                                onChange: cancel,
+                            }}
                         />
-                    </div>
-                    <div>
-                        <label>Khoảng Giá</label>
-                        <Slider
-                            className="w-full mt-4"
-                            range
-                            max={inputValueMax}
-                            defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
-                            onChange={onChangeSlider}
-                        />
-                    </div>
+                    </Form>
                 </div>
 
-
             </div>
 
-            <div>
-                <Button type="primary" disabled={!hasSelected} loading={loading} onClick={dowloadBarcode}>
-                    BarCode
-                </Button>
-                <Button type="primary"><Link to={`/product/update/${id}`}>Update Sản Phẩm</Link></Button>
-                <Form form={form} component={false}>
-                    <Table
-                        rowSelection={rowSelection}
-                        components={{
-                            body: {
-                                cell: EditableCell,
-                            },
-                        }}
-                        bordered
-                        dataSource={dataColum}
-                        columns={mergedColumns}
-                        rowClassName="editable-row"
-                        pagination={{
-                            onChange: cancel,
-                        }}
-                    />
-                </Form>
-            </div>
             <ToastContainer />
 
         </div>

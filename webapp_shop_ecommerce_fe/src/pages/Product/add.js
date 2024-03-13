@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Table, Spin, Select, Input, Space, Dropdown, Divider, Tag, ColorPicker, InputNumber } from 'antd';
+import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -8,6 +8,13 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 const { TextArea } = Input;
 
+const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
 
 const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
@@ -31,11 +38,30 @@ const tagRender = (props) => {
     );
 };
 
-
-
+const calculateRowSpan = (data, dataIndex, rowIndex) => {
+    if (rowIndex > 0 && data[rowIndex][dataIndex] === data[rowIndex - 1][dataIndex]) {
+        return 0;
+    }
+    let count = 1;
+    for (let i = rowIndex + 1; i < data.length; i++) {
+        if (data[i][dataIndex] === data[i - 1][dataIndex]) {
+            count++;
+        } else {
+            break;
+        }
+    }
+    return count;
+};
 function ProductAdd() {
-
+    // Khai báo một biến để theo dõi rowSpan cho từng giá trị record.index
     const columnsTable = [
+        {
+            title: '#',
+            dataIndex: '#',
+            key: '#',
+            render: (text, record, index) => <span>{index + 1}</span>,
+
+        },
         {
             title: 'Tên',
             dataIndex: 'name',
@@ -84,19 +110,50 @@ function ProductAdd() {
             key: 'action',
             render: (text, record) => (
                 <Button danger onClick={() => handleDeleteProduct(record.key)}>
-                    {record.index + "_" + record.key}
+                    {/* {record.index + "_" + record.key} */}
                     <DeleteOutlined />
                 </Button>
             ),
         },
         {
             title: 'Upload IMG',
-            dataIndex: 'upload',
-            key: 'upload',
-            render: (text, record) => (
-                'upload'
-            ),
+            dataIndex: 'imageUrl',
+            key: 'imageUrl',
 
+            render: (text, record, index, imageUrl) => {
+                // Kiểm tra xem rowSpan cho record.index đã được đặt chưa, nếu chưa thì đặt mặc định là 1
+                const rowSpan = calculateRowSpan(dataRowProductDetail, 'index', index);
+
+                return {
+                    children: (
+                        <>
+                            <Upload
+                                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                listType="picture-card"
+                                fileList={record.imageUrl}
+                                multiple
+                                onPreview={handlePreview}
+                                onChange={handleChange}
+                            >
+                                {record.imageUrl.length >= 6 ? null : uploadButton}
+                            </Upload>
+                            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
+                                <img
+                                    alt="example"
+                                    style={{
+                                        width: '100%',
+                                    }}
+                                    src={previewImage}
+                                />
+                            </Modal>
+
+                        </>
+                    ),
+                    props: {
+                        rowSpan: rowSpan,  // Sử dụng rowSpan cho dòng hiện tại
+                    },
+                };
+            },
         }
 
     ];
@@ -140,6 +197,9 @@ function ProductAdd() {
     const inputRefStyle = useRef(null);
     const inputRefColor = useRef(null);
     const inputRefSize = useRef(null);
+
+    const [valueInputQuantityCustom, setValueInputQuantityCustom] = useState(null);
+    const [valueInputPriceCustom, setValueInputPriceCustom] = useState(null);
 
 
     // selectcategory
@@ -452,9 +512,14 @@ function ProductAdd() {
                                 name: size.label
                             }
                         })[0],
-                    price: 1000,
+                    price: 100000,
                     quantity: 1,
-                    imageUrl: ''
+                    imageUrl: [{
+                        uid: '-1',
+                        name: 'image.png',
+                        status: 'done',
+                        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+                    }]
                 }
             })
         })
@@ -496,10 +561,34 @@ function ProductAdd() {
             }
             return product;
         });
-
         setDataRowProductDetail(updatedProductList);
     };
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+    const handleCancelModal = () => {
+        setIsModalOpen(false);
+    };
 
+    const onChangeQuantityPriceCustom = () => {
+
+        const updatedProductList = dataRowProductDetail.map(product => {
+            if (selectedRowKeys.includes(product.key)) {
+                return {
+                    ...product,
+                    price: valueInputPriceCustom,
+                    quantity: valueInputQuantityCustom,
+                };
+            }
+            return product;
+        });
+        setDataRowProductDetail(updatedProductList);
+        setIsModalOpen(false);
+    }
 
     //Add product
     const [loading, setLoading] = useState(false);
@@ -542,6 +631,8 @@ function ProductAdd() {
         }
     };
 
+
+
     const resetModel = () => {
 
 
@@ -555,6 +646,55 @@ function ProductAdd() {
         setValueSize([])
         setValueColor([])
     }
+
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [fileList, setFileList] = useState([
+        {
+            uid: '-1',
+            name: 'image.png',
+            status: 'done',
+            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        },
+        {
+            uid: '-2',
+            name: 'image.png',
+            status: 'done',
+            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        }
+    ]);
+    const handleCancel = () => setPreviewOpen(false);
+    const handlePreview = async (file) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        setPreviewImage(file.url || file.preview);
+        setPreviewOpen(true);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    };
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const uploadButton = (
+        <button
+            style={{
+                border: 0,
+                background: 'none',
+            }}
+            type="button"
+        >
+            <PlusOutlined />
+            <div
+                style={{
+                    marginTop: 8,
+                }}
+            >
+                Upload
+            </div>
+        </button>
+    );
+
+
+
 
     return (
         <div className='bg-white p-4'>
@@ -699,13 +839,15 @@ function ProductAdd() {
                                     {menu}
                                     <Divider className='my-4' />
                                     <Space >
+
                                         <ColorPicker
                                             onChange={(e) => setValueInputColor(e.toHexString())}
                                             onKeyDown={(e) => e.stopPropagation()}
                                             value={valueInputColor}
                                             showText
-                                            placement="bottom"
+                                            trigger="hover"
                                         />
+
                                         <Button type="text" icon={<PlusOutlined />} onClick={addColor}>
                                             Add item
                                         </Button>
@@ -755,16 +897,35 @@ function ProductAdd() {
                         />
                     </div>
                 </div>
-
+                <div>
+                    <Button type="primary" onClick={handleAddProduct}>Thêm Sản Phẩm</Button>
+                    <Button type="primary" onClick={showModal}>Chỉnh Sửa Số Lượng Và Giá Chung</Button>
+                    <> <Modal title="Chỉnh Sửa Số Lượng Và Giá Chung" okText="Cập Nhật" open={isModalOpen} onOk={onChangeQuantityPriceCustom} onCancel={handleCancelModal}>
+                        <div>
+                            <label>Số Lượng</label>
+                            <Input className='mt-2 mb-2' placeholder="Nhập Số Lượng"
+                                value={valueInputQuantityCustom}
+                                onChange={(e) => { setValueInputQuantityCustom(e.target.value) }}
+                            ></Input>
+                        </div>
+                        <div>
+                            <label>Đơn Giá</label>
+                            <Input className='mt-2 mb-2' placeholder="Nhập Đơn Giá"
+                                value={valueInputPriceCustom}
+                                onChange={(e) => { setValueInputPriceCustom(e.target.value) }}
+                            ></Input>
+                        </div>
+                    </Modal></>
+                </div>
                 <div>
                     <Table
+                        rowSelection={rowSelection}
                         columns={columnsTable}
                         dataSource={dataRowProductDetail}
-                        pagination={false}
+                        // pagination={false}
                     />
                 </div>
 
-                <Button type="primary" onClick={handleAddProduct}>Thêm Sản Phẩm</Button>
 
             </div>
 

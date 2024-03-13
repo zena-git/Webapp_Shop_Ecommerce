@@ -1,6 +1,10 @@
 import colorName from 'color-name';
 
 const hexToColorName = (hex) => {
+  if (!hex) {
+    return "Unknown Color";
+  }
+
   // Chuyển đổi HEX sang RGB
   const hexWithoutHash = hex.replace('#', '');
   const rgb = {
