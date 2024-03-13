@@ -39,12 +39,12 @@ const tagRender = (props) => {
 };
 
 const calculateRowSpan = (data, dataIndex, rowIndex) => {
-    if (rowIndex > 0 && data[rowIndex][dataIndex] === data[rowIndex - 1][dataIndex]) {
+    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
         return 0;
     }
     let count = 1;
     for (let i = rowIndex + 1; i < data.length; i++) {
-        if (data[i][dataIndex] === data[i - 1][dataIndex]) {
+        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
             count++;
         } else {
             break;
@@ -52,6 +52,7 @@ const calculateRowSpan = (data, dataIndex, rowIndex) => {
     }
     return count;
 };
+
 function ProductAdd() {
     // Khai báo một biến để theo dõi rowSpan cho từng giá trị record.index
     const columnsTable = [
@@ -122,7 +123,7 @@ function ProductAdd() {
 
             render: (text, record, index, imageUrl) => {
                 // Kiểm tra xem rowSpan cho record.index đã được đặt chưa, nếu chưa thì đặt mặc định là 1
-                const rowSpan = calculateRowSpan(dataRowProductDetail, 'index', index);
+                const rowSpan = calculateRowSpan(dataRowProductDetail, 'color', index);
 
                 return {
                     children: (
