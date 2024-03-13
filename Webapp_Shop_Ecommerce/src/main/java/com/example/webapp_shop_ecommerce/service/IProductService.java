@@ -31,5 +31,8 @@ public interface IProductService extends IBaseService<Product, Long> {
     ResponseEntity<Resource> generateBarcodes(@RequestParam("data") List<String> dataList) throws IOException;
 
     ResponseEntity<Resource> exportExcel(@RequestParam("data") List<String> dataList) throws IOException;
+    ResponseEntity<ResponseObject> updateStatus(ProductRequest request,Long idProduct);
+    Page<Product> findProductsDeleted(Pageable pageable);
 
+    ResponseEntity<ResponseObject> productRecover(Long idProduct);
 }

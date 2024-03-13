@@ -82,8 +82,8 @@ public class CategoryController {
         if (otp.isPresent()) {
             return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
-
-        return categoryService.createNew(mapper.map(categoryRequest, Category.class));
+        Category category =mapper.map(categoryRequest, Category.class);
+        return categoryService.createNew(category);
     }
 
     @DeleteMapping("/{id}")
@@ -105,7 +105,7 @@ public class CategoryController {
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
         System.out.println("Update ID: " + id);
-        Category Category = null;
+
         Optional<Category> otp = categoryService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
@@ -114,13 +114,9 @@ public class CategoryController {
         if (categoryService.findByName(categoryRequest.getName()).isPresent()) {
             return new ResponseEntity<>(new ResponseObject("error", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
-        if (otp.isPresent()) {
-            Category = otp.get();
-            Category = mapper.map(categoryRequest, Category.class);
-//            Category.setCodeCategory(otp.get().getCodeCategory());
-            return categoryService.update(Category);
-        }
-        return new ResponseEntity<>(new ResponseObject("error", "Không Thế Update", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+        Category category = otp.get();
+        category.setName(categoryRequest.getName());
+        return categoryService.update(category);
 
 
     }

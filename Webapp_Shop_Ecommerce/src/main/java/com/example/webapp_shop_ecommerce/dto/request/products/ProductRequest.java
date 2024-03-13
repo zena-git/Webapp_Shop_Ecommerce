@@ -39,6 +39,8 @@ public class ProductRequest {
     private Long material;
     @NotNull(message = "Kiểu dáng không được để trống")
     private Long style;
+
+    private String status;
     @Valid
     @Size(min = 1, message = "Ít nhất phải có một chi tiết sản phẩm")
     private List<ProductDetailsRequest> lstProductDetails;

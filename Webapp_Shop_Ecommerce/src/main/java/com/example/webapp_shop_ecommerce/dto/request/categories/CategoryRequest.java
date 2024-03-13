@@ -15,4 +15,5 @@ import java.time.LocalDateTime;
 public class CategoryRequest {
     @NotBlank(message = "Không được để trống")
     private String name;
+
 }

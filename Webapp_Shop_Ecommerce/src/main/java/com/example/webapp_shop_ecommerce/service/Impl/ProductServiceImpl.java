@@ -242,4 +242,28 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
 
     }
 
+    @Override
+    public ResponseEntity<ResponseObject> updateStatus(ProductRequest request, Long idProduct) {
+        if (request.getStatus() == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "Trạng Thái Không Đươc Để Trống", 1, request), HttpStatus.BAD_REQUEST);
+        }
+        repository.updateStatus(request.getStatus(), idProduct);
+        return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Trạng Thái Thành Công", 0, request), HttpStatus.OK);
+    }
+
+    @Override
+    public Page<Product> findProductsDeleted(Pageable pageable) {
+        return repository.findProductsDeleted(pageable);
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> productRecover(Long idProduct) {
+        if (idProduct == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "ID không hợp lệ", 1, null), HttpStatus.BAD_REQUEST);
+        }
+        repository.productRecover(idProduct);
+        return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Trạng Thái Thành Công", 0, idProduct), HttpStatus.OK);
+
+    }
+
 }

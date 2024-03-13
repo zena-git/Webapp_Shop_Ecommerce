@@ -87,6 +87,21 @@ public class ProductController {
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
+    @GetMapping("/deleted")
+    public ResponseEntity<?> findProductDelete(@RequestParam(value = "page", defaultValue = "-1") Integer page,
+                                            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+        Pageable pageable = Pageable.unpaged();
+        if (size < 0) {
+            size = 5;
+        }
+        if (page >= 0) {
+            pageable = PageRequest.of(page, size);
+        }
+        List<Product> lstPro = productService.findProductsDeleted(pageable).getContent();
+        List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findProductById(@PathVariable("id") Long id,
                                              @RequestParam(value = "size", defaultValue = "") String size,
@@ -150,7 +165,10 @@ public class ProductController {
         }
         return productService.saveOrUpdate(productDto, id);
     }
-
+    @PutMapping("/recover/{id}")
+    public ResponseEntity<?> productRecover( @PathVariable("id") Long id) {
+        return productService.productRecover(id);
+    }
 
     @GetMapping(value = "/barcode", produces = "application/zip")
     public ResponseEntity<Resource> generateBarcodes(@RequestParam(value = "data", defaultValue = "") List<String> dataList)  {
@@ -170,5 +188,10 @@ public class ProductController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PutMapping("/status/{id}")
+    public ResponseEntity<?> updateProduct( @RequestBody ProductRequest productDto, @PathVariable("id") Long id) {
+        return productService.updateStatus(productDto, id);
     }
 }
