@@ -20,7 +20,6 @@ public class BillDetailsRequest {
     private Long id;
     private Integer quantity;
     private BigDecimal unitPrice;
-    private BigDecimal totalPrice;
     private BillRequest bill;
     private Long productDetails;
 }

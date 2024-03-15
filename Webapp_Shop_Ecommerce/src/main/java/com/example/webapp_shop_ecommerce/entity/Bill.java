@@ -1,10 +1,7 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "Bill")
@@ -84,5 +82,13 @@ public class Bill extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "user_id")
     private Users user;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<BillDetails> lstBillDetails;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<VoucherDetails> lstVoucherDetails;
 
 }

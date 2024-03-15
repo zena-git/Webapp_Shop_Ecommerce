@@ -1,14 +1,11 @@
 package com.example.webapp_shop_ecommerce.dto.response.productdetails;
 
-import com.example.webapp_shop_ecommerce.dto.response.attributesvalues.AttributesValuesResponse;
 import com.example.webapp_shop_ecommerce.dto.response.color.ColorResponse;
+import com.example.webapp_shop_ecommerce.dto.response.products.ProductClientResponse;
+import com.example.webapp_shop_ecommerce.dto.response.products.ProductCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.dto.response.size.SizeResponse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -17,16 +14,16 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @ToString
-public class ProductDetailsResponse {
+public class ProductDetailsCountersResponse {
     private Long id;
     private String code;
     private String imageUrl;
     private BigDecimal price;
     private Integer quantity;
     private String barcode;
-    private String status;
+    private Integer status;
     private SizeResponse size;
     private ColorResponse color;
-//    private ProductResponse product;
+    private ProductCountersResponse product;
 
 }

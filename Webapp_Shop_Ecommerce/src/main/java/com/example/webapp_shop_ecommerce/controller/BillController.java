@@ -1,12 +1,19 @@
 package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
+import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.categories.CategoryResponse;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.Category;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
+import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import com.example.webapp_shop_ecommerce.service.IBillService;
+import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +46,7 @@ public class BillController {
     private IBillService billService;
 
 
+
     @GetMapping
     public ResponseEntity<?> findBillAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
@@ -54,6 +62,8 @@ public class BillController {
         List<BillResponse> lst = lstPro.stream().map(entity -> mapper.map(entity, BillResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Bill> otp = billService.findById(id);
@@ -92,4 +102,7 @@ public class BillController {
 
 
     }
+
+
+
 }

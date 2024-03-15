@@ -10,10 +10,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IProductDetailsService extends IBaseService<ProductDetails, Long> {
 
     Page<ProductDetails> findAllByProductToPage(Long productId, Pageable page);
+    Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable page);
     List<ProductDetails> findAllByProduct(Long productId);
 
 
@@ -21,6 +23,6 @@ public interface IProductDetailsService extends IBaseService<ProductDetails, Lon
 
     ResponseEntity<ResponseObject> updateAll(List<ProductDetailsRequest> lstProductDetails);
 
-    void updateProductDetailsByProductId(Long id);
+    Optional<ProductDetails> findByBarCode(String barCode);
 
 }
