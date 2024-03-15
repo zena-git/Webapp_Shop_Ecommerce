@@ -15,5 +15,4 @@ public class PromotionDetailsResponse {
     private Long id;
     private PromotionDetailsResponse promotion;
     private ProductDetailsResponse productDetails;
-    private Float value;
 }

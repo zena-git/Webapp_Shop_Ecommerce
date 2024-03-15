@@ -21,6 +21,6 @@ public interface IProductDetailsService extends IBaseService<ProductDetails, Lon
 
     ResponseEntity<ResponseObject> updateAll(List<ProductDetailsRequest> lstProductDetails);
 
-
+    void updateProductDetailsByProductId(Long id);
 
 }

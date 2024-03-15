@@ -3,8 +3,10 @@ package com.example.webapp_shop_ecommerce.repositories;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,4 +20,10 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where  proDetail.product.id = ?1")
     List<ProductDetails> findAllByProduct(Long idPro);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductDetails pd SET pd.deleted = true WHERE pd.product.id = ?1")
+    void updateProductDetailsByProductId(Long id);
+
+    boolean existsByCode(String code);
 }

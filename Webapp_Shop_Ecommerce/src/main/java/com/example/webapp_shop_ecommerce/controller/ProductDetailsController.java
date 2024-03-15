@@ -61,7 +61,7 @@ public class ProductDetailsController {
     public ResponseEntity<?> getProductDetailsById(@PathVariable("id") Long id) {
         Optional<ProductDetails> otp = productDetailsService.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
 
         ProductDetailsResponse product = otp.map(pro -> mapper.map(pro, ProductDetailsResponse.class)).orElseThrow(IllegalArgumentException::new);
@@ -80,7 +80,20 @@ public class ProductDetailsController {
     }
 
     @PutMapping()
-    public ResponseEntity<?> update( @RequestBody List<ProductDetailsRequest> lstProductDetails) {
+    public ResponseEntity<?> updates( @RequestBody List<ProductDetailsRequest> lstProductDetails) {
         return productDetailsService.updateAll(lstProductDetails);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateLess( @RequestBody ProductDetailsRequest object, @PathVariable("id") Long id) {
+        Optional<ProductDetails> otp = productDetailsService.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, object), HttpStatus.BAD_REQUEST);
+        }
+        ProductDetails productDetails = otp.get();
+        productDetails.setPrice(object.getPrice());
+        productDetails.setQuantity(object.getQuantity());
+        productDetails.setImageUrl(object.getImageUrl());
+        return productDetailsService.update(productDetails);
     }
 }
