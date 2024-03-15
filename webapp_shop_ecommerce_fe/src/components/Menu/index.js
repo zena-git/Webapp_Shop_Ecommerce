@@ -24,7 +24,8 @@ function getItem(label, key, icon, children, theme) {
 
 const items = [
   getItem(<Link to="/">Thống Kê</Link>, '1', <MailOutlined />),
-  getItem(<Link to="/oder">Quản Lý Bán Hàng</Link>, '2', <ShoppingCartOutlined />),
+  getItem(<Link to="/sale">Quản Lý Bán Hàng</Link>, '2', <ShoppingCartOutlined />),
+  getItem(<Link to="/order">Đơn Hàng</Link>, '15', <ShoppingCartOutlined />),
   getItem('Quản Lý Sản Phẩm', 'sub1', <AppstoreOutlined />, [
     getItem(<Link to="/product">Sản Phẩm</Link>, '3'),
     getItem('Thuộc Tính', 'sub1-2', null,

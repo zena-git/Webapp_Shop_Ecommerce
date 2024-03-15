@@ -526,9 +526,15 @@ function ProductAdd() {
         })
         // console.log("---");
         console.log(lstProductDetails);
-        setDataRowProductDetail(lstProductDetails.flat())
+        fillDataProductDetail(lstProductDetails.flat());
         // Cập nhật danh sách sản phẩm
     }, [valueColor, valueSize, valueNameProduct])
+
+    const fillDataProductDetail = (data)=>{
+        console.log(data);
+        setDataRowProductDetail(data)
+    }
+
 
     const handleDeleteProduct = (key) => {
         // Assuming you have a productList state
@@ -587,7 +593,9 @@ function ProductAdd() {
             }
             return product;
         });
-        setDataRowProductDetail(updatedProductList);
+        console.log(updatedProductList);
+        // setDataRowProductDetail(updatedProductList);
+        fillDataProductDetail(updatedProductList)
         setIsModalOpen(false);
     }
 
