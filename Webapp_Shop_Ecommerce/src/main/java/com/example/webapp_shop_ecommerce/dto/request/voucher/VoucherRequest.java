@@ -28,21 +28,21 @@ public class VoucherRequest {
 
     @NotNull(message = "Mục tiêu không được để trống")
     @NumberFormat(style = NumberFormat.Style.NUMBER)
-    private Integer targetType;
+    private Integer target_type;
 
     @NotNull(message = "Loại giảm giá không được để trống")
     @NumberFormat(style = NumberFormat.Style.NUMBER)
-    private Integer discountType;
+    private Integer discount_type;
 
     @NumberFormat(style = NumberFormat.Style.NUMBER)
-    private Float maxDiscountValue;
+    private Float max_discount_value;
 
     @NotNull(message = "Giá trị tối thiểu không được để trống")
     @NumberFormat(style = NumberFormat.Style.NUMBER)
     private Float order_min_value;
 
     @NumberFormat(style = NumberFormat.Style.NUMBER)
-    private Integer usageLimit;
+    private Integer usage_limit;
 
     private String status;
     //2024-02-26T03:12:22

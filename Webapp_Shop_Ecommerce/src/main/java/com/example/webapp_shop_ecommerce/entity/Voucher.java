@@ -38,6 +38,9 @@ public class Voucher extends BaseEntity {
     @Column(name = "order_min_value")
     private Float order_min_value;
 
+    @Column(name = "discount_type")
+    private Integer discount_type;
+
     @Column(name = "description")
     private String description;
 

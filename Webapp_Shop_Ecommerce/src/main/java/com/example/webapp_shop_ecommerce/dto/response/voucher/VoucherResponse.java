@@ -22,6 +22,9 @@ public class VoucherResponse {
     private String name;
     private Float value;
     private Integer quantity;
+
+    private Integer discount_type;
+
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     Set<VoucherDetails> lstVoucherDetails;
