@@ -1,11 +1,6 @@
 import prisma from "../../../../../lib/prisma";
 import { NextRequest } from "next/server";
 
-interface RequestBody {
-    id: number,
-    imageUrl: string
-}
-
 export async function GET(req: NextRequest) {
 
     const searchParams = req.nextUrl.searchParams;
@@ -13,7 +8,7 @@ export async function GET(req: NextRequest) {
 
     if (!body.id || !body.imageUrl) return new Response(JSON.stringify({ error: 'no info provided' }))
 
-    const found = await prisma.product.findFirst({
+    const found = await prisma.productDetail.findFirst({
         where: {
             id: Number.parseInt(body.id),
         }
@@ -21,7 +16,7 @@ export async function GET(req: NextRequest) {
 
     if (!found) return new Response(JSON.stringify({ error: 'not found' }))
 
-    const updated = await prisma.product.update({
+    const updated = await prisma.productDetail.update({
         where: {
             id: found.id
         },
@@ -30,5 +25,5 @@ export async function GET(req: NextRequest) {
         }
     })
 
-    return new Response(JSON.stringify({ ...updated, id: updated.id.toString(), id_brand: updated.id_brand?.toString(), id_category: updated.id_category?.toString(), id_material: updated.id_material?.toString(), id_style: updated.id_style?.toString() }))
+    return new Response(JSON.stringify({ ...updated, id: updated.id.toString(), color_id: updated.color_id?.toString(), product_id: updated.product_id?.toString(), size_id: updated.size_id?.toString() }))
 }

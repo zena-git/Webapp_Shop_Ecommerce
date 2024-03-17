@@ -51,6 +51,21 @@ const calculateRowSpan = (data, dataIndex, rowIndex) => {
     return count;
 };
 
+const findSameColor = (data, dataIndex, rowIndex) => {
+    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
+        return 0;
+    }
+    let count = [];
+    for (let i = rowIndex + 1; i < data.length; i++) {
+        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
+            count.push(data[i].id)
+        } else {
+            break;
+        }
+    }
+    return count;
+}
+
 function ProductUpdate() {
     const { id } = useParams();
     const [product, setProduct] = useState();
@@ -106,11 +121,9 @@ function ProductUpdate() {
                 fillDataProduct(response.data);
             })
             .catch(error => console.error(error));
-        console.log(id);
     }, [id]);
 
     const fillDataProduct = (pro) => {
-        console.log(pro);
         setValueCodeProduct(pro.code);
         setValueNameProduct(pro.name);
         setValueDecProduct(pro.description);
@@ -225,12 +238,14 @@ function ProductUpdate() {
             key: 'imageUrl',
             render: (text, record, index, imageUrl) => {
                 // Kiểm tra xem rowSpan cho record.index đã được đặt chưa, nếu chưa thì đặt mặc định là 1
+                const same = findSameColor(dataRowProductDetail, 'color', index)
                 const rowSpan = calculateRowSpan(dataRowProductDetail, 'color', index);
 
                 return {
                     children: (
                         <>
-                            {console.log("log: " + record.imageUrl)}
+                            {console.log(record)}
+                            {record && record.imageUrl && record.imageUrl[0].split(" | ") && <img className='w-40 aspect-square rounded-sm' src={record.imageUrl[0].split(" | ")[0]}></img>}
                             <Upload
                                 listType="picture-card"
                                 fileList={imageUrl}
@@ -238,18 +253,18 @@ function ProductUpdate() {
                                 customRequest={(q) => {
                                     const t = new FormData();
                                     t.append("file", q.file);
-                                    console.log(record)
-                                    axios.post(`https://file.lyart.pro.vn/api/image/product/${id}`, t).then(res => {
+                                    axios.post(`https://file.lyart.pro.vn/api/image/productDetail/${id}`, t).then(res => {
                                         // res.data.image là ra cái link ảnh đã upload lên cloud
-                                        axios.get(`http://localhost:8081/api/product/update/image?id=${id}&imageUrl=${res.data.image}`).then((response) => {
-                                            //response.data là cái data của product đã được update lại image url
-                                            console.log(response.data)
-                                            setProduct(prev => {
-                                                return { ...prev, image_url: response.data.image_url }
-                                            });
-                                            fillDataProduct(product)
-
-                                            alert("upload image successfully")
+                                        alert("upload image successfully")
+                                        axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.image}`).then((response) => {
+                                            //response.data là cái data của productDetail đã được update lại image url
+                                            console.log("updated Detail: " + JSON.stringify(response.data))
+                                        })
+                                        same.map(idSame => {
+                                            axios.get(`http://localhost:8081/api/productDetail/update/image?id=${idSame}&imageUrl=${res.data.image}`).then((response) => {
+                                                //response.data là cái data của product đã được update lại image url
+                                                console.log("updatedSameDetail :" + JSON.stringify(response.data))
+                                            })
                                         })
                                     })
                                 }}
@@ -778,7 +793,7 @@ function ProductUpdate() {
                         <p>Danh sách ảnh</p>
                         <div className='flex gap-2 items-center'>
                             <div className='flex gap-2'>
-                                {product && product.imageUrl.split(" | ").map(img => {
+                                {product && product.imageUrl && product.imageUrl.split(" | ").map(img => {
                                     return <img className='w-40 aspect-square rounded-sm' src={img}></img>
                                 }
                                 )}
