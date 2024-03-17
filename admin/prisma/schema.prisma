@@ -1,0 +1,399 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Address {
+  delete_flag        Boolean?  @db.Bit(1)
+  created_date       DateTime? @db.DateTime(6)
+  customer_id        BigInt?
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  commune            String?   @db.VarChar(255)
+  created_by         String    @db.VarChar(255)
+  detail             String?   @db.VarChar(255)
+  district           String?   @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  province           String?   @db.VarChar(255)
+  receiver_name      String?   @db.VarChar(255)
+  receiver_phone     String?   @db.VarChar(255)
+  Customer           Customer? @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKc90hq90y53kiv2106tsfr0pm8")
+
+  @@index([customer_id], map: "FKc90hq90y53kiv2106tsfr0pm8")
+}
+
+model Bill {
+  cash               Decimal?        @db.Decimal(38, 2)
+  delete_flag        Boolean?        @db.Bit(1)
+  digital_currency   Decimal?        @db.Decimal(38, 2)
+  into_money         Decimal?        @db.Decimal(38, 2)
+  total_money        Decimal?        @db.Decimal(38, 2)
+  booking_date       DateTime?       @db.DateTime(6)
+  completion_date    DateTime?       @db.DateTime(6)
+  created_date       DateTime?       @db.DateTime(6)
+  customer_id        BigInt?
+  delivery_date      DateTime?       @db.DateTime(6)
+  id                 BigInt          @id @default(autoincrement())
+  last_modified_date DateTime?       @db.DateTime(6)
+  payment_date       DateTime?       @db.DateTime(6)
+  user_id            BigInt?
+  bill_type          String?         @db.VarChar(255)
+  code_bill          String?         @db.VarChar(255)
+  created_by         String          @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  receiver_address   String?         @db.VarChar(255)
+  receiver_name      String?         @db.VarChar(255)
+  receiver_phone     String?         @db.VarChar(255)
+  status             String?         @db.VarChar(255)
+  email              String?         @db.VarChar(255)
+  receiver_commune   String?         @db.VarChar(255)
+  receiver_details   String?         @db.VarChar(255)
+  receiver_district  String?         @db.VarChar(255)
+  receiver_province  String?         @db.VarChar(255)
+  Users              Users?          @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK8uj2vsobqgiynns1cqvmva3q7")
+  Customer           Customer?       @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKbspdwf59pyvty1xwhga3ew7e0")
+  BillDetails        BillDetails[]
+  HistoryBill        HistoryBill[]
+  VoucherDetail      VoucherDetail[]
+
+  @@index([user_id], map: "FK8uj2vsobqgiynns1cqvmva3q7")
+  @@index([customer_id], map: "FKbspdwf59pyvty1xwhga3ew7e0")
+}
+
+model BillDetails {
+  delete_flag        Boolean?       @db.Bit(1)
+  quantity           Int?
+  status             String?        @db.VarChar(255)
+  unit_price         Decimal?       @db.Decimal(38, 2)
+  bill_id            BigInt?
+  created_date       DateTime?      @db.DateTime(6)
+  id                 BigInt         @id @default(autoincrement())
+  last_modified_date DateTime?      @db.DateTime(6)
+  product_detail_id  BigInt?
+  created_by         String         @db.VarChar(255)
+  last_modified_by   String?        @db.VarChar(255)
+  Bill               Bill?          @relation(fields: [bill_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK1grtkupr231unsdw175mfpvi4")
+  ProductDetail      ProductDetail? @relation(fields: [product_detail_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKbp6ksvdfe8pty3d4191phxge9")
+
+  @@index([bill_id], map: "FK1grtkupr231unsdw175mfpvi4")
+  @@index([product_detail_id], map: "FKbp6ksvdfe8pty3d4191phxge9")
+}
+
+model Brand {
+  delete_flag        Boolean?  @db.Bit(1)
+  created_date       DateTime? @db.DateTime(6)
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  created_by         String    @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  name               String?   @db.VarChar(255)
+  Product            Product[]
+}
+
+model Cart {
+  delete_flag        Boolean?      @db.Bit(1)
+  created_date       DateTime?     @db.DateTime(6)
+  customer_id        BigInt?       @unique(map: "UK_iaxjd1kwfxrwdc9r0bi4m5l5q")
+  id                 BigInt        @id @default(autoincrement())
+  last_modified_date DateTime?     @db.DateTime(6)
+  created_by         String        @db.VarChar(255)
+  last_modified_by   String?       @db.VarChar(255)
+  Customer           Customer?     @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKjh6lsweiw8ipasfagjwmmgi9u")
+  CartDetails        CartDetails[]
+}
+
+model CartDetails {
+  delete_flag        Boolean?       @db.Bit(1)
+  quantity           Int?
+  cart_id            BigInt?
+  created_date       DateTime?      @db.DateTime(6)
+  id                 BigInt         @id @default(autoincrement())
+  last_modified_date DateTime?      @db.DateTime(6)
+  product_detail_id  BigInt?
+  created_by         String         @db.VarChar(255)
+  last_modified_by   String?        @db.VarChar(255)
+  Cart               Cart?          @relation(fields: [cart_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK4p4hha44kt1d8b7a8hsofs7m4")
+  ProductDetail      ProductDetail? @relation(fields: [product_detail_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKhtftn9f2wes4iv1t7o9vkxq4y")
+
+  @@index([cart_id], map: "FK4p4hha44kt1d8b7a8hsofs7m4")
+  @@index([product_detail_id], map: "FKhtftn9f2wes4iv1t7o9vkxq4y")
+}
+
+model Category {
+  delete_flag        Boolean?  @db.Bit(1)
+  created_date       DateTime? @db.DateTime(6)
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  created_by         String    @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  name               String?   @db.VarChar(255)
+  Product            Product[]
+}
+
+model Color {
+  delete_flag        Boolean?        @db.Bit(1)
+  created_date       DateTime?       @db.DateTime(6)
+  id                 BigInt          @id @default(autoincrement())
+  last_modified_date DateTime?       @db.DateTime(6)
+  created_by         String          @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  name               String?         @db.VarChar(255)
+  ProductDetail      ProductDetail[]
+}
+
+model Customer {
+  delete_flag        Boolean?        @db.Bit(1)
+  gender             Boolean?        @db.Bit(1)
+  birthday           DateTime?       @db.DateTime(6)
+  created_date       DateTime?       @db.DateTime(6)
+  id                 BigInt          @id @default(autoincrement())
+  last_modified_date DateTime?       @db.DateTime(6)
+  address            String?         @db.VarChar(255)
+  code_customer      String?         @db.VarChar(255)
+  created_by         String          @db.VarChar(255)
+  email              String?         @db.VarChar(255)
+  full_name          String?         @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  password           String?         @db.VarChar(255)
+  phone              String?         @db.VarChar(255)
+  username           String?         @db.VarChar(255)
+  Address            Address[]
+  Bill               Bill[]
+  Cart               Cart?
+  VoucherDetail      VoucherDetail[]
+}
+
+model HistoryBill {
+  id                 BigInt    @id @default(autoincrement())
+  created_by         String    @db.VarChar(255)
+  created_date       DateTime? @db.DateTime(6)
+  last_modified_by   String?   @db.VarChar(255)
+  last_modified_date DateTime? @db.DateTime(6)
+  delete_flag        Boolean?  @db.Bit(1)
+  describe_text      String?   @db.VarChar(255)
+  bill_id            BigInt?
+  description        String?   @db.VarChar(255)
+  Bill               Bill?     @relation(fields: [bill_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKcha5apjetqh0ct25e98kj6c1h")
+
+  @@index([bill_id], map: "FKcha5apjetqh0ct25e98kj6c1h")
+}
+
+model Material {
+  delete_flag        Boolean?  @db.Bit(1)
+  created_date       DateTime? @db.DateTime(6)
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  created_by         String    @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  name               String?   @db.VarChar(255)
+  Product            Product[]
+}
+
+model Product {
+  delete_flag        Boolean?        @db.Bit(1)
+  status             String?         @db.VarChar(255)
+  created_date       DateTime?       @db.DateTime(6)
+  id                 BigInt          @id @default(autoincrement())
+  id_brand           BigInt?
+  id_category        BigInt?
+  id_material        BigInt?
+  id_style           BigInt?
+  last_modified_date DateTime?       @db.DateTime(6)
+  code_product       String?         @db.VarChar(255)
+  created_by         String          @db.VarChar(255)
+  description        String?         @db.VarChar(255)
+  image_url          String?         @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  name               String?         @db.VarChar(255)
+  Brand              Brand?          @relation(fields: [id_brand], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK22ajv4e5balh8n7h42xtul5v5")
+  Material           Material?       @relation(fields: [id_material], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK2brsnl13wfbihxgi5fk1lqbxu")
+  Category           Category?       @relation(fields: [id_category], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK605rywsssynyyl79wv7q8tj02")
+  Style              Style?          @relation(fields: [id_style], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKpet8klrghkjoam1gnsvs1th0w")
+  ProductDetail      ProductDetail[]
+
+  @@index([id_brand], map: "FK22ajv4e5balh8n7h42xtul5v5")
+  @@index([id_material], map: "FK2brsnl13wfbihxgi5fk1lqbxu")
+  @@index([id_category], map: "FK605rywsssynyyl79wv7q8tj02")
+  @@index([id_style], map: "FKpet8klrghkjoam1gnsvs1th0w")
+}
+
+model ProductDetail {
+  delete_flag         Boolean?           @db.Bit(1)
+  price               Decimal?           @db.Decimal(38, 2)
+  quantity            Int?
+  status              String?            @db.VarChar(255)
+  color_id            BigInt?
+  created_date        DateTime?          @db.DateTime(6)
+  id                  BigInt             @id @default(autoincrement())
+  last_modified_date  DateTime?          @db.DateTime(6)
+  product_id          BigInt?
+  size_id             BigInt?
+  barcode             String?            @db.VarChar(255)
+  code_product_detail String?            @db.VarChar(255)
+  created_by          String             @db.VarChar(255)
+  image_url           String?            @db.VarChar(255)
+  last_modified_by    String?            @db.VarChar(255)
+  BillDetails         BillDetails[]
+  CartDetails         CartDetails[]
+  Color               Color?             @relation(fields: [color_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK5eoco0hcsd9kiddxn8g581yxq")
+  Size                Size?              @relation(fields: [size_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKe5ifoiownmta71nm45pwhcrgw")
+  Product             Product?           @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKr6eh2mxc51vvsw90fgq5ieko2")
+  PromotionDetails    PromotionDetails[]
+
+  @@index([color_id], map: "FK5eoco0hcsd9kiddxn8g581yxq")
+  @@index([size_id], map: "FKe5ifoiownmta71nm45pwhcrgw")
+  @@index([product_id], map: "FKr6eh2mxc51vvsw90fgq5ieko2")
+}
+
+model Promotion {
+  delete_flag        Boolean?           @db.Bit(1)
+  status             String?            @db.VarChar(255)
+  created_date       DateTime?          @db.DateTime(6)
+  end_date           DateTime?          @db.DateTime(6)
+  id                 BigInt             @id @default(autoincrement())
+  last_modified_date DateTime?          @db.DateTime(6)
+  start_date         DateTime?          @db.DateTime(6)
+  code_promotion     String?            @db.VarChar(255)
+  created_by         String             @db.VarChar(255)
+  description        String?            @db.VarChar(255)
+  last_modified_by   String?            @db.VarChar(255)
+  name               String?            @db.VarChar(255)
+  value              Float?             @db.Float
+  PromotionDetails   PromotionDetails[]
+}
+
+model PromotionDetails {
+  delete_flag        Boolean?       @db.Bit(1)
+  value              Float?         @db.Float
+  created_date       DateTime?      @db.DateTime(6)
+  id                 BigInt         @id @default(autoincrement())
+  last_modified_date DateTime?      @db.DateTime(6)
+  product_details_id BigInt?
+  promotion_id       BigInt?
+  created_by         String         @db.VarChar(255)
+  last_modified_by   String?        @db.VarChar(255)
+  Promotion          Promotion?     @relation(fields: [promotion_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKa6wdgw9juxkh6gedemvj2vedl")
+  ProductDetail      ProductDetail? @relation(fields: [product_details_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKbrqmc6gcfc2wggvtq4g0epysf")
+
+  @@index([promotion_id], map: "FKa6wdgw9juxkh6gedemvj2vedl")
+  @@index([product_details_id], map: "FKbrqmc6gcfc2wggvtq4g0epysf")
+}
+
+model Roles {
+  delete_flag        Boolean?     @db.Bit(1)
+  created_date       DateTime?    @db.DateTime(6)
+  id                 BigInt       @id @default(autoincrement())
+  last_modified_date DateTime?    @db.DateTime(6)
+  created_by         String       @db.VarChar(255)
+  last_modified_by   String?      @db.VarChar(255)
+  name               String?      @db.VarChar(255)
+  User_roles         User_roles[]
+}
+
+model Size {
+  delete_flag        Boolean?        @db.Bit(1)
+  created_date       DateTime?       @db.DateTime(6)
+  id                 BigInt          @id @default(autoincrement())
+  last_modified_date DateTime?       @db.DateTime(6)
+  created_by         String          @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  name               String?         @db.VarChar(255)
+  ProductDetail      ProductDetail[]
+}
+
+model Style {
+  delete_flag        Boolean?  @db.Bit(1)
+  created_date       DateTime? @db.DateTime(6)
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  created_by         String    @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  name               String?   @db.VarChar(255)
+  Product            Product[]
+}
+
+model User_roles {
+  delete_flag        Boolean?  @db.Bit(1)
+  created_date       DateTime? @db.DateTime(6)
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  role_id            BigInt?
+  user_id            BigInt?
+  created_by         String    @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  Users              Users?    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKrek45jl75elhaalb9pu46u1mw")
+  Roles              Roles?    @relation(fields: [role_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKv1hxaxwvkyrqchvjw52sgcqu")
+
+  @@index([user_id], map: "FKrek45jl75elhaalb9pu46u1mw")
+  @@index([role_id], map: "FKv1hxaxwvkyrqchvjw52sgcqu")
+}
+
+model Users {
+  delete_flag        Boolean?     @db.Bit(1)
+  gender             Boolean?     @db.Bit(1)
+  birthday           DateTime?    @db.DateTime(6)
+  created_date       DateTime?    @db.DateTime(6)
+  id                 BigInt       @id @default(autoincrement())
+  last_modified_date DateTime?    @db.DateTime(6)
+  address            String?      @db.VarChar(255)
+  code_user          String?      @db.VarChar(255)
+  created_by         String       @db.VarChar(255)
+  email              String?      @db.VarChar(255)
+  full_name          String?      @db.VarChar(255)
+  last_modified_by   String?      @db.VarChar(255)
+  password           String?      @db.VarChar(255)
+  phone              String?      @db.VarChar(255)
+  username           String?      @db.VarChar(255)
+  Bill               Bill[]
+  User_roles         User_roles[]
+}
+
+model Voucher {
+  delete_flag        Boolean?        @db.Bit(1)
+  value              Float?          @db.Float
+  created_date       DateTime?       @db.DateTime(6)
+  end_date           DateTime?       @db.DateTime(6)
+  id                 BigInt          @id @default(autoincrement())
+  last_modified_date DateTime?       @db.DateTime(6)
+  start_date         DateTime?       @db.DateTime(6)
+  created_by         String          @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  name               String?         @db.VarChar(255)
+  status             String?         @db.VarChar(255)
+  code               String?         @db.VarChar(255)
+  description        String?         @default("")
+  discount_type      Int             @default(0)
+  max_discount_value Float?
+  order_min_value    Float           @default(0) @db.Float
+  target_type        String?         @db.VarChar(255)
+  usage_limit        String?         @db.VarChar(255)
+  code_voucher       String?         @db.VarChar(255)
+  quantity           Int?
+  VoucherDetail      VoucherDetail[]
+}
+
+model VoucherDetail {
+  delete_flag        Boolean?  @db.Bit(1)
+  status             String?   @db.VarChar(255)
+  bill_id            BigInt?
+  created_date       DateTime? @db.DateTime(6)
+  customer_id        BigInt?
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  used_date          DateTime? @db.DateTime(6)
+  voucher_id         BigInt?
+  created_by         String    @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
+  Bill               Bill?     @relation(fields: [bill_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK9l46vdh3sfs1top9pr2ljyw5o")
+  Customer           Customer? @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKov997a2uxnvpabx1i8ycjinig")
+  Voucher            Voucher?  @relation(fields: [voucher_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKrb0cio78y2ao5etcgjfn4mg80")
+
+  @@index([bill_id], map: "FK9l46vdh3sfs1top9pr2ljyw5o")
+  @@index([customer_id], map: "FKov997a2uxnvpabx1i8ycjinig")
+  @@index([voucher_id], map: "FKrb0cio78y2ao5etcgjfn4mg80")
+}
