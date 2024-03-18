@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -23,6 +24,8 @@ import java.util.Set;
 public class BillResponse {
     private Long id;
     private String codeBill;
+    private String paymentMethod;
+
     private String status;
     private String billType;
     private BigDecimal cash;
@@ -43,6 +46,7 @@ public class BillResponse {
 
 
     private CustomerResponse customer;
+    private LocalDateTime createdDate;
 
 //    private UserDto user;
 

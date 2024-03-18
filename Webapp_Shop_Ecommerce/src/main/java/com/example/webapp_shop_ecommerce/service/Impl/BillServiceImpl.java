@@ -16,6 +16,8 @@ import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     private IBillDetailsService billDetailsService;
     @Autowired
     private IProductDetailsService productDetailsService;
+    @Autowired
+    private ICustomerRepository customerRepo;
 
     @Override
     public ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) {
@@ -154,6 +158,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         Bill entity = new Bill();
         entity.setBillType(BillType.OFFLINE.getLabel());
         entity.setStatus(TrangThaiBill.NEW.getLabel());
+        entity.setCodeBill("HD" + randomStringGenerator.generateRandomString(6));
         entity.setId(null);
         entity.setDeleted(false);
         entity.setCreatedBy("Admin");
@@ -166,7 +171,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Được Tạo Quá 5 Hóa Đơn ", 0, entity), HttpStatus.BAD_REQUEST);
         }
         System.out.println("Hóa Đơn Đã cớ+ " +count);
-        billRepo.save(entity);
+        createNew(entity);
         return new ResponseEntity<>(new ResponseObject("success", "Tạo Hóa Đơn Thành Công", 0, entity), HttpStatus.CREATED);
 
     }
@@ -213,6 +218,29 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         return new ResponseEntity<>(new ResponseObject("success", "Thêm Sản Phẩm Thành Công", 0, lstBillDetailsDto), HttpStatus.CREATED);
 
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> billUpdateCustomer(BillRequest billRequest, Long id) {
+        Optional<Bill> otp = billRepo.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Id Hóa Đơn", 0, id), HttpStatus.BAD_REQUEST);
+        }
+        Bill bill = otp.get();
+        if (billRequest.getCustomer() == null) {
+            bill.setCustomer(null);
+        }else {
+            Optional<Customer> customerOpt = customerRepo.findById(billRequest.getCustomer());
+            if (customerOpt.isPresent()) {
+                bill.setCustomer(customerOpt.get());
+            }else {
+                bill.setCustomer(null);
+                return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Khách Hàng", 0, id), HttpStatus.BAD_REQUEST);
+            }
+        }
+        update(bill);
+        return new ResponseEntity<>(new ResponseObject("success", "Chọn Khách Hàng Thành Công", 0, billRequest), HttpStatus.CREATED);
 
     }
 
@@ -264,6 +292,34 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     billDetails.setQuantity(billDto.getQuantity());
     billDetailsRepo.save(billDetails);
     return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDto), HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> billCounterPay(BillRequest billDto, Long id) {
+
+        Optional<Bill> otp = findById(id);
+        if (otp.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, billDto), HttpStatus.BAD_REQUEST);
+        }
+        Bill bill = otp.get();
+        bill = mapper.map(billDto, Bill.class);
+        bill.setId(id);
+        bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
+        bill.setBookingDate(new Date());
+        bill.setPaymentDate(new Date());
+        bill.setBillType(otp.get().getBillType());
+        bill.setCodeBill(otp.get().getCodeBill());
+        bill.setCustomer(otp.get().getCustomer());
+        bill.setUser(otp.get().getUser());
+
+        update(bill);
+        return new ResponseEntity<>(new ResponseObject("success", "Thanh Toán Thành Công", 0, billDto), HttpStatus.CREATED);
+
+    }
+
+    @Override
+    public Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, String status, String statusNot) {
+        return repository.findAllDeletedFalseAndStatusAndStatusNot(page, status, statusNot);
     }
 
 }

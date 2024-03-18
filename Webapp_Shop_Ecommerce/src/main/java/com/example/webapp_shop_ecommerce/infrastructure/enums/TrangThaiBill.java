@@ -2,18 +2,18 @@ package com.example.webapp_shop_ecommerce.infrastructure.enums;
 
 public enum TrangThaiBill {
     TAT_CA(""),
-    NEW("New"),
-    CHO_XAC_NHAN("Chờ Xác Nhận"),
-    CHO_GIAO("Chờ Giao"),
-    DANG_GIAO("Đang Giao"),
-    HOAN_THANH("Hoàn Thành"),
-    HUY("Hủy"),
-    CHO_THANH_TOAN("Chờ Thanh Toán"),
+    CHO_XAC_NHAN("0"),
+    CHO_THANH_TOAN("1"),
+
+    CHO_GIAO("2"),
+    DANG_GIAO("3"),
+    DA_GIAO_HANG("4"),
+    HOAN_THANH("5"),
+    HUY("6"),
 
     TRA_HANG("Trả Hàng"),
-
-    DANG_BAN("Đang Bán");
-
+    DANG_BAN("Đang Bán"),
+    NEW("New");
 
 
     private final String label;

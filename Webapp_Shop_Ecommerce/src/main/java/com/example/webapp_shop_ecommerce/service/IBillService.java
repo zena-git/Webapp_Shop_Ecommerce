@@ -23,6 +23,10 @@ public interface IBillService extends IBaseService<Bill, Long> {
 
     ResponseEntity<ResponseObject> billCounterNew();
     ResponseEntity<ResponseObject> countersAddProduct(List<BillDetailsRequest> lstBillDetailsDto, Long id);
+    ResponseEntity<ResponseObject> billUpdateCustomer(BillRequest billRequest, Long id);
     ResponseEntity<ResponseObject> countersAddProductBarcode( Long id, String barcode );
     ResponseEntity<ResponseObject> chaneQuantityBillDetails(BillDetailsRequest billDto, Long idBillDetail);
+    ResponseEntity<ResponseObject> billCounterPay( BillRequest billDto, Long id);
+
+    Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, String status, String statusNot);
 }

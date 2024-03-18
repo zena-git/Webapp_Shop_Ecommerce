@@ -1,12 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.response.customer;
 
 import com.example.webapp_shop_ecommerce.dto.response.address.AddressResponse;
-import com.example.webapp_shop_ecommerce.entity.Address;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Date;
 import java.util.Set;
@@ -16,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public class CustomerResponse {
+public class CustomerAddressResponse {
 
     private Long id;
     private String codeCustomer;
@@ -24,8 +19,8 @@ public class CustomerResponse {
     private Date birthday;
     private Boolean gender;
     private String phone;
-
-    private AddressResponse defaultAddress;
+    private String email;
+    private Set<AddressResponse> lstAddress;
 
 //    private String username;
 //    private String password;

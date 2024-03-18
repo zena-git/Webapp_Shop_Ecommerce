@@ -50,7 +50,8 @@ public class BillController {
     @GetMapping
     public ResponseEntity<?> findBillAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
-            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+            @RequestParam(value = "size", defaultValue = "-1") Integer size,
+            @RequestParam(value = "status", defaultValue = "") String status) {
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
             size = 5;
@@ -58,7 +59,7 @@ public class BillController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        List<Bill> lstPro = billService.findAllDeletedFalse(pageable).getContent();
+        List<Bill> lstPro = billService.findAllDeletedFalseAndStatusAndStatusNot(pageable, status, TrangThaiBill.NEW.getLabel()).getContent();
         List<BillResponse> lst = lstPro.stream().map(entity -> mapper.map(entity, BillResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }

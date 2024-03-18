@@ -26,6 +26,9 @@ public class Bill extends BaseEntity{
     @Column(name = "bill_type")
     private String billType;
 
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
     @Column(name = "cash")
     private BigDecimal cash;
 

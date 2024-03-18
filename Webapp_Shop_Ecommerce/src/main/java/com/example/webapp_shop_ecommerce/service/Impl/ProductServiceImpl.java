@@ -117,6 +117,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             entity = productConverter.convertRequestToEntity(request);
             entity.setId(id);
             entity.setLastModifiedBy("Admin");
+            entity.setStatus("0");
             entity.setLastModifiedDate(LocalDateTime.now());
             entity.setDeleted(false);
         }
@@ -136,6 +137,54 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
                productDetailsService.updateAll(lst);
                productDetailsService.saveAll(lst);
            }
+        }
+        return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, request), HttpStatus.CREATED);
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> save(ProductRequest request) {
+        Product entity = new Product();
+
+            //create
+            Optional<Product> otp = findByName(request.getName());
+            if (otp.isPresent()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
+            }
+            entity = productConverter.convertRequestToEntity(request);
+            if (entity==null) {
+                return new ResponseEntity<>(new ResponseObject("error", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
+            }
+
+            if (entity.getCode() !=null){
+                if (repository.existsByCode(entity.getCode())){
+                    return new ResponseEntity<>(new ResponseObject("error", "Mã đã có trong hệ thống", 1, request), HttpStatus.BAD_REQUEST);
+                }
+            }else {
+                entity.setCode("PD"+randomStringGenerator.generateRandomString(6));
+            }
+
+            entity.setId(null);
+            entity.setDeleted(false);
+            entity.setStatus("0");
+            entity.setCreatedBy("Admin");
+            entity.setCreatedDate(LocalDateTime.now());
+            entity.setLastModifiedBy("Admin");
+            entity.setLastModifiedDate(LocalDateTime.now());
+        Product product = productRepo.save(entity);
+        if (product != null) {
+            //Tạo product details new
+            List<ProductDetailsRequest> lst = request.getLstProductDetails().stream()
+                    .map(productDetailDto -> {
+                        productDetailDto.setProduct(product.getId());
+                        return productDetailDto;
+                    })
+                    .collect(Collectors.toList());
+//            List<ProductDetailsRequest> lstProductDetailsNoId = lst.stream().filter(productDetailsDto -> productDetailsDto.getId() == null).collect(Collectors.toList());
+//            List<ProductDetailsRequest> lstProductDetailsIsId = lst.stream().filter(productDetailsDto -> productDetailsDto.getId() != null).collect(Collectors.toList());
+            if (lst.size() > 0) {
+                productDetailsService.saveAll(lst);
+            }
         }
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, request), HttpStatus.CREATED);
 

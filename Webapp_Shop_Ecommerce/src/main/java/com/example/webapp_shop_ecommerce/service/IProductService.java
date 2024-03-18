@@ -24,6 +24,7 @@ public interface IProductService extends IBaseService<Product, Long> {
     Optional<Product> findByProductDetailByIdProduct(Long idProduct);
     List<Product> findProductByName(String name);
     ResponseEntity<ResponseObject> saveOrUpdate(ProductRequest request,Long... idProduct);
+    ResponseEntity<ResponseObject> save(ProductRequest request);
 //    Optional<Product> findByCodeProduct(String code);
     Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, Map<String,String> keyWork);
     Optional<Product> findProductByIdAndDetailsNotDeleted(Long id,Map<String,String> keyWork);

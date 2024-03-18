@@ -7,8 +7,15 @@ import com.example.webapp_shop_ecommerce.service.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICustomerRepository> implements ICustomerService {
 
 
+    @Override
+    public List<Customer> findByNameAndPhone(String keyWord) {
+        return repository.findByNameAndPhone(keyWord);
+    }
 }

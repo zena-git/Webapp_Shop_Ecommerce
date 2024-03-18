@@ -19,6 +19,9 @@ import lombok.Setter;
 @Getter
 @Builder
 public class Address extends BaseEntity{
+
+
+
     @Column(name = "receiver_name")
     private String receiverName;
 
@@ -36,7 +39,11 @@ public class Address extends BaseEntity{
 
     @Column(name = "province")
     private String province;
+
     @ManyToOne()
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    @Column(name = "is_default")
+    private boolean defaultAddress = false;
 }

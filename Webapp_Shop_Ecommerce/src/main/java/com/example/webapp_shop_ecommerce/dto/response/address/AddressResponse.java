@@ -23,5 +23,6 @@ public class AddressResponse {
     private String commune;
     private String district;
     private String province;
-    private CustomerResponse customer;
+    private boolean defaultAddress;
+//    private CustomerResponse customer;
 }

@@ -143,7 +143,7 @@ public class ProductController {
 
 //        return productService.createNew(mapper.map(productDto, Product.class));
 
-        return productService.saveOrUpdate(productDto);
+        return productService.save(productDto);
     }
 
     @DeleteMapping("/{id}")

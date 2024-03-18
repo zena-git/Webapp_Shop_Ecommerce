@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 public class BillRequest {
     private Long id;
-    private String billType;
+    private String paymentMethod;
     private BigDecimal cash;
     private BigDecimal digitalCurrency;
     private BigDecimal totalMoney;
@@ -35,6 +35,7 @@ public class BillRequest {
     private String receiverCommune;
     private String receiverDistrict;
     private String receiverProvince;
+    private Long customer;
 //    private List<Long> lstCartDetails;
     private List<CartDetails> lstCartDetails;
 

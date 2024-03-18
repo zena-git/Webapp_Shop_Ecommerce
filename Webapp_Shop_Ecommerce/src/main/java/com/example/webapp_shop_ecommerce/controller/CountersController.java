@@ -85,9 +85,20 @@ public class CountersController {
         return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, billDto), HttpStatus.BAD_REQUEST);
     }
 
+    @PutMapping("/{id}/payment")
+    public ResponseEntity<?> billCounterPay(@RequestBody BillRequest billDto, @PathVariable("id") Long id) {
+        System.out.println("Update ID: " + id);
+        return billService.billCounterPay(billDto, id);
+    }
+
     @PostMapping("/{idBill}/product")
     public ResponseEntity<?> billAddProduct(@RequestBody List<BillDetailsRequest> lstBillDetailsDto, @PathVariable("idBill") Long id) {
         return billService.countersAddProduct(lstBillDetailsDto, id);
+    }
+
+    @PutMapping("/{idBill}/customer")
+    public ResponseEntity<?> billUpdateCustomer(@RequestBody BillRequest billRequest, @PathVariable("idBill") Long id) {
+        return billService.billUpdateCustomer(billRequest, id);
     }
 
     @PutMapping("/billDetails/{idBilldetails}")

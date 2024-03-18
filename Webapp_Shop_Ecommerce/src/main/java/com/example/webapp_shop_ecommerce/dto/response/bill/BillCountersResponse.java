@@ -20,6 +20,8 @@ public class BillCountersResponse {
     private Long id;
     private String codeBill;
     private String status;
+    private String paymentMethod;
+
     private String billType;
     private BigDecimal cash;
     private BigDecimal digitalCurrency;
