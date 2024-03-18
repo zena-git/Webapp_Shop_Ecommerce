@@ -27,6 +27,7 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
     }
     @Override
     public ResponseEntity<ResponseObject> createNew(E entity) {
+
         entity.setId(null);
         entity.setDeleted(false);
         entity.setCreatedBy("Admin");
@@ -66,6 +67,7 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
     public ResponseEntity<ResponseObject> delete(ID id) {
         return findById(id)
                 .map(entity -> {
+                    entity.setLastModifiedDate(LocalDateTime.now());
                     entity.setDeleted(true);
                     repository.save(entity);
                     return new ResponseEntity<>(new ResponseObject("success", "Đã Xóa Thành Công", 0, entity), HttpStatus.OK);
@@ -103,7 +105,8 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
 
     @Override
     public Page<E> findAllDeletedFalse(Pageable page) {
-        Specification<E> spec = EntitySpecifications.isNotDeleted();
+        Specification<E> spec = EntitySpecifications.isNotDeletedAndSortByCreatedDate();
+
         return repository.findAll(spec, page);
     }
 }

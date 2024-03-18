@@ -96,4 +96,6 @@ public class ProductDetailsController {
         productDetails.setImageUrl(object.getImageUrl());
         return productDetailsService.update(productDetails);
     }
+
+
 }

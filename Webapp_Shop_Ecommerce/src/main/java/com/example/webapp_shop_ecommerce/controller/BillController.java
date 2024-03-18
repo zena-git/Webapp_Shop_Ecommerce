@@ -1,12 +1,19 @@
 package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
+import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.categories.CategoryResponse;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.Category;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
+import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import com.example.webapp_shop_ecommerce.service.IBillService;
+import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -39,10 +46,12 @@ public class BillController {
     private IBillService billService;
 
 
+
     @GetMapping
-    public ResponseEntity<?> findProductAll(
+    public ResponseEntity<?> findBillAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
-            @RequestParam(value = "size", defaultValue = "-1") Integer size) {
+            @RequestParam(value = "size", defaultValue = "-1") Integer size,
+            @RequestParam(value = "status", defaultValue = "") String status) {
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
             size = 5;
@@ -50,10 +59,12 @@ public class BillController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        List<Bill> lstPro = billService.findAllDeletedFalse(pageable).getContent();
+        List<Bill> lstPro = billService.findAllDeletedFalseAndStatusAndStatusNot(pageable, status, TrangThaiBill.NEW.getLabel()).getContent();
         List<BillResponse> lst = lstPro.stream().map(entity -> mapper.map(entity, BillResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Bill> otp = billService.findById(id);
@@ -64,17 +75,17 @@ public class BillController {
         return new ResponseEntity<>(bill, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillRequest billDto){
+    public ResponseEntity<ResponseObject> saveBill(@RequestBody BillRequest billDto){
         return billService.createNew(mapper.map(billDto, Bill.class));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseObject> deleteProduct( @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> deleteBill( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
         return billService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateProduct(@RequestBody BillRequest billDto, @PathVariable("id") Long id){
+    public ResponseEntity<ResponseObject> updateBill(@RequestBody BillRequest billDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
         Bill bill = null;
         Optional<Bill>  otp = billService.findById(id);
@@ -92,4 +103,7 @@ public class BillController {
 
 
     }
+
+
+
 }

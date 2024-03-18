@@ -107,25 +107,22 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             entity.setLastModifiedBy("Admin");
             entity.setLastModifiedDate(LocalDateTime.now());
         } else {
-
-            System.out.println("Update ID: " + idProduct[0]);
-            Optional<Product> otp = productRepo.findById(idProduct[0]);
+            Long id = idProduct[0];
+            System.out.println("Update ID: " +id);
+            Optional<Product> otp = productRepo.findById(id);
             if (otp.isEmpty()) {
                 return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, request), HttpStatus.BAD_REQUEST);
             }
             entity = otp.orElse(null);
             entity = productConverter.convertRequestToEntity(request);
-            entity.setId(idProduct[0]);
+            entity.setId(id);
             entity.setLastModifiedBy("Admin");
+            entity.setStatus("0");
             entity.setLastModifiedDate(LocalDateTime.now());
             entity.setDeleted(false);
         }
         Product product = productRepo.save(entity);
         if (product != null) {
-            //Update thi xoa mem all detail dang co
-            if (idProduct.length > 0) {
-                productDetailsService.updateProductDetailsByProductId(idProduct[0]);
-            }
             //Tạo product details new
             List<ProductDetailsRequest> lst = request.getLstProductDetails().stream()
                     .map(productDetailDto -> {
@@ -133,8 +130,61 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
                         return productDetailDto;
                     })
                     .collect(Collectors.toList());
-            System.out.println(lst);
-            productDetailsService.saveAll(lst);
+//            List<ProductDetailsRequest> lstProductDetailsNoId = lst.stream().filter(productDetailsDto -> productDetailsDto.getId() == null).collect(Collectors.toList());
+//            List<ProductDetailsRequest> lstProductDetailsIsId = lst.stream().filter(productDetailsDto -> productDetailsDto.getId() != null).collect(Collectors.toList());
+           if (lst.size() > 0) {
+               //update xóa bỏ rôi moi dc luu
+               productDetailsService.updateAll(lst);
+               productDetailsService.saveAll(lst);
+           }
+        }
+        return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, request), HttpStatus.CREATED);
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> save(ProductRequest request) {
+        Product entity = new Product();
+
+            //create
+            Optional<Product> otp = findByName(request.getName());
+            if (otp.isPresent()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
+            }
+            entity = productConverter.convertRequestToEntity(request);
+            if (entity==null) {
+                return new ResponseEntity<>(new ResponseObject("error", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
+            }
+
+            if (entity.getCode() !=null){
+                if (repository.existsByCode(entity.getCode())){
+                    return new ResponseEntity<>(new ResponseObject("error", "Mã đã có trong hệ thống", 1, request), HttpStatus.BAD_REQUEST);
+                }
+            }else {
+                entity.setCode("PD"+randomStringGenerator.generateRandomString(6));
+            }
+
+            entity.setId(null);
+            entity.setDeleted(false);
+            entity.setStatus("0");
+            entity.setCreatedBy("Admin");
+            entity.setCreatedDate(LocalDateTime.now());
+            entity.setLastModifiedBy("Admin");
+            entity.setLastModifiedDate(LocalDateTime.now());
+        Product product = productRepo.save(entity);
+        if (product != null) {
+            //Tạo product details new
+            List<ProductDetailsRequest> lst = request.getLstProductDetails().stream()
+                    .map(productDetailDto -> {
+                        productDetailDto.setProduct(product.getId());
+                        return productDetailDto;
+                    })
+                    .collect(Collectors.toList());
+//            List<ProductDetailsRequest> lstProductDetailsNoId = lst.stream().filter(productDetailsDto -> productDetailsDto.getId() == null).collect(Collectors.toList());
+//            List<ProductDetailsRequest> lstProductDetailsIsId = lst.stream().filter(productDetailsDto -> productDetailsDto.getId() != null).collect(Collectors.toList());
+            if (lst.size() > 0) {
+                productDetailsService.saveAll(lst);
+            }
         }
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, request), HttpStatus.CREATED);
 
@@ -239,6 +289,30 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> updateStatus(ProductRequest request, Long idProduct) {
+        if (request.getStatus() == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "Trạng Thái Không Đươc Để Trống", 1, request), HttpStatus.BAD_REQUEST);
+        }
+        repository.updateStatus(request.getStatus(), idProduct);
+        return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Trạng Thái Thành Công", 0, request), HttpStatus.OK);
+    }
+
+    @Override
+    public Page<Product> findProductsDeleted(Pageable pageable) {
+        return repository.findProductsDeleted(pageable);
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> productRecover(Long idProduct) {
+        if (idProduct == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "ID không hợp lệ", 1, null), HttpStatus.BAD_REQUEST);
+        }
+        repository.productRecover(idProduct);
+        return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Trạng Thái Thành Công", 0, idProduct), HttpStatus.OK);
 
     }
 

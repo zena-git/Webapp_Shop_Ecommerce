@@ -7,8 +7,17 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class EntitySpecifications {
     public static <E> Specification<E> isNotDeleted() {
-        return (Root<E> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
-            return builder.isFalse(root.get("deleted"));
+        return (root, query, builder) -> builder.isFalse(root.get("deleted"));
+    }
+
+    public static <E> Specification<E> sortByCreatedDate() {
+        return (root, query, builder) -> {
+            query.orderBy(builder.desc(root.get("createdDate")));
+            return null;
         };
+    }
+
+    public static <E> Specification<E> isNotDeletedAndSortByCreatedDate() {
+        return Specification.<E>where(isNotDeleted()).and(sortByCreatedDate());
     }
 }

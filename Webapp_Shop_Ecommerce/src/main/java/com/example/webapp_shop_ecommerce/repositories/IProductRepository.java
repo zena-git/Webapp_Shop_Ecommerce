@@ -3,9 +3,11 @@ package com.example.webapp_shop_ecommerce.repositories;
 import com.example.webapp_shop_ecommerce.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +30,14 @@ public interface IProductRepository extends IBaseReporitory<Product, Long> {
     Optional<Product> findProductByIdAndDetailsNotDeleted(@Param("id") Long id,@Param("keyWork") Map<String,String> keyWork);
     boolean existsByCode(String code);
 
+    @Transactional
+    @Modifying
+    @Query("update Product set status = ?1 where id = ?2")
+    void updateStatus(String status, Long id);
+    @Transactional
+    @Modifying
+    @Query("update Product set deleted = false, lastModifiedDate = current_timestamp() where id = ?1")
+    void productRecover(Long id);
+    @Query("SELECT p FROM Product p WHERE p.deleted = true order by p.lastModifiedDate desc")
+    Page<Product> findProductsDeleted(Pageable pageable);
 }

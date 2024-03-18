@@ -1,15 +1,16 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.math3.analysis.function.Add;
 
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "Customer")
@@ -28,8 +29,6 @@ public class Customer extends BaseEntity{
     private Date birthday;
     @Column(name = "gender")
     private Boolean gender;
-    @Column(name = "address")
-    private String address;
     @Column(name = "phone")
     private String phone;
     @Column(name = "email")
@@ -39,4 +38,12 @@ public class Customer extends BaseEntity{
     @Column(name = "password")
     private String password;
 
+    @OneToMany(mappedBy = "customer")
+    @JsonIgnore
+    private Set<Address> lstAddress;
+
+    @OneToOne
+    @JoinColumn(name = "default_address_id")
+    @JsonIgnore
+    private Address defaultAddress;
 }
