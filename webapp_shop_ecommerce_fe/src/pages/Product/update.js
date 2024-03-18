@@ -6,6 +6,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
+import CloudinaryUploadWidget from "./CloudinaryUploadWidget";
+import { Cloudinary } from "@cloudinary/url-gen";
+import { AdvancedImage, responsive, placeholder } from "@cloudinary/react";
 const { TextArea } = Input;
 
 const tagRender = (props) => {
@@ -69,6 +72,12 @@ const findSameColor = (data, dataIndex, rowIndex) => {
 function ProductUpdate() {
     const { id } = useParams();
     const [product, setProduct] = useState();
+
+    const [publicId, setPublicId] = useState("");
+    // Replace with your own cloud name
+    const [cloudName] = useState("db9i1b2yf");
+    // Replace with your own upload preset
+    const [uploadPreset] = useState("aoh4fpwm");
 
     const [dataRowProductDetail, setDataRowProductDetail] = useState([]);
     const [dataProductDetailOld, setDataProductDetailOld] = useState([]);
@@ -251,17 +260,19 @@ function ProductUpdate() {
                                 fileList={imageUrl}
                                 method='POST'
                                 customRequest={(q) => {
-                                    const t = new FormData();
-                                    t.append("file", q.file);
-                                    axios.post(`https://file.lyart.pro.vn/api/image/productDetail/${id}`, t).then(res => {
+                                    const formData = new FormData();
+                                    formData.append("file", q.file);
+                                    formData.append("cloud_name", "db9i1b2yf")
+                                    formData.append("upload_preset", "product")
+                                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
                                         // res.data.image là ra cái link ảnh đã upload lên cloud
                                         alert("upload image successfully")
-                                        axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.image}`).then((response) => {
+                                        axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.url}`).then((response) => {
                                             //response.data là cái data của productDetail đã được update lại image url
                                             console.log("updated Detail: " + JSON.stringify(response.data))
                                         })
                                         same.map(idSame => {
-                                            axios.get(`http://localhost:8081/api/productDetail/update/image?id=${idSame}&imageUrl=${res.data.image}`).then((response) => {
+                                            axios.get(`http://localhost:8081/api/productDetail/update/image?id=${idSame}&imageUrl=${res.data.url}`).then((response) => {
                                                 //response.data là cái data của product đã được update lại image url
                                                 console.log("updatedSameDetail :" + JSON.stringify(response.data))
                                             })
@@ -802,10 +813,16 @@ function ProductUpdate() {
                                 method='POST'
                                 className='w-40 aspect-square flex items-center justify-center border-dashed border-[1px] border-slate-600 rounded-lg'
                                 customRequest={(q) => {
-                                    const t = new FormData();
-                                    t.append("file", q.file);
-                                    axios.post(`https://file.lyart.pro.vn/api/image/product/${id}`, t).then(res => {
-                                        // res.data.image là ra cái link ảnh đã upload lên cloud
+                                    const formData = new FormData();
+                                    formData.append("file", q.file);
+                                    formData.append("cloud_name", "db9i1b2yf")
+                                    formData.append("upload_preset", "product")
+                                    // formData.append("api_key", "845413845354532");
+                                    // formData.append("public_id", "sample_image");
+                                    // formData.append("timestamp", "1315060510");
+                                    // formData.append("signature", "9O4m1S9dSB_3UjuvDbx2oIj0wWQ");
+
+                                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
                                         axios.get(`http://localhost:8081/api/product/update/image?id=${id}&imageUrl=${res.data.image}`).then((response) => {
                                             //response.data là cái data của product đã được update lại image url
                                             console.log(response.data)

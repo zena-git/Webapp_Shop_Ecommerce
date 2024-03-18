@@ -17,7 +17,7 @@ const VoucherPage = () => {
     return (
         <div className="p-6">
             <p>Sự kiện giảm giá</p>
-            <Link to={'/discount/voucher/add'} className={`px-3 py-3 text-sm font-semibold bg-slate-100 `}>
+            <Link to={'/discount/voucher/add'} className={`px-5 py-12 text-lg font-semibold bg-slate-100 `}>
                 Thêm phiếu giảm giá mới
             </Link>
             <div>
