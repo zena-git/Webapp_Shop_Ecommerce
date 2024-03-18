@@ -2,55 +2,57 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tabs } from 'antd';
 import axios from 'axios';
 import SaleProducts from '~/components/SaleProducts';
+import AddressGress from '~/components/AddressGress';
+import SaleCustomer from '~/components/SaleCustomer';
+import SaleBuy from '~/components/SaleBuy';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSaleData } from '~/provider/SaleDataProvider';
+
 function Sale() {
   const [activeKey, setActiveKeyBill] = useState();
   const [billNews, setBillNews] = useState();
   const newTabIndex = useRef(0);
+  //provider
+  const { isDelivery, setDataIdBill, lstBill, updateDataLstBill,updateDataProductDetails } = useSaleData();
 
-  const fetchDataBillNew = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/v1/counters');
-      console.log(response.data);
-      const lstBill = response.data.map((billNews, index) => {
-        return {
-          id: billNews.id,
-          key: billNews.id,
-          label: `HD ${billNews.id}`,
-          children: <SaleProducts data={billNews}></SaleProducts>,
-        }
-      })
-
-      setBillNews(lstBill);
-      if (lstBill.length > 0) {
-        setActiveKeyBill(lstBill[0].key);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
   const fetchAddBillNew = async () => {
     try {
       const response = await axios.post('http://localhost:8080/api/v1/counters');
       console.log(response.data);
       toast.success(response.data.message);
-      fetchDataBillNew();
+      updateDataLstBill();
     } catch (error) {
       toast.error(error.response.data.message);
       console.error(error);
     }
   };
 
+  useEffect(() =>{
+    updateDataProductDetails()
+  },[])
 
 
   useEffect(() => {
-    fetchDataBillNew();
-  }, []);
+    const lst = lstBill.map((billNews, index) => {
+      return {
+        id: billNews.id,
+        key: billNews.id,
+        label: `HD ${billNews.id}`,
+      }
+    })
+    setBillNews(lst);
+    if (lst.length > 0) {
+      setActiveKeyBill(lst[0].key);
+      setDataIdBill(lst[0].key)
+    }
+  }, [lstBill]);
 
 
   const onChange = (key) => {
+    // console.log(key);
     setActiveKeyBill(key);
+    setDataIdBill(key);
   };
   const add = () => {
     fetchAddBillNew()
@@ -76,6 +78,7 @@ function Sale() {
 
   return (
     <>
+
       <div className='bg-white p-4'>
         <h4>
           Bán Hàng Tại Quầy
@@ -100,6 +103,23 @@ function Sale() {
             >
 
             </Tabs>
+          </div>
+        </div>
+        <div>
+          <SaleProducts ></SaleProducts>
+        </div>
+        <div>
+          <SaleCustomer></SaleCustomer>
+        </div>
+        <div className='flex justify-between'>
+
+          <div className='w-1/2' style={{
+            visibility: isDelivery ? 'visible' : 'hidden',
+          }} >
+            <AddressGress></AddressGress>
+          </div>
+          <div className='w-2/5'>
+            <SaleBuy></SaleBuy>
           </div>
         </div>
       </div>

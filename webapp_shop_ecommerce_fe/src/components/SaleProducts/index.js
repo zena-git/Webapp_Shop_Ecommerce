@@ -5,8 +5,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useSaleData } from '~/provider/SaleDataProvider';
 
-function SaleProducts({ data }) {
+function SaleProducts() {
 
     const columnsTable = [
 
@@ -104,7 +105,7 @@ function SaleProducts({ data }) {
     ];
 
 
-    const columnsTableCart= [
+    const columnsTableCart = [
 
         {
             title: '#',
@@ -117,6 +118,28 @@ function SaleProducts({ data }) {
             dataIndex: 'name',
             key: 'name',
             width: 250,
+        },
+        {
+            title: 'Màu Sắc',
+            dataIndex: 'color',
+            key: 'color',
+            render: (color) => (
+                <div className='flex'>
+                    <Tooltip title={hexToColorName(color?.name) + ' - ' + color?.name} color={color?.name} key={color?.name}>
+                        <div style={{ width: '20px', height: '20px', backgroundColor: color?.name }}></div>
+                    </Tooltip>
+                    <span className='ml-2'>- {color?.name}</span>
+                </div>
+
+            ),
+        },
+        {
+            title: 'Kích Thước',
+            dataIndex: 'size',
+            key: 'size',
+            render: (size) => (
+                <>{size.name}</>
+            ),
         },
         {
             title: 'Đơn Giá',
@@ -145,80 +168,70 @@ function SaleProducts({ data }) {
     const [openAddProduct, setOpenAddProduct] = useState(false);
     const [openAddProductConfig, setOpenAddProductConfig] = useState(false);
 
-    const [lstBillDetails, setLstBillDetails] = useState(data.lstBillDetails);
-    const [lstProductDetails, setLstProductDetails] = useState([]);
+    const [lstBillDetails, setLstBillDetails] = useState([]);
     const [dataColumProductDetails, setDataColumProductDetails] = useState([]);
 
     const [lstBillDetailsConfig, setLstBillDetailsConfig] = useState([]);
     const [dataColumProductDetailsConfig, setDataColumProductDetailsConfig] = useState([]);
 
-    const [lstProductDetailsCart, setLstProductDetailsCart] = useState([]);
     const [dataColumProductDetailsCart, setDataColumProductDetailsCart] = useState([]);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-    const fetchDataProductDetails = async () => {
-        try {
-            const response = await axios.get('http://localhost:8080/api/v1/counters/products');
-            console.log(response.data);
-            setLstProductDetails(response.data)
-            const sortedDataTable = [...response.data].sort((a, b) => a.id - b.id);
-            const dataTable = sortedDataTable.map((data, index) => {
-                let product = {
-                    key: data.id,
-                    id: data.id,
-                    index: index + 1,
-                    name: data.product.name,
-                    code: data.code,
-                    color: data.color,
-                    size: data.size,
-                    price: data.price,
-                    quantity: data.quantity,
-                    imageUrl: (
-                        <div>
-                            <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
-                        </div>
-                    ),
-                };
-                return product;
-            });
+    //provider
+    const { totalPrice, setDataPriceCart, idBill, lstBill, lstProductDetails ,lstProductDetailsCart,updateDataProductDetails, updateDataDataCart} = useSaleData();
+
+
+    // useEffect(() => {
+    //     updateDataDataCart();
+    // }, [idBill]);
+
+
+    const fillDataProductDetails=  () => {
+        const sortedDataTable = [...lstProductDetails].sort((a, b) => a.id - b.id);
+        const dataTable = sortedDataTable.map((data, index) => {
+            let product = {
+                key: data.id,
+                id: data.id,
+                index: index + 1,
+                name: data?.product?.name,
+                code: data?.code,
+                color: data?.color,
+                size: data?.size,
+                price: data.price,
+                quantity: data.quantity,
+                imageUrl: (
+                    <div>
+                        <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
+                    </div>
+                ),
+            };
+            return product;
+        });
 
 
 
-            setDataColumProductDetails(dataTable);
-        } catch (error) {
-            console.error(error);
-        }
+        setDataColumProductDetails(dataTable);
     }
 
     useEffect(() => {
-        fetchDataProductDetails();
-    }, [])
+        fillDataProductDetails();
+    }, [lstProductDetails])
 
-
-    const fetchDataCart = async () => {
-        const idBill = data.id;
-        if (!idBill) {
-            toast.error("Invalid or missing bill ID.");
-            return;
-        }
-        try {
-            const response = await axios.get('http://localhost:8080/api/v1/counters/'+idBill);
-            console.log(response.data);
-            // setLstProductDetailsCart(response.data);
-        fillDataProductDetailsCart(response.data)
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
     useEffect(() => {
-        fetchDataCart();
-    }, [])
+        const calculateTotalPrice = () => {
+            const total = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
+                return accumulator + (currentProduct.unitPrice * currentProduct.quantity);
+            }, 0);
+            setDataPriceCart(total);
+        };
+
+        calculateTotalPrice();
+    }, [lstProductDetailsCart]);
 
     useEffect(() => {
         fillDataProductDetailsCart(lstProductDetailsCart)
-    }, [lstProductDetailsCart])
+    }, [lstProductDetailsCart,lstBill])
 
     const fillDataProductDetailsCart = (data) => {
         console.log(data);
@@ -235,23 +248,29 @@ function SaleProducts({ data }) {
                             </div>
                             <div className='ml-4'>
                                 <h4>{data.productDetails.product.name}</h4>
-                                <div style={{ fontSize: '12px' }}>
+                                <div div style={{ fontSize: '12px' }}>
+                                    [{data.productDetails.size.name} - {hexToColorName(data.productDetails.color.name)}]
+                                </div>
+
+                                {/* <div style={{ fontSize: '12px' }}>
                                     <div className='flex'>Màu Sắc:
                                         <div style={{ width: '16px', height: '16px', backgroundColor: data.productDetails.color.name, marginLeft: '4px', marginRight: '4px' }}></div>
                                         <span>- {hexToColorName(data.productDetails.color.name)}</span>
                                     </div>
                                     <div>Kích Thước: {data.productDetails.size.name}</div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
                 </>,
                 price: data.productDetails.price,
+                color: data.productDetails.color,
+                size: data.productDetails.size,
                 quantity: <InputNumber
                     min={1}
                     max={data.productDetails.quantity}
                     value={data.quantity} // Sử dụng giá trị quantity như mặc định
-                    onChange={(value) => onChangeQuantityProductConfig(value, data.id)} // Gọi hàm khi số lượng thay đổi
+                    onChange={(value) => onChangeQuantityProductCart(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
                 totalMoney: data.productDetails.price * data.quantity,
                 action: <>
@@ -264,7 +283,7 @@ function SaleProducts({ data }) {
         return lstDataCustom;
     }
 
-    
+
 
     useEffect(() => {
         console.log(lstBillDetailsConfig);
@@ -345,7 +364,32 @@ function SaleProducts({ data }) {
     };
 
 
+    const onChangeQuantityProductCart = (value, id) => {
+        console.log(value + " " + id);
+
+        axios.put('http://localhost:8080/api/v1/counters/billDetails/' + id, {
+            quantity: value
+        })
+            .then(response => {
+                toast.success(response.data.message);
+                updateDataDataCart();
+            })
+            .catch(error => {
+                toast.error(error.response.data.message);
+            });
+
+    };
+
+
     const handleDeleteProductConfig = (id) => {
+        // Filter out the product with the given id
+        const updatedProductDetails = lstBillDetailsConfig.filter(productDetail => productDetail.id !== id);
+        // Update the state with the new product list
+        setLstBillDetailsConfig(updatedProductDetails);
+    }
+
+
+    const handleDeleteProductCart = (id) => {
         // Filter out the product with the given id
         const updatedProductDetails = lstBillDetailsConfig.filter(productDetail => productDetail.id !== id);
         // Update the state with the new product list
@@ -363,7 +407,6 @@ function SaleProducts({ data }) {
             }
         });
 
-        const idBill = data.id;
 
         if (!idBill) {
             toast.error("Invalid or missing bill ID.");
@@ -373,8 +416,8 @@ function SaleProducts({ data }) {
         axios.post(`http://localhost:8080/api/v1/counters/${idBill}/product`, dataBillDetails)
             .then(response => {
                 toast.success(response.data.message);
-                fetchDataProductDetails();
-                fetchDataCart();
+                updateDataDataCart();
+                updateDataProductDetails();
             })
             .catch(error => {
                 toast.error(error.response.data.message);
@@ -398,93 +441,102 @@ function SaleProducts({ data }) {
 
     return (
         <>
-            <h4>Giỏ Hàng</h4>
-            <div className='bg-white p-4'>
+            {lstBill.length===0? (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            ) : (
                 <div>
-                    <Button>QR Code</Button>
-                    <Button onClick={() => setOpenAddProduct(true)}>Thêm Sản Phẩm</Button>
-                    <>
-                        <Modal
-                            title="Danh Sách Sản Phẩm"
-                            centered
-                            open={openAddProduct}
-                            onOk={() => setOpenAddProduct(false)}
-                            onCancel={() => {
-                                setSelectedRowKeys([]);
-                                setOpenAddProduct(false)
-                            }}
-                            width={1300}
-                            footer={null}
-                        >
-                            <div className='flex'>
-                                <Input placeholder="Tìm Kiếm" />
-                                <Button>Làm Mới</Button>
-                            </div>
-                            <div>
-                                <Button onClick={handleAddProductDetails}>
-                                    Thêm Sản Phẩm
-                                </Button>
-                                <>
-                                    <Modal
-                                        okText="Hoàn Tất" // Thay đổi nội dung của nút OK
-                                        cancelText="Cancel" // Thay đổi nội dung của nút Cancel
-                                        width={840}
-                                        title="Thêm Sản Phẩm" open={openAddProductConfig}
-                                        onOk={() => handleAddProductDetailsConfig()}
-                                        onCancel={() => setOpenAddProductConfig(false)}>
+                    <h4>Giỏ Hàng</h4>
+                    <div className='bg-white p-4'>
+                        <div>
+                            <Button>QR Code</Button>
+                            <Button onClick={() => setOpenAddProduct(true)}>Thêm Sản Phẩm</Button>
+                            <>
+                                <Modal
+                                    title="Danh Sách Sản Phẩm"
+                                    centered
+                                    open={openAddProduct}
+                                    onOk={() => setOpenAddProduct(false)}
+                                    onCancel={() => {
+                                        setSelectedRowKeys([]);
+                                        setOpenAddProduct(false)
+                                    }}
+                                    width={1300}
+                                    footer={null}
+                                >
+                                    <div className='flex'>
+                                        <Input placeholder="Tìm Kiếm" />
+                                        <Button>Làm Mới</Button>
+                                    </div>
+                                    <div>
+                                        <Button onClick={handleAddProductDetails}>
+                                            Thêm Sản Phẩm
+                                        </Button>
+                                        <>
+                                            <Modal
+                                                okText="Hoàn Tất" // Thay đổi nội dung của nút OK
+                                                cancelText="Cancel" // Thay đổi nội dung của nút Cancel
+                                                width={840}
+                                                title="Thêm Sản Phẩm" open={openAddProductConfig}
+                                                onOk={() => handleAddProductDetailsConfig()}
+                                                onCancel={() => setOpenAddProductConfig(false)}>
+                                                <Table
+                                                    pagination={{
+                                                        pageSize: 5,
+                                                    }}
+                                                    scroll={{
+                                                        y: 300,
+                                                    }}
+                                                    dataSource={dataColumProductDetailsConfig} columns={columnsTableConfig} />
+                                            </Modal>
+                                        </>
+
+                                    </div>
+                                    <div>
+
+
                                         <Table
+                                            rowSelection={rowSelection}
                                             pagination={{
-                                                pageSize: 5,
+                                                pageSize: 10,
                                             }}
                                             scroll={{
                                                 y: 300,
                                             }}
-                                            dataSource={dataColumProductDetailsConfig} columns={columnsTableConfig} />
-                                    </Modal>
-                                </>
+                                            dataSource={dataColumProductDetails} columns={columnsTable} />
+                                    </div>
 
-                            </div>
-                            <div>
-
-
-                                <Table
-                                    rowSelection={rowSelection}
-                                    pagination={{
-                                        pageSize: 10,
-                                    }}
-                                    scroll={{
-                                        y: 300,
-                                    }}
-                                    dataSource={dataColumProductDetails} columns={columnsTable} />
-                            </div>
-
-                        </Modal>
-                    </>
-                </div>
-
-                <div>
-
-                </div>
-                <div>
-                    {lstBillDetails.length === 0 ? (
-                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                    ) : (
-                        // Hiển thị danh sách sản phẩm nếu có
-                        <div>
-                        <Table
-                                    pagination={{
-                                        pageSize: 10,
-                                    }}
-                                    scroll={{
-                                        y: 500,
-                                    }}
-                                    dataSource={dataColumProductDetailsCart}
-                                     columns={columnsTableCart} />
+                                </Modal>
+                            </>
                         </div>
-                    )}
-                </div>
 
-            </div>
+                        <div>
+
+                        </div>
+                        <div>
+                            {lstProductDetailsCart.length === 0 && lstBill.length !==0 ? (
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            ) : (
+                                <div>
+                                    <Table
+                                        pagination={{
+                                            pageSize: 10,
+                                        }}
+                                        scroll={{
+                                            y: 500,
+                                        }}
+                                        dataSource={dataColumProductDetailsCart}
+                                        columns={columnsTableCart} />
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                    <div className='flex justify-end mr-10'>
+                        <h4>Tổng Tiền: {totalPrice}</h4>
+                    </div>
+                </div>
+            )}
+
 
         </>
     );
