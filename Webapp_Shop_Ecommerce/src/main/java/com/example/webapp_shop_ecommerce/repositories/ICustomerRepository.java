@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface ICustomerRepository extends IBaseReporitory<Customer, Long> {
-    @Query("select c from Customer c where (c.fullName like %:keyWord% or c.phone like %:keyWord%) and c.deleted = false")
+    @Query("select c from Customer c where (c.fullName like %:keyWord% or c.phone like %:keyWord%) and c.deleted = false order by c.createdDate desc ")
     List<Customer> findByNameAndPhone(@Param("keyWord") String keyWord);
 }

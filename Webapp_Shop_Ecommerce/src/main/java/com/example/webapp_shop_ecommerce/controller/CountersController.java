@@ -91,8 +91,8 @@ public class CountersController {
         return billService.billCounterPay(billDto, id);
     }
 
-    @PostMapping("/{idBill}/product")
-    public ResponseEntity<?> billAddProduct(@RequestBody List<BillDetailsRequest> lstBillDetailsDto, @PathVariable("idBill") Long id) {
+    @PostMapping("/{idBillDetail}/product")
+    public ResponseEntity<?> billAddProduct(@RequestBody List<BillDetailsRequest> lstBillDetailsDto, @PathVariable("idBillDetail") Long id) {
         return billService.countersAddProduct(lstBillDetailsDto, id);
     }
 
@@ -106,12 +106,10 @@ public class CountersController {
         return billService.chaneQuantityBillDetails(billDto, id);
     }
     @DeleteMapping("/billDetails/{idBilldetails}")
-    public ResponseEntity<?> chaneQuantityBillDetails(@PathVariable("idBilldetails") Long id) {
-        if (!billDetailsService.existsById(id)) {
-            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy IdBilDetails Hóa Đơn", 0, id), HttpStatus.BAD_REQUEST);
-        }
-        return billDetailsService.physicalDelete(id);
+    public ResponseEntity<?> deleteBillDetails(@PathVariable("idBilldetails") Long id) {
+        return billService.billDeleteBillDetail(id);
     }
+
 
     @GetMapping("/{idBill}/product/barcode/{data}")
     public ResponseEntity<?> billAddProductBarcode(@PathVariable("idBill") Long id,@PathVariable("data") String data) {
@@ -120,7 +118,8 @@ public class CountersController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteBill( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
-        return billService.delete(id);
+        return billService.deleteBillToBillDetailAll(id);
+
     }
 
 

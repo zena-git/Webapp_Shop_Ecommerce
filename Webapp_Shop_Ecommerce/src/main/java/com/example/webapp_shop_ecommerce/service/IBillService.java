@@ -27,6 +27,8 @@ public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> countersAddProductBarcode( Long id, String barcode );
     ResponseEntity<ResponseObject> chaneQuantityBillDetails(BillDetailsRequest billDto, Long idBillDetail);
     ResponseEntity<ResponseObject> billCounterPay( BillRequest billDto, Long id);
+    ResponseEntity<ResponseObject> billDeleteBillDetail(Long idBillDetail);
+    ResponseEntity<ResponseObject> deleteBillToBillDetailAll(Long idBill);
 
     Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, String status, String statusNot);
 }

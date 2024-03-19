@@ -19,7 +19,7 @@ public interface IBillRepository extends IBaseReporitory<Bill, Long> {
     @Query("SELECT COALESCE(COUNT(b), 0) FROM Bill b WHERE b.billType = :type AND b.status = :status and b.deleted = false GROUP BY b.billType, b.status ")
     Integer countBillsByTypeAndStatus(@Param("type") String type, @Param("status") String status);
 
-    @Query("SELECT b FROM Bill b WHERE b.status like %:status% AND b.status != :statusNot AND b.deleted = false order by b.createdBy desc ")
+    @Query("SELECT b FROM Bill b WHERE b.status like %:status% AND b.status != :statusNot AND b.deleted = false order by b.createdDate desc ")
     Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, @Param("status") String status, @Param("statusNot") String statusNot);
 
 }

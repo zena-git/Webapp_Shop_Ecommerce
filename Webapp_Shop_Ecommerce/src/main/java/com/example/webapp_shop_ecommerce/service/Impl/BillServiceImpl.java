@@ -12,6 +12,7 @@ import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import com.example.webapp_shop_ecommerce.service.IBillService;
 import com.example.webapp_shop_ecommerce.service.ICartDetailsService;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
+import com.example.webapp_shop_ecommerce.ultiltes.InvoiceGenerator;
 import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,17 +53,22 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     private IProductDetailsService productDetailsService;
     @Autowired
     private ICustomerRepository customerRepo;
+    @Autowired
+    private IVoucherDetailsRepository voucherDetailsRepo;
+    @Autowired
+    private InvoiceGenerator invoiceGenerator;;
 
     @Override
     public ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) {
         Customer customer = authentication.getCustomer();
-        List<Long> lstIdCartDetails =  billRequest.getLstCartDetails().stream().map(cartDetails -> cartDetails.getId()).collect(Collectors.toList());;
-        if (lstIdCartDetails.size()==0){
+        List<Long> lstIdCartDetails = billRequest.getLstCartDetails().stream().map(cartDetails -> cartDetails.getId()).collect(Collectors.toList());
+        ;
+        if (lstIdCartDetails.size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
-        billDto.setCodeBill("HD"+ randomStringGenerator.generateRandomString(6));
+        billDto.setCodeBill(invoiceGenerator.generateInvoiceNumber());
         billDto.setBillType("Online");
         billDto.setBookingDate(new Date());
         billDto.setDeleted(false);
@@ -103,12 +109,12 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
     @Override
     public ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest) {
-        if (billRequest.getLstCartDetails().size()==0){
+        if (billRequest.getLstCartDetails().size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
-        billDto.setCodeBill("HD"+ randomStringGenerator.generateRandomString(6));
+        billDto.setCodeBill("HD" + randomStringGenerator.generateRandomString(6));
         billDto.setBillType("Online");
         billDto.setBookingDate(new Date());
         billDto.setDeleted(false);
@@ -158,7 +164,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         Bill entity = new Bill();
         entity.setBillType(BillType.OFFLINE.getLabel());
         entity.setStatus(TrangThaiBill.NEW.getLabel());
-        entity.setCodeBill("HD" + randomStringGenerator.generateRandomString(6));
+        entity.setCodeBill(invoiceGenerator.generateInvoiceNumber());
         entity.setId(null);
         entity.setDeleted(false);
         entity.setCreatedBy("Admin");
@@ -170,7 +176,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         if (count != null && count >= 5) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Được Tạo Quá 5 Hóa Đơn ", 0, entity), HttpStatus.BAD_REQUEST);
         }
-        System.out.println("Hóa Đơn Đã cớ+ " +count);
+        System.out.println("Hóa Đơn Đã cớ+ " + count);
         createNew(entity);
         return new ResponseEntity<>(new ResponseObject("success", "Tạo Hóa Đơn Thành Công", 0, entity), HttpStatus.CREATED);
 
@@ -195,12 +201,17 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             Bill bill = billOpt.get();
             ProductDetails productDetails = productDetailOpt.get();
 
-            Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill,productDetails);
+            Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill, productDetails);
+
+
+            if (productDetails.getQuantity() < billDetailsDto.getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Không Đủ", 1, null), HttpStatus.BAD_REQUEST);
+            }
+
             if (billDetailsOpt.isPresent()) {
                 BillDetails billDetails = billDetailsOpt.get();
                 billDetails.setQuantity(billDetails.getQuantity() + billDetailsDto.getQuantity());
                 billDetailsRepo.save(billDetails);
-
                 productDetails.setQuantity(productDetails.getQuantity() - billDetailsDto.getQuantity());
                 productDetailsService.update(productDetails);
             } else {
@@ -230,11 +241,11 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         Bill bill = otp.get();
         if (billRequest.getCustomer() == null) {
             bill.setCustomer(null);
-        }else {
+        } else {
             Optional<Customer> customerOpt = customerRepo.findById(billRequest.getCustomer());
             if (customerOpt.isPresent()) {
                 bill.setCustomer(customerOpt.get());
-            }else {
+            } else {
                 bill.setCustomer(null);
                 return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Khách Hàng", 0, id), HttpStatus.BAD_REQUEST);
             }
@@ -251,23 +262,23 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Id Hóa Đơn", 0, id), HttpStatus.BAD_REQUEST);
         }
         Optional<ProductDetails> productDetailOtp = productDetailsRepo.findByBarcode(barcode);
-        if (productDetailOtp.isEmpty()){
+        if (productDetailOtp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm", 1, barcode), HttpStatus.BAD_REQUEST);
         }
 
         Bill bill = otp.get();
         ProductDetails productDetails = productDetailOtp.get();
 
-        Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByProductDetails(productDetails);
-        if (billDetailsOpt.isPresent()){
+        Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill, productDetails);
+        if (billDetailsOpt.isPresent()) {
             BillDetails billDetails = billDetailsOpt.get();
             billDetails.setQuantity(billDetails.getQuantity() + 1);
             billDetailsRepo.save(billDetails);
 
             productDetails.setQuantity(productDetails.getQuantity() - billDetails.getQuantity());
             productDetailsService.update(productDetails);
-        }else {
-            BillDetails billDetails =  new BillDetails();
+        } else {
+            BillDetails billDetails = new BillDetails();
             billDetails.setBill(bill);
             billDetails.setProductDetails(productDetails);
             billDetails.setUnitPrice(billDetails.getUnitPrice());
@@ -284,27 +295,44 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
     @Override
     public ResponseEntity<ResponseObject> chaneQuantityBillDetails(BillDetailsRequest billDto, Long idBillDetail) {
-    Optional<BillDetails> opt = billDetailsRepo.findById(idBillDetail);
-    if (opt.isEmpty()){
-        return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy IdBilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
-    }
-    BillDetails billDetails = opt.get();
-    billDetails.setQuantity(billDto.getQuantity());
-    billDetailsRepo.save(billDetails);
-    return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDto), HttpStatus.CREATED);
+        Optional<BillDetails> opt = billDetailsRepo.findById(idBillDetail);
+        if (opt.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy IdBilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<ProductDetails> optProductDetails = productDetailsService.findById(opt.get().getProductDetails().getId());
+        if (optProductDetails.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+        if (billDto.getQuantity() <1) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Phải Lớn Hơn 0", 1, null), HttpStatus.BAD_REQUEST);
+        }
+
+        ProductDetails productDetails = optProductDetails.get();
+        if (productDetails.getQuantity() < billDto.getQuantity()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Không Đủ", 1, null), HttpStatus.BAD_REQUEST);
+        }
+
+
+        productDetails.setQuantity(productDetails.getQuantity()+opt.get().getQuantity()-billDto.getQuantity());
+        productDetailsRepo.save(productDetails);
+        BillDetails billDetails = opt.get();
+        billDetails.setQuantity(billDto.getQuantity());
+        billDetailsRepo.save(billDetails);
+        return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDto), HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<ResponseObject> billCounterPay(BillRequest billDto, Long id) {
 
         Optional<Bill> otp = findById(id);
-        if (otp.isEmpty()){
+        if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, billDto), HttpStatus.BAD_REQUEST);
         }
         Bill bill = otp.get();
         bill = mapper.map(billDto, Bill.class);
         bill.setId(id);
-        bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
         bill.setBookingDate(new Date());
         bill.setPaymentDate(new Date());
         bill.setBillType(otp.get().getBillType());
@@ -315,6 +343,52 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         update(bill);
         return new ResponseEntity<>(new ResponseObject("success", "Thanh Toán Thành Công", 0, billDto), HttpStatus.CREATED);
 
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> billDeleteBillDetail(Long idBillDetail) {
+
+        Optional<BillDetails> opt = billDetailsRepo.findById(idBillDetail);
+        if (opt.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy BilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+        BillDetails billDetails = opt.get();
+        Optional<ProductDetails> productDetailsOtp = productDetailsService.findById(billDetails.getProductDetails().getId());
+
+        if (productDetailsOtp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+        ProductDetails productDetails = productDetailsOtp.get();
+        productDetails.setQuantity(productDetails.getQuantity()+billDetails.getQuantity());
+        productDetailsRepo.save(productDetails);
+
+        billDetailsRepo.delete(billDetails);
+        return new ResponseEntity<>(new ResponseObject("success", "Xóa Sản Phẩm Khỏi Giỏ Hàng Thành Công", 0, idBillDetail), HttpStatus.CREATED);
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> deleteBillToBillDetailAll(Long idBill) {
+        Optional<Bill> otp = findById(idBill);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, idBill), HttpStatus.BAD_REQUEST);
+        }
+        List<BillDetails> lstBillDetails = billDetailsRepo.findAllByBill(otp.get());
+        for (BillDetails billDetails : lstBillDetails) {
+            billDeleteBillDetail(billDetails.getId());
+        }
+
+        //Xóa VOuchẻ dang đc mapping vs bil
+        List<VoucherDetails> lstVouchers = voucherDetailsRepo.findByIdBill(otp.get().getId());
+        lstVouchers.stream().map(voucherDetails -> {
+            voucherDetailsRepo.delete(voucherDetails);
+            return voucherDetails;
+        }).collect(Collectors.toList());
+
+
+        physicalDelete(idBill);
+        return new ResponseEntity<>(new ResponseObject("success", "Đã Xóa Hóa Đơn Thành Công", 0, otp.get()), HttpStatus.OK);
     }
 
     @Override

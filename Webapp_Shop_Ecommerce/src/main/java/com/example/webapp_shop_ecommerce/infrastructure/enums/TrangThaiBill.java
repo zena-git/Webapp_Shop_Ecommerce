@@ -3,7 +3,7 @@ package com.example.webapp_shop_ecommerce.infrastructure.enums;
 public enum TrangThaiBill {
     TAT_CA(""),
     CHO_XAC_NHAN("0"),
-    CHO_THANH_TOAN("1"),
+    DA_XAC_NHAN("1"),
 
     CHO_GIAO("2"),
     DANG_GIAO("3"),
