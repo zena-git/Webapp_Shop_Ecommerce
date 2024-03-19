@@ -67,7 +67,11 @@ function DefaultLayout({ children }) {
     <div>
       <Layout hasSider >
         <Sider style={siderStyle} >
-          <div className="demo-logo-vertical" />
+          <div className='flex justify-center content-center	mt-6 mb-6'>
+            <img style={{
+              width: '100px',
+            }} src='./logo.png'></img>
+          </div>
           <Menu style={{ width: '100%' }}></Menu>
         </Sider>
         <Layout style={layoutStyle}>
