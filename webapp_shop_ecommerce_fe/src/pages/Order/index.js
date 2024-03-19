@@ -17,7 +17,7 @@ const tabItems = [
   },
   {
     key: '1',
-    label: 'Chờ Thanh Toán',
+    label: 'Đã Xác Nhân',
   },
   {
     key: '2',
@@ -96,7 +96,7 @@ const columnsTable = [
 ];
 function Order() {
 
-  const [lstBill, setLstBill] = useState([]);
+  const [lstBill, setLstBill,customer] = useState([]);
   const [dataColumBill, setDataColumBill] = useState([]);
   const [status, setStatus] = useState('');
 

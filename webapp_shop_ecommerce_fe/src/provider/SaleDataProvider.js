@@ -87,6 +87,7 @@ const SaleDataProvider = ({ children }) => {
             console.log(response.data);
             console.log("call lại api cart");
             setLstProductDetailsCart(response.data);
+            
 
         } catch (error) {
             console.error(error);
@@ -178,6 +179,13 @@ const SaleDataProvider = ({ children }) => {
     }, [idBill]);
 
     const handlePaymentBill = () => {
+        //5 - Hoàn Thành
+        //2- Chờ Giao
+        let status = '5';
+        if (isDelivery) {
+            status = '2';
+        }
+
         //Validate tạm số tiền
         if (idBill == null) {
             return;
@@ -196,6 +204,7 @@ const SaleDataProvider = ({ children }) => {
             receiverCommune: addressBill?.commune,
             receiverDistrict: addressBill?.district,
             receiverProvince: addressBill?.province,
+            status: status
         }
      
         axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)

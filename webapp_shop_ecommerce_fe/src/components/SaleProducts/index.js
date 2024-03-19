@@ -4,9 +4,14 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined,ExclamationCircleFilled } from '@ant-design/icons';
+import { fixMoney } from '~/ultils/fixMoney';
 import { useSaleData } from '~/provider/SaleDataProvider';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
+const { confirm } = Modal;
 function SaleProducts() {
 
     const columnsTable = [
@@ -179,7 +184,7 @@ function SaleProducts() {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
     //provider
-    const { totalPrice, setDataPriceCart, idBill, lstBill, lstProductDetails ,lstProductDetailsCart,updateDataProductDetails, updateDataDataCart} = useSaleData();
+    const { totalPrice, setDataPriceCart, idBill, lstBill, lstProductDetails, lstProductDetailsCart, updateDataProductDetails, updateDataDataCart } = useSaleData();
 
 
     // useEffect(() => {
@@ -187,7 +192,7 @@ function SaleProducts() {
     // }, [idBill]);
 
 
-    const fillDataProductDetails=  () => {
+    const fillDataProductDetails = () => {
         const sortedDataTable = [...lstProductDetails].sort((a, b) => a.id - b.id);
         const dataTable = sortedDataTable.map((data, index) => {
             let product = {
@@ -198,7 +203,7 @@ function SaleProducts() {
                 code: data?.code,
                 color: data?.color,
                 size: data?.size,
-                price: data.price,
+                price: fixMoney(data.price),
                 quantity: data.quantity,
                 imageUrl: (
                     <div>
@@ -231,7 +236,7 @@ function SaleProducts() {
 
     useEffect(() => {
         fillDataProductDetailsCart(lstProductDetailsCart)
-    }, [lstProductDetailsCart,lstBill])
+    }, [lstProductDetailsCart, lstBill])
 
     const fillDataProductDetailsCart = (data) => {
         console.log(data);
@@ -263,18 +268,19 @@ function SaleProducts() {
                         </div>
                     </div>
                 </>,
-                price: data.productDetails.price,
+                price: fixMoney(data.productDetails.price),
                 color: data.productDetails.color,
                 size: data.productDetails.size,
                 quantity: <InputNumber
+
                     min={1}
                     max={data.productDetails.quantity}
                     value={data.quantity} // Sử dụng giá trị quantity như mặc định
                     onChange={(value) => onChangeQuantityProductCart(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
-                totalMoney: data.productDetails.price * data.quantity,
+                totalMoney: <span className='text-rose-600	'>{fixMoney(data.productDetails.price * data.quantity)}</span>,
                 action: <>
-                    <Button danger onClick={() => { handleDeleteProductConfig(data.id) }} ><DeleteOutlined></DeleteOutlined></Button>
+                    <Button danger className='border-none' onClick={() => {  showDeleteConfirmCart(data.id)}} > <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon></Button>
                 </>
 
             }
@@ -372,7 +378,9 @@ function SaleProducts() {
         })
             .then(response => {
                 toast.success(response.data.message);
+                updateDataProductDetails();
                 updateDataDataCart();
+                
             })
             .catch(error => {
                 toast.error(error.response.data.message);
@@ -390,10 +398,17 @@ function SaleProducts() {
 
 
     const handleDeleteProductCart = (id) => {
-        // Filter out the product with the given id
-        const updatedProductDetails = lstBillDetailsConfig.filter(productDetail => productDetail.id !== id);
-        // Update the state with the new product list
-        setLstBillDetailsConfig(updatedProductDetails);
+        axios.delete('http://localhost:8080/api/v1/counters/billDetails/'+id)
+        .then(response => {
+            toast.success(response.data.message);
+            updateDataProductDetails();
+                updateDataDataCart();
+        })
+        .catch(err => {
+             toast.error(err.response.data.message);
+ 
+        });
+
     }
 
     const handleAddProductDetailsConfig = () => {
@@ -438,86 +453,112 @@ function SaleProducts() {
         onChange: onSelectChange,
     };
 
+    const showDeleteConfirmCart = (id) => {
+        confirm({
+          title: 'Xác Nhận?',
+          icon: <ExclamationCircleFilled />,
+          content: 'Bạn Có Chắc Muốn Xóa Sản Phẩm Này ?',
+          okText: 'Yes',
+          okType: 'danger',
+          cancelText: 'No',
+          onOk() {
+            handleDeleteProductCart(id)
+          },
+          onCancel() {
+            console.log('Cancel');
+          },
+        });
+      };
 
+      const bill = lstBill.find(bill => bill?.id == idBill)
     return (
         <>
-            {lstBill.length===0? (
+            {lstBill.length === 0 ? (
                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
                 <div>
                     <h4>Giỏ Hàng</h4>
                     <div className='bg-white p-4'>
-                        <div>
-                            <Button>QR Code</Button>
-                            <Button onClick={() => setOpenAddProduct(true)}>Thêm Sản Phẩm</Button>
-                            <>
-                                <Modal
-                                    title="Danh Sách Sản Phẩm"
-                                    centered
-                                    open={openAddProduct}
-                                    onOk={() => setOpenAddProduct(false)}
-                                    onCancel={() => {
-                                        setSelectedRowKeys([]);
-                                        setOpenAddProduct(false)
-                                    }}
-                                    width={1300}
-                                    footer={null}
-                                >
-                                    <div className='flex'>
-                                        <Input placeholder="Tìm Kiếm" />
-                                        <Button>Làm Mới</Button>
-                                    </div>
-                                    <div>
-                                        <Button onClick={handleAddProductDetails}>
-                                            Thêm Sản Phẩm
-                                        </Button>
-                                        <>
-                                            <Modal
-                                                okText="Hoàn Tất" // Thay đổi nội dung của nút OK
-                                                cancelText="Cancel" // Thay đổi nội dung của nút Cancel
-                                                width={840}
-                                                title="Thêm Sản Phẩm" open={openAddProductConfig}
-                                                onOk={() => handleAddProductDetailsConfig()}
-                                                onCancel={() => setOpenAddProductConfig(false)}>
-                                                <Table
-                                                    pagination={{
-                                                        pageSize: 5,
-                                                    }}
-                                                    scroll={{
-                                                        y: 300,
-                                                    }}
-                                                    dataSource={dataColumProductDetailsConfig} columns={columnsTableConfig} />
-                                            </Modal>
-                                        </>
+                        <div className='flex justify-between items-center mb-6'>
+                            <div>
+                                <h4>Đơn Hàng {
+                                    bill?.codeBill
+                                    }</h4>
+                            </div>
+                            <div>
+                                <div>
+                                    <Button>QR Code</Button>
+                                    <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
+                                </div>
+                                <>
+                                    <Modal
+                                        title="Danh Sách Sản Phẩm"
+                                        centered
+                                        open={openAddProduct}
+                                        onOk={() => setOpenAddProduct(false)}
+                                        onCancel={() => {
+                                            setSelectedRowKeys([]);
+                                            setOpenAddProduct(false)
+                                        }}
+                                        width={1300}
+                                        footer={null}
+                                    >
+                                        <div className='flex'>
+                                            <Input placeholder="Tìm Kiếm" />
+                                            <Button>Làm Mới</Button>
+                                        </div>
+                                        <div>
+                                            <Button onClick={handleAddProductDetails}>
+                                                Thêm Sản Phẩm
+                                            </Button>
+                                            <>
+                                                <Modal
+                                                    okText="Hoàn Tất" // Thay đổi nội dung của nút OK
+                                                    cancelText="Cancel" // Thay đổi nội dung của nút Cancel
+                                                    width={840}
+                                                    title="Thêm Sản Phẩm" open={openAddProductConfig}
+                                                    onOk={() => handleAddProductDetailsConfig()}
+                                                    onCancel={() => setOpenAddProductConfig(false)}>
+                                                    <Table
+                                                        pagination={{
+                                                            pageSize: 5,
+                                                        }}
+                                                        scroll={{
+                                                            y: 300,
+                                                        }}
+                                                        dataSource={dataColumProductDetailsConfig} columns={columnsTableConfig} />
+                                                </Modal>
+                                            </>
 
-                                    </div>
-                                    <div>
+                                        </div>
+                                        <div>
 
 
-                                        <Table
-                                            rowSelection={rowSelection}
-                                            pagination={{
-                                                pageSize: 10,
-                                            }}
-                                            scroll={{
-                                                y: 300,
-                                            }}
-                                            dataSource={dataColumProductDetails} columns={columnsTable} />
-                                    </div>
+                                            <Table
+                                                rowSelection={rowSelection}
+                                                pagination={{
+                                                    pageSize: 10,
+                                                }}
+                                                scroll={{
+                                                    y: 300,
+                                                }}
+                                                dataSource={dataColumProductDetails} columns={columnsTable} />
+                                        </div>
 
-                                </Modal>
-                            </>
+                                    </Modal>
+                                </>
+                            </div>
+
                         </div>
 
-                        <div>
 
-                        </div>
-                        <div>
-                            {lstProductDetailsCart.length === 0 && lstBill.length !==0 ? (
+                        <div className='shadow-lg p-4'>
+                            {lstProductDetailsCart.length === 0 && lstBill.length !== 0 ? (
                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             ) : (
                                 <div>
                                     <Table
+
                                         pagination={{
                                             pageSize: 10,
                                         }}
@@ -531,8 +572,8 @@ function SaleProducts() {
                         </div>
 
                     </div>
-                    <div className='flex justify-end mr-10'>
-                        <h4>Tổng Tiền: {totalPrice}</h4>
+                    <div className='flex justify-end mr-10 mt-4 mb-4'>
+                        <h4 className=''>Tổng Tiền: <span className='text-rose-600	'>{fixMoney(totalPrice)}</span> </h4>
                     </div>
                 </div>
             )}

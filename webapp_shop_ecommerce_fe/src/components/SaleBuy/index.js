@@ -2,18 +2,41 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Space, Input, Select, Switch } from 'antd';
 import axios from "axios";
 import { useSaleData } from '~/provider/SaleDataProvider';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMoneyBill1, faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
+import { fixMoney } from '~/ultils/fixMoney';
+import { ExclamationCircleFilled } from '@ant-design/icons';
+const { confirm } = Modal
 function SaleBuy() {
     //provider
-    const {handlePaymentBill, totalPrice, intoMoney, shipMoney, voucherMoney,paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useSaleData();
+    const { handlePaymentBill, totalPrice, intoMoney, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useSaleData();
 
     const handleRadioChange = (e) => {
         setDataPaymentMethods(e.target.value);
     };
+
+    const showConfirm = () => {
+        confirm({
+            title: 'Xác Nhận?',
+            icon: <ExclamationCircleFilled />,
+            content: 'Xác Nhận Thanh Toán ?',
+            onOk() {
+                handlePaymentBill()
+            },
+            okText: 'Đồng ý',
+            cancelText: 'Thoát',
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
     return (
         <>
             <div className="">
-                <div className='mb-4'>
+                <div className='mb-4 pb-4' style={{
+                    borderBottom: '1px solid rgb(232, 232, 232)'
+                }}>
                     <h4>Thanh Toán</h4>
                 </div>
                 <div className=''>
@@ -36,8 +59,8 @@ function SaleBuy() {
                         </div> */}
                     </div>
 
-                    <div className='mb-4' 
-                         style={{ display: customer === null ? 'none' : 'block'}}
+                    <div className='mb-4'
+                        style={{ display: customer === null ? 'none' : 'block' }}
                     >
                         <Switch onChange={() => setDataIsDelivery()} />
                         <span className='ml-2'>Giao Hàng</span>
@@ -48,13 +71,13 @@ function SaleBuy() {
 
                         <Radio.Group onChange={handleRadioChange} defaultValue="0" size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none">
                             <div className='flex justify-between'>
-                                <Radio.Button className='text-center ' style={{ width: '48%' }} value="0">Tiền Mặt</Radio.Button>
-                                <Radio.Button className='text-center' style={{ width: '48%' }} value="1">Chuyển khoản</Radio.Button>
+                                <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2'>Tiền Mặt</span> </Radio.Button>
+                                <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2'>Chuyển khoản</span> </Radio.Button>
                             </div>
                             {/* <Radio.Button className='text-center mt-4' style={{ width: '100%' }} value="2">Tiền Mặt & Chuyển khoản</Radio.Button> */}
                         </Radio.Group>
                     </div>
-                    
+
 
                     <div className='text-2xl leading-loose'>
                         <div className='flex justify-between'>
@@ -65,10 +88,10 @@ function SaleBuy() {
                                 <div>Tổng Tiền:</div>
                             </div>
                             <div className='font-medium text-end'>
-                                <div>{totalPrice}</div>
-                                <div>{voucherMoney}</div>
-                                <div>{shipMoney}</div>
-                                <div>{intoMoney}</div>
+                                <div>{fixMoney(totalPrice)}</div>
+                                <div>{fixMoney(voucherMoney)}</div>
+                                <div>{fixMoney(shipMoney)}</div>
+                                <div className='text-rose-600	'>{fixMoney(intoMoney)}</div>
                             </div>
                         </div>
                         <div style={{
@@ -96,7 +119,7 @@ function SaleBuy() {
                                     <div>Tiền Thừa:</div>
                                 </div>
                                 <div className='font-medium text-end'>
-                                    <div>{moneyPaid}</div>
+                                    <div className='text-rose-600	'>{fixMoney(moneyPaid)}</div>
                                 </div>
                             </div>
                         </div>
@@ -105,9 +128,10 @@ function SaleBuy() {
                     </div>
 
                     <div className='w-full mt-10 mb-10'>
-                        <Button className='w-full h-20' type="primary" onClick={()=>{handlePaymentBill()}} >
+                        <Button className='w-full h-20' type="primary" onClick={showConfirm}  >
                             Thanh Toán
                         </Button>
+
                     </div>
 
                 </div>

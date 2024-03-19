@@ -2,15 +2,21 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Tag, Input, Select } from 'antd';
 import axios from "axios";
 import { useSaleData } from '~/provider/SaleDataProvider';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faMap } from '@fortawesome/free-regular-svg-icons';
+import Address from '../Address';
 const { TextArea } = Input;
-function AddressGress() {
+function AddressDelivery() {
 
 
     const { isDelivery, setDataAddressBill, customer, addressBill } = useSaleData();
     const [lstAddress, setLstAddress] = useState([]);
     const [checkValueAddress, setCheckValueAddress] = useState(1);
     const [address, setAddress] = useState({});
+
+    const [isTabAddreiss, setIsTabAddress] = useState(false);
+    const [valueTabAddreiss, setValueTabAddress] = useState(null);
 
     const [dataProvince, setDataProvince] = useState([]);
     const [dataDistrict, setDataDistrict] = useState([]);
@@ -45,9 +51,11 @@ function AddressGress() {
         });
         setAddress(address);
         setIsModalOpenAddress(false);
+        setIsTabAddress(false);
     };
     const handleCancelAddress = () => {
         setIsModalOpenAddress(false);
+        setIsTabAddress(false);
     };
 
 
@@ -107,12 +115,12 @@ function AddressGress() {
             const response = await axios.get('http://localhost:8080/api/v1/customer/' + customer.id);
             console.log(response.data);
             setLstAddress(response.data.lstAddress);
-             // Kiểm tra và thiết lập giá trị kiểm tra
-             response.data.lstAddress.forEach(address => {
-            if (address.defaultAddress) {
-                setCheckValueAddress(address.id);
-            }
-        });
+            // Kiểm tra và thiết lập giá trị kiểm tra
+            response.data.lstAddress.forEach(address => {
+                if (address.defaultAddress) {
+                    setCheckValueAddress(address.id);
+                }
+            });
         } catch (error) {
             console.error(error);
         }
@@ -124,7 +132,7 @@ function AddressGress() {
             // console.log(isDelivery);
             fetchDataLstAddress();
         }
-    }, [customer,isDelivery])
+    }, [customer, isDelivery])
 
     //lấy province
     useEffect(() => {
@@ -218,62 +226,97 @@ function AddressGress() {
     const onChangeAddress = (e) => {
         setCheckValueAddress(e.target.value)
     };
+    const handleGoBack = () => {
+        setIsTabAddress(false);
+    };
+    const handleUpdateAddres = (address) => {
+       setValueTabAddress(address)
+       setIsTabAddress(true);
 
+    };
+
+    const handleAddAddres = () => {
+        setValueTabAddress(null)
+        setIsTabAddress(true);
+
+     };
     return (
         <>
             <div >
-                <div className='mb-4 flex justify-between' >
+                <div className='flex justify-between pb-2 mb-2' style={{
+                    borderBottom: '1px solid rgb(232, 232, 232)'
+                }}>
                     <h4>Thông tin giao hàng</h4>
 
                     <div style={{ display: customer == null ? 'none' : 'block' }}>
                         <div className='flex justify-end' >
-                            <Button onClick={showModalAddress}>Chọn Địa Chỉ</Button>
+                            <Button className='border-none text-blue-600 p-0' onClick={showModalAddress}> <FontAwesomeIcon icon={faMapLocationDot}></FontAwesomeIcon> <span className='ml-2'>Chọn Địa Chỉ</span></Button>
                         </div>
                         <div>
-                            <Modal width={680} title="Địa Chỉ" open={isModalOpenAddress} onOk={handleOkAddress} onCancel={handleCancelAddress}>
+                            <Modal width={680}  footer={null} title="Địa Chỉ" open={isModalOpenAddress} onOk={handleOkAddress} onCancel={handleCancelAddress} >
 
-                                <Radio.Group onChange={onChangeAddress} value={checkValueAddress} >
+                                {
+                                    isTabAddreiss ? (
+                                        <>
+                                            <Address goBack={handleGoBack} customer={customer} valueAddress={valueTabAddreiss} updateDataAddress={fetchDataLstAddress}></Address>
+                                        </>
+                                    ) : (
+                                        <div>
+                                            <Radio.Group onChange={onChangeAddress} value={checkValueAddress} >
 
-                                    {lstAddress?.map(addr => (
-                                        <Radio value={addr.id} key={addr.id} className='w-full' style={{
-                                            borderTop: '1px solid #ccc',
-                                            marginTop: '2px',
-                                            marginBottom: '2px',
-                                            paddingTop: '2px',
-                                            paddingBottom: '2px',
-                                        }}>
-                                            <div>
-                                                {addr.receiverName} | {addr.receiverPhone}
+                                                {lstAddress?.map(addr => (
+                                                    <Radio value={addr.id} key={addr.id} className='w-full p-2 ' style={{
+                                                        borderBottom: '1px solid rgb(232, 232, 232)'
+                                                    }} >
+                                                        <div className='ml-4'>
+                                                            <div className='flex'>
+                                                                <div className='font-medium mr-2'>{addr.receiverName}</div> | {addr.receiverPhone}
+                                                            </div>
+                                                            <div>
+                                                                <div>{addr.detail}</div>
+                                                            </div>
+                                                            <div>{addr.commune}, {addr.district}, {addr.province}</div>
+                                                            <div className='flex items-center mt-2'>
+                                                            <div
+                                                            ><Button className='p-0 mr-4 border-none text-blue-600	' onClick={()=>{handleUpdateAddres(addr)}}>Cập Nhật</Button>
+                                                            </div>
+                                                            {addr.defaultAddress ? <Tag color="#108ee9">Mặc Định</Tag> : ""}</div>
+
+                                                        </div>
+                                                    </Radio>
+                                                ))}
+                                            </Radio.Group>
+                                            <div className='mt-6 ml-8 flex justify-between	'>
+                                                <Button onClick={() => handleAddAddres()}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Địa Chỉ</span> </Button>
+                                                <div>
+                                                    <Button className='mr-4' onClick={()=>handleCancelAddress()}>Thoát</Button>
+                                                    <Button type='primary' onClick={()=>handleOkAddress()}>Chọn</Button>
+                                                </div>
+                                            
                                             </div>
-                                            <div>
-                                                <div>{addr.detail}</div>
-                                            </div>
-                                            <div>{addr.commune}, {addr.district}, {addr.province}</div>
-                                            <div className='flex justify-between items-center mt-2'><div><Button>Cập Nhật</Button></div>{addr.defaultAddress ? <Tag color="#108ee9">Mặc Định</Tag> : ""}</div>
-                                        </Radio>
-                                    ))}
-                                </Radio.Group>
-                                <div className='mt-6 ml-8'>
-                                    <Button>Thêm Địa Chỉ</Button>
-                                </div>
+                                        </div>
+                                    )
+                                }
+
+
                             </Modal>
                         </div>
                     </div>
                 </div>
                 <div >
                     <div className='mb-4'>
-                        <div className='mb-2'>Họ Và Tên</div>
+                        <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Họ Và Tên</div>
                         <Input placeholder="Họ Và Tên" value={receiverName} onChange={(e) => { setReceiverName(e.target.value) }} />
                     </div>
                     <div className='flex'>
                         <div className='mb-4 w-full'>
-                            <div className='mb-2'>Số Điện Thoại</div>
+                            <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Số Điện Thoại</div>
                             <Input placeholder="Số Điện Thoại" value={receiverPhone} onChange={(e) => { setReceiverPhone(e.target.value) }} />
                         </div>
                     </div>
                     <div className='flex justify-between mb-4'>
                         <div className='flex flex-col w-1/3	'>
-                            <div className='mb-2'>Tỉnh/Thành</div>
+                            <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Tỉnh/Thành</div>
                             <Select
                                 defaultValue={valueProvinceDefautl}
                                 placeholder="Tỉnh/Thành"
@@ -284,7 +327,7 @@ function AddressGress() {
                         </div>
 
                         <div className='flex flex-col w-1/3	ml-2 mr-2'>
-                            <div className='mb-2'>Quận/Huyện</div>
+                            <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Quận/Huyện</div>
                             <Select
                                 placeholder="Quận/Huyện"
                                 options={dataDistrict}
@@ -293,7 +336,7 @@ function AddressGress() {
                             />
                         </div>
                         <div className='flex flex-col w-1/3'>
-                            <div className='mb-2'>Phường/Xã</div>
+                            <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Phường/Xã</div>
                             <Select
                                 placeholder="Phường/Xã"
                                 options={dataWard}
@@ -316,4 +359,4 @@ function AddressGress() {
     );
 }
 
-export default AddressGress;
+export default AddressDelivery;

@@ -66,14 +66,14 @@ function MenuCustomer() {
     setTheme(value ? 'dark' : 'light');
   };
   return (<>
-    <Switch
+    {/* <Switch
       onChange={changeMode}
-    />
+    /> */}
     <Menu
 
       defaultSelectedKeys={['1']}
-      mode={mode}
-      theme={theme}
+      theme="light"
+      mode="inline"
       items={items}
     >
     </Menu>

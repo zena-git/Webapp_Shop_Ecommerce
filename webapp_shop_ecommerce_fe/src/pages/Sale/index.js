@@ -2,19 +2,20 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tabs } from 'antd';
 import axios from 'axios';
 import SaleProducts from '~/components/SaleProducts';
-import AddressGress from '~/components/AddressGress';
+import AddressGress from '~/components/AddressDelivery';
 import SaleCustomer from '~/components/SaleCustomer';
 import SaleBuy from '~/components/SaleBuy';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSaleData } from '~/provider/SaleDataProvider';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 function Sale() {
   const [activeKey, setActiveKeyBill] = useState();
   const [billNews, setBillNews] = useState();
   const newTabIndex = useRef(0);
   //provider
-  const { isDelivery, setDataIdBill, lstBill, updateDataLstBill,updateDataProductDetails } = useSaleData();
+  const { isDelivery, setDataIdBill, lstBill, updateDataLstBill, updateDataProductDetails, customer, updateDataDataCart } = useSaleData();
 
   const fetchAddBillNew = async () => {
     try {
@@ -28,9 +29,9 @@ function Sale() {
     }
   };
 
-  useEffect(() =>{
+  useEffect(() => {
     updateDataProductDetails()
-  },[])
+  }, [])
 
 
   useEffect(() => {
@@ -38,7 +39,7 @@ function Sale() {
       return {
         id: billNews.id,
         key: billNews.id,
-        label: `HD ${billNews.id}`,
+        label: `Hóa Đơn ${index+1}`,
       }
     })
     setBillNews(lst);
@@ -49,32 +50,41 @@ function Sale() {
   }, [lstBill]);
 
 
-  const onChange = (key) => {
-    // console.log(key);
+  const onChange = (key, label) => {
+    console.log(label);
     setActiveKeyBill(key);
     setDataIdBill(key);
   };
   const add = () => {
     fetchAddBillNew()
   };
-  const remove = (targetKey) => {
-    const targetIndex = billNews.findIndex((pane) => pane.key === targetKey);
-    const newPanes = billNews.filter((pane) => pane.key !== targetKey);
-    if (newPanes.length && targetKey === activeKey) {
-      const { key } = newPanes[targetIndex === newPanes.length ? targetIndex - 1 : targetIndex];
-      setActiveKeyBill(key);
-    }
-    setBillNews(newPanes);
-  };
   const onEdit = (targetKey, action, event) => {
     console.log(event);
+    console.log(action);
     if (action === 'add') {
       add();
-    } else {
-      remove(targetKey);
+    }
+    if (action === 'remove') {
+      handleDeleteBill(targetKey)
+      console.log(targetKey);
     }
   };
 
+
+  const handleDeleteBill = (id) => {
+    axios.delete('http://localhost:8080/api/v1/counters/' + id)
+      .then(response => {
+        toast.success(response.data.message);
+        updateDataLstBill()
+        updateDataProductDetails();
+        updateDataDataCart();
+      })
+      .catch(error => {
+        toast.error(error.response.data.message);
+        console.error(error);
+      });
+
+  }
 
   return (
     <>
@@ -83,18 +93,13 @@ function Sale() {
         <h4>
           Bán Hàng Tại Quầy
         </h4>
-        <div>
+        <div className='mt-6'>
           <div>
-            <div
-              style={{
-                marginBottom: 16,
-              }}
-            >
-              <Button onClick={add}>ADD</Button>
+            <div className='mb-4'>
+              <Button type='primary' onClick={add}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Tạo Hóa Đơn</span> </Button>
             </div>
             <Tabs
               hideAdd
-
               onChange={onChange}
               activeKey={activeKey}
               type="editable-card"
@@ -111,10 +116,10 @@ function Sale() {
         <div>
           <SaleCustomer></SaleCustomer>
         </div>
-        <div className='flex justify-between'>
+        <div className='flex justify-between 	shadow-lg mt-20 p-4 mb-20'>
 
           <div className='w-1/2' style={{
-            visibility: isDelivery ? 'visible' : 'hidden',
+            visibility: isDelivery && customer !== null ? 'visible' : 'hidden',
           }} >
             <AddressGress></AddressGress>
           </div>
