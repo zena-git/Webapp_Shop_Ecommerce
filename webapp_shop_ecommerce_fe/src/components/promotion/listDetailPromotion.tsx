@@ -1,4 +1,3 @@
-"use client"
 import { Tag } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
@@ -39,47 +38,21 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-import { ProductResponse, PromotionResponse } from "~/lib/type"
+import { PromotionDetailResponse } from "~/lib/type"
 import { Link, redirect } from 'react-router-dom'
 
-export default function ListTable({ data }: { data: PromotionResponse[] }) {
+export default function ListTable({ data }: { data: PromotionDetailResponse[] }) {
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        []
-    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
 
-
-    const columns: ColumnDef<PromotionResponse>[] = useMemo(() => [
-        {
-            id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    //@ts-ignore
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            ),
-            enableSorting: false,
-            enableHiding: false,
-        },
+    const columns: ColumnDef<PromotionDetailResponse>[] = useMemo(() => [
         {
             accessorKey: "id",
             header: "id",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
+                <div className="capitalize">{row.original.id}</div>
             ),
         },
         {
@@ -90,76 +63,29 @@ export default function ListTable({ data }: { data: PromotionResponse[] }) {
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên
+                        mã sp
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase">{row.original.productDetails.code}</div>,
         },
         {
-            accessorKey: "status",
-            header: () => <div className="text-center">trạng thái</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("status") == 0 ? row.getValue("endDate") > new Date() ? <Tag color={"red"}>
-                    ĐÃ KẾT THÚC
-                </Tag> : <Tag color={"blue"}>
-                    ĐANG DIỄN RA
-                </Tag> : <Tag color={"yellow"}>
-                    ĐANG TẠM NGƯNG
-                </Tag>}</div>
-            },
-        },
-        {
-            accessorKey: "startDate",
-            header: () => <div className="text-center">ngày bắt đầu</div>,
+            id: "type",
+            header: () => <div className="text-center">phân loại</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.getValue("startDate")}
+                    {"[ " + row.original.productDetails.color.name + " - " + row.original.productDetails.size.name + " ]"}
                 </div>
             },
         },
         {
-            accessorKey: "endDate",
-            header: () => <div className="text-center">ngày kết thúc</div>,
+            id: "quantity",
+            header: () => <div className="text-center">số lượng</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.getValue("endDate")}
+                    {row.original.productDetails.quantity}
                 </div>
-            },
-        },
-        {
-            accessorKey: "value",
-            header: () => <div className="text-center">giá trị giảm</div>,
-            cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
-                    {row.getValue("value")}
-                </div>
-            },
-        },
-        {
-            id: "hành động",
-            enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>Xóa sản phẩm</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                )
             },
         },
     ], []);
@@ -186,7 +112,7 @@ export default function ListTable({ data }: { data: PromotionResponse[] }) {
     return (
         <>
             <div className="w-full">
-                <div className="flex items-center py-4">
+                <div className="flex items-center py-4 mb-5 gap-5">
                     <Input
                         placeholder="Filter name..."
                         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -222,7 +148,7 @@ export default function ListTable({ data }: { data: PromotionResponse[] }) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border">
+                <div className="rounded-md border mt-5">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (

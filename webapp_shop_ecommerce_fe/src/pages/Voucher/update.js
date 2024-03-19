@@ -25,7 +25,9 @@ import { useAppSelector } from '../../redux/storage';
 import ReduxProvider from '../../redux/provider'
 import { zodResolver } from "@hookform/resolvers/zod"
 import ListCustomer from '../../components/voucher/listCustomer'
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { set, updateSelected } from '../../redux/features/voucher-selected-item';
 const { RangePicker } = DatePicker
 
 const formSchema = z.object({
@@ -57,15 +59,15 @@ const formSchema = z.object({
 const VoucherPage = () => {
 
     const { toast } = useToast();
-    const path = useParams()
+    const path = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const selectedCustomer = useAppSelector(state => state.voucherReducer.value.selected)
 
     const [VoucherType, setVoucherType] = useState("0");
 
     const [targetVoucher, setTargetVoucher] = useState();
-
-    const [data, setData] = useState([]);
 
     const [discountType, setDiscountType] = useState(false);
     const [listCustomer, setListCustomer] = useState([]);
@@ -74,7 +76,20 @@ const VoucherPage = () => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
     }, [])
 
+
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
+
+    useEffect(() => {
+        if (path && path.id) {
+            axios.get(`${nextUrl}/voucher/data?id=${path.id}`).then(res => {
+                setTargetVoucher(res.data);
+                setDate([dayjs(res.data.start_date), dayjs(res.data.end_date)])
+                res.data.VoucherDetail.map(detail => {
+                    dispatch(updateSelected({ id: Number.parseInt(detail.customer_id), selected: true }))
+                })
+            });
+        }
+    }, [dispatch, path])
 
     const form = useForm(
         {
@@ -90,30 +105,20 @@ const VoucherPage = () => {
                 usage_limit: targetVoucher ? targetVoucher.usage_limit : 0,
                 value: targetVoucher ? targetVoucher.value : 0
             },
-            mode: 'all'
+            mode: 'all',
+            values: {
+                code: targetVoucher ? targetVoucher.code : makeid(),
+                name: targetVoucher ? targetVoucher.name : "",
+                description: targetVoucher ? targetVoucher.description : "",
+                discount_type: targetVoucher ? targetVoucher.discount_type : 0,
+                max_discount_value: targetVoucher ? targetVoucher.max_discount_value : 0,
+                order_min_value: targetVoucher ? targetVoucher.order_min_value : 0,
+                target_type: targetVoucher ? targetVoucher.target_type : 0,
+                usage_limit: targetVoucher ? targetVoucher.usage_limit : 0,
+                value: targetVoucher ? targetVoucher.value : 0
+            }
         }
     )
-
-    useEffect(() => {
-        setDate([dayjs(Date.now()), dayjs(Date.now())])
-    }, [])
-
-    useEffect(() => {
-        axios.get(`${baseUrl}/voucher`).then(res => {
-            setData(res.data);
-        })
-    }, [])
-
-
-    useEffect(() => {
-        if (path && path.id) {
-            axios.get(`${nextUrl}/voucher/data?id=${path.id}`).then(res => {
-                setTargetVoucher(res.data)
-            });
-        }
-    }, [path])
-
-
 
     const handleSubmitForm = (values) => {
         if (VoucherType == "0") {
@@ -130,7 +135,8 @@ const VoucherPage = () => {
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
             }).then(res => {
-                alert("Đã tạo voucher thành công")
+                alert("Đã cập nhật voucher thành công")
+                navigate(`/discount/voucher/detail/${path.id}`)
             })
         } else {
             if (selectedCustomer.length > 0) {
@@ -147,7 +153,8 @@ const VoucherPage = () => {
                     endDate: date[1].toDate(),
                     lstCustomer: selectedCustomer.map(val => { return val.id })
                 }).then(res => {
-                    alert("Đã tạo voucher thành công")
+                    alert("Đã cập nhật voucher thành công");
+                    navigate(`/discount/voucher/detail/${res.data.id}`)
                 })
             } else {
                 toast({ title: 'chưa chọn khách hàng nào' })
@@ -159,9 +166,8 @@ const VoucherPage = () => {
 
     const DisableVoucher = () => {
         if (targetVoucher) {
-            axios.post(`${nextUrl}/voucher/disable`, {
-                voucherId: targetVoucher?.id,
-                status: targetVoucher.status == "Đã tạm dừng" ? "Đang diễn ra" : "Đã tạm dừng"
+            axios.get(`${nextUrl}/voucher/disable?voucherId=${targetVoucher?.id}`).then(res => {
+                alert('ok')
             })
         }
     }
@@ -326,7 +332,8 @@ const VoucherPage = () => {
                                     </div>
                                     <div className='flex gap-4'>
                                         <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Submit</Button>
-                                        {targetVoucher && <Button onClick={() => { DisableVoucher() }}>{targetVoucher.status == "Đang diễn ra" ? "Tạm dừng Voucher" : "Tiếp tục Voucher"}</Button>}
+                                        {/* eslint-disable-next-line no-restricted-globals */}
+                                        {targetVoucher && <Button onClick={() => { let t = confirm("xác nhận"); if (t) DisableVoucher() }}>{targetVoucher.status == "0" ? "Tạm dừng Voucher" : "Tiếp tục Voucher"}</Button>}
                                     </div>
                                 </form>
                             </Form>

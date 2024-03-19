@@ -2,10 +2,12 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{js,jsx}',
-    './components/**/*.{js,jsx}',
-    './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx}',
+    './src/pages/Voucher/**/*.{js,jsx}',
+    './src/pages/Promotion/**/*.{js,jsx}',
+    './src/pages/Product/update.{js,jsx}',
+    './src/components/ui/**/*.{js,jsx}',
+    './src/components/promotion/**/*.{js,jsx}',
+    './src/components/voucher/**/*.{js,jsx}',
   ],
   prefix: "",
   theme: {

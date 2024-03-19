@@ -54,7 +54,7 @@ export default function ListTable() {
 
     const dispatch = useDispatch();
 
-    const selectedCustomer = useAppSelector((state) => state.promotionReducer.value.selected)
+    const selectedCustomer = useAppSelector((state) => state.voucherReducer.value.selected)
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
@@ -78,18 +78,24 @@ export default function ListTable() {
                 <Checkbox
                     //@ts-ignore
                     checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                        selectedCustomer.length > 0 && (
+                            selectedCustomer.every(cus => cus.selected) ||
+                            (selectedCustomer.some(cus => cus.selected) && "indeterminate")
+                        )
                     }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    onCheckedChange={(value) => dispatch(set({
+                        value: {
+                            selected: listCustomer.map(cus => {
+                                return { id: cus.id, selected: !!value }
+                            })
+                        }
+                    }))}
                     aria-label="Select all"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    checked={row.getIsSelected() || (selectedCustomer.find(value => {
-                        return value.id == row.getValue("id")
-                    })?.selected)}
+                    checked={(selectedCustomer.find(value => value.id === row.getValue("id"))?.selected || false)}
                     onCheckedChange={(value) => { row.toggleSelected(!!value); dispatch(updateSelected({ id: row.getValue("id"), selected: !!value })) }}
                     aria-label="Select row"
                 />

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { baseUrl } from '~/lib/functional';
 import { useParams } from 'react-router-dom';
-
-export default function Detail() {
+import ListDetailPromotion from '../../components/promotion/listDetailPromotion'
+import ReduxProvider from '../../redux/provider'
+function Detail() {
 
     const [targetPromotion, setTargetPromotion] = useState()
 
@@ -18,17 +19,25 @@ export default function Detail() {
 
     return (
         <div className='p-4 flex flex-col gap-2'>
-            <div className='grid grid-cols-2 gap-2'>
-                <p className='text-lg font-semibold'>Tên chương trình: {targetPromotion?.name}</p>
-                <p className='text-lg font-semibold'>Mã chương trình giảm giá: {targetPromotion?.code}</p>
-                <p className='text-lg font-semibold'>Trạng thái: {targetPromotion?.status}</p>
-                <p className='text-lg font-semibold'>Mô tả: {targetPromotion?.description}</p>
+            <div className='grid grid-cols-2 gap-2 mb-3'>
+                <p className='text-lg font-semibold text-slate-800'>Tên chương trình: {targetPromotion?.name}</p>
+                <p className='text-lg font-semibold text-slate-800'>Mã chương trình giảm giá: {targetPromotion?.code}</p>
+                <p className='text-lg font-semibold text-slate-800'>Trạng thái: {targetPromotion?.status}</p>
+                <p className='text-lg font-semibold text-slate-800'>Mô tả: {targetPromotion?.description}</p>
             </div>
-            <p className='text-lg font-semibold'>Ngày hoạt động: {targetPromotion?.startDate + " - " + targetPromotion?.endDate}</p>
+            <p className='text-lg font-semibold text-slate-800 mb-3'>Ngày hoạt động: {targetPromotion?.startDate + " - " + targetPromotion?.endDate}</p>
 
             <div>
-
+                {targetPromotion && <ListDetailPromotion data={targetPromotion.lstPromotionDetails}/>}
             </div>
         </div>
     )
 }
+
+const Layout = (props) => {
+    return (
+        <ReduxProvider><Detail></Detail></ReduxProvider>
+    )
+}
+
+export default Layout

@@ -2,11 +2,11 @@ import { Button, Space, Table, Tag, Form, Checkbox, DatePicker, InputNumber, Inp
 import ReduxProvider from '~/redux/provider'
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams, redirect } from 'react-router-dom';
+import { useParams, redirect, useNavigate } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAppSelector } from '~/redux/storage';
 import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
+import { baseUrl, nextUrl } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { set, updateSelected, toggleChildren } from '~/redux/features/promotion-selected-item'
 const { TextArea } = Input
@@ -18,10 +18,11 @@ function EditPage() {
 
     const path = useParams()
 
-    const [targetPromotion, setTargetPromotion] = useState()
+    const [targetPromotion, setTargetPromotion] = useState();
+
+    const navigate = useNavigate();
 
     const [name, setName] = useState("");
-    const [code, setCode] = useState("");
     const [value, setValue] = useState(0);
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
@@ -29,21 +30,26 @@ function EditPage() {
     const [listProduct, setListProduct] = useState([]);
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
+
+    useEffect(() => {
+        console.log(listSelectedProduct)
+    }, [listSelectedProduct])
+
     useEffect(() => {
         axios.get(`${baseUrl}/product`).then(res => { setListProduct(res.data) });
     }, [])
+
     useEffect(() => {
         if (path && path.id) {
-            axios.get(`${baseUrl}/promotion/${path.id}`).then(res => {
-                setTargetPromotion(res.data)
+            axios.get(`${nextUrl}/promotion/data?id=${path.id}`).then(res => {
+                setTargetPromotion(res.data);
                 setName(res.data.name);
-                setCode(res.data.code);
                 setValue(res.data.value);
                 setDescription(res.data.description);
                 setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
 
-                res.data.lstPromotionDetails.map((detail) => {
-                    dispatch(updateSelected({ id: detail.productDetails.id, selected: true }))
+                res.data.PromotionDetails.map((detail) => {
+                    dispatch(toggleChildren({ id: detail.ProductDetail.id, targetParent: detail.ProductDetail.product_id, selected: true }))
                 })
 
             });
@@ -62,22 +68,16 @@ function EditPage() {
         if (!date) {
 
         } else if (name.trim().length == 0) {
-            alert({
-                title: 'chưa nhập tên chương trình'
-            })
+            alert('chưa nhập tên chương trình')
         } else if (lst.length == 0) {
-            alert({
-                title: 'chưa chọn sản phẩm nào'
-            })
+            alert('chưa chọn sản phẩm nào')
         } else if (value.toString().trim().length == 0) {
-            alert({
-                title: 'đặt mức giảm giá'
-            })
+            alert('đặt mức giảm giá')
         } else {
             const t = {
                 id: targetPromotion?.id,
                 name: name,
-                code: code,
+                code: targetPromotion ? targetPromotion.code : "",
                 status: 0,
                 value: value,
                 description: description,
@@ -87,13 +87,8 @@ function EditPage() {
             }
 
             axios.put(`${baseUrl}/promotion/${t.id}`, t).then(res => {
-                alert({
-                    title: res.data.title,
-                    description: res.data.des
-                })
-                if (res.data.status == "success") {
-                    redirect(`/promotion?id=${targetPromotion.id}`)
-                }
+                alert(res.data.title)
+                navigate(`/discount/promotion/detail/${targetPromotion.id}`)
             })
         }
     }
@@ -107,7 +102,7 @@ function EditPage() {
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
-                    <Input disabled value={code} onChange={e => { setCode(e.target.value) }} />
+                    <Input value={targetPromotion ? targetPromotion.code : ""} />
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>

@@ -24,7 +24,6 @@ export default function VoucherDetail() {
     useEffect(() => {
         if (!path.id) return;
         axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
-            console.log(res.data);
             setTargetVoucher(res.data);
         })
     }, [path])
@@ -33,14 +32,14 @@ export default function VoucherDetail() {
         <div>
             <p className="text-4xl font-bold mb-3">Thông tin voucher</p>
 
-            <div className="grid grid-cols-2 gap-3">
-                <p className="text-2xl font-semibold text-slate-800">Tên Voucher: {targetVoucher?.name}</p>
-                <p className="text-2xl font-semibold text-slate-800">Mã voucher: {targetVoucher?.code}</p>
-                <p className="text-2xl font-semibold text-slate-800">Giới hạn: {targetVoucher?.usage_limit || "Không có"}</p>
-                <p className="text-2xl font-semibold text-slate-800">Giá trị giảm: {targetVoucher?.value} {targetVoucher && targetVoucher.discount_type == 0 ? "đ" : "%"}</p>
-                <p className="text-2xl font-semibold text-slate-800">Giá trị đơn tối thiểu: {targetVoucher?.order_min_value}</p>
-                {targetVoucher.discount_type == 1 && <p className="text-2xl font-semibold text-slate-800">Mức giảm tối đa: {targetVoucher?.max_discount_value}</p>}
-                <div className="flex items-center gap-1"><p className="text-2xl font-semibold text-slate-800">Trạng thái: </p><Tag>{targetVoucher?.status}</Tag></div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+                <p className="text-lg font-semibold text-slate-800">Tên Voucher: {targetVoucher?.name}</p>
+                <p className="text-lg font-semibold text-slate-800">Mã voucher: {targetVoucher?.code}</p>
+                <p className="text-lg font-semibold text-slate-800">Giới hạn: {targetVoucher?.usage_limit || "Không có"}</p>
+                <p className="text-lg font-semibold text-slate-800">Giá trị giảm: {targetVoucher?.value} {targetVoucher && targetVoucher.discount_type == 0 ? "đ" : "%"}</p>
+                <p className="text-lg font-semibold text-slate-800">Giá trị đơn tối thiểu: {targetVoucher?.order_min_value}</p>
+                {targetVoucher.discount_type == 1 && <p className="text-lg font-semibold text-slate-800">Mức giảm tối đa: {targetVoucher?.max_discount_value}</p>}
+                <div className="flex items-center gap-1"><p className="text-lg font-semibold text-slate-800">Trạng thái: </p><Tag>{targetVoucher?.status}</Tag></div>
             </div>
 
             <div>

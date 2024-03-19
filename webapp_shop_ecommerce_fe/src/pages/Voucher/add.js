@@ -24,6 +24,8 @@ import { useAppSelector } from '../../redux/storage';
 import ReduxProvider from '../../redux/provider'
 import { zodResolver } from "@hookform/resolvers/zod"
 import ListCustomer from '../../components/voucher/listCustomer'
+import { useDispatch } from 'react-redux';
+import { set } from '../../redux/features/voucher-selected-item';
 const { RangePicker } = DatePicker
 
 const formSchema = z.object({
@@ -62,6 +64,11 @@ const VoucherPage = () => {
     const [discountType, setDiscountType] = useState(false);
     const [listCustomer, setListCustomer] = useState([]);
 
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(set({ value: { selected: [] } }))
+    }, [])
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })

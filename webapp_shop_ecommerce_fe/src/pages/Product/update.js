@@ -127,10 +127,13 @@ function ProductUpdate() {
             .then(response => {
                 console.log(response.data);
                 setProduct(response.data);
-                fillDataProduct(response.data);
             })
             .catch(error => console.error(error));
     }, [id]);
+
+    useEffect(() => {
+        product && fillDataProduct(product)
+    }, [product])
 
     const fillDataProduct = (pro) => {
         setValueCodeProduct(pro.code);
@@ -252,12 +255,18 @@ function ProductUpdate() {
 
                 return {
                     children: (
-                        <>
-                            {console.log(record)}
-                            {record && record.imageUrl && record.imageUrl[0].split(" | ") && <img className='w-40 aspect-square rounded-sm' src={record.imageUrl[0].split(" | ")[0]}></img>}
+                        <div className='flex gap-2 items-center'>
                             <Upload
                                 listType="picture-card"
-                                fileList={imageUrl}
+                                fileList={record.imageUrl && record.imageUrl[0].split(" | ").map((url, index) => {
+                                    return {
+                                        uid: index,
+                                        name: index,
+                                        status: 'done',
+                                        url: url
+                                    }
+                                })}
+                                multiple
                                 method='POST'
                                 customRequest={(q) => {
                                     const formData = new FormData();
@@ -266,7 +275,7 @@ function ProductUpdate() {
                                     formData.append("upload_preset", "product")
                                     axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
                                         // res.data.image là ra cái link ảnh đã upload lên cloud
-                                        alert("upload image successfully")
+                                        alert("upload image successfully" + res.data.url)
                                         axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.url}`).then((response) => {
                                             //response.data là cái data của productDetail đã được update lại image url
                                             console.log("updated Detail: " + JSON.stringify(response.data))
@@ -293,7 +302,7 @@ function ProductUpdate() {
                                 />
                             </Modal>
 
-                        </>
+                        </div>
                     ),
                     props: {
                         rowSpan: rowSpan,  // Sử dụng rowSpan cho dòng hiện tại
@@ -799,37 +808,31 @@ function ProductUpdate() {
     return (
         <div className='bg-white p-4'>
             <div>
-                <div className='flex justify-between'>
-                    <div>
-                        <p>Danh sách ảnh</p>
+                <div className='grid grid-cols-2 gap-3'>
+                    <div className='mb-3'>
+                        <div className='flex gap-2 items-center mb-3'>
+                            <p>Danh sách ảnh</p>
+                        </div>
                         <div className='flex gap-2 items-center'>
-                            <div className='flex gap-2'>
-                                {product && product.imageUrl && product.imageUrl.split(" | ").map(img => {
-                                    return <img className='w-40 aspect-square rounded-sm' src={img}></img>
-                                }
-                                )}
-                            </div>
+                            {product && product.imageUrl && product.imageUrl.split(" | ").map(img => {
+                                return <img className='w-40 aspect-square rounded-sm' src={img}></img>
+                            })}
+
                             <Upload
                                 method='POST'
-                                className='w-40 aspect-square flex items-center justify-center border-dashed border-[1px] border-slate-600 rounded-lg'
+                                className='w-40 h-40 flex items-center justify-center border-dashed border-[1px] border-slate-600 rounded-lg'
                                 customRequest={(q) => {
                                     const formData = new FormData();
                                     formData.append("file", q.file);
                                     formData.append("cloud_name", "db9i1b2yf")
                                     formData.append("upload_preset", "product")
-                                    // formData.append("api_key", "845413845354532");
-                                    // formData.append("public_id", "sample_image");
-                                    // formData.append("timestamp", "1315060510");
-                                    // formData.append("signature", "9O4m1S9dSB_3UjuvDbx2oIj0wWQ");
 
                                     axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-                                        axios.get(`http://localhost:8081/api/product/update/image?id=${id}&imageUrl=${res.data.image}`).then((response) => {
+                                        axios.get(`http://localhost:8081/api/product/update/image?id=${id}&imageUrl=${res.data.url}`).then((response) => {
                                             //response.data là cái data của product đã được update lại image url
-                                            console.log(response.data)
                                             setProduct(prev => {
                                                 return { ...prev, imageUrl: response.data.image_url }
                                             });
-                                            fillDataProduct(product)
                                             alert("upload image successfully")
                                         })
                                     })
@@ -840,18 +843,25 @@ function ProductUpdate() {
                         </div>
                     </div>
                     <div>
-                        <label>Mã Sản Phẩm</label>
-                        <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
+                        <div className='grid grid-cols-2 gap-3'>
+                            <div>
+                                <label>Mã Sản Phẩm</label>
+                                <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
+                            </div>
+                            <div>
+                                <label>Tên Sản Phẩm</label>
+                                <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
+                            </div>
+
+                        </div>
+                        <div className=''>
+                            <label>Mô Tả Sản Phẩm</label>
+                            <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
+                        </div>
                     </div>
-                    <div>
-                        <label>Tên Sản Phẩm</label>
-                        <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
-                    </div>
+
                 </div>
-                <div>
-                    <label>Mô Tả Sản Phẩm</label>
-                    <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
-                </div>
+
                 <div className='grid grid-cols-4 gap-4 my-4'>
                     <div>
                         <label>Loại</label>

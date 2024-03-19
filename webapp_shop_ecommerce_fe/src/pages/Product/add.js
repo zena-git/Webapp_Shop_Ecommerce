@@ -133,6 +133,27 @@ function ProductAdd() {
                                 listType="picture-card"
                                 fileList={record.imageUrl}
                                 multiple
+                                method='POST'
+                                customRequest={(q) => {
+                                    const formData = new FormData();
+                                    formData.append("file", q.file);
+                                    formData.append("cloud_name", "db9i1b2yf")
+                                    formData.append("upload_preset", "product")
+                                    // axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+                                    //     // res.data.image là ra cái link ảnh đã upload lên cloud
+                                    //     alert("upload image successfully" + res.data.url)
+                                    //     axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.url}`).then((response) => {
+                                    //         //response.data là cái data của productDetail đã được update lại image url
+                                    //         console.log("updated Detail: " + JSON.stringify(response.data))
+                                    //     })
+                                    //     same.map(idSame => {
+                                    //         axios.get(`http://localhost:8081/api/productDetail/update/image?id=${idSame}&imageUrl=${res.data.url}`).then((response) => {
+                                    //             //response.data là cái data của product đã được update lại image url
+                                    //             console.log("updatedSameDetail :" + JSON.stringify(response.data))
+                                    //         })
+                                    //     })
+                                    // })
+                                }}
                                 onPreview={handlePreview}
                                 onChange={handleChange}
                             >

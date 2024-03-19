@@ -22,10 +22,14 @@ const PromotionPage = () => {
     return (
 
         <div className="p-6">
-            <p>Sự kiện giảm giá</p>
-            <Link to={'/discount/promotion/add'} className={`px-3 py-3 text-sm font-semibold bg-slate-100 `}>
-                Thêm đợt giảm giá mới
-            </Link>
+            <p className='text-xl font-bold'>Sự kiện giảm giá</p>
+            <div className='px-3 py-2 w-fit my-3 bg-slate-200 rounded-lg'>
+                <div className='px-3 py-2 w-fit'>
+                    <Link to={'/discount/promotion/add'}>
+                        Thêm đợt giảm giá mới
+                    </Link>
+                </div>
+            </div>
             <div>
                 <div className='mt-5'>
                     <ListTable data={data} />

@@ -11,12 +11,13 @@ import Brand from '~/pages/Brand'
 import Material from '~/pages/Material'
 import Size from '~/pages/Size'
 import Color from '~/pages/Color'
-import Promotion from '~/pages/Promotion'
+
 import Customer from '~/pages/Customer'
 import User from '~/pages/User'
 import Home from '~/pages/Home';
 import Default from '~/pages/Default';
 
+import Promotion from '~/pages/Promotion'
 import PromotionUpdate from '~/pages/Promotion/update'
 import PromotionAdd from '~/pages/Promotion/add'
 import PromotionDetail from '~/pages/Promotion/detail'

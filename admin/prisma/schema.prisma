@@ -5,24 +5,26 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = "env(DATABASE_URL)"
 }
 
 model Address {
-  delete_flag        Boolean?  @db.Bit(1)
-  created_date       DateTime? @db.DateTime(6)
-  customer_id        BigInt?
-  id                 BigInt    @id @default(autoincrement())
-  last_modified_date DateTime? @db.DateTime(6)
-  commune            String?   @db.VarChar(255)
-  created_by         String    @db.VarChar(255)
-  detail             String?   @db.VarChar(255)
-  district           String?   @db.VarChar(255)
-  last_modified_by   String?   @db.VarChar(255)
-  province           String?   @db.VarChar(255)
-  receiver_name      String?   @db.VarChar(255)
-  receiver_phone     String?   @db.VarChar(255)
-  Customer           Customer? @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKc90hq90y53kiv2106tsfr0pm8")
+  delete_flag                                   Boolean?  @db.Bit(1)
+  created_date                                  DateTime? @db.DateTime(6)
+  customer_id                                   BigInt?
+  id                                            BigInt    @id @default(autoincrement())
+  last_modified_date                            DateTime? @db.DateTime(6)
+  commune                                       String?   @db.VarChar(255)
+  created_by                                    String    @db.VarChar(255)
+  detail                                        String?   @db.VarChar(255)
+  district                                      String?   @db.VarChar(255)
+  last_modified_by                              String?   @db.VarChar(255)
+  province                                      String?   @db.VarChar(255)
+  receiver_name                                 String?   @db.VarChar(255)
+  receiver_phone                                String?   @db.VarChar(255)
+  is_default                                    Boolean?  @db.Bit(1)
+  Customer                                      Customer? @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKc90hq90y53kiv2106tsfr0pm8")
+  Customer_Customer_default_address_idToAddress Customer? @relation("Customer_default_address_idToAddress")
 
   @@index([customer_id], map: "FKc90hq90y53kiv2106tsfr0pm8")
 }
@@ -55,6 +57,7 @@ model Bill {
   receiver_details   String?         @db.VarChar(255)
   receiver_district  String?         @db.VarChar(255)
   receiver_province  String?         @db.VarChar(255)
+  payment_method     String?         @db.VarChar(255)
   Users              Users?          @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK8uj2vsobqgiynns1cqvmva3q7")
   Customer           Customer?       @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKbspdwf59pyvty1xwhga3ew7e0")
   BillDetails        BillDetails[]
@@ -147,25 +150,27 @@ model Color {
 }
 
 model Customer {
-  delete_flag        Boolean?        @db.Bit(1)
-  gender             Boolean?        @db.Bit(1)
-  birthday           DateTime?       @db.DateTime(6)
-  created_date       DateTime?       @db.DateTime(6)
-  id                 BigInt          @id @default(autoincrement())
-  last_modified_date DateTime?       @db.DateTime(6)
-  address            String?         @db.VarChar(255)
-  code_customer      String?         @db.VarChar(255)
-  created_by         String          @db.VarChar(255)
-  email              String?         @db.VarChar(255)
-  full_name          String?         @db.VarChar(255)
-  last_modified_by   String?         @db.VarChar(255)
-  password           String?         @db.VarChar(255)
-  phone              String?         @db.VarChar(255)
-  username           String?         @db.VarChar(255)
-  Address            Address[]
-  Bill               Bill[]
-  Cart               Cart?
-  VoucherDetail      VoucherDetail[]
+  delete_flag                                  Boolean?        @db.Bit(1)
+  gender                                       Boolean?        @db.Bit(1)
+  birthday                                     DateTime?       @db.DateTime(6)
+  created_date                                 DateTime?       @db.DateTime(6)
+  id                                           BigInt          @id @default(autoincrement())
+  last_modified_date                           DateTime?       @db.DateTime(6)
+  address                                      String?         @db.VarChar(255)
+  code_customer                                String?         @db.VarChar(255)
+  created_by                                   String          @db.VarChar(255)
+  email                                        String?         @db.VarChar(255)
+  full_name                                    String?         @db.VarChar(255)
+  last_modified_by                             String?         @db.VarChar(255)
+  password                                     String?         @db.VarChar(255)
+  phone                                        String?         @db.VarChar(255)
+  username                                     String?         @db.VarChar(255)
+  default_address_id                           BigInt?         @unique(map: "UK_h2g81iut98ufgb8sb01vy9fd0")
+  Address                                      Address[]
+  Bill                                         Bill[]
+  Cart                                         Cart?
+  Address_Customer_default_address_idToAddress Address?        @relation("Customer_default_address_idToAddress", fields: [default_address_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKhggp8q2ea50vvsjhol6ituhro")
+  VoucherDetail                                VoucherDetail[]
 }
 
 model HistoryBill {

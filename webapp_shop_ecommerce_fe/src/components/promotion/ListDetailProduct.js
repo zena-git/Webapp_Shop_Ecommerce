@@ -86,16 +86,24 @@ export default function ListTable({ data }) {
                         table.getIsAllPageRowsSelected() ||
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    onCheckedChange={(value) => dispatch(set({
+                        value: {
+                            selected: data.map(product => {
+                                return {
+                                    id: product.id, selected: !!value, children: product.lstProductDetails.map(detail => {
+                                        return { id: detail.id, selected: !!value }
+                                    })
+                                }
+                            })
+                        }
+                    }))}
                     aria-label="Select all"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    checked={row.getIsSelected() || (selectedProduct.find(value => {
-                        return value.id == row.original.id
-                    })?.selected)}
-                    onCheckedChange={(value) => { row.toggleSelected(!!value); dispatch(updateSelected({ id: row.original.id, selected: !!value })) }}
+                    checked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
+                    onCheckedChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value })) }}
                     aria-label="Select row"
                 />
             ),
@@ -107,7 +115,7 @@ export default function ListTable({ data }) {
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return (<div className='flex justify-center'>
-                    <img src={row.original.imageUrl} alt='' className='w-14 h-20'></img>
+                    {row.original.imageUrl ? <img src={row.original.imageUrl.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
                 </div>)
             },
         },
@@ -287,6 +295,10 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
 
     const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected)
 
+    useEffect(() => {
+        console.log(selectedProduct)
+    }, [selectedProduct])
+
     const dispatch = useDispatch();
 
     const belowColumns = useMemo(() => [
@@ -298,8 +310,8 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             cell: ({ row }) => (
                 <Checkbox
                     // eslint-disable-next-line no-unused-expressions
-                    checked={row.getIsSelected() || !!selectedProduct.find(slt => { slt.id == targetDataId })?.children.find(child => child.id == row.original.id)?.selected}
-                    onCheckedChange={(value) => { row.toggleSelected(!!value); dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value })) }}
+                    checked={!!selectedProduct.find(slt => slt.id == targetDataId).children.find(child => child.id == row.getValue("id").selected)}
+                    onCheckedChange={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value })) }}
                     aria-label="Select row"
                 />
             ),
@@ -315,10 +327,10 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
         },
         {
             accessorKey: "imageUrl",
-            header: () => <div className="text-center">img</div>,
+            header: () => <div className="text-center">ảnh</div>,
             cell: ({ row }) => {
                 return <div className="text-center flex justify-center font-medium max-h-16">
-                    <img className="w-14 h-20" src={row.getValue("imageUrl")} />
+                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
                 </div>
             },
         },

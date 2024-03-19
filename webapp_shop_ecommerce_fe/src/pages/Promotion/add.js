@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from 'axios';
 import { baseUrl, makeid } from '~/lib/functional';
-import { redirect } from 'react-router-dom';
+import { redirect, useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
 import ReduxProvider from '~/redux/provider'
@@ -23,7 +23,9 @@ function EditPage() {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
 
-    const [PromotionType, setPromotionType] = useState("0")
+    const [PromotionType, setPromotionType] = useState("0");
+
+    const navigate = useNavigate();
 
     const [listProduct, setListProduct] = useState([]);
     useEffect(() => {
@@ -42,17 +44,11 @@ function EditPage() {
         if (!date) {
 
         } else if (name.trim().length == 0) {
-            alert({
-                title: 'chưa nhập tên chương trình'
-            })
-        } else if (lst.length == 0) {
-            alert({
-                title: 'chưa chọn sản phẩm nào'
-            })
+            alert('chưa nhập tên chương trình')
+        } else if (PromotionType == "1" && lst.length == 0) {
+            alert('chưa chọn sản phẩm nào')
         } else if (value.toString().trim().length == 0) {
-            alert({
-                title: 'đặt mức giảm giá'
-            })
+            alert('đặt mức giảm giá')
         } else {
             let t = [];
             listProduct.map(pro => {
@@ -68,13 +64,8 @@ function EditPage() {
                 endDate: dayjs(date[1]).toDate(),
                 lstProductDetails: PromotionType == "0" ? t : lst
             }).then(res => {
-                alert({
-                    title: res.data.title,
-                    description: res.data.des
-                })
-                if (res.data.status == "Success") {
-                    redirect(`/promotion?id=${res.data.data.id}`)
-                }
+                alert('Thêm thành công')
+                navigate(`/promotion?id=${res.data.data.id}`)
             })
         }
     }
