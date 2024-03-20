@@ -69,22 +69,22 @@ function SaleCustomer() {
     };
     const handleOk = () => {
         axios.post('http://localhost:8080/api/v1/customer', customerAdd)
-        .then((response) => {
-            toast.success(response.data.message);
-            fetchDataCustomer()
-            setCustomerAdd({
-                fullName: '',
-                phone: '',
-                email: '',
-                gender: true,
-                birthday: dayjs(new Date('1990-01-01'))?.format("YYYY-MM-DD"),
+            .then((response) => {
+                toast.success(response.data.message);
+                fetchDataCustomer()
+                setCustomerAdd({
+                    fullName: '',
+                    phone: '',
+                    email: '',
+                    gender: true,
+                    birthday: dayjs(new Date('1990-01-01'))?.format("YYYY-MM-DD"),
+                })
             })
-        })
-        .catch((error) => {
-            toast.error(error.response.data.message);
+            .catch((error) => {
+                toast.error(error.response.data.message);
 
-        });
-        
+            });
+
         setIsModalOpen(false);
     };
     const handleCancel = () => {
@@ -117,8 +117,8 @@ function SaleCustomer() {
 
     return (
         <>
-            <div className='mt-12 mb-4 min-h-52 shadow-lg p-4'>
-                <div className='flex justify-between items-center' style={{
+            <div className='mt-12 mb-4 min-h-52 shadow-lg p-4 bg-white'>
+                <div className='flex justify-between items-center pt-4' style={{
                     borderBottom: '1px solid rgb(232 232 232)',
                     paddingBottom: '12px',
                 }}>
@@ -233,42 +233,47 @@ function SaleCustomer() {
 
                     </div>
                 </div>
-                {(customer !== null) ? (
-                    <>
-                        <div className='w-2/5 text-2xl leading-10 p-4 '>
-                            <div className='flex justify-between'>
-                                <div>
-                                    <h5>Tên Khách Hàng</h5>
-                                    <h5>Số Điện Thoại</h5>
-                                    <h5>Email</h5>
+                <div style={{
+                    minHeight:'100px'
+                }}>
+                    {(customer !== null) ? (
+                        <>
+                            <div className='w-2/5 text-2xl leading-10 p-4'>
+                                <div className='flex justify-between'>
+                                    <div>
+                                        <h5>Tên Khách Hàng</h5>
+                                        <h5>Số Điện Thoại</h5>
+                                        <h5>Email</h5>
+                                    </div>
+                                    <div>
+                                        <div>{customer.fullName}</div>
+                                        <div>{customer.phone}</div>
+                                        <div>{customer.email}</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div>{customer.fullName}</div>
-                                    <div>{customer.phone}</div>
-                                    <div>{customer.email}</div>
-                                </div>
+
                             </div>
 
-                        </div>
 
 
 
-
-                    </>
-                ) : (
-                    <>
-                        <div className='w-2/5 text-2xl leading-10 p-4'>
-                            <div className='flex justify-between'>
-                                <div>
-                                    <h5>Tên Khách Hàng</h5>
-                                </div>
-                                <div>
-                                    <div>Khách Lẻ</div>
+                        </>
+                    ) : (
+                        <>
+                            <div className='w-2/5 text-2xl leading-10 p-4'>
+                                <div className='flex justify-between'>
+                                    <div>
+                                        <h5>Tên Khách Hàng</h5>
+                                    </div>
+                                    <div>
+                                        <div>Khách Lẻ</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </>
-                )}
+                        </>
+                    )}
+                </div>
+
             </div>
 
         </>

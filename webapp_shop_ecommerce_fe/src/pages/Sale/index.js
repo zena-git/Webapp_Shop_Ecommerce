@@ -39,7 +39,7 @@ function Sale() {
       return {
         id: billNews.id,
         key: billNews.id,
-        label: `Hóa Đơn ${index+1}`,
+        label: `Hóa Đơn ${index + 1}`,
       }
     })
     setBillNews(lst);
@@ -89,34 +89,39 @@ function Sale() {
   return (
     <>
 
-      <div className='bg-white p-4'>
+      <div className=''>
         <h4>
           Bán Hàng Tại Quầy
         </h4>
-        <div className='mt-6'>
-          <div>
-            <div className='mb-4'>
-              <Button type='primary' onClick={add}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Tạo Hóa Đơn</span> </Button>
-            </div>
-            <Tabs
-              hideAdd
-              onChange={onChange}
-              activeKey={activeKey}
-              type="editable-card"
-              onEdit={onEdit}
-              items={billNews}
-            >
+        <div className='mt-6 bg-white p-4 shadow-lg'>
+          <div >
+            <div>
+              <div className='mb-4'>
+                <Button type='primary' onClick={add}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Tạo Hóa Đơn</span> </Button>
+              </div>
+              <Tabs
+                hideAdd
+                onChange={onChange}
+                activeKey={activeKey}
+                type="editable-card"
+                onEdit={onEdit}
+                items={billNews}
+              >
 
-            </Tabs>
+              </Tabs>
+            </div>
+          </div>
+          <div>
+            <SaleProducts ></SaleProducts>
           </div>
         </div>
-        <div>
-          <SaleProducts ></SaleProducts>
-        </div>
+
         <div>
           <SaleCustomer></SaleCustomer>
         </div>
-        <div className='flex justify-between 	shadow-lg mt-20 p-4 mb-20'>
+        <div className='flex justify-between bg-white shadow-lg mt-20 p-4 mb-20 pt-6' style={{
+          minHeight: '552px'
+        }}>
 
           <div className='w-1/2' style={{
             visibility: isDelivery && customer !== null ? 'visible' : 'hidden',

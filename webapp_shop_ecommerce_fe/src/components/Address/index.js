@@ -24,17 +24,24 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
     const [labelDistrict, setLabelDistrict] = useState(null);
     const [labelWard, setLabelWard] = useState(null);
 
+
+
     //lấy province
     useEffect(() => {
-        axios.get('https://vapi.vnappmob.com/api/province')
+        axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
+            headers: {
+                token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+            }
+        })
             .then((response) => {
-                const lstProvince = response.data.results.map((result) => {
+                const lstProvince = response.data.data.map((result) => {
                     return {
-                        value: result.province_id,
-                        label: result.province_name
+                        value: result.ProvinceID,
+                        label: result.ProvinceName
                     }
                 })
                 setDataProvince(lstProvince)
+                // console.log(lstProvince);
             })
             .catch((error) => {
                 console.log(error.response.data);
@@ -43,16 +50,28 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
 
     //lấy district
     useEffect(() => {
+        console.log(valueProvince);
         if (valueProvince != null) {
-            axios.get('https://vapi.vnappmob.com/api/province/district/' + valueProvince)
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                    },
+                    params: {
+                        province_id: valueProvince
+                    }
+
+                }
+            )
                 .then((response) => {
-                    const lstDistrict = response.data.results.map((result) => {
+                    const lstDistrict = response.data.data.map((result) => {
                         return {
-                            value: result.district_id,
-                            label: result.district_name
+                            value: result.DistrictID,
+                            label: result.DistrictName
                         }
                     })
                     setDataDistrict(lstDistrict)
+                    // console.log(response.data.data);
                 })
                 .catch((error) => {
                     console.log(error.response.data);
@@ -62,16 +81,29 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
 
     //lấy ward
     useEffect(() => {
+        console.log(valueDistrict);
         if (valueDistrict != null) {
-            axios.get('https://vapi.vnappmob.com/api/province/ward/' + valueDistrict)
+            console.log(valueDistrict);
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                    },
+                    params: {
+                        district_id: valueDistrict
+                    }
+
+                }
+            )
                 .then((response) => {
-                    const lstWard = response.data.results.map((result) => {
+                    const lstWard = response.data.data.map((result) => {
                         return {
-                            value: result.ward_id,
-                            label: result.ward_name
+                            value: result.WardCode,
+                            label: result.WardName
                         }
                     })
                     setDataWard(lstWard)
+                    // console.log( response.data.data);
                 })
                 .catch((error) => {
                     console.log(error.response.data);
@@ -79,13 +111,19 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
         }
     }, [valueDistrict])
 
+   
+
     const handleChangeProvince = (value) => {
+        console.log(value);
+
         if (value) {
             const selectedOption = dataProvince.find(option => option.value === value);
             setValueProvince(selectedOption.value)
             setAddress({
                 ...address,
-                province: selectedOption.label
+                province: selectedOption.label,
+                district: null,
+                commune: null,
             }
             )
             setValueDistrict(null)
@@ -99,12 +137,14 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
     };
 
     const handleChangeDistrict = (value) => {
+        console.log(value);
         if (value) {
             const selectedOption = dataDistrict.find(option => option.value === value);
             setValueDistrict(selectedOption.value)
             setAddress({
                 ...address,
-                district: selectedOption.label
+                district: selectedOption.label,
+                commune: null,
             }
             )
             setValueWard(null)

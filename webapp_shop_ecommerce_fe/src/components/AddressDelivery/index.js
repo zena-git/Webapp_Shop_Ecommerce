@@ -10,7 +10,7 @@ const { TextArea } = Input;
 function AddressDelivery() {
 
 
-    const { isDelivery, setDataAddressBill, customer, addressBill } = useSaleData();
+    const { isDelivery, setDataAddressBill, customer, addressBill, lstProductDetailsCart, setDataShipMoney } = useSaleData();
     const [lstAddress, setLstAddress] = useState([]);
     const [checkValueAddress, setCheckValueAddress] = useState(1);
     const [address, setAddress] = useState({});
@@ -30,6 +30,8 @@ function AddressDelivery() {
     const [valueProvinceDefautl, setValueProvinceDefautl] = useState(null);
     const [valueDistrictDefautl, setValueDistrictDefautl] = useState(null);
     const [valueWardDefautl, setValueWardDefautl] = useState(null);
+
+    const [serviceTypeId, setServiceTypeId] = useState(2);
 
 
     const [receiverName, setReceiverName] = useState('');
@@ -91,10 +93,9 @@ function AddressDelivery() {
             fillDataAddress(null)
         }
 
-    }, [address, isDelivery])
+    }, [address, isDelivery,])
 
     const fillDataAddress = (address) => {
-        console.log(address);
         setReceiverName(address?.receiverName)
         setReceiverPhone(address?.receiverPhone)
         setDetails(address?.detail)
@@ -103,9 +104,18 @@ function AddressDelivery() {
         setLabelDistrict(address?.district ? address.district : null);
         setLabelProvince(address?.province ? address.province : null);
 
-        setValueWard(address?.commune ? address.commune : null);
-        setValueDistrict(address?.district ? address.district : null);
-        setValueProvince(address?.province ? address.province : null);
+
+        const foundProvince = dataProvince.find(item => item.label === address?.province);
+        setValueProvince(foundProvince?.value);
+
+        const foundDistrict = dataDistrict.find(item => item.label === address?.district);
+        // console.log(dataDistrict);
+        setValueDistrict(foundDistrict?.value);
+
+        const foundWard = dataWard.find(item => item.label === address?.commune);
+        // console.log(foundWard);
+        setValueWard(foundWard?.value);
+
 
     }
 
@@ -136,52 +146,123 @@ function AddressDelivery() {
 
     //lấy province
     useEffect(() => {
-        axios.get('https://vapi.vnappmob.com/api/province')
+        axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
+            headers: {
+                token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+            }
+        })
             .then((response) => {
-                const lstProvince = response.data.results.map((result) => {
+                const lstProvince = response.data.data.map((result) => {
                     return {
-                        value: result.province_id,
-                        label: result.province_name
+                        value: result.ProvinceID,
+                        label: result.ProvinceName
                     }
                 })
                 setDataProvince(lstProvince)
+
+
             })
             .catch((error) => {
                 console.log(error.response.data);
             })
+
     }, [])
 
     //lấy district
     useEffect(() => {
+        console.log("222");
         if (valueProvince != null) {
-            axios.get('https://vapi.vnappmob.com/api/province/district/' + valueProvince)
+            console.log("---");
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                    },
+                    params: {
+                        province_id: valueProvince
+                    }
+                }
+            )
                 .then((response) => {
-                    const lstDistrict = response.data.results.map((result) => {
+                    const lstDistrict = response.data.data.map((result) => {
                         return {
-                            value: result.district_id,
-                            label: result.district_name
+                            value: result.DistrictID,
+                            label: result.DistrictName
                         }
                     })
                     setDataDistrict(lstDistrict)
+
+                    if (address != null) {
+                        const foundDistrict = lstDistrict.find(item => item.label === address?.district);
+                        // console.log(dataDistrict);
+                        setValueDistrict(foundDistrict?.value);
+                    }
+
                 })
                 .catch((error) => {
                     console.log(error.response.data);
                 })
+
         }
     }, [valueProvince])
 
     //lấy ward
     useEffect(() => {
+        console.log(valueDistrict);
         if (valueDistrict != null) {
-            axios.get('https://vapi.vnappmob.com/api/province/ward/' + valueDistrict)
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                    },
+                    params: {
+                        district_id: valueDistrict
+                    }
+                }
+            )
                 .then((response) => {
-                    const lstWard = response.data.results.map((result) => {
+                    const lstWard = response.data.data.map((result) => {
                         return {
-                            value: result.ward_id,
-                            label: result.ward_name
+                            value: result.WardCode,
+                            label: result.WardName
                         }
                     })
                     setDataWard(lstWard)
+
+                    if (address != null) {
+                        const foundWard = lstWard.find(item => item.label === address?.commune);
+                        setValueWard(foundWard?.value);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+
+
+        }
+    }, [valueDistrict])
+
+
+    //Lấy Dịch Vụ Vận Chuyển
+    useEffect(() => {
+        if (valueDistrict != null) {
+            console.log(valueWard);
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da',
+                    },
+                    params: {
+                        shop_id: 4962936,
+                        from_district: 3440,
+                        to_district: valueDistrict,
+                    }
+
+                }
+            )
+                .then((response) => {
+                    setServiceTypeId(response.data.data[0].service_type_id)
+                    console.log(response.data.data[0].service_type_id);
                 })
                 .catch((error) => {
                     console.log(error.response.data);
@@ -189,11 +270,61 @@ function AddressDelivery() {
         }
     }, [valueDistrict])
 
+
+    //Tính phí ship
+    useEffect(() => {
+        if (lstProductDetailsCart.length <= 0) {
+            return;
+        }
+        const priceProduct = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
+            return accumulator + (currentProduct.unitPrice * currentProduct.quantity);
+        }, 0);
+
+        // const weightProduct = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
+        //     return accumulator +currentProduct.weight;
+        // }, 0);
+
+
+        if (valueDistrict != null) {
+
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da',
+                        shop_id: 4962936
+                    },
+                    params: {
+                        service_type_id: serviceTypeId,
+                        insurance_value: priceProduct,
+                        coupon: null,
+                        from_district_id: 3440,
+                        to_district_id: valueDistrict,
+                        to_ward_code: valueWard,
+                        weight: 1000,
+                    }
+
+                }
+            )
+                .then((response) => {
+
+                    console.log(response.data.data);
+                    setDataShipMoney(response.data.data.total)
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+        }
+    }, [valueDistrict, lstProductDetailsCart])
+
+
     const handleChangeProvince = (value) => {
         if (value) {
             const selectedOption = dataProvince.find(option => option.value === value);
             setValueProvince(selectedOption.value)
             setLabelProvince(selectedOption.label)
+
+            setDataShipMoney(0)
+
             setValueDistrict(null)
             setValueWard(null)
 
@@ -216,6 +347,7 @@ function AddressDelivery() {
 
     };
     const handleChangeWard = (value) => {
+        console.log(value);
         if (value) {
             const selectedOption = dataWard.find(option => option.value === value);
             setValueWard(selectedOption.value)
@@ -230,8 +362,8 @@ function AddressDelivery() {
         setIsTabAddress(false);
     };
     const handleUpdateAddres = (address) => {
-       setValueTabAddress(address)
-       setIsTabAddress(true);
+        setValueTabAddress(address)
+        setIsTabAddress(true);
 
     };
 
@@ -239,7 +371,7 @@ function AddressDelivery() {
         setValueTabAddress(null)
         setIsTabAddress(true);
 
-     };
+    };
     return (
         <>
             <div >
@@ -253,7 +385,7 @@ function AddressDelivery() {
                             <Button className='border-none text-blue-600 p-0' onClick={showModalAddress}> <FontAwesomeIcon icon={faMapLocationDot}></FontAwesomeIcon> <span className='ml-2'>Chọn Địa Chỉ</span></Button>
                         </div>
                         <div>
-                            <Modal width={680}  footer={null} title="Địa Chỉ" open={isModalOpenAddress} onOk={handleOkAddress} onCancel={handleCancelAddress} >
+                            <Modal width={680} footer={null} title="Địa Chỉ" open={isModalOpenAddress} onOk={handleOkAddress} onCancel={handleCancelAddress} >
 
                                 {
                                     isTabAddreiss ? (
@@ -264,7 +396,7 @@ function AddressDelivery() {
                                         <div>
                                             <Radio.Group onChange={onChangeAddress} value={checkValueAddress} >
 
-                                                {lstAddress?.map(addr => (
+                                                {lstAddress?.sort((a, b) => a.id - b.id).map(addr => (
                                                     <Radio value={addr.id} key={addr.id} className='w-full p-2 ' style={{
                                                         borderBottom: '1px solid rgb(232, 232, 232)'
                                                     }} >
@@ -277,10 +409,10 @@ function AddressDelivery() {
                                                             </div>
                                                             <div>{addr.commune}, {addr.district}, {addr.province}</div>
                                                             <div className='flex items-center mt-2'>
-                                                            <div
-                                                            ><Button className='p-0 mr-4 border-none text-blue-600	' onClick={()=>{handleUpdateAddres(addr)}}>Cập Nhật</Button>
-                                                            </div>
-                                                            {addr.defaultAddress ? <Tag color="#108ee9">Mặc Định</Tag> : ""}</div>
+                                                                <div
+                                                                ><Button className='p-0 mr-4 border-none text-blue-600	' onClick={() => { handleUpdateAddres(addr) }}>Cập Nhật</Button>
+                                                                </div>
+                                                                {addr.defaultAddress ? <Tag color="#108ee9">Mặc Định</Tag> : ""}</div>
 
                                                         </div>
                                                     </Radio>
@@ -289,10 +421,10 @@ function AddressDelivery() {
                                             <div className='mt-6 ml-8 flex justify-between	'>
                                                 <Button onClick={() => handleAddAddres()}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Địa Chỉ</span> </Button>
                                                 <div>
-                                                    <Button className='mr-4' onClick={()=>handleCancelAddress()}>Thoát</Button>
-                                                    <Button type='primary' onClick={()=>handleOkAddress()}>Chọn</Button>
+                                                    <Button className='mr-4' onClick={() => handleCancelAddress()}>Thoát</Button>
+                                                    <Button type='primary' onClick={() => handleOkAddress()}>Chọn</Button>
                                                 </div>
-                                            
+
                                             </div>
                                         </div>
                                     )

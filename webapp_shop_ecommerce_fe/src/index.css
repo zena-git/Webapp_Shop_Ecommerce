@@ -26,14 +26,14 @@
   border: 1px solid #ccc;
 }
 
-.ant-radio-group-solid :where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+/* .ant-radio-group-solid :where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
   border: 1px solid #1890ff !important;
   background-color: #fff !important;
   color: #1890ff !important;
-}
+} */
 
 .ant-layout-sider {
-  min-width: 210px !important;
-  width: 210px !important;
-  max-width: 210px !important;
+  min-width: 220px !important;
+  width: 220px !important;
+  max-width: 220px !important;
 }

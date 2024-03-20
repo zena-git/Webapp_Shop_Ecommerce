@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Tooltip, Modal, Input, Table, InputNumber } from 'antd';
+import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
-import { PlusOutlined, DeleteOutlined,ExclamationCircleFilled } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ExclamationCircleFilled, LoadingOutlined } from '@ant-design/icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { useSaleData } from '~/provider/SaleDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +12,28 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
 const { confirm } = Modal;
+const tagRender = (props) => {
+    const { label, value, closable, onClose } = props;
+    const onPreventMouseDown = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    return (
+        <Tag
+
+            color={label}
+            onMouseDown={onPreventMouseDown}
+            closable={closable}
+            onClose={onClose}
+            style={{
+                marginRight: 3,
+            }}
+        >
+            {label}
+        </Tag>
+    );
+};
+
 function SaleProducts() {
 
     const columnsTable = [
@@ -22,17 +44,13 @@ function SaleProducts() {
             key: 'index',
             width: 50,
         },
-        {
-            title: 'Ảnh',
-            dataIndex: 'imageUrl',
-            key: 'imageUrl',
-
-        },
 
         {
             title: 'Tên',
             dataIndex: 'name',
             key: 'name',
+            width: 380,
+
         },
         {
             title: 'Màu Sắc',
@@ -173,7 +191,6 @@ function SaleProducts() {
     const [openAddProduct, setOpenAddProduct] = useState(false);
     const [openAddProductConfig, setOpenAddProductConfig] = useState(false);
 
-    const [lstBillDetails, setLstBillDetails] = useState([]);
     const [dataColumProductDetails, setDataColumProductDetails] = useState([]);
 
     const [lstBillDetailsConfig, setLstBillDetailsConfig] = useState([]);
@@ -182,6 +199,18 @@ function SaleProducts() {
     const [dataColumProductDetailsCart, setDataColumProductDetailsCart] = useState([]);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+    const [valueColor, setValueColor] = useState([]);
+    const [valueSize, setValueSize] = useState([]);
+    const [optionColor, setOptionColor] = useState([]);
+    const [optionSize, setOptionSize] = useState([]);
+    const [searchName, setSearchName] = useState('');
+
+    const [inputValueMin, setInputValueMin] = useState(0);
+    const [inputValueMax, setInputValueMax] = useState(10000000);
+    const [priceRange, setPriceRange] = useState([0, inputValueMax]);
+
+    const [loadingProductDetail, setLoadingProductDetail] = useState(false);
 
     //provider
     const { totalPrice, setDataPriceCart, idBill, lstBill, lstProductDetails, lstProductDetailsCart, updateDataProductDetails, updateDataDataCart } = useSaleData();
@@ -192,24 +221,27 @@ function SaleProducts() {
     // }, [idBill]);
 
 
-    const fillDataProductDetails = () => {
-        const sortedDataTable = [...lstProductDetails].sort((a, b) => a.id - b.id);
+    const fillDataProductDetails = (data) => {
+        const sortedDataTable = data.sort((a, b) => a.id - b.id);
         const dataTable = sortedDataTable.map((data, index) => {
             let product = {
                 key: data.id,
                 id: data.id,
                 index: index + 1,
-                name: data?.product?.name,
+                name: <>
+                    <div className='flex flex-start'>
+                        <div>
+                            <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='product' />
+                        </div>
+                        <h4> {data?.product?.name}</h4>
+                    </div>
+
+                </>,
                 code: data?.code,
                 color: data?.color,
                 size: data?.size,
                 price: fixMoney(data.price),
                 quantity: data.quantity,
-                imageUrl: (
-                    <div>
-                        <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
-                    </div>
-                ),
             };
             return product;
         });
@@ -220,7 +252,7 @@ function SaleProducts() {
     }
 
     useEffect(() => {
-        fillDataProductDetails();
+        fillDataProductDetails(lstProductDetails);
     }, [lstProductDetails])
 
     useEffect(() => {
@@ -280,7 +312,7 @@ function SaleProducts() {
                 />,
                 totalMoney: <span className='text-rose-600	'>{fixMoney(data.productDetails.price * data.quantity)}</span>,
                 action: <>
-                    <Button danger className='border-none' onClick={() => {  showDeleteConfirmCart(data.id)}} > <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon></Button>
+                    <Button danger className='border-none' onClick={() => { showDeleteConfirmCart(data.id) }} > <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon></Button>
                 </>
 
             }
@@ -380,7 +412,7 @@ function SaleProducts() {
                 toast.success(response.data.message);
                 updateDataProductDetails();
                 updateDataDataCart();
-                
+
             })
             .catch(error => {
                 toast.error(error.response.data.message);
@@ -398,16 +430,16 @@ function SaleProducts() {
 
 
     const handleDeleteProductCart = (id) => {
-        axios.delete('http://localhost:8080/api/v1/counters/billDetails/'+id)
-        .then(response => {
-            toast.success(response.data.message);
-            updateDataProductDetails();
+        axios.delete('http://localhost:8080/api/v1/counters/billDetails/' + id)
+            .then(response => {
+                toast.success(response.data.message);
+                updateDataProductDetails();
                 updateDataDataCart();
-        })
-        .catch(err => {
-             toast.error(err.response.data.message);
- 
-        });
+            })
+            .catch(err => {
+                toast.error(err.response.data.message);
+
+            });
 
     }
 
@@ -455,22 +487,131 @@ function SaleProducts() {
 
     const showDeleteConfirmCart = (id) => {
         confirm({
-          title: 'Xác Nhận?',
-          icon: <ExclamationCircleFilled />,
-          content: 'Bạn Có Chắc Muốn Xóa Sản Phẩm Này ?',
-          okText: 'Yes',
-          okType: 'danger',
-          cancelText: 'No',
-          onOk() {
-            handleDeleteProductCart(id)
-          },
-          onCancel() {
-            console.log('Cancel');
-          },
+            title: 'Xác Nhận?',
+            icon: <ExclamationCircleFilled />,
+            content: 'Bạn Có Chắc Muốn Xóa Sản Phẩm Này ?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDeleteProductCart(id)
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
         });
-      };
+    };
 
-      const bill = lstBill.find(bill => bill?.id == idBill)
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/color')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    emoji: rep.name,
+                    key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
+                }));
+                setOptionColor(newObj);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v1/size')
+            .then((response) => {
+                const newObj = response.data.map(rep => ({
+                    value: rep.name,
+                    label: rep.name,
+                    key: rep.id,
+                }));
+                setOptionSize(newObj);
+            })
+            .catch((error) => {
+                // handle error
+                console.log(error);
+            });
+    }, []);
+    const onChangeSearch = (e) => {
+        console.log(e.target.value);
+        setSearchName(e.target.value);
+    }
+
+    const handleChangeSize = (values) => {
+        setValueSize(values);
+        console.log(values);
+
+    }
+
+    const handleChangeColor = (values) => {
+        setValueColor(values);
+        console.log(values);
+
+    }
+
+    const onChangeSlider = (values) => {
+        console.log(values);
+        setPriceRange(values);
+    };
+
+    useEffect(() => {
+        if (lstProductDetails.length > 0) {
+            const highestPriceProduct = lstProductDetails.reduce((maxPriceProduct, currentProduct) => {
+                return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
+            }, lstProductDetails[0]);
+            // console.log(highestPriceProduct);
+            setInputValueMax(highestPriceProduct.price);
+        }
+    }, [lstProductDetails])
+    const handleSearchProduct = () => {
+        setLoadingProductDetail(true);
+
+        const filteredProducts = lstProductDetails.filter((product) => {
+            // Lọc theo tên
+            if (searchName && !product.product.name.toLowerCase().includes(searchName.toLowerCase())) {
+                return false;
+            }
+
+            // Lọc theo màu sắc
+            if (valueColor.length > 0 && !valueColor.includes(product.color.name)) {
+                return false;
+            }
+            // // Lọc theo kích thước
+            if (valueSize.length > 0 && !valueSize.includes(product.size.name)) {
+                return false;
+            }
+            // Lọc theo phạm vi giá
+            if (product.price < priceRange[0] || product.price > priceRange[1]) {
+                return false;
+            }
+            return true;
+        });
+
+        setTimeout(() => {
+            fillDataProductDetails(filteredProducts);
+            setLoadingProductDetail(false);
+        }, 1000);
+
+
+    }
+    const handleResetSearch = () => {
+        setLoadingProductDetail(true);
+        setSearchName("");
+        setValueColor([]);
+        setValueSize([]);
+        setPriceRange([0, inputValueMax]);
+        fillDataProductDetails(lstProductDetails);
+        updateDataProductDetails();
+        setTimeout(() => {
+            setLoadingProductDetail(false);
+        }, 1000);
+
+    }
+    const loadingIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+
+    const bill = lstBill.find(bill => bill?.id == idBill)
     return (
         <>
             {lstBill.length === 0 ? (
@@ -483,7 +624,7 @@ function SaleProducts() {
                             <div>
                                 <h4>Đơn Hàng {
                                     bill?.codeBill
-                                    }</h4>
+                                }</h4>
                             </div>
                             <div>
                                 <div>
@@ -503,12 +644,77 @@ function SaleProducts() {
                                         width={1300}
                                         footer={null}
                                     >
-                                        <div className='flex'>
-                                            <Input placeholder="Tìm Kiếm" />
-                                            <Button>Làm Mới</Button>
+                                        <div >
+                                            <div>Bộ Lọc</div>
+                                            <div className='font-medium mb-6'>
+
+                                                <div className='grid grid-cols-4 gap-4 my-4'>
+                                                    <div>
+                                                        <label>Tìm Kiếm</label>
+                                                        <div className=' mt-2'>
+                                                            <Input className='col-span-6' value={searchName} placeholder="Tìm Kiếm Sản Phẩm" onChange={onChangeSearch} />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label>Màu Sắc</label>
+                                                        <Select className="w-full mt-2" placeholder="Chọn Màu Sắc"
+                                                            mode="multiple"
+                                                            tagRender={tagRender}
+
+                                                            dropdownRender={(menu) => (
+                                                                <>
+                                                                    {menu}
+
+                                                                </>
+                                                            )}
+                                                            optionRender={(option) => (
+                                                                <Space>
+                                                                    <span role="img" aria-label={option.data.label}>
+
+                                                                        <ColorPicker defaultValue={option.data.emoji} disabled size="small" />
+                                                                    </span>
+                                                                    {option.data.label + "-" + hexToColorName(option.data.emoji)}
+                                                                </Space>
+                                                            )}
+                                                            onChange={handleChangeColor}
+
+                                                            options={optionColor}
+                                                            value={valueColor}
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label>Kích Thước</label>
+                                                        <Select className="w-full mt-2"
+                                                            mode="multiple"
+                                                            placeholder="Chọn Kích Thước"
+                                                            onChange={handleChangeSize}
+                                                            options={optionSize}
+                                                            value={valueSize}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label>Khoảng Giá</label>
+                                                        <Slider
+                                                            className="w-full mt-2"
+                                                            range
+                                                            max={inputValueMax}
+                                                            defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
+                                                            value={priceRange}
+                                                            onChange={onChangeSlider}
+                                                        />
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                            <div className='flex justify-center	items-center'>
+                                                <Button onClick={() => { handleResetSearch() }}>Làm Mới</Button>
+                                                <Button type='primary' className='ml-4' onClick={() => { handleSearchProduct() }}>Tìm Kiếm</Button>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <Button onClick={handleAddProductDetails}>
+                                        <div className='mt-6'>
+                                            <Button type='primary' onClick={handleAddProductDetails} className='mb-4 mt-2'>
                                                 Thêm Sản Phẩm
                                             </Button>
                                             <>
@@ -532,17 +738,20 @@ function SaleProducts() {
 
                                         </div>
                                         <div>
+                                            <Spin spinning={loadingProductDetail} indicator={loadingIcon}>
 
 
-                                            <Table
-                                                rowSelection={rowSelection}
-                                                pagination={{
-                                                    pageSize: 10,
-                                                }}
-                                                scroll={{
-                                                    y: 300,
-                                                }}
-                                                dataSource={dataColumProductDetails} columns={columnsTable} />
+                                                <Table
+                                                    rowSelection={rowSelection}
+                                                    pagination={{
+                                                        pageSize: 10,
+                                                    }}
+                                                    scroll={{
+                                                        y: 300,
+                                                    }}
+                                                    dataSource={dataColumProductDetails} columns={columnsTable}
+
+                                                /> </Spin>
                                         </div>
 
                                     </Modal>
@@ -552,7 +761,7 @@ function SaleProducts() {
                         </div>
 
 
-                        <div className='shadow-lg p-4'>
+                        <div className=''>
                             {lstProductDetailsCart.length === 0 && lstBill.length !== 0 ? (
                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             ) : (

@@ -71,12 +71,19 @@ const SaleDataProvider = ({ children }) => {
         setIsDelivery(!isDelivery)
     };
 
+    const setDataShipMoney = (data) => {
+        setShipMoney(data);
+    };
     useEffect(() => {
         if (lstBill.length === 0) {
             setIdBill(null);
             // setLstProductDetailsCart([])
         }
     }, [lstBill])
+    
+    useEffect(() => {
+        setIsDelivery(false);
+    },[customer])
 
     const fetchDataCart = async () => {
         if (idBill == null) {
@@ -198,6 +205,8 @@ const SaleDataProvider = ({ children }) => {
             paymentMethod: paymentMethods,
             totalMoney: totalPrice,
             intoMoney: intoMoney,
+            voucherMoney: voucherMoney,
+            shipMoney: shipMoney,
             receiverName: addressBill?.receiverName,
             receiverPhone: addressBill?.receiverPhone,
             receiverDetails: addressBill?.detail,
@@ -257,6 +266,7 @@ const SaleDataProvider = ({ children }) => {
         setDataPaymentCustomer,
         setDataPaymentMethods,
         setDataIdBill,
+        setDataShipMoney,
 
         updateDataLstBill,
         updateDataProductDetails,

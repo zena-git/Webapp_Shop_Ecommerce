@@ -10,7 +10,14 @@ import { ExclamationCircleFilled } from '@ant-design/icons';
 const { confirm } = Modal
 function SaleBuy() {
     //provider
-    const { handlePaymentBill, totalPrice, intoMoney, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useSaleData();
+    const { handlePaymentBill, totalPrice, intoMoney,setDataShipMoney,isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useSaleData();
+
+
+    useEffect(() => {
+        if (!isDelivery) {
+            setDataShipMoney(0)
+        }
+    },[isDelivery])
 
     const handleRadioChange = (e) => {
         setDataPaymentMethods(e.target.value);
@@ -62,7 +69,7 @@ function SaleBuy() {
                     <div className='mb-4'
                         style={{ display: customer === null ? 'none' : 'block' }}
                     >
-                        <Switch onChange={() => setDataIsDelivery()} />
+                        <Switch value={isDelivery} onChange={() => setDataIsDelivery()} />
                         <span className='ml-2'>Giao Hàng</span>
                     </div>
 

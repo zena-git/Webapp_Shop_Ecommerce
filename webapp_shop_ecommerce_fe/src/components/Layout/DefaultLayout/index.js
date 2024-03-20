@@ -53,7 +53,7 @@ const layoutStyle = {
   // overflow: 'hidden',
   position: 'relative',
   width: 'calc(100%)',
-  marginLeft: 210,
+  marginLeft: 220,
   maxWidth: 'calc(100%)',
   height: 'calc(100%)'
 };
@@ -67,9 +67,9 @@ function DefaultLayout({ children }) {
     <div>
       <Layout hasSider >
         <Sider style={siderStyle} >
-          <div className='flex justify-center content-center	mt-6 mb-6'>
+          <div className='flex justify-center content-center	mt-6 mb-6 pt-8 pb-8'>
             <img style={{
-              width: '100px',
+              width: '154px',
             }} src='./logo.png'></img>
           </div>
           <Menu style={{ width: '100%' }}></Menu>
