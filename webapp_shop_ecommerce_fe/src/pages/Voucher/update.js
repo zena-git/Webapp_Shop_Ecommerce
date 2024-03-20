@@ -122,7 +122,8 @@ const VoucherPage = () => {
 
     const handleSubmitForm = (values) => {
         if (VoucherType == "0") {
-            axios.post(`${baseUrl}/voucher`, {
+            axios.put(`${baseUrl}/voucher/${path.id}`, {
+                id: path.id,
                 code: values.code,
                 name: values.name,
                 value: values.value,
@@ -140,7 +141,8 @@ const VoucherPage = () => {
             })
         } else {
             if (selectedCustomer.length > 0) {
-                axios.post(`${baseUrl}/voucher`, {
+                axios.put(`${baseUrl}/voucher/${path.id}`, {
+                    id: path.id,
                     code: values.code,
                     name: values.name,
                     value: values.value,
@@ -154,7 +156,7 @@ const VoucherPage = () => {
                     lstCustomer: selectedCustomer.map(val => { return val.id })
                 }).then(res => {
                     alert("Đã cập nhật voucher thành công");
-                    navigate(`/discount/voucher/detail/${res.data.id}`)
+                    navigate(`/discount/voucher/detail/${path.id}`)
                 })
             } else {
                 toast({ title: 'chưa chọn khách hàng nào' })
@@ -174,7 +176,7 @@ const VoucherPage = () => {
 
     return (
         <>
-            <div className="p-6">
+            <div className="p-6 bg-slate-50">
                 <p className='my-2 text-lg font-semibold'>Voucher</p>
                 <div>
                     <div className='w-full flex max-xl:flex-col justify-center p-5 gap-5'>

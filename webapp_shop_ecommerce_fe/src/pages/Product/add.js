@@ -89,8 +89,9 @@ function ProductAdd() {
             key: 'price',
             render: (text, record) => (
                 <InputNumber
-                    defaultValue={record.price}
+                    defaultValue={1000}
                     min={1000}
+                    value={record.price}
                     formatter={(value) => `${value}VNĐ`}
                     parser={(value) => value.replace('VNĐ', '')}
                     onChange={(value) => onChangePrice(record.key, value)}
@@ -102,7 +103,7 @@ function ProductAdd() {
             dataIndex: 'quantity',
             key: 'quantity',
             render: (text, record) => (
-                <InputNumber min={1} defaultValue={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+                <InputNumber min={1} defaultValue={record.quantity} value={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
             ),
         },
         {
@@ -184,7 +185,6 @@ function ProductAdd() {
     const [valueCodeProduct, setValueCodeProduct] = useState("");
     const [valueDecProduct, setValueDecProduct] = useState("");
 
-
     const [valueCategory, setValueCategory] = useState(null);
     const [valueMaterial, setValueMaterial] = useState(null);
     const [valueBrand, setValueBrand] = useState(null);
@@ -223,6 +223,10 @@ function ProductAdd() {
     const [valueInputQuantityCustom, setValueInputQuantityCustom] = useState(null);
     const [valueInputPriceCustom, setValueInputPriceCustom] = useState(null);
 
+
+    useEffect(() => {
+
+    }, [])
 
     // selectcategory
     const handleChangeCategory = (value) => {
@@ -551,7 +555,7 @@ function ProductAdd() {
         // Cập nhật danh sách sản phẩm
     }, [valueColor, valueSize, valueNameProduct])
 
-    const fillDataProductDetail = (data)=>{
+    const fillDataProductDetail = (data) => {
         console.log(data);
         setDataRowProductDetail(data)
     }
@@ -603,20 +607,14 @@ function ProductAdd() {
     };
 
     const onChangeQuantityPriceCustom = () => {
-
-        const updatedProductList = dataRowProductDetail.map(product => {
-            if (selectedRowKeys.includes(product.key)) {
-                return {
-                    ...product,
-                    price: valueInputPriceCustom,
-                    quantity: valueInputQuantityCustom,
-                };
+        let t = dataRowProductDetail.map(pro => {
+            if (rowSelection.selectedRowKeys.find(slt => slt == pro.key)) {
+                return { ...pro, price: valueInputPriceCustom, quantity: valueInputQuantityCustom }
             }
-            return product;
-        });
-        console.log(updatedProductList);
-        // setDataRowProductDetail(updatedProductList);
-        fillDataProductDetail(updatedProductList)
+            return pro
+        })
+
+        fillDataProductDetail(t);
         setIsModalOpen(false);
     }
 
@@ -952,7 +950,7 @@ function ProductAdd() {
                         rowSelection={rowSelection}
                         columns={columnsTable}
                         dataSource={dataRowProductDetail}
-                        // pagination={false}
+
                     />
                 </div>
 

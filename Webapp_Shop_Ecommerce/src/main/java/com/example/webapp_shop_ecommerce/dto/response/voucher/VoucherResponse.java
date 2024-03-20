@@ -22,7 +22,7 @@ public class VoucherResponse {
     private String name;
     private Float value;
     private Integer quantity;
-
+    private String status;
     private Integer discount_type;
 
     private LocalDateTime startDate;

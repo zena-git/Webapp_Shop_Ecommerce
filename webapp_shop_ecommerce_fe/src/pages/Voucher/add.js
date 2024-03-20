@@ -141,7 +141,7 @@ const VoucherPage = () => {
 
     return (
         <>
-            <div className="p-6">
+            <div className="p-6 bg-slate-50">
                 <p className='my-2 text-lg font-semibold'>Thêm Voucher</p>
                 <div>
                     <div className='w-full flex max-xl:flex-col justify-center p-5 gap-5'>
@@ -260,9 +260,9 @@ const VoucherPage = () => {
                                         render={({ field }) =>
                                         (
                                             <FormItem>
-                                                <FormLabel>Loại hình áp dụng</FormLabel>
+                                                <FormLabel></FormLabel>
                                                 <FormControl defaultValue='1'>
-                                                    <RadioGroup className="flex gap-3 items-center">
+                                                    <RadioGroup className="flex gap-3 items-center hidden">
                                                         <div className="flex items-center space-x-2">
                                                             <RadioGroupItem value="0" id="option-one" />
                                                             <Label htmlFor="option-one">vận chuyển</Label>
@@ -277,17 +277,19 @@ const VoucherPage = () => {
                                             </FormItem>
                                         )}
                                     />
-                                    <p className='mt-1 text-sm font-semibold'>Đối tượng áp dụng</p>
-                                    <RadioGroup value={VoucherType} onValueChange={e => { setVoucherType(e) }}>
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value={"0"} id="option-one" />
-                                            <Label htmlFor="option-one">Tất cả khách hàng</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value={"1"} id="option-two" />
-                                            <Label htmlFor="option-two">Khách hàng chỉ định</Label>
-                                        </div>
-                                    </RadioGroup>
+                                    <div>
+                                        <p className='mt-1 text-sm font-semibold mb-2'>Đối tượng áp dụng</p>
+                                        <RadioGroup value={VoucherType} onValueChange={e => { setVoucherType(e) }}>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value={"0"} id="option-one" />
+                                                <Label htmlFor="option-one">Tất cả khách hàng</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value={"1"} id="option-two" />
+                                                <Label htmlFor="option-two">Khách hàng chỉ định</Label>
+                                            </div>
+                                        </RadioGroup>
+                                    </div>
 
                                     <div className='mt-3'>
                                         <label>
@@ -296,7 +298,7 @@ const VoucherPage = () => {
                                         </label>
                                     </div>
                                     <div className='flex gap-4'>
-                                        <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Submit</Button>
+                                        <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Tạo voucher</Button>
                                     </div>
                                 </form>
                             </Form>

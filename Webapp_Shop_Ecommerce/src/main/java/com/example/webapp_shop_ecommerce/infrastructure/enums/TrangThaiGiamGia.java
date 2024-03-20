@@ -8,7 +8,7 @@ public enum TrangThaiGiamGia {
     SAP_DIEN_RA("0"),
     DANG_DIEN_RA("1"),
     DA_KET_THUC("2"),
-    SAP_KET_THUC("3");
+    DA_HUY("3");
 
 
     private final String label;

@@ -169,9 +169,9 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full">
+            <div className="w-full rounded-lg">
                 <div>
-                    <p className='text-sm font-semibold text-slate-600'>quick select</p>
+                    <p className='text-sm font-semibold text-slate-600'>Tùy chọn tìm kiếm nhanh</p>
                     <div className='grid grid-cols-3 gap-3'>
                         <Select
                             style={{ width: '100%' }}
@@ -223,7 +223,7 @@ export default function ListTable() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border">
+                <div className="rounded-md border border-slate-900 ">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (

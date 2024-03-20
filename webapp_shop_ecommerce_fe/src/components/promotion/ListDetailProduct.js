@@ -111,7 +111,7 @@ export default function ListTable({ data }) {
             enableHiding: false,
         },
         {
-            accessorKey: "status",
+            accessorKey: "image",
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return (<div className='flex justify-center'>

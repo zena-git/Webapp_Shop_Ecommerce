@@ -9,6 +9,8 @@ import axios from 'axios';
 import { baseUrl, nextUrl } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { set, updateSelected, toggleChildren } from '~/redux/features/promotion-selected-item'
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
+import { Label } from "~/components/ui/label"
 const { TextArea } = Input
 
 const { RangePicker } = DatePicker
@@ -23,9 +25,11 @@ function EditPage() {
     const navigate = useNavigate();
 
     const [name, setName] = useState("");
+    const [code, setCode] = useState("");
     const [value, setValue] = useState(0);
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
+    const [PromotionType, setPromotionType] = useState("0");
 
     const [listProduct, setListProduct] = useState([]);
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
@@ -46,7 +50,8 @@ function EditPage() {
                 setName(res.data.name);
                 setValue(res.data.value);
                 setDescription(res.data.description);
-                setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
+                setDate([dayjs(res.data.start_date), dayjs(res.data.end_date)])
+                setCode(res.data.code_promotion)
 
                 res.data.PromotionDetails.map((detail) => {
                     dispatch(toggleChildren({ id: detail.ProductDetail.id, targetParent: detail.ProductDetail.product_id, selected: true }))
@@ -69,15 +74,15 @@ function EditPage() {
 
         } else if (name.trim().length == 0) {
             alert('chưa nhập tên chương trình')
-        } else if (lst.length == 0) {
+        } else if (PromotionType == "1" && lst.length == 0) {
             alert('chưa chọn sản phẩm nào')
         } else if (value.toString().trim().length == 0) {
             alert('đặt mức giảm giá')
         } else {
             const t = {
-                id: targetPromotion?.id,
+                id: path.id,
                 name: name,
-                code: targetPromotion ? targetPromotion.code : "",
+                code: code,
                 status: 0,
                 value: value,
                 description: description,
@@ -102,7 +107,7 @@ function EditPage() {
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
-                    <Input value={targetPromotion ? targetPromotion.code : ""} />
+                    <Input value={code} onChange={e => setCode(e)} />
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>
@@ -111,6 +116,19 @@ function EditPage() {
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
                     <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
+                </label>
+                <label>
+                    <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
+                    <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="0" id="option-one" />
+                            <Label htmlFor="option-one">Tất cả sản phẩm</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="1" id="option-two" />
+                            <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
+                        </div>
+                    </RadioGroup>
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>

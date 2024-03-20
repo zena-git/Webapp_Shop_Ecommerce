@@ -1,5 +1,5 @@
 import { Tag } from 'antd/lib'
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -42,7 +42,18 @@ import { VoucherResponse } from "~/lib/type"
 import axios from 'axios'
 import { baseUrl } from '~/lib/functional'
 import { Link, redirect } from 'react-router-dom'
-export default function ListTable({ data }: { data: VoucherResponse[] }) {
+export default function ListTable() {
+    const [data, setData] = useState<VoucherResponse[]>([]);
+
+    const fillData = () => {
+        axios.get(`${baseUrl}/voucher`).then(res => {
+            setData(res.data);
+        })
+    }
+    useEffect(() => {
+        fillData()
+    }, [])
+
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
@@ -101,7 +112,7 @@ export default function ListTable({ data }: { data: VoucherResponse[] }) {
             header: () => <div className="text-center">trạng thái</div>,
             cell: ({ row }) => {
                 return <div className='flex justify-center'>{<Tag color={"blue"}>
-                    {row.original.status}
+                    {row.original.status == "0" ? "Sắp diễn ra" : row.original.status == "1" ? "Đang diễn ra" : row.original.status == "2" ? "Đã kết thúc" : "Đã hủy"}
                 </Tag>}</div>
             },
         },
@@ -153,7 +164,8 @@ export default function ListTable({ data }: { data: VoucherResponse[] }) {
                                     let t = confirm('xác nhận xóa');
                                     if (t) {
                                         axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
-                                            alert("xóa thành công")
+                                            alert("xóa thành công");
+                                            fillData();
                                         })
                                     }
                                 }}>Xóa</DropdownMenuItem>

@@ -6,9 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
-import CloudinaryUploadWidget from "./CloudinaryUploadWidget";
-import { Cloudinary } from "@cloudinary/url-gen";
-import { AdvancedImage, responsive, placeholder } from "@cloudinary/react";
+
 const { TextArea } = Input;
 
 const tagRender = (props) => {
@@ -258,7 +256,7 @@ function ProductUpdate() {
                         <div className='flex gap-2 items-center'>
                             <Upload
                                 listType="picture-card"
-                                fileList={record.imageUrl && record.imageUrl[0].split(" | ").map((url, index) => {
+                                fileList={record.imageUrl && record.imageUrl[0] && record.imageUrl[0].split(" | ").map((url, index) => {
                                     return {
                                         uid: index,
                                         name: index,

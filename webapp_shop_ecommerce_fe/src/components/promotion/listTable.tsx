@@ -41,8 +41,23 @@ import {
 } from "~/components/ui/table"
 import { ProductResponse, PromotionResponse } from "~/lib/type"
 import { Link, redirect } from 'react-router-dom'
+import axios from 'axios';
+import { baseUrl } from '~/lib/functional';
 
-export default function ListTable({ data }: { data: PromotionResponse[] }) {
+export default function ListTable() {
+
+    const [data, setData] = useState([]);
+
+    const fillData = () => {
+        axios.get(`${baseUrl}/promotion`).then(res => {
+            setData(res.data);
+        })
+    }
+    useEffect(() => {
+        fillData()
+    }, [])
+
+
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
@@ -153,7 +168,11 @@ export default function ListTable({ data }: { data: PromotionResponse[] }) {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>Xóa sản phẩm</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                    // eslint-disable-next-line no-restricted-globals
+                                    let t = confirm('xác nhận xóa');
+                                    if (t) axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => { fillData() })
+                                }}>Xóa sản phẩm</DropdownMenuItem>
                                 <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
                                 <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
                             </DropdownMenuContent>

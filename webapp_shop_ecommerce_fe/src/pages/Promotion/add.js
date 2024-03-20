@@ -1,5 +1,5 @@
 'use client'
-import { Button, DatePicker, InputNumber } from 'antd/lib';
+import { DatePicker, InputNumber } from 'antd/lib';
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState } from 'react';
@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { set, updateSelected } from '~/redux/features/promotion-selected-item'
 import { Label } from "~/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
+import { Button } from '../../components/ui/button'
 const { RangePicker } = DatePicker
 function EditPage() {
 
@@ -65,21 +66,21 @@ function EditPage() {
                 lstProductDetails: PromotionType == "0" ? t : lst
             }).then(res => {
                 alert('Thêm thành công')
-                navigate(`/promotion?id=${res.data.data.id}`)
+                navigate(`/discount/promotion`)
             })
         }
     }
 
     return (
-        <div className='w-full flex flex-col p-5 gap-5'>
-            <div className='flex flex-col gap-3 w-full'>
+        <div className='w-full flex max-lg:flex-col p-5 gap-5'>
+            <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 pb-3 rounded-lg'>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
                     <Input value={name} onChange={e => { setName(e.target.value) }} />
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
-                    <Input disabled value={code} onChange={e => { setCode(e.target.value) }} />
+                    <Input value={code} onChange={e => { setCode(e.target.value) }} />
                 </label>
                 <label>
                     <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>
@@ -106,11 +107,11 @@ function EditPage() {
                     <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                     <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
                 </label>
-                <Button onClick={() => { handleSubmitForm() }} type='primary' className='bg-blue-500'>
+                <Button onClick={() => { handleSubmitForm() }}>
                     {'Thêm mới đợt giảm giá'}
                 </Button>
             </div>
-            <div className='w-full'>
+            <div className='flex-grow bg-slate-50 px-3 rounded-lg h-fit'>
                 <ListDetailProduct data={listProduct} />
             </div>
         </div>

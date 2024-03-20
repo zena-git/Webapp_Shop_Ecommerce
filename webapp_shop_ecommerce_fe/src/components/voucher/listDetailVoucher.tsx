@@ -77,8 +77,8 @@ export default function ListTable({ data }: { data: VoucherDetailResponse[] }) {
             accessorKey: "status",
             header: () => <div className="text-center">trạng thái</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{<Tag color={"blue"}>
-                    {row.original.status}
+                return <div className='flex justify-center uppercase'>{<Tag color={"blue"}>
+                    {row.original.status == 0 ? "Sắp diễn ra" : row.original.status == 1 ? "Đang diễn ra" : row.original.status == 2 ?  "Đã kết thúc" : "Đã hủy"}
                 </Tag>}</div>
             },
         },
