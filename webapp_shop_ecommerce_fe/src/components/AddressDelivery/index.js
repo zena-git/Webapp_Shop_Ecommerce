@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Tag, Input, Select } from 'antd';
 import axios from "axios";
-import { useSaleData } from '~/provider/SaleDataProvider';
+import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faMap } from '@fortawesome/free-regular-svg-icons';
@@ -10,7 +10,7 @@ const { TextArea } = Input;
 function AddressDelivery() {
 
 
-    const { isDelivery, setDataAddressBill, customer, addressBill, lstProductDetailsCart, setDataShipMoney } = useSaleData();
+    const { isDelivery, setDataAddressBill, customer, addressBill, lstProductDetailsCart, setDataShipMoney } = useOrderData();
     const [lstAddress, setLstAddress] = useState([]);
     const [checkValueAddress, setCheckValueAddress] = useState(1);
     const [address, setAddress] = useState({});

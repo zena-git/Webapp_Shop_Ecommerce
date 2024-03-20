@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Space, Input, Select, Switch } from 'antd';
 import axios from "axios";
-import { useSaleData } from '~/provider/SaleDataProvider';
+import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill1, faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 const { confirm } = Modal
-function SaleBuy() {
+function OrderBuy() {
     //provider
-    const { handlePaymentBill, totalPrice, intoMoney,setDataShipMoney,isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useSaleData();
+    const { handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useOrderData();
 
 
     useEffect(() => {
         if (!isDelivery) {
             setDataShipMoney(0)
         }
-    },[isDelivery])
+    }, [isDelivery])
 
     const handleRadioChange = (e) => {
         setDataPaymentMethods(e.target.value);
@@ -147,4 +147,4 @@ function SaleBuy() {
     );
 }
 
-export default SaleBuy;
+export default OrderBuy;

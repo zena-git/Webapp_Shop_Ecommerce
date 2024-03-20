@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Space, Input, Select, DatePicker, Avatar } from 'antd';
 import axios from "axios";
-import { useSaleData } from '~/provider/SaleDataProvider';
+import { useOrderData } from '~/provider/OrderDataProvider';
 import { data } from 'autoprefixer';
 import { useDebounce } from '~/hooks';
 import { UserOutlined } from '@ant-design/icons';
@@ -13,10 +13,10 @@ import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
-function SaleCustomer() {
+function OrderCustomer() {
 
     //provider
-    const { setDataAddressBill, updateDataCustomer, customer, isDelivery } = useSaleData();
+    const { setDataAddressBill, updateDataCustomer, customer, isDelivery } = useOrderData();
     const [optionCustomers, setOptionCustomers] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [customerAdd, setCustomerAdd] = useState({
@@ -234,7 +234,7 @@ function SaleCustomer() {
                     </div>
                 </div>
                 <div style={{
-                    minHeight:'100px'
+                    minHeight: '100px'
                 }}>
                     {(customer !== null) ? (
                         <>
@@ -280,4 +280,4 @@ function SaleCustomer() {
     );
 }
 
-export default SaleCustomer;
+export default OrderCustomer;

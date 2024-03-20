@@ -1,165 +1,140 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Tabs, Table } from 'antd';
+import { Button, Tabs } from 'antd';
 import axios from 'axios';
+import OrderProducts from '~/components/OrderProducts';
+import AddressGress from '~/components/AddressDelivery';
+import OrderCustomer from '~/components/OrderCustomer';
+import OrderBuy from '~/components/OrderBuy';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
-
-const tabItems = [
-  {
-    key: '-1',
-    label: 'Tất Cả',
-  },
-  {
-    key: '0',
-    label: 'Chờ Xác Nhận',
-  },
-  {
-    key: '1',
-    label: 'Đã Xác Nhân',
-  },
-  {
-    key: '2',
-    label: 'Chờ Giao Hàng',
-  },
-  {
-    key: '3',
-    label: 'Đang Giao',
-  },
-  {
-    key: '4',
-    label: 'Đã Giao Hàng',
-  },
-  {
-    key: '5',
-    label: 'Hoàn Thành',
-  },
-  {
-    key: '6',
-    label: 'Hủy',
-  },
-
-];
-
-const columnsTable = [
-  {
-    title: '#',
-    dataIndex: 'index',
-    key: 'index',
-    width: 50,
-    render: (text, record, index) => (
-      <React.Fragment key={index}>
-          <span>{index + 1}</span>
-      </React.Fragment>
-  ),
-  },
-  {
-    title: 'Mã',
-    dataIndex: 'codeBill',
-    key: 'codeBill',
-  },
-  {
-    title: 'Khách Hàng',
-    dataIndex: 'customer',
-    key: 'customer',
-  },
-  {
-    title: 'Số Điện Thoại',
-    dataIndex: 'receiverPhone',
-    key: 'receiverPhone',
-  },
-
-  {
-    title: 'Tổng Tiền',
-    dataIndex: 'intoMoney',
-    key: 'intoMoney',
-  },
-
-  {
-    title: 'Loại Đơn Hàng',
-    dataIndex: 'billType',
-    key: 'billType',
-  },
-
-  {
-    title: 'Ngày Tạo',
-    dataIndex: 'createdDate',
-    key: 'createdDate',
-  },
-
-  {
-    title: 'Action',
-    dataIndex: 'action',
-    key: 'action',
-  },
-];
+import { useOrderData } from '~/provider/OrderDataProvider';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 function Order() {
+  const [activeKey, setActiveKeyBill] = useState();
+  const [billNews, setBillNews] = useState();
+  const newTabIndex = useRef(0);
+  //provider
+  const { isDelivery, setDataIdBill, lstBill, updateDataLstBill, updateDataProductDetails, customer, updateDataDataCart } = useOrderData();
 
-  const [lstBill, setLstBill,customer] = useState([]);
-  const [dataColumBill, setDataColumBill] = useState([]);
-  const [status, setStatus] = useState('');
-
-  const fetchDataBill = async () => {
-
+  const fetchAddBillNew = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/v1/bill',{
-        params:{
-          status:status
-        }
-      });
+      const response = await axios.post('http://localhost:8080/api/v1/counters');
       console.log(response.data);
-      setLstBill(response.data);
+      toast.success(response.data.message);
+      updateDataLstBill();
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error(error);
     }
-  }
-  useEffect(() => {
-    fetchDataBill()
-  }, [status]);
+  };
 
   useEffect(() => {
-    fillDataColumBill(lstBill);
-  }, [lstBill]);
-  const fillDataColumBill = (data) => {
-    const dataTable = data.map(data => {
+    updateDataProductDetails()
+  }, [])
+
+
+  useEffect(() => {
+    const lst = lstBill.map((billNews, index) => {
       return {
-        codeBill: data.codeBill,
-        customer: data.customer == null ? "Khách Lẻ" : data.customer.fullName,
-        receiverPhone: data.receiverPhone,
-        intoMoney: data.intoMoney,
-        billType: data.billType,
-        createdDate: data.createdDate,
-        action: <Button>action</Button>,
+        id: billNews.id,
+        key: billNews.id,
+        label: `Hóa Đơn ${index + 1}`,
       }
-    });
-    console.log(data);
-    setDataColumBill(dataTable)
+    })
+    setBillNews(lst);
+    if (lst.length > 0) {
+      setActiveKeyBill(lst[0].key);
+      setDataIdBill(lst[0].key)
+    }
+  }, [lstBill]);
 
-  }
 
-  const onChange = (key) => {
-    if (key == -1) {
-      setStatus('')
-    }else{
-      setStatus(key);
+  const onChange = (key, label) => {
+    console.log(label);
+    setActiveKeyBill(key);
+    setDataIdBill(key);
+  };
+  const add = () => {
+    fetchAddBillNew()
+  };
+  const onEdit = (targetKey, action, event) => {
+    console.log(event);
+    console.log(action);
+    if (action === 'add') {
+      add();
+    }
+    if (action === 'remove') {
+      handleDeleteBill(targetKey)
+      console.log(targetKey);
     }
   };
+
+
+  const handleDeleteBill = (id) => {
+    axios.delete('http://localhost:8080/api/v1/counters/' + id)
+      .then(response => {
+        toast.success(response.data.message);
+        updateDataLstBill()
+        updateDataProductDetails();
+        updateDataDataCart();
+      })
+      .catch(error => {
+        toast.error(error.response.data.message);
+        console.error(error);
+      });
+
+  }
+
   return (
     <>
-      <div className='bg-white p-4'>
-        <div>
-          <h4>
-            Danh Sách Hóa Đơn
-          </h4>
+
+      <div className=''>
+        <h3>
+          Bán Hàng Tại Quầy
+        </h3>
+        <div className='mt-6 bg-white p-4 shadow-lg'>
+          <div >
+            <div>
+              <div className='mb-4'>
+                <Button type='primary' onClick={add}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Tạo Hóa Đơn</span> </Button>
+              </div>
+              <Tabs
+                hideAdd
+                onChange={onChange}
+                activeKey={activeKey}
+                type="editable-card"
+                onEdit={onEdit}
+                items={billNews}
+              >
+
+              </Tabs>
+            </div>
+          </div>
+          <div>
+            <OrderProducts ></OrderProducts>
+          </div>
         </div>
+
         <div>
-          <Tabs defaultActiveKey="-1" items={tabItems} onChange={onChange} />
+          <OrderCustomer></OrderCustomer>
         </div>
-        <div>
-          <Table dataSource={dataColumBill} columns={columnsTable} />;
+        <div className='flex justify-between bg-white shadow-lg mt-20 p-4 mb-20 pt-6' style={{
+          minHeight: '552px'
+        }}>
+
+          <div className='w-1/2' style={{
+            visibility: isDelivery && customer !== null ? 'visible' : 'hidden',
+          }} >
+            <AddressGress></AddressGress>
+          </div>
+          <div className='w-2/5'>
+            <OrderBuy></OrderBuy>
+          </div>
         </div>
       </div>
+      <ToastContainer />
+
     </>
   );
 }

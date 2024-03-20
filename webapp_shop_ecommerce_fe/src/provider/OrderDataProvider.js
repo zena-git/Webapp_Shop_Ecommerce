@@ -4,14 +4,14 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // Tạo một Context mới để lưu trữ thông tin đơn hàng
-const SaleContext = createContext();
+const OrderContext = createContext();
 
 // Custom hook để sử dụng Context
-export const useSaleData = () => {
-    return useContext(SaleContext);
+export const useOrderData = () => {
+    return useContext(OrderContext);
 };
 
-const SaleDataProvider = ({ children }) => {
+const OrderDataProvider = ({ children }) => {
     const [idBill, setIdBill] = useState(null);
     const [lstBill, setLstBill] = useState([]);
 
@@ -80,10 +80,10 @@ const SaleDataProvider = ({ children }) => {
             // setLstProductDetailsCart([])
         }
     }, [lstBill])
-    
+
     useEffect(() => {
         setIsDelivery(false);
-    },[customer])
+    }, [customer])
 
     const fetchDataCart = async () => {
         if (idBill == null) {
@@ -94,7 +94,7 @@ const SaleDataProvider = ({ children }) => {
             console.log(response.data);
             console.log("call lại api cart");
             setLstProductDetailsCart(response.data);
-            
+
 
         } catch (error) {
             console.error(error);
@@ -157,14 +157,14 @@ const SaleDataProvider = ({ children }) => {
         }
 
         axios.get('http://localhost:8080/api/v1/bill/' + idBill)
-        .then(res => {
-            console.log(res.data.customer);
-            setCustomer(res.data.customer);
-            setAddressBill(null);
-        })
-        .catch(err => {
-            console.log(err);
-        });
+            .then(res => {
+                console.log(res.data.customer);
+                setCustomer(res.data.customer);
+                setAddressBill(null);
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
     useEffect(() => {
         fetchDataBill();
@@ -172,17 +172,17 @@ const SaleDataProvider = ({ children }) => {
 
     const updateDataCustomer = useCallback(async (id) => {
         console.log(idBill);
-        axios.put(`http://localhost:8080/api/v1/counters/${idBill}/customer`,{
+        axios.put(`http://localhost:8080/api/v1/counters/${idBill}/customer`, {
             customer: id
         })
-        .then(response =>{
-            toast.success(response.data.message)
-            fetchDataBill()
-        })
-        .catch(error =>{
-            toast.error(error.response.data.message)
+            .then(response => {
+                toast.success(response.data.message)
+                fetchDataBill()
+            })
+            .catch(error => {
+                toast.error(error.response.data.message)
 
-        })
+            })
     }, [idBill]);
 
     const handlePaymentBill = () => {
@@ -215,7 +215,7 @@ const SaleDataProvider = ({ children }) => {
             receiverProvince: addressBill?.province,
             status: status
         }
-     
+
         axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)
             .then((response) => {
                 toast.success(response.data.message);
@@ -278,10 +278,10 @@ const SaleDataProvider = ({ children }) => {
     };
 
     return (
-        <SaleContext.Provider value={dataContextValue}>
+        <OrderContext.Provider value={dataContextValue}>
             {children}
-        </SaleContext.Provider>
+        </OrderContext.Provider>
     );
 };
 
-export default SaleDataProvider;
+export default OrderDataProvider;

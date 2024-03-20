@@ -4,7 +4,7 @@ import App from '~/App';
 import reportWebVitals from './reportWebVitals';
 import GlobalStyles from './components/GlobalStyles';
 import './index.css';
-import SaleDataProvider from './provider/SaleDataProvider';
+import SaleDataProvider from './provider/OrderDataProvider';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

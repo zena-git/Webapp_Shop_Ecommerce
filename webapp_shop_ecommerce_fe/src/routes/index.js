@@ -2,8 +2,9 @@ import Product from '~/pages/Product';
 import ProductAdd from '~/pages/Product/add';
 import ProductUpdate from '~/pages/Product/update';
 import ProductDetail from '~/pages/Product/detail';
+import Bill from '~/pages/Bill';
+import BillDetails from '~/pages/Bill/details';
 import Order from '~/pages/Order';
-import Sale from '~/pages/Sale';
 import Voucher from '~/pages/Voucher'
 import Category from '~/pages/Category'
 import Style from '~/pages/Style'
@@ -32,8 +33,9 @@ const privateRouter = [
     { path: '/product/size', component: Size },
     { path: '/product/color', component: Color },
     { path: '/product/category', component: Category },
+    { path: '/bill', component: Bill },
+    { path: '/bill/bill-detail/:id', component: BillDetails },
     { path: '/order', component: Order },
-    { path: '/sale', component: Sale },
     { path: '/discount/voucher', component: Voucher },
     { path: '/discount/promotion', component: Promotion },
     { path: '/user/staff', component: User },

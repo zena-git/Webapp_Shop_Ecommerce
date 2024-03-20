@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Space, Input, Select } from 'antd';
 import axios from "axios";
-import { useSaleData } from '~/provider/SaleDataProvider';
+import { useSaleData } from '~/provider/OrderDataProvider';
 import { ToastContainer, toast } from 'react-toastify';
 const { TextArea } = Input;
 function Address({ goBack, customer, valueAddress, updateDataAddress }) {
@@ -111,7 +111,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
         }
     }, [valueDistrict])
 
-   
+
 
     const handleChangeProvince = (value) => {
         console.log(value);

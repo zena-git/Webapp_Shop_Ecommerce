@@ -6,7 +6,7 @@ import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
 import { PlusOutlined, DeleteOutlined, ExclamationCircleFilled, LoadingOutlined } from '@ant-design/icons';
 import { fixMoney } from '~/ultils/fixMoney';
-import { useSaleData } from '~/provider/SaleDataProvider';
+import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
@@ -34,7 +34,7 @@ const tagRender = (props) => {
     );
 };
 
-function SaleProducts() {
+function OrderProducts() {
 
     const columnsTable = [
 
@@ -213,7 +213,7 @@ function SaleProducts() {
     const [loadingProductDetail, setLoadingProductDetail] = useState(false);
 
     //provider
-    const { totalPrice, setDataPriceCart, idBill, lstBill, lstProductDetails, lstProductDetailsCart, updateDataProductDetails, updateDataDataCart } = useSaleData();
+    const { totalPrice, setDataPriceCart, idBill, lstBill, lstProductDetails, lstProductDetailsCart, updateDataProductDetails, updateDataDataCart } = useOrderData();
 
 
     // useEffect(() => {
@@ -792,4 +792,4 @@ function SaleProducts() {
     );
 }
 
-export default SaleProducts;
+export default OrderProducts;
