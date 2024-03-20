@@ -7,9 +7,6 @@ import { Link } from 'react-router-dom';
 
 const VoucherPage = () => {
 
-
-
-
     return (
         <div className="py-6">
             <p className='text-xl font-bold'>Sự kiện giảm giá</p>

@@ -5,9 +5,11 @@ module.exports = {
     './src/pages/Voucher/**/*.{js,jsx}',
     './src/pages/Promotion/**/*.{js,jsx}',
     './src/pages/Product/update.{js,jsx}',
+    './src/pages/Customer/**/*.{js,jsx}',
     './src/components/ui/**/*.{js,jsx}',
     './src/components/promotion/**/*.{js,jsx}',
     './src/components/voucher/**/*.{js,jsx}',
+    './src/components/customer/**/*.{js,jsx}',
   ],
   prefix: "",
   theme: {
