@@ -12,6 +12,17 @@ export interface BillResponse {
     CustomerResponse: CustomerResponse,
 }
 
+export interface AdressResponse {
+    id: number,
+    receiverName: string,
+    receiverPhone: string,
+    detail: string,
+    commune: string,
+    district: string,
+    province: string,
+    defaultAddress: boolean
+}
+
 export type CustomerResponse = {
     id: number,
     codeCustomer: string,
@@ -23,6 +34,8 @@ export type CustomerResponse = {
     email: string,
     username: string,
     password: string,
+    lstAddress: AdressResponse[],
+    defaultAddress: AdressResponse | null,
 }
 
 

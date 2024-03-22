@@ -1,7 +1,7 @@
 import { DatePicker, InputNumber, Select } from 'antd/lib';
-import { Input } from "~/components/ui/input"
+import { Input } from "../../components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
@@ -23,6 +23,37 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../../lib/functional'
+import {
+    CaretSortIcon,
+    ChevronDownIcon,
+    DotsHorizontalIcon,
+} from "@radix-ui/react-icons"
+import {
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+} from "@tanstack/react-table"
+
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "~/components/ui/table"
 // import { Select } from '../../components/ui/select'
 
 import { vnData } from '../../lib/extra'
@@ -52,6 +83,11 @@ const formSchema = z.object({
 
 export default function AddCustomer() {
 
+    const [sorting, setSorting] = useState([])
+    const [columnFilters, setColumnFilters] = useState([])
+    const [columnVisibility, setColumnVisibility] = useState({})
+    const [rowSelection, setRowSelection] = useState({})
+
     const [birthDay, setBirthday] = useState(dayjs(new Date()));
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
@@ -60,23 +96,163 @@ export default function AddCustomer() {
     const [addDistrict, setAddDistrict] = useState("Quận Ba Đình");
     const [addWard, setAddWard] = useState("Phường Phúc Xá");
 
-    useEffect(() => {
-        const province = vnData.find(target => { return target.name == addProvince });
+    const setAddProvinceP = (value, key) => {
+        setAddProvince(value);
+        const province = vnData.find(target => { return target.name == value });
         if (!province) return;
         const t = province.districts;
         setListDistricts(t)
-        setAddDistrict(t[0].name)
-    }, [addProvince])
+        setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, province: value, district: t[0].name, commune: t[0].wards[0].name } }); })
+    }
 
-    useEffect(() => {
-        if (addDistrict && listDistricts.length > 0) {
-            const t = listDistricts.find(target => { return target.name == addDistrict }).wards;
-            setListWards(t)
-            setAddWard(t[0].name)
-        }
-    }, [addDistrict, listDistricts])
+    const setAddDistrictP = (value, key) => {
+        setAddDistrict(value);
+        const t = listDistricts.find(target => { return target.name == value }).wards;
+        setListWards(t)
+        setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, district: value, commune: t[0].name } }); })
+    }
 
-    const navigate = useNavigate()
+    const setAddCommuneP = (value, key) => {
+        setAddWard(value);
+        setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, commune: value } }); })
+    }
+
+    const [listAddress, setListAddress] = useState([])
+
+    const navigate = useNavigate();
+
+    const handleChangeReceiverName = (key, newValue) => {
+        setListAddress(prev => {
+            return prev.map(address => {
+                if (address.key === key) {
+                    return { ...address, receivername: newValue };
+                }
+                return address;
+            });
+        });
+    };
+
+    const columns = useMemo(() => [
+        {
+            accessorKey: "key",
+            header: "#",
+            cell: ({ row }) => (
+                <div className="capitalize">{row.original.key}</div>
+            ),
+        },
+        {
+            accessorKey: "receivername",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        tên người nhận
+                        <CaretSortIcon className="ml-2 h-4 w-4" />
+                    </Button>
+                )
+            },
+            cell: ({ row }) => <div className="lowercase">
+                <Input value={row.original.receivername} onChange={e => handleChangeReceiverName(row.original.key, e.target.value)} />
+            </div>,
+        },
+        {
+            accessorKey: "phone",
+            header: () => <div className="text-center"></div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    <Input value={row.original.phone} onChange={e => { setListAddress(prev => { return prev.map(target => { if (target.key == row.original.key) return { ...target, phone: e.target.value } }); }) }} />
+                </div>
+            },
+        },
+        {
+            accessorKey: "province",
+            header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
+            cell: ({ row }) => {
+                return <div className='text-center'>
+                    <Select placeholder='Tỉnh/ Thành phố' value={row.original.province} onChange={value => { setAddProvinceP(value, row.original.key); }}>
+                        {vnData.map((province) => {
+                            return <option key={province.code} value={province.name}>{province.name}</option>
+                        })}
+                    </Select>
+                </div>
+            },
+        },
+        {
+            accessorKey: "district",
+            header: () => <div className="text-center">Quận/ huyện</div>,
+            cell: ({ row }) => {
+                return <div className='text-center'>
+                    <Select placeholder='Tỉnh/ Thành phố' value={row.original.district} onChange={value => { setAddDistrictP(value, row.original.key); }}>
+                        {
+                            listDistricts.map(district => {
+                                return <option key={district.code} value={district.name}>{district.name}</option>
+                            })
+                        }
+                    </Select>
+                </div>
+            },
+        },
+        {
+            accessorKey: "commune",
+            header: () => <div className="text-center">Xã/ phường</div>,
+            cell: ({ row }) => {
+                return <div className='text-center'>
+                    <Select placeholder='Tỉnh/ Thành phố' value={row.original.commune} onChange={value => { setAddCommuneP(value, row.original.key); }}>
+                        {
+                            listWards.map(ward => {
+                                return <option key={ward.code} value={ward.name}>{ward.name}</option>
+                            })
+                        }
+                    </Select>
+                </div>
+            },
+        }, {
+            id: "hành động",
+            enableHiding: false,
+            header: () => <div className="text-center">hành động</div>,
+            cell: ({ row }) => {
+                return (
+                    <div className="flex justify-center">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <DotsHorizontalIcon className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => { setListAddress(listAddress.map(target => { if (target.key != row.original.key) return target })) }}>Xóa</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                )
+            },
+        },
+    ], [listDistricts, listWards]);
+
+
+
+    const table = useReactTable({
+        data: listAddress,
+        columns,
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
+        state: {
+            sorting,
+            columnFilters,
+            columnVisibility,
+            rowSelection,
+        },
+    })
 
 
     const form = useForm(
@@ -100,14 +276,31 @@ export default function AddCustomer() {
     const handleSubmitForm = (values) => {
         const data = { ...values, birthDay: birthDay }
         axios.post(`${baseUrl}/customer`, data).then(res => {
+            listAddress.map(add => {
+                axios.post(`${baseUrl}/address`, { ...add, customer: res.data.data.id, defaultAddress: false })
+            })
             toast.success('thêm khách hàng thành công');
             setTimeout(() => {
                 navigate(`/user/customer/detail/${res.data.data.id}`)
             }, 2000)
         })
-
-        console.log(addDistrict + " " + addProvince + " " + addWard)
     }
+
+    const handleAddAddress = () => {
+
+        setListAddress(prev => [...prev, {
+            key: listAddress.length + 1,
+            receivername: "",
+            phone: "",
+            province: "Thành phố Hà Nội",
+            district: "Quận Ba Đình",
+            commune: "Phường Phúc Xá"
+        }])
+    }
+
+    useEffect(() => {
+        console.log(listAddress)
+    }, [listAddress])
 
     return (
         <div className='flex xl:flex-col'>
@@ -217,38 +410,91 @@ export default function AddCustomer() {
                                 </FormItem>
                             )}
                         />
+
+                        <Button onClick={handleAddAddress}>Thêm địa chỉ mới</Button>
+
+                        <div className="rounded-md border">
+                            <Table>
+                                <TableHeader>
+                                    {table.getHeaderGroups().map((headerGroup) => (
+                                        <TableRow key={headerGroup.id}>
+                                            {headerGroup.headers.map((header) => {
+                                                return (
+                                                    <TableHead key={header.id}>
+                                                        {header.isPlaceholder
+                                                            ? null
+                                                            : flexRender(
+                                                                header.column.columnDef.header,
+                                                                header.getContext()
+                                                            )}
+                                                    </TableHead>
+                                                )
+                                            })}
+                                        </TableRow>
+                                    ))}
+                                </TableHeader>
+                                <TableBody>
+                                    {table.getRowModel().rows?.length ? (
+                                        table.getRowModel().rows.map((row) => (
+                                            <TableRow
+                                                key={row.id}
+                                                data-state={row.getIsSelected() && "selected"}
+                                            >
+                                                {row.getVisibleCells().map((cell) => (
+                                                    <TableCell key={cell.id}>
+                                                        {flexRender(
+                                                            cell.column.columnDef.cell,
+                                                            cell.getContext()
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={columns.length}
+                                                className="h-24 text-center"
+                                            >
+                                                No results.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                        <div className="flex items-center justify-end space-x-2 py-4">
+                            <div className="flex-1 text-sm text-muted-foreground">
+                                {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                                {table.getFilteredRowModel().rows.length} row(s) selected.
+                            </div>
+                            <div className="space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => table.previousPage()}
+                                    disabled={!table.getCanPreviousPage()}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => table.nextPage()}
+                                    disabled={!table.getCanNextPage()}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+
                         <div className='flex gap-4'>
                             <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Tạo khách hàng</Button>
                         </div>
                     </form>
                 </Form>
             </div>
-            {/* <div className='flex-grow'>
-                <p>Danh sách địa chỉ</p>
-                <div>
-                    <Select defaultValue={1} placeholder='Tình/ Thành phố' value={addProvince} onChange={value => { setAddProvince(value) }}>
-                        {vnData.map((province) => {
-                            return <option key={province.code} value={province.name}>{province.name}</option>
-                        })}
-                    </Select>
 
-                    <Select placeholder='Quận/Huyện' defaultValue={1} value={addDistrict} onChange={value => { setAddDistrict(value) }}>
-                        {
-                            listDistricts.map(district => {
-                                return <option key={district.code} value={district.name}>{district.name}</option>
-                            })
-                        }
-                    </Select>
-
-                    <Select placeholder='Xã/Thị trấn' defaultValue={1} value={addWard} onChange={value => { setAddWard(value) }}>
-                        {
-                            listWards.map(ward => {
-                                return <option key={ward.code} value={ward.name}>{ward.name}</option>
-                            })
-                        }
-                    </Select>
-                </div>
-            </div> */}
 
         </div>
     )

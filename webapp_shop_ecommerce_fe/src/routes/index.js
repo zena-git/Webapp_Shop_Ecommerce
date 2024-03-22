@@ -13,6 +13,7 @@ import Size from '~/pages/Size'
 import Color from '~/pages/Color'
 
 import Customer from '~/pages/Customer'
+import CustomerDetail from '~/pages/Customer/detail'
 import CustomerAdd from '~/pages/Customer/add'
 import User from '~/pages/User'
 import Home from '~/pages/Home';
@@ -59,6 +60,7 @@ const privateRouter = [
     { path: '/user/staff', component: User },
     { path: '/user/customer', component: Customer },
     { path: '/user/customer/add', component: CustomerAdd },
+    { path: '/user/customer/detail/:id', component: CustomerDetail },
     
     { path: '/*', component: Default },
 ];

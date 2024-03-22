@@ -1,5 +1,5 @@
-import { Tag, Select } from 'antd/lib'
-import { useState, useEffect, useMemo } from "react"
+import { Tag } from 'antd/lib'
+import { useState, useMemo } from "react"
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -38,73 +38,19 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-import { CustomerResponse } from "~/lib/type"
-import { useAppSelector } from '~/redux/storage'
-import { set, updateSelected } from '~/redux/features/voucher-selected-item'
-import { useDispatch } from "react-redux";
+import { AdressResponse } from "~/lib/type"
 import axios from 'axios'
 import { baseUrl } from '~/lib/functional'
-import { Link } from 'react-router-dom'
-
-export default function ListTable() {
+import { Link, redirect } from 'react-router-dom'
+export default function ListTable({ data }: { data: AdressResponse[] }) {
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+        []
+    )
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
-    const [quickFilterCustomerType, setQuickFilterCustomerType] = useState<number>(0);
-    const [listCustomer, setListCustomer] = useState<CustomerResponse[]>([]);
 
-    const dispatch = useDispatch();
-
-    const selectedCustomer = useAppSelector((state) => state.voucherReducer.value.selected)
-
-    useEffect(() => {
-        axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
-    }, [])
-
-    useEffect(() => {
-        if (quickFilterCustomerType != 0) {
-            axios.get(`/api/customer/filter?type=${quickFilterCustomerType}`).then(res => {
-                setListCustomer(res.data)
-            })
-        } else {
-            axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
-        }
-    }, [quickFilterCustomerType])
-
-
-    const columns: ColumnDef<CustomerResponse>[] = useMemo(() => [
-        {
-            id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    //@ts-ignore
-                    checked={
-                        selectedCustomer.length > 0 && (
-                            selectedCustomer.every(cus => cus.selected) ||
-                            (selectedCustomer.some(cus => cus.selected) && "indeterminate")
-                        )
-                    }
-                    onCheckedChange={(value) => dispatch(set({
-                        value: {
-                            selected: listCustomer.map(cus => {
-                                return { id: cus.id, selected: !!value }
-                            })
-                        }
-                    }))}
-                    aria-label="Select all"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={(selectedCustomer.find(value => value.id === row.getValue("id"))?.selected || false)}
-                    onCheckedChange={(value) => { row.toggleSelected(!!value); dispatch(updateSelected({ id: row.getValue("id"), selected: !!value })) }}
-                    aria-label="Select row"
-                />
-            ),
-            enableSorting: false,
-            enableHiding: false,
-        },
+    const columns: ColumnDef<AdressResponse>[] = useMemo(() => [
         {
             accessorKey: "id",
             header: "id",
@@ -113,78 +59,60 @@ export default function ListTable() {
             ),
         },
         {
-            accessorKey: "fullName",
+            accessorKey: "receiverName",
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên
+                        tên người nhận
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("fullName")}</div>,
+            cell: ({ row }) => <div className="lowercase">{row.original.receiverName}</div>,
         },
         {
-            accessorKey: "email",
-            header: () => <div className="text-center">email</div>,
+            accessorKey: "startDate",
+            header: () => <div className="text-center">xã phường</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("email")}</div>
-            },
-        },
-        {
-            accessorKey: "birthday",
-            header: () => <div className="text-center">sinh nhật</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("birthday")}</div>
+                return <div className='text-center'>
+                    {row.original.commune}
+                </div>
             },
         },
         {
-            accessorKey: "address",
-            header: () => <div className="text-center">địa chỉ</div>,
+            accessorKey: "value",
+            header: () => <div className="text-center">province</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("address")}</div>
-            },
-        }, {
-            id: "hành động",
-            enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {
-                                    // eslint-disable-next-line no-restricted-globals
-                                    let t = confirm('xác nhận xóa');
-                                    if (t) {
-                                        axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
-                                            alert("xóa thành công");
-
-                                        })
-                                    }
-                                }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/user/customer/update/${row.original.id}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/user/customer/detail/${row.original.id}`}>Chi tiết</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                )
+                return <div className="text-center font-medium max-h-16">
+                    {row.original.province}
+                </div>
             },
         },
-    ], [dispatch, selectedCustomer]);
+        {
+            accessorKey: "value",
+            header: () => <div className="text-center">district</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    {row.original.district}
+                </div>
+            },
+        },
+        {
+            accessorKey: "value",
+            header: () => <div className="text-center">sdt</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    {row.original.receiverPhone}
+                </div>
+            },
+        },
+    ], []);
 
     const table = useReactTable({
-        data: listCustomer,
+        data,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -204,30 +132,13 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full rounded-lg">
-                <div>
-                    <p className='text-sm font-semibold text-slate-600'>Tùy chọn tìm kiếm nhanh</p>
-                    <div className='grid grid-cols-3 gap-3'>
-                        <Select
-                            style={{ width: '100%' }}
-                            defaultActiveFirstOption={true}
-                            value={quickFilterCustomerType}
-                            onChange={e => setQuickFilterCustomerType(e)}
-                            options={[
-                                { value: 0, label: 'không' },
-                                { value: '1', label: 'Khách hàng mới trong tháng' },
-                                { value: '2', label: 'Khách hàng có đơn hàng trong tháng' },
-                                { value: '3', label: 'test2' },
-                            ]}
-                        />
-                    </div>
-                </div>
+            <div className="w-full">
                 <div className="flex items-center py-4">
                     <Input
                         placeholder="Filter name..."
-                        value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
+                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("fullName")?.setFilterValue(event.target.value)
+                            table.getColumn("name")?.setFilterValue(event.target.value)
                         }
                         className="max-w-sm"
                     />
@@ -258,7 +169,7 @@ export default function ListTable() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border border-slate-900 ">
+                <div className="rounded-md border">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -281,18 +192,19 @@ export default function ListTable() {
                         <TableBody>
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
-                                    <>
-                                        <TableRow data-state={row.getIsSelected() && "selected"}>
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
-                                                    {flexRender(
-                                                        cell.column.columnDef.cell,
-                                                        cell.getContext()
-                                                    )}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </>
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
