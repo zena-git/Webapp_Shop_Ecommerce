@@ -20,7 +20,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { baseUrl } from '../../lib/functional'
 import {
@@ -65,18 +65,16 @@ const formSchema = z.object({
         message: "code must be at least 2 characters.",
     }),
     fullName: z.string().min(2, {
-        message: "name must be at least 2 characters.",
+        message: "Hãy nhập tên",
     }),
     gender: z.number({
-        required_error: "You need to select a target type.",
+        required_error: "Hãy chọn giới tính",
     }),
-    address: z.string({
-        required_error: "You need to select a discount type.",
-    }),
-    phone: z.string(),
+    address: z.string(),
+    phone: z.string().startsWith("0"),
     email: z.string().email({}),
     username: z.string().min(4, {
-        message: "max dis must be at least 4 characters.",
+        message: "",
     }),
     password: z.string()
 })
@@ -92,12 +90,9 @@ export default function AddCustomer() {
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
 
-    const [addProvince, setAddProvince] = useState("Thành phố Hà Nội");
-    const [addDistrict, setAddDistrict] = useState("Quận Ba Đình");
-    const [addWard, setAddWard] = useState("Phường Phúc Xá");
+    const path = useParams();
 
     const setAddProvinceP = (value, key) => {
-        setAddProvince(value);
         const province = vnData.find(target => { return target.name == value });
         if (!province) return;
         const t = province.districts;
@@ -106,18 +101,24 @@ export default function AddCustomer() {
     }
 
     const setAddDistrictP = (value, key) => {
-        setAddDistrict(value);
         const t = listDistricts.find(target => { return target.name == value }).wards;
         setListWards(t)
         setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, district: value, commune: t[0].name } }); })
     }
 
     const setAddCommuneP = (value, key) => {
-        setAddWard(value);
         setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, commune: value } }); })
     }
 
+    const [targetCustomer, setTargetCustomer] = useState();
     const [listAddress, setListAddress] = useState([])
+
+    useEffect(() => {
+        axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
+            setTargetCustomer(res.data)
+            setListAddress(res.data.lstAddress)
+        })
+    }, [path.id])
 
     const navigate = useNavigate();
 
@@ -258,24 +259,24 @@ export default function AddCustomer() {
     const form = useForm(
         {
             resolver: zodResolver(formSchema),
-            defaultValues: {
-                codeCustomer: makeid(),
-                fullName: "",
-                birthDay: birthDay,
-                gender: "",
-                address: "",
-                phone: "",
-                email: "",
-                username: "",
-                password: makeid(),
-            },
-            mode: 'all'
+            mode: 'all',
+            values: {
+                codeCustomer: targetCustomer ? targetCustomer.codeCustomer : makeid(),
+                fullName: targetCustomer ? targetCustomer.fullName : "",
+                birthDay: targetCustomer ? targetCustomer.birthDay : birthDay,
+                gender: targetCustomer ? targetCustomer.gender : "",
+                address: targetCustomer ? targetCustomer.address : "",
+                phone: targetCustomer ? targetCustomer.phone : "",
+                email: targetCustomer ? targetCustomer.email : "",
+                username: targetCustomer ? targetCustomer.username : "",
+                password: targetCustomer ? targetCustomer.password : makeid(),
+            }
         }
     )
 
     const handleSubmitForm = (values) => {
         const data = { ...values, birthDay: birthDay }
-        axios.post(`${baseUrl}/customer`, data).then(res => {
+        axios.put(`${baseUrl}/customer`, data).then(res => {
             listAddress.map(add => {
                 axios.post(`${baseUrl}/address`, { ...add, customer: res.data.data.id, defaultAddress: false })
             })
@@ -489,7 +490,7 @@ export default function AddCustomer() {
                         </div>
 
                         <div className='flex gap-4'>
-                            <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Tạo khách hàng</Button>
+                            <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật khách hàng</Button>
                         </div>
                     </form>
                 </Form>

@@ -15,6 +15,7 @@ import Color from '~/pages/Color'
 import Customer from '~/pages/Customer'
 import CustomerDetail from '~/pages/Customer/detail'
 import CustomerAdd from '~/pages/Customer/add'
+import CustomerUpdate from '~/pages/Customer/update'
 import User from '~/pages/User'
 import Home from '~/pages/Home';
 import Default from '~/pages/Default';
@@ -61,6 +62,7 @@ const privateRouter = [
     { path: '/user/customer', component: Customer },
     { path: '/user/customer/add', component: CustomerAdd },
     { path: '/user/customer/detail/:id', component: CustomerDetail },
+    { path: '/user/customer/update/:id', component: CustomerUpdate },
     
     { path: '/*', component: Default },
 ];
