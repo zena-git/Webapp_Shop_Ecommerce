@@ -3,8 +3,10 @@ package com.example.webapp_shop_ecommerce.dto.response.bill;
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
+import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsResponse;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
+import com.example.webapp_shop_ecommerce.entity.Users;
 import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
@@ -44,14 +46,10 @@ public class BillResponse {
     private String receiverDistrict;
     private String receiverProvince;
 
-
     private CustomerResponse customer;
     private LocalDateTime createdDate;
 
-//    private UserDto user;
-
-//    Set<BillResponse> lstBillDetails;
-//    Set<VoucherDetailsResponse> lstVoucherDetails;
-
-
+//    private Set<BillDetailsResponse> lstBillDetails;
+    private Set<VoucherDetailsResponse> lstVoucherDetails;
+//    private Set<HistoryBillResponse> lstHistoryBills;
 }

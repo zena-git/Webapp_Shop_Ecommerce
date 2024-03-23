@@ -3,8 +3,21 @@ import { Button, Tabs, Table } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { Link } from 'react-router-dom'
+import {
+  CaretSortIcon,
+  ChevronDownIcon,
+  DotsHorizontalIcon,
+} from "@radix-ui/react-icons"
 
 const tabItems = [
   {
@@ -50,9 +63,9 @@ const columnsTable = [
     width: 50,
     render: (text, record, index) => (
       <React.Fragment key={index}>
-          <span>{index + 1}</span>
+        <span>{index + 1}</span>
       </React.Fragment>
-  ),
+    ),
   },
   {
     title: 'Mã',
@@ -72,8 +85,8 @@ const columnsTable = [
 
   {
     title: 'Tổng Tiền',
-    dataIndex: 'intoMoney',
-    key: 'intoMoney',
+    dataIndex: 'totalMoney',
+    key: 'totalMoney',
   },
 
   {
@@ -92,6 +105,23 @@ const columnsTable = [
     title: 'Action',
     dataIndex: 'action',
     key: 'action',
+    render: (text, record) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <DotsHorizontalIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {console.log(record)}
+            <DropdownMenuItem><Link to={`/order/detail/${record.id}`}>Chi tiết</Link></DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
   },
 ];
 function Order() {
@@ -103,9 +133,9 @@ function Order() {
   const fetchDataBill = async () => {
 
     try {
-      const response = await axios.get('http://localhost:8080/api/v1/bill',{
-        params:{
-          status:status
+      const response = await axios.get('http://localhost:8080/api/v1/bill', {
+        params: {
+          status: status
         }
       });
       console.log(response.data);
@@ -121,17 +151,17 @@ function Order() {
   useEffect(() => {
     fillDataColumBill(lstBill);
   }, [lstBill]);
-  
+
   const fillDataColumBill = (data) => {
     const dataTable = data.map(data => {
       return {
         codeBill: data.codeBill,
         customer: data.customer == null ? "Khách Lẻ" : data.customer.fullName,
         receiverPhone: data.receiverPhone,
-        intoMoney: data.intoMoney,
+        totalMoney: data.totalMoney,
         billType: data.billType,
         createdDate: data.createdDate,
-        action: <Button>action</Button>,
+        id: data.id,
       }
     });
     console.log(data);
@@ -142,7 +172,7 @@ function Order() {
   const onChange = (key) => {
     if (key == -1) {
       setStatus('')
-    }else{
+    } else {
       setStatus(key);
     }
   };

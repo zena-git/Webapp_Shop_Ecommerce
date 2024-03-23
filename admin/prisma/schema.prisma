@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "env(DATABASE_URL)"
+  url      = "mysql://erinasai_webapp_user:webappabcd111@@103.200.22.212:3306/erinasai_webapp_ecommerce?connection_limit=12"
 }
 
 model Address {

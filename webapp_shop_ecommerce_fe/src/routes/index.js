@@ -2,7 +2,9 @@ import Product from '~/pages/Product';
 import ProductAdd from '~/pages/Product/add';
 import ProductUpdate from '~/pages/Product/update';
 import ProductDetail from '~/pages/Product/detail';
+
 import Order from '~/pages/Order';
+import OrderDetail from '~/pages/Order/detail'
 import Sale from '~/pages/Sale';
 
 import Category from '~/pages/Category'
@@ -46,6 +48,7 @@ const privateRouter = [
     { path: '/product/color', component: Color },
     { path: '/product/category', component: Category },
     { path: '/order', component: Order },
+    { path: '/order/detail/:id', component: OrderDetail },
     { path: '/sale', component: Sale },
 
     { path: '/discount/voucher', component: Voucher },

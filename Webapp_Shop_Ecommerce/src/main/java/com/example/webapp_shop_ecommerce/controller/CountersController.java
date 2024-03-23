@@ -63,6 +63,9 @@ public class CountersController {
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
+
+
+
     @PostMapping()
     public ResponseEntity<?> billCounterNew() {
         return billService.billCounterNew();

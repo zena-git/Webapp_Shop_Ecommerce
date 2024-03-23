@@ -61,6 +61,15 @@ public class HistoryBillController {
         return new ResponseEntity<>(historyBill, HttpStatus.OK);
     }
 
+    @GetMapping("/bill/{id}")
+    public ResponseEntity<?> findObjByBillId(@PathVariable("id") Long id) {
+        List<HistoryBill> lst = historyBillService.findHistoryBillsByBill(id);
+        if (lst.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+
     @PostMapping()
     public ResponseEntity<?> saveObj(@RequestBody HistoryBillRequest historyBillDto){
         return historyBillService.createNew(mapper.map(historyBillDto, HistoryBill.class));

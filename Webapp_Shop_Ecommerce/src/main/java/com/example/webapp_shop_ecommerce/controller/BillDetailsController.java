@@ -3,10 +3,12 @@ package com.example.webapp_shop_ecommerce.controller;
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.cart.CartResponse;
+import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.Cart;
 import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
+import com.example.webapp_shop_ecommerce.service.IBillService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +40,9 @@ public class BillDetailsController {
 
     @Autowired
     private IBillDetailsService billDetailsService;
+    @Autowired
+    private IBillService billService;
+
 
     @GetMapping
     public ResponseEntity<?> findProductAll(
@@ -63,6 +68,16 @@ public class BillDetailsController {
         }
         BillDetailsResponse billDetail = otp.map(pro -> mapper.map(pro, BillDetailsResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(billDetail, HttpStatus.OK);
+    }
+
+    @GetMapping("/bill/{id}")
+    public ResponseEntity<?> findByBill(@PathVariable("id") Long id) {
+        Optional<Bill> otp = billService.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBill(otp.get());
+        return new ResponseEntity<>(lstBillDetails, HttpStatus.OK);
     }
     @PostMapping()
     public ResponseEntity<ResponseObject> saveProduct(@RequestBody BillDetailsRequest billDetailsDto){
