@@ -32,6 +32,8 @@ public class BillResponse {
     private BigDecimal digitalCurrency;
     private BigDecimal totalMoney;
     private BigDecimal intoMoney;
+    private BigDecimal shipMoney;
+    private BigDecimal voucherMoney;
     private Date bookingDate;
     private Date paymentDate;
     private Date DeliveryDate;
@@ -43,6 +45,7 @@ public class BillResponse {
     private String receiverCommune;
     private String receiverDistrict;
     private String receiverProvince;
+    private String description;
 
 
     private CustomerResponse customer;

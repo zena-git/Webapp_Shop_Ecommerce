@@ -16,6 +16,8 @@ public interface IBillDetailsRepository extends IBaseReporitory<BillDetails, Lon
     Optional<BillDetails> findByProductDetails(ProductDetails productDetails);
 
     List<BillDetails> findAllByBill(Bill bill);
+
+
     @Query("SELECT bd FROM BillDetails bd WHERE bd.bill = :bill AND bd.productDetails = :productDetails")
     Optional<BillDetails> findByBillAndProductDetails(@Param("bill") Bill bill, @Param("productDetails") ProductDetails productDetails);
 }

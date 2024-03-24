@@ -16,5 +16,6 @@ import lombok.ToString;
 public class HistoryBillRequest {
     private Long id;
     private BillRequest bill;
-    private String describe;
+    private String type;
+    private String description;
 }

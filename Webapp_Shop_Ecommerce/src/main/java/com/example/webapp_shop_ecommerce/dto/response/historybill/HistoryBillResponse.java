@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -15,6 +17,10 @@ import lombok.ToString;
 @ToString
 public class HistoryBillResponse {
     private Long id;
-    private BillResponse bill;
-    private String describe;
+//    private BillResponse bill;
+    private String type;
+
+    private String description;
+    private LocalDateTime createdDate;
+
 }

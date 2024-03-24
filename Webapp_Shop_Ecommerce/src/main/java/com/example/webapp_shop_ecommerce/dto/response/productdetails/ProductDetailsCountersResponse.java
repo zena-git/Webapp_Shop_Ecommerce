@@ -24,6 +24,8 @@ public class ProductDetailsCountersResponse {
     private Integer status;
     private SizeResponse size;
     private ColorResponse color;
+    private  Float weight;
+
     private ProductCountersResponse product;
 
 }

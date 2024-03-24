@@ -2,13 +2,15 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
+import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
+import com.example.webapp_shop_ecommerce.dto.response.bill.BillShowResponse;
+import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsBillResponse;
+import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.categories.CategoryResponse;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
-import com.example.webapp_shop_ecommerce.entity.Bill;
+import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.entity.Category;
-import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
@@ -31,9 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,13 +47,21 @@ public class BillController {
     @Autowired
     private IBillService billService;
 
+    @Autowired
+    private IBillDetailsService billDetailsService;
 
 
     @GetMapping
     public ResponseEntity<?> findBillAll(
             @RequestParam(value = "page", defaultValue = "-1") Integer page,
             @RequestParam(value = "size", defaultValue = "-1") Integer size,
-            @RequestParam(value = "status", defaultValue = "") String status) {
+            @RequestParam(value = "status", defaultValue = "") String status,
+            @RequestParam(value = "search", defaultValue = "") String search,
+            @RequestParam(value = "billType", defaultValue = "") String billType,
+            @RequestParam(value = "endDate", defaultValue = "-1") String endDate,
+            @RequestParam(value = "startDate", defaultValue = "-1") String startDate
+
+        ) {
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
             size = 5;
@@ -59,7 +69,25 @@ public class BillController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        List<Bill> lstPro = billService.findAllDeletedFalseAndStatusAndStatusNot(pageable, status, TrangThaiBill.NEW.getLabel()).getContent();
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        if (!Objects.equals(startDate, "-1") && !Objects.equals(endDate, "-1")) {
+            System.out.println("có data");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            startDateTime = LocalDateTime.parse(startDate.trim() + " 00:00:00", formatter);
+            endDateTime = LocalDateTime.parse(endDate.trim() + " 23:59:59", formatter);
+        }
+
+
+        //Dong goi praram
+        Map<String, Object> keyWork = new HashMap<String, Object>();
+        keyWork.put("search", search.trim());
+        keyWork.put("status", status.trim());
+        keyWork.put("billType", billType.trim());
+        keyWork.put("startDate", startDateTime != null ? startDateTime : null);
+        keyWork.put("endDate", endDateTime != null ? endDateTime : null);
+
+        List<Bill> lstPro = billService.findAllDeletedFalseAndStatusAndStatusNot(pageable, keyWork, TrangThaiBill.NEW.getLabel()).getContent();
         List<BillResponse> lst = lstPro.stream().map(entity -> mapper.map(entity, BillResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
@@ -73,6 +101,36 @@ public class BillController {
         }
         BillResponse bill = otp.map(pro -> mapper.map(pro, BillResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(bill, HttpStatus.OK);
+    }
+
+    @GetMapping("/show/{id}")
+    public ResponseEntity<?> findObjByIdAll(@PathVariable("id") Long id) {
+        Optional<Bill> otp = billService.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        BillShowResponse bill = otp.map(pro -> mapper.map(pro, BillShowResponse.class)).orElseThrow(IllegalArgumentException::new);
+        return new ResponseEntity<>(bill, HttpStatus.OK);
+    }
+    @GetMapping("/show/{id}/billdetails/products")
+    public ResponseEntity<?> findObjByIdAllProduct(@PathVariable("id") Long id) {
+        Optional<Bill> opt = billService.findById(id);
+        if (opt.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBill(opt.get());
+        List<BillDetailsBillResponse> lst = lstBillDetails.stream().map(entity -> mapper.map(entity, BillDetailsBillResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+    @PostMapping("/show/{id}/billdetails/products")
+    public ResponseEntity<?> updateObjByIdAllProduct(@PathVariable("id") Long id) {
+        Optional<Bill> opt = billService.findById(id);
+        if (opt.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBill(opt.get());
+        List<BillDetailsBillResponse> lst = lstBillDetails.stream().map(entity -> mapper.map(entity, BillDetailsBillResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(lst, HttpStatus.OK);
     }
     @PostMapping()
     public ResponseEntity<ResponseObject> saveBill(@RequestBody BillRequest billDto){
@@ -104,6 +162,48 @@ public class BillController {
 
     }
 
+    @PutMapping("/{id}/address")
+    public ResponseEntity<ResponseObject> updateBillAddress(@RequestBody BillRequest billDto, @PathVariable("id") Long id){
+        System.out.println("Update ID: " + id);
+        Optional<Bill>  otp = billService.findById(id);
+        if (otp.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, billDto), HttpStatus.BAD_REQUEST);
+        }
+        Bill bill = otp.get();
+
+        bill.setReceiverCommune(billDto.getReceiverCommune());
+        bill.setReceiverDetails(billDto.getReceiverDetails());
+        bill.setReceiverProvince(billDto.getReceiverProvince());
+        bill.setReceiverName(billDto.getReceiverName());
+        bill.setReceiverPhone(billDto.getReceiverPhone());
+        bill.setReceiverDistrict(billDto.getReceiverDistrict());
+        bill.setDescription(billDto.getDescription());
+        bill.setShipMoney(billDto.getShipMoney());
+        bill.setIntoMoney(bill.getTotalMoney().subtract(bill.getVoucherMoney()).add(billDto.getShipMoney()));
+        return billService.update(bill);
+
+    }
+
+    @PostMapping("/{idbill}/product")
+    public ResponseEntity<?> billAddProduct(@RequestBody List<BillDetailsRequest> lstBillDetailsDto, @PathVariable("idbill") Long id) {
+        return billService.billAddProductNew(lstBillDetailsDto, id);
+    }
+
+    @PutMapping("/{idBill}/billDetails/{idBilldetails}")
+    public ResponseEntity<?> chaneQuantityBillDetails(@RequestBody BillDetailsRequest billDetailsRequest, @PathVariable("idBill") Long idBill, @PathVariable("idBilldetails") Long idBillDetails) {
+        return billService.chaneQuantityBillToBillDetails(billDetailsRequest, idBill, idBillDetails);
+    }
+
+    @DeleteMapping("/{idBill}/billDetails/{idBilldetails}")
+    public ResponseEntity<?> deleteBillDetails(@PathVariable("idBill") Long idBill, @PathVariable("idBilldetails") Long billDeleteBillDetail) {
+        return billService.deleteBillToBillDetail(idBill, billDeleteBillDetail);
+    }
+
+
+    @PostMapping("/{idBill}/historyBill")
+    public ResponseEntity<?> addHistorybill(@RequestBody HistoryBillRequest historyBillRequest, @PathVariable("idBill") Long idBill) {
+        return null;
+    }
 
 
 }

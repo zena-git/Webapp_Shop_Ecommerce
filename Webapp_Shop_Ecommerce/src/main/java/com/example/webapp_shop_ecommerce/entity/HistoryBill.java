@@ -18,6 +18,8 @@ public class HistoryBill extends BaseEntity{
     @ManyToOne()
     @JoinColumn(name = "bill_id")
     private Bill bill;
+    @Column(name = "type")
+    private String type;
     @Column(name = "description")
     private String description;
 }

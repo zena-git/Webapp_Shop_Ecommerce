@@ -1,8 +1,8 @@
 package com.example.webapp_shop_ecommerce.infrastructure.enums;
 
 public enum BillType {
-    ONLINE("Online"),
-    OFFLINE("Offline");
+    ONLINE("0"),
+    OFFLINE("1");
 
     private final String label;
 

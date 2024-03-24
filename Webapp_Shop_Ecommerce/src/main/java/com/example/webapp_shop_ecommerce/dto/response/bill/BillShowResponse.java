@@ -1,8 +1,14 @@
 package com.example.webapp_shop_ecommerce.dto.response.bill;
 
+import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsBillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsCountersResponse;
+import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
+import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillResponse;
+import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsResponse;
+import com.example.webapp_shop_ecommerce.entity.BillDetails;
+import com.example.webapp_shop_ecommerce.entity.HistoryBill;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class BillCountersResponse {
+public class BillShowResponse {
     private Long id;
     private String codeBill;
     private String status;
@@ -43,12 +49,13 @@ public class BillCountersResponse {
     private String receiverProvince;
     private String description;
 
+
     private CustomerResponse customer;
 
-//    private UserDto user;
+    private UserResponse user;
 
-    Set<BillDetailsCountersResponse> lstBillDetails;
+//    Set<BillDetailsBillResponse> lstBillDetails;
     Set<VoucherDetailsResponse> lstVoucherDetails;
-
+    Set<HistoryBillResponse> lstHistoryBill;
 
 }

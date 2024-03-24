@@ -2,31 +2,38 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
-import com.example.webapp_shop_ecommerce.dto.request.cart.CartRequest;
+import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.*;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import com.example.webapp_shop_ecommerce.service.IBillService;
-import com.example.webapp_shop_ecommerce.service.ICartDetailsService;
+import com.example.webapp_shop_ecommerce.service.IHistoryBillService;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import com.example.webapp_shop_ecommerce.ultiltes.InvoiceGenerator;
 import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +63,9 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     @Autowired
     private IVoucherDetailsRepository voucherDetailsRepo;
     @Autowired
-    private InvoiceGenerator invoiceGenerator;;
+    private InvoiceGenerator invoiceGenerator;
+    @Autowired
+    private IHistoryBillService historyBillService;
 
     @Override
     public ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) {
@@ -69,7 +78,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
         billDto.setCodeBill(invoiceGenerator.generateInvoiceNumber());
-        billDto.setBillType("Online");
+        billDto.setBillType(BillType.ONLINE.getLabel());
         billDto.setBookingDate(new Date());
         billDto.setDeleted(false);
         billDto.setCreatedBy("Admin");
@@ -88,7 +97,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             billDetails.setProductDetails(productDetails);
             billDetails.setUnitPrice(productDetails.getPrice());
             billDetails.setQuantity(cartDetails.getQuantity());
-            billDetails.setStatus("Đang Xuất Hàng 0");
+            billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
             billDetails.setId(null);
             billDetails.setDeleted(false);
             billDetails.setCreatedBy("Admin");
@@ -114,8 +123,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         }
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
-        billDto.setCodeBill("HD" + randomStringGenerator.generateRandomString(6));
-        billDto.setBillType("Online");
+        billDto.setCodeBill(invoiceGenerator.generateInvoiceNumber());
+        billDto.setBillType(BillType.ONLINE.getLabel());
         billDto.setBookingDate(new Date());
         billDto.setDeleted(false);
         billDto.setCreatedBy("Admin");
@@ -132,7 +141,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             billDetails.setProductDetails(productDetails);
             billDetails.setUnitPrice(productDetails.getPrice());
             billDetails.setQuantity(cartDetails.getQuantity());
-            billDetails.setStatus("Đang Xuất Hàng 0");
+            billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
             billDetails.setId(null);
             billDetails.setDeleted(false);
             billDetails.setCreatedBy("Admin");
@@ -177,7 +186,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Được Tạo Quá 5 Hóa Đơn ", 0, entity), HttpStatus.BAD_REQUEST);
         }
         System.out.println("Hóa Đơn Đã cớ+ " + count);
-        createNew(entity);
+        Bill bill = billRepo.save(entity);
+        historyBillService.addHistoryBill(bill, TrangThaiBill.TAO_DON_HANG.getLabel(), "");
         return new ResponseEntity<>(new ResponseObject("success", "Tạo Hóa Đơn Thành Công", 0, entity), HttpStatus.CREATED);
 
     }
@@ -305,7 +315,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, idBillDetail), HttpStatus.BAD_REQUEST);
         }
 
-        if (billDto.getQuantity() <1) {
+        if (billDto.getQuantity() < 1) {
             return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Phải Lớn Hơn 0", 1, null), HttpStatus.BAD_REQUEST);
         }
 
@@ -315,7 +325,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         }
 
 
-        productDetails.setQuantity(productDetails.getQuantity()+opt.get().getQuantity()-billDto.getQuantity());
+        productDetails.setQuantity(productDetails.getQuantity() + opt.get().getQuantity() - billDto.getQuantity());
         productDetailsRepo.save(productDetails);
         BillDetails billDetails = opt.get();
         billDetails.setQuantity(billDto.getQuantity());
@@ -331,6 +341,12 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, billDto), HttpStatus.BAD_REQUEST);
         }
         Bill bill = otp.get();
+
+        List<BillDetails> lstBillDetail = billDetailsRepo.findAllByBill(bill);
+        if (lstBillDetail.size() == 0) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, id), HttpStatus.BAD_REQUEST);
+        }
+
         bill = mapper.map(billDto, Bill.class);
         bill.setId(id);
         bill.setBookingDate(new Date());
@@ -341,6 +357,15 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         bill.setUser(otp.get().getUser());
 
         update(bill);
+        if (billDto.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_GIAO.getLabel())){
+            historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_GIAO.getLabel(), "");
+        }
+        if (billDto.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
+            historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
+        }
+        if (billDto.getStatus().equalsIgnoreCase(TrangThaiBill.HOAN_THANH.getLabel())){
+            historyBillService.addHistoryBill(bill,TrangThaiBill.HOAN_THANH.getLabel(), "");
+        }
         return new ResponseEntity<>(new ResponseObject("success", "Thanh Toán Thành Công", 0, billDto), HttpStatus.CREATED);
 
     }
@@ -353,17 +378,19 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy BilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
         }
         BillDetails billDetails = opt.get();
-        Optional<ProductDetails> productDetailsOtp = productDetailsService.findById(billDetails.getProductDetails().getId());
+        Optional<ProductDetails> productDetailsOtp = productDetailsRepo.findById(billDetails.getProductDetails().getId());
 
         if (productDetailsOtp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ", 0, idBillDetail), HttpStatus.BAD_REQUEST);
         }
 
         ProductDetails productDetails = productDetailsOtp.get();
-        productDetails.setQuantity(productDetails.getQuantity()+billDetails.getQuantity());
+        productDetails.setQuantity(productDetails.getQuantity() + billDetails.getQuantity());
         productDetailsRepo.save(productDetails);
 
         billDetailsRepo.delete(billDetails);
+//        updateChangeMoneyBill()
+
         return new ResponseEntity<>(new ResponseObject("success", "Xóa Sản Phẩm Khỏi Giỏ Hàng Thành Công", 0, idBillDetail), HttpStatus.CREATED);
 
     }
@@ -392,8 +419,237 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     }
 
     @Override
-    public Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, String status, String statusNot) {
-        return repository.findAllDeletedFalseAndStatusAndStatusNot(page, status, statusNot);
+    public Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, Map<String, Object> keyWork, String statusNot) {
+        return repository.findAllDeletedFalseAndStatusAndStatusNot(page, keyWork, statusNot);
+    }
+
+    @Override
+    public Boolean updateChangeMoneyBill(Long idBill) {
+
+        Optional<Bill> opt = findById(idBill);
+        if (opt.isEmpty()) {
+            return false;
+        }
+        Bill bill = opt.get();
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBill(bill);
+        if (lstBillDetails.size() == 0) {
+            return false;
+        }
+
+
+
+        System.out.println(bill.getReceiverProvince() + " " + bill.getReceiverDistrict() + " " + bill.getReceiverCommune());
+
+        RestTemplate restTemplate = new RestTemplate();
+        String urlProvince = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
+        String urlDistrict = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+        String urlWard = "https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
+        String urlService = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
+        String urlMoneyShip = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("token", "dfe1e7cf-e582-11ee-b290-0e922fc774da");
+        headers.set("shop_id", "4962936");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        CompletableFuture<String> provinceFuture = CompletableFuture.supplyAsync(() -> {
+                    String responseBodyProvince = restTemplate.exchange(urlProvince, HttpMethod.GET, entity, String.class).getBody();
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JsonNode jsonNode = objectMapper.readTree(responseBodyProvince);
+                        JsonNode dataNodeProvince = jsonNode.get("data");
+                        if (dataNodeProvince.isArray()) {
+                            for (JsonNode provinceNode : dataNodeProvince) {
+                                if (provinceNode.get("ProvinceName").asText().equalsIgnoreCase(bill.getReceiverProvince())) {
+                                    System.out.println(provinceNode.get("ProvinceID").asText());
+                                    System.out.println(provinceNode.get("ProvinceName").asText());
+                                    return provinceNode.get("ProvinceID").asText();
+                                }
+                            }
+                        }
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+        );
+
+
+        CompletableFuture<String> districtFuture = provinceFuture.thenCompose(province -> {
+            return CompletableFuture.supplyAsync(() -> {
+                if(province ==null){
+                    return null;
+                }
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(urlDistrict)
+                        .queryParam("province_id", province);
+                String urlDistrictParam = builder.toUriString();
+                System.out.println(urlDistrictParam);
+                ResponseEntity<String> responseDistrict = restTemplate.exchange(urlDistrictParam, HttpMethod.GET, entity, String.class);
+                String responseBodyDistrict = responseDistrict.getBody();
+                // Phân tích cú pháp JSON
+                ObjectMapper objectMapperDistrict = new ObjectMapper();
+                try {
+                    JsonNode jsonNode = objectMapperDistrict.readTree(responseBodyDistrict);
+                    JsonNode dataNodeDistrict = jsonNode.get("data");
+                    if (dataNodeDistrict.isArray()) {
+                        for (JsonNode districtNode : dataNodeDistrict) {
+                            if (districtNode.get("DistrictName").asText().equalsIgnoreCase(bill.getReceiverDistrict())) {
+                                return districtNode.get("DistrictID").asText();
+                            }
+                        }
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            });
+        });
+
+        CompletableFuture<String> wardFuture = districtFuture.thenCompose(district -> {
+            return CompletableFuture.supplyAsync(() -> {
+                if(district==null){
+                    return null;
+                }
+                //lấy wardId
+                UriComponentsBuilder builderWard = UriComponentsBuilder.fromHttpUrl(urlWard)
+                        .queryParam("district_id", district);
+                String urlWardParam = builderWard.toUriString();
+                System.out.println(urlWardParam);
+                ResponseEntity<String> responseWard = restTemplate.exchange(urlWardParam, HttpMethod.GET, entity, String.class);
+                String responseBodyWard = responseWard.getBody();
+                // Phân tích cú pháp JSON
+                ObjectMapper objectMapperWard = new ObjectMapper();
+                try {
+                    JsonNode jsonNode = objectMapperWard.readTree(responseBodyWard);
+                    JsonNode dataNodeWard = jsonNode.get("data");
+                    if (dataNodeWard.isArray()) {
+                        for (JsonNode wardNode : dataNodeWard) {
+                            if (wardNode.get("WardName").asText().equalsIgnoreCase(bill.getReceiverCommune())) {
+                               return wardNode.get("WardCode").asText();
+                            }
+                        }
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            });
+        });
+
+
+
+        String provinceId = provinceFuture.join();
+        String districtId = districtFuture.join();
+        String wardId = wardFuture.join();
+        Integer insuranceValue = 10000;
+        String serviceId = "53321";
+        String fromDistrictId = "3440";
+        Integer weightProduct = 1000;
+        String coupon = null;
+        Integer moneyShip = 0;
+
+        if (provinceId==null && districtId ==null ) {
+            return false;
+        }
+
+        insuranceValue = lstBillDetails.stream()
+                .map(currentProduct -> currentProduct.getUnitPrice().multiply(BigDecimal.valueOf(currentProduct.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add).intValue();
+
+        weightProduct = lstBillDetails.stream()
+                .mapToInt(currentProduct -> currentProduct.getProductDetails().getWeight() * currentProduct.getQuantity())
+                .sum();
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(urlService)
+                .queryParam("to_district", districtId).queryParam("shop_id", 4962936).queryParam("from_district", 3440);
+        String urlServiceParam = builder.toUriString();
+        System.out.println(urlServiceParam);
+        ResponseEntity<String> responseService = restTemplate.exchange(urlServiceParam, HttpMethod.GET, entity, String.class);
+        String responseBodyService = responseService.getBody();
+        // Phân tích cú pháp JSON
+        ObjectMapper objectMapperService = new ObjectMapper();
+        try {
+            JsonNode jsonNode = objectMapperService.readTree(responseBodyService);
+            JsonNode dataNodeService = jsonNode.get("data");
+            if (dataNodeService.isArray()) {
+                System.out.println(dataNodeService);
+                serviceId = dataNodeService.get(0).get("service_id").asText(); //lay serviceId
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+
+        //Lấy Phí SHip
+        UriComponentsBuilder builderMoneyShip = UriComponentsBuilder.fromHttpUrl(urlMoneyShip)
+                .queryParam("service_id", serviceId).queryParam("insurance_value", insuranceValue).queryParam("coupon", coupon).queryParam("from_district_id",fromDistrictId )
+                .queryParam("to_district_id", districtId).queryParam("to_ward_code", wardId).queryParam("weight", weightProduct);
+        String urlMoneyParam = builderMoneyShip.toUriString();
+        System.out.println(urlMoneyParam);
+        ResponseEntity<String> responseMoneyShip = restTemplate.exchange(urlMoneyParam, HttpMethod.GET, entity, String.class);
+        String responseBodyMoneyShip = responseMoneyShip.getBody();
+        // Phân tích cú pháp JSON
+        ObjectMapper objectMapperMoneyShip = new ObjectMapper();
+        try {
+            JsonNode jsonNode = objectMapperMoneyShip.readTree(responseBodyMoneyShip);
+            JsonNode dataNodeMoneyShip = jsonNode.get("data");
+            System.out.println(dataNodeMoneyShip.get("total").asText());
+            moneyShip = Integer.parseInt(dataNodeMoneyShip.get("total").asText());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        bill.setShipMoney(BigDecimal.valueOf(moneyShip));
+
+        BigDecimal intoMoney = BigDecimal.valueOf(insuranceValue)
+                .subtract(bill.getVoucherMoney())
+                .add(BigDecimal.valueOf(moneyShip));
+        bill.setIntoMoney(intoMoney);
+        bill.setTotalMoney(BigDecimal.valueOf(insuranceValue));
+        update(bill);
+        return true;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> billAddProductNew(List<BillDetailsRequest> lstBillDetailsDto, Long id) {
+        ResponseEntity<ResponseObject> result = countersAddProduct(lstBillDetailsDto, id);
+        updateChangeMoneyBill(id);
+        return result;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> chaneQuantityBillToBillDetails(BillDetailsRequest billDetailsRequest, Long idBill, Long idBillDetail) {
+        ResponseEntity<ResponseObject> result = chaneQuantityBillDetails(billDetailsRequest, idBillDetail);
+        updateChangeMoneyBill(idBill);
+        return result;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> deleteBillToBillDetail(Long idBill, Long idBillDetail) {
+        ResponseEntity<ResponseObject> result = billDeleteBillDetail(idBillDetail);
+        updateChangeMoneyBill(idBill);
+        return result;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> addHistorybill(HistoryBillRequest historyBillRequest, Long idBill) {
+        Optional<Bill> optionalBill = billRepo.findById(idBill);
+        if (optionalBill.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, idBill), HttpStatus.BAD_REQUEST);
+        }
+        Bill bill = optionalBill.get();
+        HistoryBill historyBill = mapper.map(historyBillRequest, HistoryBill.class);
+        historyBill.setBill(bill);
+        for (TrangThaiBill trangThai : TrangThaiBill.values()) {
+            if (trangThai.name().equals(historyBillRequest.getType()) || trangThai.getLabel().equals(historyBillRequest.getType())) {
+                historyBill.setType(trangThai.getLabel());
+                bill.setStatus(trangThai.getLabel());
+                break;
+            }
+        }
+        update(bill);
+        return historyBillService.update(historyBill);
     }
 
 }

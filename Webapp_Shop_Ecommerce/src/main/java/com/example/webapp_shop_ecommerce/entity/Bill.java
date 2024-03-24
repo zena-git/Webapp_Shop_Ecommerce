@@ -41,6 +41,12 @@ public class Bill extends BaseEntity{
     @Column(name = "into_money")
     private BigDecimal intoMoney;
 
+    @Column(name = "ship_money")
+    private BigDecimal shipMoney;
+
+    @Column(name = "voucher_money")
+    private BigDecimal voucherMoney;
+
     @Column(name = "status")
     private String status;
 
@@ -76,7 +82,8 @@ public class Bill extends BaseEntity{
 
     @Column(name = "receiver_province")
     private String receiverProvince;
-
+    @Column(name = "description")
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -93,5 +100,13 @@ public class Bill extends BaseEntity{
     @OneToMany(mappedBy = "bill")
     @JsonIgnore
     Set<VoucherDetails> lstVoucherDetails;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<HistoryBill> lstHistoryBill;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<PaymentHistory> lstPaymentHistory;
 
 }

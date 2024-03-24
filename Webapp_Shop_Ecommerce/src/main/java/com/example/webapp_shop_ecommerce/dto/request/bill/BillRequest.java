@@ -23,6 +23,8 @@ public class BillRequest {
     private BigDecimal digitalCurrency;
     private BigDecimal totalMoney;
     private BigDecimal intoMoney;
+    private BigDecimal shipMoney;
+    private BigDecimal voucherMoney;
     private String status;
     private Date bookingDate;
     private Date paymentDate;
@@ -36,7 +38,9 @@ public class BillRequest {
     private String receiverDistrict;
     private String receiverProvince;
     private Long customer;
-//    private List<Long> lstCartDetails;
+    private String description;
+
+    //    private List<Long> lstCartDetails;
     private List<CartDetails> lstCartDetails;
 
 

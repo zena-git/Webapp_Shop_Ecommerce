@@ -59,7 +59,6 @@ public class AddressServiceImpl extends BaseServiceImpl<Address, Long, IAddressR
         Customer customer = opt.get();
         Address address = optionalAddress.get();
         address =   mapper.map(request, Address.class);
-        address.setDefaultAddress(false);
         address.setId(id);
         address.setCustomer(customer);
         update(address);
