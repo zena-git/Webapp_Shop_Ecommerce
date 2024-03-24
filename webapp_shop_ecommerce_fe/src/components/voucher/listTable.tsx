@@ -1,4 +1,4 @@
-import { Tag } from 'antd/lib'
+import { Tag, Checkbox } from 'antd/lib'
 import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
@@ -19,7 +19,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "~/components/ui/button"
-import { Checkbox } from "~/components/ui/checkbox"
+// import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -66,19 +66,17 @@ export default function ListTable() {
             id: "select",
             header: ({ table }) => (
                 <Checkbox
-                    //@ts-ignore
                     checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                        table.getIsAllPageRowsSelected()
                     }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.value)}
                     aria-label="Select all"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    onChange={(value) => row.toggleSelected(!!value.target.value)}
                     aria-label="Select row"
                 />
             ),

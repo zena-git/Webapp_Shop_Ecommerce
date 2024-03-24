@@ -25,6 +25,8 @@ public class CustomerResponse {
     private Boolean gender;
     private String phone;
 
+    private String email;
+
     private AddressResponse defaultAddress;
 
 //    private String username;

@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Select } from 'antd/lib';
+import { DatePicker, InputNumber, Select, Button } from 'antd/lib';
 import { Input } from "../../components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState, useMemo } from 'react';
@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
-import { Button } from '~/components/ui/button';
+// import { Button } from '~/components/ui/button';
 import {
     Form,
     FormControl,
@@ -22,7 +22,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl } from '../../lib/functional'
+import { baseUrl, nextUrl } from '../../lib/functional'
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -133,12 +133,28 @@ export default function AddCustomer() {
         });
     };
 
+    const handleChangeReceiverPhone = (key, newValue) => {
+        try {
+            setListAddress(prev => {
+                return prev.map(address => {
+                    if (address.key === key) {
+                        return { ...address, phone: newValue };
+                    }
+                    return address;
+                });
+            });
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const columns = useMemo(() => [
         {
             accessorKey: "key",
             header: "#",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.original.key}</div>
+            cell: ({ row }) => (<>
+                {row.original && <div className="capitalize">{row.original.key}</div>}
+            </>
             ),
         },
         {
@@ -147,6 +163,7 @@ export default function AddCustomer() {
                 return (
                     <Button
                         variant="ghost"
+                        className='flex items-center'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         tên người nhận
@@ -155,15 +172,15 @@ export default function AddCustomer() {
                 )
             },
             cell: ({ row }) => <div className="lowercase">
-                <Input value={row.original.receivername} onChange={e => handleChangeReceiverName(row.original.key, e.target.value)} />
+                {row.original && <Input value={row.original.receivername} onChange={e => handleChangeReceiverName(row.original.key, e.target.value)} />}
             </div>,
         },
         {
             accessorKey: "phone",
-            header: () => <div className="text-center"></div>,
+            header: () => <div className="text-center">số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    <Input value={row.original.phone} onChange={e => { setListAddress(prev => { return prev.map(target => { if (target.key == row.original.key) return { ...target, phone: e.target.value } }); }) }} />
+                    {row.original && <Input value={row.original.phone} onChange={e => { handleChangeReceiverPhone(row.original.key, e.target.value) }} />}
                 </div>
             },
         },
@@ -172,11 +189,11 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    <Select placeholder='Tỉnh/ Thành phố' value={row.original.province} onChange={value => { setAddProvinceP(value, row.original.key); }}>
+                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.province} onChange={value => { setAddProvinceP(value, row.original.key); }}>
                         {vnData.map((province) => {
                             return <option key={province.code} value={province.name}>{province.name}</option>
                         })}
-                    </Select>
+                    </Select>}
                 </div>
             },
         },
@@ -185,13 +202,13 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Quận/ huyện</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    <Select placeholder='Tỉnh/ Thành phố' value={row.original.district} onChange={value => { setAddDistrictP(value, row.original.key); }}>
+                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.district} onChange={value => { setAddDistrictP(value, row.original.key); }}>
                         {
                             listDistricts.map(district => {
                                 return <option key={district.code} value={district.name}>{district.name}</option>
                             })
                         }
-                    </Select>
+                    </Select>}
                 </div>
             },
         },
@@ -200,13 +217,14 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Xã/ phường</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    <Select placeholder='Tỉnh/ Thành phố' value={row.original.commune} onChange={value => { setAddCommuneP(value, row.original.key); }}>
+                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.commune} onChange={value => { setAddCommuneP(value, row.original.key); }}>
                         {
                             listWards.map(ward => {
                                 return <option key={ward.code} value={ward.name}>{ward.name}</option>
                             })
                         }
                     </Select>
+                    }
                 </div>
             },
         }, {
@@ -218,7 +236,7 @@ export default function AddCustomer() {
                     <div className="flex justify-center">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                <Button type='primary' variant="ghost" className="h-8 w-8 p-0 flex justify-center items-center">
                                     <DotsHorizontalIcon className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -276,14 +294,17 @@ export default function AddCustomer() {
 
     const handleSubmitForm = (values) => {
         const data = { ...values, birthDay: birthDay }
-        axios.put(`${baseUrl}/customer`, data).then(res => {
-            listAddress.map(add => {
-                axios.post(`${baseUrl}/address`, { ...add, customer: res.data.data.id, defaultAddress: false })
+        axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
+            const promises = listAddress.map(add => {
+                return axios.get(`${nextUrl}/address?receiverName=${add.receivername}&receiverPhone=${add.phone}&customer=${res.data.data.id}&detail=${add.detail}&commune=${add.commune}&district=${add.district}&province=${add.province}&defaultAddress=${false}`)
             })
-            toast.success('thêm khách hàng thành công');
-            setTimeout(() => {
-                navigate(`/user/customer/detail/${res.data.data.id}`)
-            }, 2000)
+            return Promise.all(promises)
+                .then(() => {
+                    toast.success('cập nhật khách hàng thành công');
+                    setTimeout(() => {
+                        navigate(`/user/customer/detail/${res.data.data.id}`)
+                    }, 2000);
+                });
         })
     }
 
@@ -412,9 +433,9 @@ export default function AddCustomer() {
                             )}
                         />
 
-                        <Button onClick={handleAddAddress}>Thêm địa chỉ mới</Button>
+                        <Button type='primary' onClick={handleAddAddress}>Thêm địa chỉ mới</Button>
 
-                        <div className="rounded-md border">
+                        <div className="rounded-md border bg-white p-3">
                             <Table>
                                 <TableHeader>
                                     {table.getHeaderGroups().map((headerGroup) => (
@@ -471,6 +492,7 @@ export default function AddCustomer() {
                             </div>
                             <div className="space-x-2">
                                 <Button
+                                    type='primary'
                                     variant="outline"
                                     size="sm"
                                     onClick={() => table.previousPage()}
@@ -479,6 +501,7 @@ export default function AddCustomer() {
                                     Previous
                                 </Button>
                                 <Button
+                                    type='primary'
                                     variant="outline"
                                     size="sm"
                                     onClick={() => table.nextPage()}
@@ -490,7 +513,7 @@ export default function AddCustomer() {
                         </div>
 
                         <div className='flex gap-4'>
-                            <Button type="submit" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật khách hàng</Button>
+                            <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật khách hàng</Button>
                         </div>
                     </form>
                 </Form>

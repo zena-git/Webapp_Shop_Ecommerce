@@ -1,4 +1,4 @@
-import { Tag } from 'antd/lib'
+import { Tag, Checkbox } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "~/components/ui/button"
-import { Checkbox } from "~/components/ui/checkbox"
+// import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -86,12 +86,12 @@ export default function ListTable({ data }) {
                         table.getIsAllPageRowsSelected() ||
                         (table.getIsSomePageRowsSelected() && "indeterminate")
                     }
-                    onCheckedChange={(value) => dispatch(set({
+                    onChange={(value) => dispatch(set({
                         value: {
                             selected: data.map(product => {
                                 return {
-                                    id: product.id, selected: !!value, children: product.lstProductDetails.map(detail => {
-                                        return { id: detail.id, selected: !!value }
+                                    id: product.id, selected: !!value.target.value, children: product.lstProductDetails.map(detail => {
+                                        return { id: detail.id, selected: !!value.target.value }
                                     })
                                 }
                             })
@@ -103,7 +103,7 @@ export default function ListTable({ data }) {
             cell: ({ row }) => (
                 <Checkbox
                     checked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
-                    onCheckedChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value })) }}
+                    onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.value })) }}
                     aria-label="Select row"
                 />
             ),
@@ -192,8 +192,8 @@ export default function ListTable({ data }) {
                                             key={column.id}
                                             className="capitalize"
                                             checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
+                                            onChange={(value) =>
+                                                column.toggleVisibility(!!value.target.value)
                                             }
                                         >
                                             {column.id}

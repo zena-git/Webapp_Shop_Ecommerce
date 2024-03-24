@@ -1,4 +1,4 @@
-import { Tag, Select } from 'antd/lib'
+import { Tag, Select, Checkbox } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -19,7 +19,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "~/components/ui/button"
-import { Checkbox } from "~/components/ui/checkbox"
+// import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -78,28 +78,24 @@ export default function ListTable() {
             id: "select",
             header: ({ table }) => (
                 <Checkbox
-                    //@ts-ignore
                     checked={
                         selectedCustomer.length > 0 && (
-                            selectedCustomer.every(cus => cus.selected) ||
-                            (selectedCustomer.some(cus => cus.selected) && "indeterminate")
+                            selectedCustomer.every(cus => cus.selected)
                         )
                     }
-                    onCheckedChange={(value) => dispatch(set({
+                    onChange={(value) => dispatch(set({
                         value: {
                             selected: listCustomer.map(cus => {
-                                return { id: cus.id, selected: !!value }
+                                return { id: cus.id, selected: !!value.target.value }
                             })
                         }
                     }))}
-                    aria-label="Select all"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={(selectedCustomer.find(value => value.id === row.getValue("id"))?.selected || false)}
-                    onCheckedChange={(value) => { row.toggleSelected(!!value); dispatch(updateSelected({ id: row.getValue("id"), selected: !!value })) }}
-                    aria-label="Select row"
+                    onChange={(value) => { row.toggleSelected(!!value.target.value); dispatch(updateSelected({ id: row.getValue("id"), selected: !!value.target.value })) }}
                 />
             ),
             enableSorting: false,
@@ -131,23 +127,17 @@ export default function ListTable() {
             accessorKey: "email",
             header: () => <div className="text-center">email</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("email")}</div>
+                return <div className='flex justify-center'>{row.original.email}</div>
             },
         },
         {
             accessorKey: "birthday",
             header: () => <div className="text-center">sinh nhật</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("birthday")}</div>
+                return <div className='flex justify-center'>{row.original.birthday ? row.original.birthday.toString() : ''}</div>
             },
         },
         {
-            accessorKey: "address",
-            header: () => <div className="text-center">địa chỉ</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.getValue("address")}</div>
-            },
-        }, {
             id: "hành động",
             enableHiding: false,
             header: () => <div className="text-center">hành động</div>,

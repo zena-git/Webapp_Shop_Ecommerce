@@ -89,8 +89,7 @@ function ProductAdd() {
             key: 'price',
             render: (text, record) => (
                 <InputNumber
-                    defaultValue={record.price}
-                    min={1000}
+                    value={record.price}
                     formatter={(value) => `${value}VNĐ`}
                     parser={(value) => value.replace('VNĐ', '')}
                     onChange={(value) => onChangePrice(record.key, value)}
@@ -102,7 +101,7 @@ function ProductAdd() {
             dataIndex: 'quantity',
             key: 'quantity',
             render: (text, record) => (
-                <InputNumber min={1} defaultValue={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+                <InputNumber min={1} value={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
             ),
         },
         {
@@ -582,20 +581,14 @@ function ProductAdd() {
     };
 
     const onChangeQuantityPriceCustom = () => {
-
-        const updatedProductList = dataRowProductDetail.map(product => {
-            if (selectedRowKeys.includes(product.key)) {
-                return {
-                    ...product,
-                    price: valueInputPriceCustom,
-                    quantity: valueInputQuantityCustom,
-                };
+        let t = dataRowProductDetail.map(pro => {
+            if (rowSelection.selectedRowKeys.find(slt => slt == pro.key)) {
+                return { ...pro, price: valueInputPriceCustom, quantity: valueInputQuantityCustom }
             }
-            return product;
-        });
-        console.log(updatedProductList);
-        // setDataRowProductDetail(updatedProductList);
-        fillDataProductDetail(updatedProductList)
+            return pro
+        })
+
+        fillDataProductDetail(t);
         setIsModalOpen(false);
     }
 

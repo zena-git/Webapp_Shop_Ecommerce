@@ -16,10 +16,8 @@ const VoucherPage = () => {
     return (
         <div className="py-6">
             <Link to={'/user/customer/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>Thêm khách hàng mới</Link>
-            <div>
-                <div className='mt-5'>
-                    <ListTable data={data} />
-                </div>
+            <div className='mt-5'>
+                <ListTable data={data} />
             </div>
         </div>
 

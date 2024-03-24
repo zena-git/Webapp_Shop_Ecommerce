@@ -1,5 +1,5 @@
 "use client"
-import { Tag } from 'antd/lib'
+import { Tag, Checkbox } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -20,7 +20,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "~/components/ui/button"
-import { Checkbox } from "~/components/ui/checkbox"
+// import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -83,7 +83,8 @@ export default function ListTable() {
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    onChange={(value) => row.toggleSelected(!!value.target.value)}
+                    // onCheckedChange={}
                     aria-label="Select row"
                 />
             ),
