@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
-
 const { TextArea } = Input;
 
 const tagRender = (props) => {
@@ -37,45 +36,24 @@ const getBase64 = (file) =>
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
     });
-const calculateRowSpan = (data, dataIndex, rowIndex) => {
-    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
-        return 0;
-    }
-    let count = 1;
-    for (let i = rowIndex + 1; i < data.length; i++) {
-        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
-            count++;
-        } else {
-            break;
+    const calculateRowSpan = (data, dataIndex, rowIndex) => {
+        if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
+            return 0;
         }
-    }
-    return count;
-};
-
-const findSameColor = (data, dataIndex, rowIndex) => {
-    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
-        return 0;
-    }
-    let count = [];
-    for (let i = rowIndex + 1; i < data.length; i++) {
-        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
-            count.push(data[i].id)
-        } else {
-            break;
+        let count = 1;
+        for (let i = rowIndex + 1; i < data.length; i++) {
+            if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
+                count++;
+            } else {
+                break;
+            }
         }
-    }
-    return count;
-}
-
+        return count;
+    };
+    
 function ProductUpdate() {
     const { id } = useParams();
     const [product, setProduct] = useState();
-
-    const [publicId, setPublicId] = useState("");
-    // Replace with your own cloud name
-    const [cloudName] = useState("db9i1b2yf");
-    // Replace with your own upload preset
-    const [uploadPreset] = useState("aoh4fpwm");
 
     const [dataRowProductDetail, setDataRowProductDetail] = useState([]);
     const [dataProductDetailOld, setDataProductDetailOld] = useState([]);
@@ -125,15 +103,14 @@ function ProductUpdate() {
             .then(response => {
                 console.log(response.data);
                 setProduct(response.data);
+                fillDataProduct(response.data);
             })
             .catch(error => console.error(error));
+        console.log(id);
     }, [id]);
 
-    useEffect(() => {
-        product && fillDataProduct(product)
-    }, [product])
-
     const fillDataProduct = (pro) => {
+        console.log(pro);
         setValueCodeProduct(pro.code);
         setValueNameProduct(pro.name);
         setValueDecProduct(pro.description);
@@ -172,6 +149,7 @@ function ProductUpdate() {
         const dataCustom = [...dataProductDetailOld, ...dataProductDetailNew]
         setDataRowProductDetail(dataCustom)
     }, [dataProductDetailOld, dataProductDetailNew])
+
 
     const columnsTable = [
         {
@@ -248,45 +226,19 @@ function ProductUpdate() {
             key: 'imageUrl',
             render: (text, record, index, imageUrl) => {
                 // Kiểm tra xem rowSpan cho record.index đã được đặt chưa, nếu chưa thì đặt mặc định là 1
-                const same = findSameColor(dataRowProductDetail, 'color', index)
                 const rowSpan = calculateRowSpan(dataRowProductDetail, 'color', index);
 
                 return {
                     children: (
-                        <div className='flex gap-2 items-center'>
-                            <Upload
+                        <>
+                        <h2>sadasd</h2>
+                            {/* <Upload
+                                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                                 listType="picture-card"
-                                fileList={record.imageUrl && record.imageUrl[0] && record.imageUrl[0].split(" | ").map((url, index) => {
-                                    return {
-                                        uid: index,
-                                        name: index,
-                                        status: 'done',
-                                        url: url
-                                    }
-                                })}
+                                fileList={record.imageUrl}
                                 multiple
-                                method='POST'
-                                customRequest={(q) => {
-                                    const formData = new FormData();
-                                    formData.append("file", q.file);
-                                    formData.append("cloud_name", "db9i1b2yf")
-                                    formData.append("upload_preset", "product")
-                                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-                                        // res.data.image là ra cái link ảnh đã upload lên cloud
-                                        alert("upload image successfully" + res.data.url)
-                                        axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.url}`).then((response) => {
-                                            //response.data là cái data của productDetail đã được update lại image url
-                                            console.log("updated Detail: " + JSON.stringify(response.data))
-                                        })
-                                        same.map(idSame => {
-                                            axios.get(`http://localhost:8081/api/productDetail/update/image?id=${idSame}&imageUrl=${res.data.url}`).then((response) => {
-                                                //response.data là cái data của product đã được update lại image url
-                                                console.log("updatedSameDetail :" + JSON.stringify(response.data))
-                                            })
-                                        })
-                                    })
-                                }}
                                 onPreview={handlePreviewImg}
+                                onChange={handleChangeImg}
                             >
                                 {record.imageUrl.length >= 6 ? null : uploadButton}
                             </Upload>
@@ -298,9 +250,9 @@ function ProductUpdate() {
                                     }}
                                     src={previewImage}
                                 />
-                            </Modal>
+                            </Modal> */}
 
-                        </div>
+                        </>
                     ),
                     props: {
                         rowSpan: rowSpan,  // Sử dụng rowSpan cho dòng hiện tại
@@ -695,7 +647,7 @@ function ProductUpdate() {
         setLoading(true);
         try {
             const lstProductDetails = dataRowProductDetail.map((product) => ({
-                id: product.id,
+                id:product.id,
                 barcode: product.barcode,
                 status: product.status,
                 // imageUrl: [...product.imageUrl],
@@ -776,90 +728,64 @@ function ProductUpdate() {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
-    const handleCancelImg = () => setPreviewOpen(false);
-    const handlePreviewImg = async (file) => {
-        if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
+    const [fileList, setFileList] = useState([
+        {
+            uid: '-1',
+            name: 'image.png',
+            status: 'done',
+            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        },
+        {
+            uid: '-2',
+            name: 'image.png',
+            status: 'done',
+            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
         }
-        setPreviewImage(file.url || file.preview);
-        setPreviewOpen(true);
-        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
-    };
-    const uploadButton = (
-        <button
-            style={{
-                border: 0,
-                background: 'none',
-            }}
-            type="button"
-        >
-            <PlusOutlined />
-            <div
-                style={{
-                    marginTop: 8,
-                }}
-            >
-                Upload
-            </div>
-        </button>
-    );
+    ]);
+    // const handleCancelImg = () => setPreviewOpen(false);
+    // const handlePreviewImg = async (file) => {
+    //   if (!file.url && !file.preview) {
+    //     file.preview = await getBase64(file.originFileObj);
+    //   }
+    //   setPreviewImage(file.url || file.preview);
+    //   setPreviewOpen(true);
+    //   setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    // };
+    // const handleChangeImg = ({ fileList: newFileList }) => setFileList(newFileList);
+    // const uploadButton = (
+    //     <button
+    //       style={{
+    //         border: 0,
+    //         background: 'none',
+    //       }}
+    //       type="button"
+    //     >
+    //       <PlusOutlined />
+    //       <div
+    //         style={{
+    //           marginTop: 8,
+    //         }}
+    //       >
+    //         Upload
+    //       </div>
+    //     </button>
+    //   );
     return (
         <div className='bg-white p-4'>
             <div>
-                <div className='grid grid-cols-2 gap-3'>
-                    <div className='mb-3'>
-                        <div className='flex gap-2 items-center mb-3'>
-                            <p>Danh sách ảnh</p>
-                        </div>
-                        <div className='flex gap-2 items-center'>
-                            {product && product.imageUrl && product.imageUrl.split(" | ").map(img => {
-                                return <img className='w-40 aspect-square rounded-sm' src={img}></img>
-                            })}
-
-                            <Upload
-                                method='POST'
-                                className='w-40 h-40 flex items-center justify-center border-dashed border-[1px] border-slate-600 rounded-lg'
-                                customRequest={(q) => {
-                                    const formData = new FormData();
-                                    formData.append("file", q.file);
-                                    formData.append("cloud_name", "db9i1b2yf")
-                                    formData.append("upload_preset", "product")
-
-                                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-                                        axios.get(`http://localhost:8081/api/product/update/image?id=${id}&imageUrl=${res.data.url}`).then((response) => {
-                                            //response.data là cái data của product đã được update lại image url
-                                            setProduct(prev => {
-                                                return { ...prev, imageUrl: response.data.image_url }
-                                            });
-                                            alert("upload image successfully")
-                                        })
-                                    })
-                                }}
-                            >
-                                Tải ảnh lên
-                            </Upload>
-                        </div>
-                    </div>
-                    <div>
-                        <div className='grid grid-cols-2 gap-3'>
-                            <div>
-                                <label>Mã Sản Phẩm</label>
-                                <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
-                            </div>
-                            <div>
-                                <label>Tên Sản Phẩm</label>
-                                <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
-                            </div>
-
-                        </div>
-                        <div className=''>
-                            <label>Mô Tả Sản Phẩm</label>
-                            <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
-                        </div>
-                    </div>
-
+                <div>
+                    <label>Mã Sản Phẩm</label>
+                    <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
                 </div>
 
+                <div>
+                    <label>Tên Sản Phẩm</label>
+                    <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
+                </div>
+                <div>
+                    <label>Mô Tả Sản Phẩm</label>
+                    <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
+                </div>
                 <div className='grid grid-cols-4 gap-4 my-4'>
                     <div>
                         <label>Loại</label>

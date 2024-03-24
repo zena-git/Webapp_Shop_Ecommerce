@@ -15,6 +15,7 @@ import { set, updateSelected } from '~/redux/features/promotion-selected-item'
 import { Label } from "~/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Button } from '../../components/ui/button'
+import { ToastContainer, toast } from 'react-toastify';
 const { RangePicker } = DatePicker
 function EditPage() {
 
@@ -45,11 +46,11 @@ function EditPage() {
         if (!date) {
 
         } else if (name.trim().length == 0) {
-            alert('chưa nhập tên chương trình')
+            toast.error('chưa nhập tên chương trình')
         } else if (PromotionType == "1" && lst.length == 0) {
-            alert('chưa chọn sản phẩm nào')
+            toast.error('chưa chọn sản phẩm nào')
         } else if (value.toString().trim().length == 0) {
-            alert('đặt mức giảm giá')
+            toast.error('đặt mức giảm giá')
         } else {
             let t = [];
             listProduct.map(pro => {
@@ -65,7 +66,7 @@ function EditPage() {
                 endDate: dayjs(date[1]).toDate(),
                 lstProductDetails: PromotionType == "0" ? t : lst
             }).then(res => {
-                alert('Thêm thành công')
+                toast.success('Thêm thành công')
                 navigate(`/discount/promotion`)
             })
         }
@@ -114,6 +115,7 @@ function EditPage() {
             <div className='flex-grow bg-slate-50 px-3 rounded-lg h-fit'>
                 <ListDetailProduct data={listProduct} />
             </div>
+            <ToastContainer/>
         </div>
     )
 }

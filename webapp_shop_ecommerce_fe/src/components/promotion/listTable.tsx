@@ -241,7 +241,7 @@ export default function ListTable() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border">
+                <div className="rounded-md border bg-white p-3">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (

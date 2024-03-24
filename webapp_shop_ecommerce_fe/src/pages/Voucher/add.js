@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl } from '~/lib/functional';
-import { useToast } from '~/components/ui/use-toast';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
@@ -26,6 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import ListCustomer from '../../components/voucher/listCustomer'
 import { useDispatch } from 'react-redux';
 import { set } from '../../redux/features/voucher-selected-item';
+import { ToastContainer, toast } from 'react-toastify';
 const { RangePicker } = DatePicker
 
 const formSchema = z.object({
@@ -113,7 +113,7 @@ const VoucherPage = () => {
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
             }).then(res => {
-                alert("Đã tạo voucher thành công")
+                toast.success("Đã tạo voucher thành công")
             })
         } else {
             if (selectedCustomer.length > 0) {
@@ -130,10 +130,10 @@ const VoucherPage = () => {
                     endDate: date[1].toDate(),
                     lstCustomer: selectedCustomer.map(val => { return val.id })
                 }).then(res => {
-                    alert("Đã tạo voucher thành công")
+                    toast.success("Đã tạo voucher thành công")
                 })
             } else {
-                alert("chưa chọn khách hàng nào")
+                toast.error("chưa chọn khách hàng nào")
             }
         }
 
@@ -306,6 +306,7 @@ const VoucherPage = () => {
                         <div className='flex-grow'>
                             <ListCustomer data={listCustomer} />
                         </div>
+                        <ToastContainer />
                     </div>
                 </div>
             </div>

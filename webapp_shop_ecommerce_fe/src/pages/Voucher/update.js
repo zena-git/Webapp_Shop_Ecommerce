@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from 'axios';
 import { baseUrl, nextUrl } from '~/lib/functional';
-import { useToast } from '~/components/ui/use-toast';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
@@ -28,6 +27,7 @@ import ListCustomer from '../../components/voucher/listCustomer'
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { set, updateSelected } from '../../redux/features/voucher-selected-item';
+import { ToastContainer, toast } from 'react-toastify';
 const { RangePicker } = DatePicker
 
 const formSchema = z.object({
@@ -58,7 +58,6 @@ const formSchema = z.object({
 
 const VoucherPage = () => {
 
-    const { toast } = useToast();
     const path = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -136,7 +135,7 @@ const VoucherPage = () => {
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
             }).then(res => {
-                alert("Đã cập nhật voucher thành công")
+                toast.success("Đã cập nhật voucher thành công")
                 navigate(`/discount/voucher/detail/${path.id}`)
             })
         } else {
@@ -155,12 +154,12 @@ const VoucherPage = () => {
                     endDate: date[1].toDate(),
                     lstCustomer: selectedCustomer.map(val => { return val.id })
                 }).then(res => {
-                    alert("Đã cập nhật voucher thành công");
+                    toast.success("Đã cập nhật voucher thành công");
                     navigate(`/discount/voucher/detail/${path.id}`)
                 })
             } else {
                 toast({ title: 'chưa chọn khách hàng nào' })
-                alert("chưa chọn khách hàng nào")
+                toast.error("chưa chọn khách hàng nào")
             }
         }
 
@@ -169,7 +168,7 @@ const VoucherPage = () => {
     const DisableVoucher = () => {
         if (targetVoucher) {
             axios.get(`${nextUrl}/voucher/disable?voucherId=${targetVoucher?.id}`).then(res => {
-                alert('ok')
+                toast.success('thao tác thành công')
             })
         }
     }
@@ -343,6 +342,7 @@ const VoucherPage = () => {
                         <div className='flex-grow'>
                             <ListCustomer />
                         </div>
+                        <ToastContainer />
                     </div>
 
                 </div>

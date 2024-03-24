@@ -43,7 +43,7 @@ const App = () => {
     }, [path.id])
 
     const handleNext = () => {
-        
+
     }
 
 
@@ -61,7 +61,7 @@ const App = () => {
                     <button className='px-2 py-1 bg-red-500 text-sm font-semibold text-slate-100 border border-slate-700 rounded-sm'>Từ chối</button>
                 </div>
             </div>
-            <div className='px-3 py-2 bg-white'>
+            <div className='px-3 pb-2 pt-5 rounded-md bg-white'>
                 <Steps
                     items={
                         [...lstHistoryBill.map(history => {
@@ -82,8 +82,9 @@ const App = () => {
                 />
             </div>
             <CustomerBlock targetOrder={targetOrder} />
-
-            <RenderTable lstBillDetail={lstBillDetails} />
+            <div className='bg-white p-3 rounded-md'>
+                <RenderTable lstBillDetail={lstBillDetails} />
+            </div>
         </div>
     )
 }
@@ -93,7 +94,7 @@ const CustomerBlock = ({ targetOrder }) => {
     if (targetOrder) {
         if (targetOrder.customer) {
             return (
-                <div className='flex w-full bg-white px-3 py-2'>
+                <div className='flex w-full bg-white px-3 py-5 rounded-md'>
                     <div className='w-1/2'>
                         <p>Thông tin khách hàng</p>
                         <div className='flex gap-3 items-center'>

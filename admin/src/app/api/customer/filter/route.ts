@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
 
             const listId = recentBills.map(bill => bill.customer_id!.toString())
             // Step 2 & 3: Trích xuất và loại bỏ các customer_id trùng lặp
+            //@ts-ignore
             const uniqueCustomerIds = [...new Set(listId)];
 
             // Step 4: Tìm thông tin của các khách hàng dựa trên danh sách các customer_id

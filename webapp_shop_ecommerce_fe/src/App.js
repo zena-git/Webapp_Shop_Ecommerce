@@ -9,7 +9,7 @@ import DefaultLayout from './components/Layout/DefaultLayout';
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="App ">
         {/* <DefaultLayout> */}
         <Routes>
           {privateRouter.map(

@@ -2,22 +2,15 @@ import Product from '~/pages/Product';
 import ProductAdd from '~/pages/Product/add';
 import ProductUpdate from '~/pages/Product/update';
 import ProductDetail from '~/pages/Product/detail';
-
+import Bill from '~/pages/Bill';
+import BillDetails from '~/pages/Bill/details';
 import Order from '~/pages/Order';
-import OrderDetail from '~/pages/Order/detail'
-import Sale from '~/pages/Sale';
-
 import Category from '~/pages/Category'
 import Style from '~/pages/Style'
 import Brand from '~/pages/Brand'
 import Material from '~/pages/Material'
 import Size from '~/pages/Size'
 import Color from '~/pages/Color'
-
-import Customer from '~/pages/Customer'
-import CustomerDetail from '~/pages/Customer/detail'
-import CustomerAdd from '~/pages/Customer/add'
-import CustomerUpdate from '~/pages/Customer/update'
 import User from '~/pages/User'
 import Home from '~/pages/Home';
 import Default from '~/pages/Default';
@@ -31,6 +24,11 @@ import Voucher from '~/pages/Voucher'
 import VoucherAdd from '~/pages/Voucher/add'
 import VoucherDetail from '~/pages/Voucher/detail'
 import VoucherUpdate from '~/pages/Voucher/update'
+
+import Customer from '~/pages/Customer'
+import CustomerDetail from '~/pages/Customer/detail'
+import CustomerAdd from '~/pages/Customer/add'
+import CustomerUpdate from '~/pages/Customer/update'
 const publicRouter = [
 
 ];
@@ -47,10 +45,12 @@ const privateRouter = [
     { path: '/product/size', component: Size },
     { path: '/product/color', component: Color },
     { path: '/product/category', component: Category },
-    { path: '/order', component: Order },
-    { path: '/order/detail/:id', component: OrderDetail },
-    { path: '/sale', component: Sale },
+    { path: '/bill', component: Bill },
+    { path: '/bill/bill-detail/:id', component: BillDetails },
 
+    { path: '/user/staff', component: User },
+    { path: '/user/customer', component: Customer },
+    { path: '/*', component: Default },
     { path: '/discount/voucher', component: Voucher },
     { path: '/discount/voucher/update/:id', component: VoucherUpdate },
     { path: '/discount/voucher/add', component: VoucherAdd },
@@ -66,8 +66,6 @@ const privateRouter = [
     { path: '/user/customer/add', component: CustomerAdd },
     { path: '/user/customer/detail/:id', component: CustomerDetail },
     { path: '/user/customer/update/:id', component: CustomerUpdate },
-    
-    { path: '/*', component: Default },
 ];
 
 export { publicRouter, privateRouter };

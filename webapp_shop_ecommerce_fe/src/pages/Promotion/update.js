@@ -11,6 +11,7 @@ import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { set, updateSelected, toggleChildren } from '~/redux/features/promotion-selected-item'
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
+import { ToastContainer, toast } from 'react-toastify';
 const { TextArea } = Input
 
 const { RangePicker } = DatePicker
@@ -73,11 +74,11 @@ function EditPage() {
         if (!date) {
 
         } else if (name.trim().length == 0) {
-            alert('chưa nhập tên chương trình')
+            toast.error('chưa nhập tên chương trình')
         } else if (PromotionType == "1" && lst.length == 0) {
-            alert('chưa chọn sản phẩm nào')
+            toast.error('chưa chọn sản phẩm nào')
         } else if (value.toString().trim().length == 0) {
-            alert('đặt mức giảm giá')
+            toast.error('đặt mức giảm giá')
         } else {
             const t = {
                 id: path.id,
@@ -92,7 +93,7 @@ function EditPage() {
             }
 
             axios.put(`${baseUrl}/promotion/${t.id}`, t).then(res => {
-                alert(res.data.title)
+                toast.success("cập nhật thành công");
                 navigate(`/discount/promotion/detail/${targetPromotion.id}`)
             })
         }
@@ -141,6 +142,7 @@ function EditPage() {
             <div className='w-full'>
                 <ListDetailProduct data={listProduct} />
             </div>
+            <ToastContainer />
         </div>
     )
 
