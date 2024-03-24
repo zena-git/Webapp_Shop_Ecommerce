@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Tabs, Table, DatePicker, Radio, Input } from 'antd';
+import { Button, Tabs, Table, DatePicker, Radio, Input,Tag } from 'antd';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { SearchOutlined } from '@ant-design/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { } from '@fortawesome/free-solid-svg-icons';
 import { faEye } from '@fortawesome/free-regular-svg-icons';
+import { useDebounce } from '~/hooks';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
@@ -103,16 +104,26 @@ const columnsTable = [
 ];
 function Bill() {
 
-  const [lstBill, setLstBill, customer] = useState([]);
+  const [lstBill, setLstBill] = useState([]);
   const [dataColumBill, setDataColumBill] = useState([]);
   const [status, setStatus] = useState('');
+  const [search, setSearch] = useState('');
+  const [billType, setBillType] = useState('');
+  const [startDate, setStartDate] = useState('-1');
+  const [endDate, setEndDate] = useState('-1');
+
+  const debounceSearch = useDebounce(search.trim(), 500)
 
   const fetchDataBill = async () => {
 
     try {
       const response = await axios.get('http://localhost:8080/api/v1/bill', {
         params: {
-          status: status
+          status: status,
+          search: search,
+          billType: billType,
+          startDate: startDate,
+          endDate: endDate,
         }
       });
       console.log(response.data);
@@ -123,7 +134,7 @@ function Bill() {
   }
   useEffect(() => {
     fetchDataBill()
-  }, [status]);
+  }, [status,billType,startDate,endDate, debounceSearch]);
 
   useEffect(() => {
     fillDataColumBill(lstBill);
@@ -135,7 +146,9 @@ function Bill() {
         customer: data.customer == null ? "Khách Lẻ" : data.customer.fullName,
         receiverPhone: data.receiverPhone,
         intoMoney: data.intoMoney,
-        billType: data.billType,
+        billType: <>
+          {data.billType =="0"?<Tag color="#2db7f5">Online</Tag>: <Tag color="#108ee9">Offline</Tag>}
+        </>,
         createdDate: dayjs(data.createdDate).format('YYYY-MM-DD HH:mm:ss'),
         action: <Link to={`/bill/bill-detail/${data.id}`}> <span className='text-3xl '><FontAwesomeIcon icon={faEye}></FontAwesomeIcon> </span></Link>,
       }
@@ -175,20 +188,32 @@ function Bill() {
 
   const onRangeChange = (dates, dateStrings) => {
     if (dates) {
+      setStartDate(dateStrings[0])
+      setEndDate(dateStrings[1])
       // console.log('From: ', dates[0], ', to: ', dates[1]);
       console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
     } else {
+      setStartDate("-1")
+      setEndDate("-1")
       console.log('Clear');
     }
   };
 
+  const handleRadioChange = (e) => {
+    console.log(e.target.value);
+    setBillType(e.target.value);
+  }
 
+  const handleInputSearch = (e) => {
+    console.log(e.target.value);
+    setSearch(e.target.value);
+  }
   return (
     <>
       <div >
         <div>
           <h3>
-            Quản Lý Hóa Đơn
+            Quản Lý Đơn Hàng
           </h3>
         </div>
         <div className='bg-white p-4 mt-6 mb-10 shadow-lg pb-10'>
@@ -200,7 +225,7 @@ function Bill() {
           <div className='flex'>
             <div className='w-1/2 pl-10 pr-10 '>
               <div className='flex flex-col mt-4'>
-                <Input placeholder="Nhập mã hóa đơn hoặc số điện thoại" prefix={<SearchOutlined />} />
+                <Input placeholder="Nhập mã hóa đơn hoặc số điện thoại" prefix={<SearchOutlined />} value={search} onChange={handleInputSearch} />
               </div>
               <div className='flex flex-col mt-4'>
                 <label>Ngày Tạo</label>
@@ -214,7 +239,7 @@ function Bill() {
               <div className=' mt-4 ml-4'>
                 <label>Loại</label>
                 <div className='mt-2'>
-                  <Radio.Group defaultValue={""}>
+                  <Radio.Group defaultValue={""} onChange={handleRadioChange}>
                     <Radio value={""}>Tất Cả</Radio>
                     <Radio value={"0"}>Online</Radio>
                     <Radio value={"1"}>Offline</Radio>
@@ -238,11 +263,13 @@ function Bill() {
             <Tabs defaultActiveKey="-1" items={tabItems} onChange={onChange} />
           </div>
           <div>
-            <Table dataSource={dataColumBill} columns={columnsTable} />;
+            <Table dataSource={dataColumBill} columns={columnsTable} />
           </div>
         </div>
-
+        
+        <ToastContainer />
       </div>
+      
     </>
   );
 }

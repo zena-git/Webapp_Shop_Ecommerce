@@ -10,6 +10,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
+
+
 function Order() {
   const [activeKey, setActiveKeyBill] = useState();
   const [billNews, setBillNews] = useState();
@@ -30,6 +32,7 @@ function Order() {
   };
 
   useEffect(() => {
+    updateDataLstBill()
     updateDataProductDetails()
   }, [])
 

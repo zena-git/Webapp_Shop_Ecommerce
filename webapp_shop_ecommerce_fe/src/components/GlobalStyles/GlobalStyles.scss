@@ -32,12 +32,12 @@ body {
     font-weight: bold;
     font-size: 1.8rem;
 }
-:where(.css-dev-only-do-not-override-1k979oh).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover{
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
     color: var(--color-primary-bold);
     border-color: var(--color-primary-bold);
     background: #ffffff;
 }
-:where(.css-dev-only-do-not-override-1k979oh).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover{
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
     background: var(--color-primary-bold);
 }
 :where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item-selected,
@@ -101,12 +101,10 @@ body {
     background-color: #fff !important;
     color: var(--color-primary) !important;
 }
-:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper:hover{
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper:hover {
     color: var(--color-primary);
-
 }
 
-:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab:hover{
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab:hover {
     color: var(--color-primary);
-    
 }
