@@ -1,0 +1,105 @@
+.icon-hover-primary:hover {
+    border-color: #3b71ca !important;
+    background-color: white !important;
+}
+
+.icon-hover-primary:hover i {
+    color: #3b71ca !important;
+}
+
+.icon-hover-danger:hover {
+    border-color: #dc4c64 !important;
+    background-color: white !important;
+}
+
+.icon-hover-danger:hover i {
+    color: #dc4c64 !important;
+}
+
+.soluong-number-btn {
+    padding-right: 15px;
+}
+
+.soluong-number {
+    border-radius: 20px;
+}
+
+#root {
+    position: relative;
+}
+
+.container-buy-block {
+    position: fixed;
+    z-index: 2;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    /* Set width to 100% */
+}
+
+
+.delete-product-btn,
+.container-product-price {
+    margin: 0;
+}
+
+.container-product-link {
+    width: 180px;
+}
+
+.soluong-number-btn {
+    padding: 0;
+}
+
+.container-product-sotien {
+    width: auto;
+}
+
+.margin-product-cart {}
+
+.container-product-checkbox {
+    margin: 0;
+}
+
+.mr-45 {
+    margin-right: 50px;
+}
+
+.mr-15 {
+    margin-right: 15px;
+}
+
+.boder-button {
+    border: 1px solid;
+}
+
+.ml-15 {
+    margin-left: 15px;
+}
+
+.product-divider {
+    margin-bottom: 20px;
+    /* Điều chỉnh khoảng cách theo ý muốn */
+}
+
+.delete-product-btn:hover {
+    opacity: 0.8;
+    border: 1px solid #000;
+}
+
+.w-45 {
+    width: 45%;
+}
+
+.ms-size {
+    border: 1px solid #212529;
+    color: #212529;
+    border-radius: 10px;
+}
+
+.ms-size:hover {
+    background-color: #000;
+    opacity: 0.6;
+    color: #fff;
+    border: 1px solid #000;
+}

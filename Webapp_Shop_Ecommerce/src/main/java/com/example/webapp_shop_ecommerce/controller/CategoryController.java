@@ -7,12 +7,15 @@ import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import com.example.webapp_shop_ecommerce.entity.Category;
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.service.ICategoryService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,19 +61,29 @@ public class CategoryController {
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Category> otp = categoryService.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
         CategoryResponse category = otp.map(pro -> mapper.map(pro, CategoryResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveCategory(@RequestBody CategoryRequest categoryRequest) {
-        Optional<Category> otp = categoryService.findByName(categoryRequest.getName());
-        if (otp.isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ResponseObject> saveCategory(@Valid @RequestBody CategoryRequest categoryRequest, BindingResult result) {
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
-        return categoryService.createNew(mapper.map(categoryRequest, Category.class));
+        Optional<Category> otp = categoryService.findByName(categoryRequest.getName());
+        if (otp.isPresent()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+        }
+        Category category =mapper.map(categoryRequest, Category.class);
+        return categoryService.createNew(category);
     }
 
     @DeleteMapping("/{id}")
@@ -80,24 +93,30 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateCategory(@RequestBody CategoryRequest categoryRequest, @PathVariable("id") Long id) {
+    public ResponseEntity<ResponseObject> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest, @PathVariable("id") Long id , BindingResult result) {
+
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, categoryRequest), HttpStatus.BAD_REQUEST);
+        }
         System.out.println("Update ID: " + id);
-        Category Category = null;
+
         Optional<Category> otp = categoryService.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
         if (categoryService.findByName(categoryRequest.getName()).isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("Fail", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
-        if (otp.isPresent()) {
-            Category = otp.get();
-            Category = mapper.map(categoryRequest, Category.class);
-//            Category.setCodeCategory(otp.get().getCodeCategory());
-            return categoryService.update(Category);
-        }
-        return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+        Category category = otp.get();
+        category.setName(categoryRequest.getName());
+        return categoryService.update(category);
 
 
     }

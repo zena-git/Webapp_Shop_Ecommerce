@@ -1,0 +1,36 @@
+.row-order-management-timeline {
+  padding-bottom: 10px;
+  border: 1px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+
+  .button-update-timeline {
+    margin-left: 10px;
+  }
+  .row-top {
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
+    border-bottom: 1px solid #000; // You can use "#000" for black color
+
+    // h6 {
+    //   font-size: 18px;
+    // }
+    .button-edit {
+      text-align: right;
+      margin-bottom: 5px;
+    }
+  }
+  .row-botton {
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
+    p {
+      margin: 5px 0;
+      //   font-weight: bold;
+      padding: 5px 5px;
+    }
+  }
+}

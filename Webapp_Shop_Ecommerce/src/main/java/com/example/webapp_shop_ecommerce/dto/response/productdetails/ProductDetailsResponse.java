@@ -24,9 +24,11 @@ public class ProductDetailsResponse {
     private BigDecimal price;
     private Integer quantity;
     private String barcode;
-    private Integer status;
-    private ProductResponse product;
+    private String status;
     private SizeResponse size;
     private ColorResponse color;
+    private  Float weight;
+
+//    private ProductResponse product;
 
 }

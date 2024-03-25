@@ -1,0 +1,98 @@
+// .banner-img {
+//     width: 100%;
+// }
+
+// .card {
+//     margin: 20px;
+//     position: relative;
+// }
+
+// /* position: relative;
+// 	display: inline-block;
+// 	background: orange;
+// 	color: white;
+// 	height: 2.5rem;
+// 	width: 2.5rem;
+// 	text-align: center;
+// 	vertical-align: middle;
+// 	line-height: 2.5rem;
+// 	margin: 45vh 45vw;
+// 	transform: rotate(-20deg);
+// 	animation: beat 1s ease infinite alternate;
+// 	&:before,
+// 	&:after {
+// 		content:"";
+// 		position: absolute;
+// 		background: inherit;
+// 		height: inherit;
+// 		width: inherit;
+// 		top: 0;
+// 		left: 0;
+// 		z-index: -1;
+// 		transform: rotate(30deg);
+// 	}
+// 	&:after {
+// 		transform: rotate(60deg);
+// 	} */
+
+// .card {
+//     width: 200px;
+//     height: 300px;
+//     position: relative;
+//     border: 1px solid #BBB;
+//     background: #EEE;
+// }
+
+// .ribbon {
+//     position: absolute;
+//     right: -5px;
+//     top: -5px;
+//     z-index: 1;
+//     overflow: hidden;
+//     width: 75px;
+//     height: 75px;
+//     text-align: right;
+// }
+
+// .ribbon span {
+//     font-size: 10px;
+//     font-weight: bold;
+//     color: #FFF;
+//     text-transform: uppercase;
+//     text-align: center;
+//     line-height: 20px;
+//     transform: rotate(45deg);
+//     -webkit-transform: rotate(45deg);
+//     width: 100px;
+//     display: block;
+//     background: red;
+//     background: linear-gradient(red 0%, red 100%);
+//     box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 1);
+//     position: absolute;
+//     top: 19px;
+//     right: -21px;
+// }
+
+// .ribbon span::before {
+//     content: "";
+//     position: absolute;
+//     left: 0px;
+//     top: 100%;
+//     z-index: -1;
+//     border-left: 3px solid red;
+//     border-right: 3px solid transparent;
+//     border-bottom: 3px solid transparent;
+//     border-top: 3px solid red;
+// }
+
+// .ribbon span::after {
+//     content: "";
+//     position: absolute;
+//     right: 0px;
+//     top: 100%;
+//     z-index: -1;
+//     border-left: 3px solid transparent;
+//     border-right: 3px solid red;
+//     border-bottom: 3px solid transparent;
+//     border-top: 3px solid red;
+// }

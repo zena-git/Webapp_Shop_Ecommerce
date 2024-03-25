@@ -20,9 +20,7 @@ public class CustomerRequest {
     private String fullName;
     private Date birthday;
     private Boolean gender;
-    private String address;
     private String phone;
     private String email;
     private String username;
-    private String password;
 }

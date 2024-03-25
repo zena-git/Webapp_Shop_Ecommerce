@@ -1,6 +1,7 @@
 package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
+import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerAddressResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillResponse;
 import com.example.webapp_shop_ecommerce.entity.Customer;
@@ -54,13 +55,21 @@ public class CustomerController {
         List<CustomerResponse> resultDto = lstPro.stream().map(cto -> mapper.map(cto, CustomerResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
+    @GetMapping("/search")
+    public ResponseEntity<?> findCustomerSearch(@RequestParam(value = "keyWord", defaultValue = "") String keyWord ){
+
+        List<Customer> lstPro = customerService.findByNameAndPhone(keyWord);
+        List<CustomerResponse> resultDto = lstPro.stream().map(cto -> mapper.map(cto, CustomerResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
         Optional<Customer> otp = customerService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
-        CustomerResponse customer = otp.map(pro -> mapper.map(pro, CustomerResponse.class)).orElseThrow(IllegalArgumentException::new);
+        CustomerAddressResponse customer = otp.map(pro -> mapper.map(pro, CustomerAddressResponse.class)).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
     @PostMapping()

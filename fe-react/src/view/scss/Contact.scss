@@ -1,0 +1,74 @@
+// Contact.scss
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+.contact-container {
+  max-width: 100%;
+  margin: 0 auto; // Center the container
+  padding: 0px;
+  text-align: center; // Center text content
+  background-color: #f8f8f8; // Add a light background color
+  border-radius: 8px; // Add rounded corners
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); // Add a subtle box shadow
+}
+
+.w3-image.w3-greyscale-min {
+    max-width: 100%;
+    height: auto;
+    margin-top: 30px;
+    border: none;
+  }
+
+.contact-title {
+  margin-bottom: 16px; // Add spacing below the title
+  margin-top: 30px;
+}
+
+.contact-description {
+  opacity: 0.8;
+  margin-bottom: 32px; // Add spacing below the description
+}
+
+.contact-row {
+  display: flex;
+  flex-wrap: wrap; // Allow the items to wrap to the next line on smaller screens
+  justify-content: space-around; // Center the items horizontally with space around
+}
+
+.contact-info,
+.contact-form {
+  width: 48%;
+  margin-bottom: 16px; // Add spacing between the sections
+}
+
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8px 8px -8px;
+}
+
+.form-half {
+  width: calc(50% - 16px);
+  margin: 0 8px;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 8px;
+  margin-bottom: 16px; // Add more spacing below the input fields
+}
+
+.form-button {
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s; // Add a smooth transition effect
+}
+
+.form-button:hover {
+  background-color: #333; // Darken the background color on hover
+}

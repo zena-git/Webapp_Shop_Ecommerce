@@ -1,10 +1,7 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +10,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "Bill")
@@ -28,6 +26,9 @@ public class Bill extends BaseEntity{
     @Column(name = "bill_type")
     private String billType;
 
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
     @Column(name = "cash")
     private BigDecimal cash;
 
@@ -39,22 +40,51 @@ public class Bill extends BaseEntity{
 
     @Column(name = "into_money")
     private BigDecimal intoMoney;
+
+    @Column(name = "ship_money")
+    private BigDecimal shipMoney;
+
+    @Column(name = "voucher_money")
+    private BigDecimal voucherMoney;
+
     @Column(name = "status")
     private String status;
+
     @Column(name = "booking_date")
     private Date bookingDate;
+
     @Column(name = "payment_date")
     private Date paymentDate;
+
     @Column(name = "delivery_date")
     private Date deliveryDate;
+
     @Column(name = "completion_date")
     private Date completionDate;
+
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "receiver_name")
     private String receiverName;
+
     @Column(name = "receiver_phone")
     private String receiverPhone;
-    @Column(name = "receiver_address")
-    private String receiverAddress;
+
+    @Column(name = "receiver_details")
+    private String receiverDetails;
+
+    @Column(name = "receiver_commune")
+    private String receiverCommune;
+
+    @Column(name = "receiver_district")
+    private String receiverDistrict;
+
+    @Column(name = "receiver_province")
+    private String receiverProvince;
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
@@ -62,5 +92,21 @@ public class Bill extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "user_id")
     private Users user;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<BillDetails> lstBillDetails;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<VoucherDetails> lstVoucherDetails;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<HistoryBill> lstHistoryBill;
+
+    @OneToMany(mappedBy = "bill")
+    @JsonIgnore
+    Set<PaymentHistory> lstPaymentHistory;
 
 }

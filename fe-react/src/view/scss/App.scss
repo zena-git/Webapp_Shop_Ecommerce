@@ -1,0 +1,95 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+.app-container {
+  .add-new {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+//Header
+.gray-background {
+  background-color: rgb(237, 237, 237);
+  .nav-links {
+    font-size: small;
+    color: black;
+  }
+  .nav-separator {
+    margin: 0 5px; /* Điều chỉnh khoảng cách giữa dấu "|" và các NavLink */
+    color: black; /* Màu sắc của dấu "|" */
+  }
+}
+.search-form {
+  margin-right: 30px;
+  .search-form {
+    position: relative;
+  }
+
+  .search-input {
+    border-radius: 30px 30px 30px 30px;
+  }
+
+  .search-button {
+    border-radius: 30px 30px 30px 30px;
+    border: none;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    color: black;
+  }
+  .search-button:hover {
+    background-color: darkgray;
+    color: white;
+  }
+}
+
+//Footer
+footer {
+  background-color: black;
+  .nav-container-footer {
+    .col-2 {
+      .nav-link {
+        font-size: small;
+        color: white;
+      }
+    }
+
+    .social-link {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .social-icon {
+      width: 100%;
+      height: 100%;
+    }
+    .location {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      .location-text {
+        margin-left: 5px;
+        margin-top: 10px;
+      }
+
+      .location-text p {
+        font-size: 10px;
+        margin: 0;
+        color: white;
+      }
+    }
+  }
+}

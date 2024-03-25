@@ -65,8 +65,8 @@ public class AddressController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> save(@RequestBody AddressRequest addressDto){
-        return addressService.createNew(mapper.map(addressDto, Address.class));
+    public ResponseEntity<?> save(@RequestBody AddressRequest addressDto){
+        return addressService.save(addressDto);
     }
 
     @DeleteMapping("/{id}")
@@ -75,23 +75,9 @@ public class AddressController {
         return addressService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@RequestBody AddressRequest addressDto, @PathVariable("id") Long id){
+    public ResponseEntity<?> update(@RequestBody AddressRequest addressDto, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
-        Address address = null;
-        Optional<Address>  otp = addressService.findById(id);
-        if (otp.isEmpty()){
-            return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, addressDto), HttpStatus.BAD_REQUEST);
-        }
-
-        if (otp.isPresent()){
-            address = addressService.findById(id).orElseThrow(IllegalArgumentException::new);
-            address = mapper.map(addressDto, Address.class);
-            address.setId(id);
-            return addressService.update(address);
-
-        }
-
-        return new ResponseEntity<>(new ResponseObject("Fail", "Không Thế Update", 1, addressDto), HttpStatus.BAD_REQUEST);
+        return addressService.update(addressDto,id);
 
 
     }

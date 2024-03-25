@@ -7,4 +7,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CartDetailsServiceImpl extends BaseServiceImpl<CartDetails, Long, ICartDetailsRepository> implements ICartDetailsService {
+    @Override
+    public void updateQuantity(Integer quantity, Long id) {
+        repository.updateQuantity(quantity, id);
+    }
 }

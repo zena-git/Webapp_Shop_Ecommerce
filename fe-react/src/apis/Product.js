@@ -5,7 +5,7 @@ export const productApis = {
         return axiosIns.get('/api/v2/product?page=' + page + "&size=" + size)
     },
     async getProductOne(id) {
-        return axiosIns.get('/api/v2/product/'+id )
+        return axiosIns.get('/api/v2/product/' + id)
     }
 
 }

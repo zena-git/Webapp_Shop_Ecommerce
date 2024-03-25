@@ -16,4 +16,5 @@ public class CartDetailRequest {
     private Long id;
     private Long cart;
     private Long productDetails;
+    private Integer quantity;
 }

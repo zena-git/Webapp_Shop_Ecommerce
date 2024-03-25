@@ -45,12 +45,13 @@ public class ProductDetails extends BaseEntity{
 
     @Column(name = "quantity")
     private Integer quantity;
-
+    @Column(name = "weight")
+    private  Integer weight;
     @Column(name = "barcode")
     private String barcode;
 
     @Column(name = "status")
-    private Integer status;
+    private String status;
 
 
 }

@@ -20,6 +20,5 @@ public class PromotionDetails extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_details_id")
     private ProductDetails productDetails;
-    @Column(name = "value")
-    private Float value;
+
 }

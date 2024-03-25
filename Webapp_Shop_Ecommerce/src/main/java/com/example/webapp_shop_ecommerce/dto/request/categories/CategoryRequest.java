@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.request.categories;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CategoryRequest {
+    @NotBlank(message = "Không được để trống")
     private String name;
+
 }
