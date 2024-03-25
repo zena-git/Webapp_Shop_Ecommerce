@@ -25,26 +25,22 @@ const tabItems = [
   },
   {
     key: '1',
-    label: 'Đã Xác Nhân',
-  },
-  {
-    key: '2',
     label: 'Chờ Giao Hàng',
   },
   {
-    key: '3',
+    key: '2',
     label: 'Đang Giao',
   },
+  // {
+  //   key: '3',
+  //   label: 'Đã Thanh Toán',
+  // },
   {
     key: '4',
-    label: 'Đã Giao Hàng',
-  },
-  {
-    key: '5',
     label: 'Hoàn Thành',
   },
   {
-    key: '6',
+    key: '5',
     label: 'Hủy',
   },
 

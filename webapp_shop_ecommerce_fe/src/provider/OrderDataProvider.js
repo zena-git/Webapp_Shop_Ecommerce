@@ -38,7 +38,7 @@ const OrderDataProvider = ({ children }) => {
 
     //set tổng tiền
     useEffect(() => {
-        const money = totalPrice - voucherMoney - shipMoney;
+        const money = totalPrice - voucherMoney + shipMoney;
         setIntoMoney(money);
     }, [totalPrice, voucherMoney, shipMoney])
 
@@ -188,9 +188,9 @@ const OrderDataProvider = ({ children }) => {
     const handlePaymentBill = () => {
         //5 - Hoàn Thành
         //2- Chờ Giao
-        let status = '5';
+        let status = '4';
         if (isDelivery) {
-            status = '2';
+            status = '0';
         }
 
         //Validate tạm số tiền

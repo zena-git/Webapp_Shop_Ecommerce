@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
-import { PlusOutlined, DeleteOutlined, ExclamationCircleFilled, LoadingOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, RollbackOutlined, LoadingOutlined } from '@ant-design/icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -176,7 +176,19 @@ const tagRender = (props) => {
 };
 
 function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
-
+    const TrangThaiBill = {
+        TAT_CA: '',
+        TAO_DON_HANG: "-1",
+        CHO_XAC_NHAN: "0",
+        CHO_GIAO: "1",
+        DANG_GIAO: "2",
+        DA_THANH_TOAN: "3",
+        HOAN_THANH: "4",
+        HUY: "5",
+        TRA_HANG: "6",
+        DANG_BAN: "7",
+        NEW: "New",
+    }
     const [openAddProduct, setOpenAddProduct] = useState(false);
     const [openAddProductConfig, setOpenAddProductConfig] = useState(false);
 
@@ -200,6 +212,14 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
 
     const [loadingProductDetail, setLoadingProductDetail] = useState(false);
     const [loadingTable, setLoadingTable] = useState(false);
+
+
+    const [dataReturntProduct, setDataReturntProduct] = useState({
+        description: '',
+        quantity: '',
+    });
+    const [isOpenModalReturntProduct, setIsOpenModalReturntProduct] = useState(false);
+
 
     //provider
     const { lstProductDetails, updateDataProductDetails } = useOrderData();
@@ -544,7 +564,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 name: <>
                     <div className='flex items-start'>
                         <div className='mr-6'>
-                            <img src='' style={{ width: '140px', height: '140px' }}></img>
+                            <img src={data.productDetails.imageUrl} style={{ width: '140px', height: '140px' }}></img>
                         </div>
                         <div className='leading-10	'>
                             <div className='flex text-[16px]'>
@@ -566,7 +586,11 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 color: data.productDetails.color,
                 size: data.productDetails.size,
                 quantity: <>
-                    <InputNumber min={1} max={data.productDetails.quantity} value={data.quantity} onChange={(value) => { handleChangeQuantity(value, data.id) }} />
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) ?
+                        <InputNumber min={1} max={data.productDetails.quantity} value={data.quantity} onChange={(value) => { handleChangeQuantity(value, data.id) }} /> :
+                        <span>{data.quantity}</span>
+                    }
+
                 </>,
                 unitPrice: data.unitPrice,
                 status: data.status,
@@ -574,9 +598,26 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                     <span className='text-red-600  font-medium'>{fixMoney(data.quantity * data.unitPrice)}</span>
                 </>,
                 action: <>
-                    <Button onClick={() => { handleDeleteProduct(data.id) }}>
-                        <DeleteOutlined></DeleteOutlined>
-                    </Button>
+                    {bill && (bill?.status === TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
+                        <Button onClick={() => { handleDeleteProduct(data.id) }}>
+                            <DeleteOutlined />
+                        </Button>
+                    ) : (
+                        <div>
+                            <Button onClick={() => {
+                                setDataReturntProduct({
+                                    ...dataReturntProduct,
+                                    id: data.id,
+                                    quantity: data.quantity,
+
+                                });
+                                setIsOpenModalReturntProduct(true)
+                            }}>
+                                <RollbackOutlined />
+                            </Button>
+
+                        </div>
+                    )}
                 </>
             }
         })
@@ -585,7 +626,25 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
 
     }
 
+    const handleReturntProduct = (idBillDetail) => {
+        console.log(idBillDetail);
+        console.log(dataReturntProduct);
+        axios.post(`http://localhost:8080/api/v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`,dataReturntProduct )
+        .then(response=>{
+            fetchDataBill();
+             toast.success(response.data.message)
+             setIsOpenModalReturntProduct(false)
+        })
+        .catch(error=>{
+             toast.error(error.response.data.message)
+         })
 
+
+    }
+
+    const openRertunProduct = () => {
+        setIsOpenModalReturntProduct(true)
+    }
 
 
 
@@ -597,7 +656,9 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             <div className='flex justify-between pb-4' style={{ borderBottom: '1px solid #cccccc' }}>
                 <h4>Danh Sách Sản Phẩm</h4>
                 <div>
-                    <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
+                        <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
+                    }
                 </div>
                 <>
                     <Modal
@@ -740,6 +801,28 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                     </Spin>
                 </div>
             </div>
+
+            <Modal title="Trả Hàng" width={500} visible={isOpenModalReturntProduct} footer={null} onCancel={() => { setIsOpenModalReturntProduct(false) }} >
+                <div>
+                    <label>Số Lượng</label>
+                    <Input placeholder="Nhập Số Lượng" value={dataReturntProduct.quantity} onChange={e => {
+                        setDataReturntProduct({ ...dataReturntProduct, quantity: e.target.value })
+                    }} />
+                </div>
+                <div>
+                    <label>Nội Dung</label>
+                    <Input.TextArea rows={5} minLength={50} placeholder='Ghi Chú' value={dataReturntProduct?.description} onChange={e => {
+                        setDataReturntProduct({ ...dataReturntProduct, description: e.target.value })
+                    }} />
+                </div>
+                <div className='flex justify-end mt-4 gap-3'>
+                    <Button type='primary' onClick={() => {
+                        handleReturntProduct(dataReturntProduct.id)
+                    }}>Xác nhận</Button>
+                    <Button type='default' onClick={() => { setIsOpenModalReturntProduct(false) }}>Hủy</Button>
+                </div>
+            </Modal>
+
         </>
     );
 }

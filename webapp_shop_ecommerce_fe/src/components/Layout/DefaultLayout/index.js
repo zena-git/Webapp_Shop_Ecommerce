@@ -41,7 +41,7 @@ const contentStyle = {
   margin: '24px 16px 0',
   position: 'relative',
   minHeight: '100vh',
-
+  maxWidth: 'calc(100vw-220px)'
 }
 const footerStyle = {
   textAlign: 'center',
