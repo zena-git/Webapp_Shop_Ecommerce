@@ -18,6 +18,8 @@ public class BillDetailsCountersResponse {
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
+    private String description;
+
 //    private BillResponse bill;
     private ProductDetailsCountersResponse productDetails;
 }

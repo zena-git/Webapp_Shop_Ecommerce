@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface IBillDetailsService extends IBaseService<BillDetails,Long> {
     List<BillDetails> findAllByBill(Bill bill);
+    List<BillDetails> findAllByBillAndStatus(Bill bill,String status);
 }

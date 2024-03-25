@@ -3,16 +3,14 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
+import com.example.webapp_shop_ecommerce.dto.request.paymentHistory.PaymentHistoryRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.*;
-import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
-import com.example.webapp_shop_ecommerce.service.IBillService;
-import com.example.webapp_shop_ecommerce.service.IHistoryBillService;
-import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
+import com.example.webapp_shop_ecommerce.service.*;
 import com.example.webapp_shop_ecommerce.ultiltes.InvoiceGenerator;
 import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,6 +64,9 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     private InvoiceGenerator invoiceGenerator;
     @Autowired
     private IHistoryBillService historyBillService;
+
+    @Autowired
+    private IPaymentHistoryService paymentHistoryService;
 
     @Override
     public ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) {
@@ -649,7 +650,27 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             }
         }
         update(bill);
-        return historyBillService.update(historyBill);
+        historyBillService.createNew(historyBill);
+        return new ResponseEntity<>(new ResponseObject("seccess", "Thay Đổi Trạng Thái Thành Công", 0, historyBillRequest), HttpStatus.OK);
+
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> billPaymentHistory(PaymentHistoryRequest paymentHistoryRequest, Long idBill) {
+        Optional<Bill> optionalBill = billRepo.findById(idBill);
+        if (optionalBill.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, idBill), HttpStatus.BAD_REQUEST);
+        }
+
+        PaymentHistory paymentHistory = mapper.map(paymentHistoryRequest, PaymentHistory.class);
+        paymentHistory.setBill(optionalBill.get());
+        HistoryBill historyBill = new HistoryBill();
+        historyBill.setBill(optionalBill.get());
+        historyBill.setType(TrangThaiBill.DA_THANH_TOAN.getLabel());
+        historyBillService.createNew(historyBill);
+        paymentHistoryService.createNew(paymentHistory);
+        return new ResponseEntity<>(new ResponseObject("seccess", "Xác Nhận Thanh Toán Thành Công", 0, paymentHistoryRequest), HttpStatus.OK);
+
     }
 
 }

@@ -28,7 +28,8 @@ public class BillDetails extends BaseEntity{
 
     @Column(name = "status")
     private String status;
-
+    @Column(name = "description")
+    private String description;
     @ManyToOne
     @JoinColumn(name = "bill_id")
     private Bill bill;

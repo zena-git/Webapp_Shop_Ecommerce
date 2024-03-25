@@ -4,6 +4,7 @@ import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.request.cart.CartRequest;
 import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
+import com.example.webapp_shop_ecommerce.dto.request.paymentHistory.PaymentHistoryRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.entity.Customer;
@@ -42,4 +43,5 @@ public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> deleteBillToBillDetail(Long idBill, Long idBillDetail);
 
     ResponseEntity<ResponseObject> addHistorybill(HistoryBillRequest historyBillRequest ,Long idBill);
+    ResponseEntity<ResponseObject> billPaymentHistory(PaymentHistoryRequest paymentHistoryRequest , Long idBill);
 }

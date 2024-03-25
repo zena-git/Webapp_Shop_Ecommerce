@@ -22,5 +22,6 @@ public class HistoryBillResponse {
 
     private String description;
     private LocalDateTime createdDate;
+    private String createdBy;
 
 }

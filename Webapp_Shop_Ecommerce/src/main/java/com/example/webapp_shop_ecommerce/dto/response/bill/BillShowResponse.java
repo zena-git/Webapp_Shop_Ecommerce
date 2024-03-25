@@ -5,16 +5,19 @@ import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsCou
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillResponse;
+import com.example.webapp_shop_ecommerce.dto.response.paymentHistory.PaymentHistoryResponse;
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsResponse;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
+import com.example.webapp_shop_ecommerce.entity.PaymentHistory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -48,6 +51,7 @@ public class BillShowResponse {
     private String receiverDistrict;
     private String receiverProvince;
     private String description;
+    private LocalDateTime createdDate;
 
 
     private CustomerResponse customer;
@@ -57,5 +61,7 @@ public class BillShowResponse {
 //    Set<BillDetailsBillResponse> lstBillDetails;
     Set<VoucherDetailsResponse> lstVoucherDetails;
     Set<HistoryBillResponse> lstHistoryBill;
+    Set<PaymentHistoryResponse> lstPaymentHistory;
+
 
 }

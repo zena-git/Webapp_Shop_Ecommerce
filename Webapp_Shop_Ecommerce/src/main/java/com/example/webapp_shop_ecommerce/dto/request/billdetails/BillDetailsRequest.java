@@ -21,5 +21,6 @@ public class BillDetailsRequest {
     private Integer quantity;
     private BigDecimal unitPrice;
     private BillRequest bill;
+    private String description;
     private Long productDetails;
 }

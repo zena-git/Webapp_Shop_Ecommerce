@@ -17,5 +17,7 @@ public class BillDetailsBillResponse {
     private Integer quantity;
     private BigDecimal unitPrice;
     private String status;
+    private String description;
+
     private ProductDetailsBillResponse productDetails;
 }

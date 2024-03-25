@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -42,6 +43,7 @@ public class BillCountersResponse {
     private String receiverDistrict;
     private String receiverProvince;
     private String description;
+    private LocalDateTime createdDate;
 
     private CustomerResponse customer;
 

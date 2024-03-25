@@ -3,6 +3,7 @@ package com.example.webapp_shop_ecommerce.controller;
 import com.example.webapp_shop_ecommerce.dto.request.bill.BillRequest;
 import com.example.webapp_shop_ecommerce.dto.request.billdetails.BillDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequest;
+import com.example.webapp_shop_ecommerce.dto.request.paymentHistory.PaymentHistoryRequest;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillShowResponse;
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsBillResponse;
@@ -118,7 +119,17 @@ public class BillController {
         if (opt.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
-        List<BillDetails> lstBillDetails = billDetailsService.findAllByBill(opt.get());
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBillAndStatus(opt.get(),TrangThaiBill.DANG_BAN.getLabel());
+        List<BillDetailsBillResponse> lst = lstBillDetails.stream().map(entity -> mapper.map(entity, BillDetailsBillResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+    @GetMapping("/show/{id}/billdetails/products/returns")
+    public ResponseEntity<?> findObjByIdAllProductReturns(@PathVariable("id") Long id) {
+        Optional<Bill> opt = billService.findById(id);
+        if (opt.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBillAndStatus(opt.get(),TrangThaiBill.TRA_HANG.getLabel());
         List<BillDetailsBillResponse> lst = lstBillDetails.stream().map(entity -> mapper.map(entity, BillDetailsBillResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
@@ -202,8 +213,11 @@ public class BillController {
 
     @PostMapping("/{idBill}/historyBill")
     public ResponseEntity<?> addHistorybill(@RequestBody HistoryBillRequest historyBillRequest, @PathVariable("idBill") Long idBill) {
-        return null;
+        return billService.addHistorybill(historyBillRequest, idBill);
     }
-
+    @PostMapping("/{idBill}/payment")
+    public ResponseEntity<?> billPaymentHistory(@RequestBody PaymentHistoryRequest historyBillRequest, @PathVariable("idBill") Long idBill) {
+        return billService.billPaymentHistory(historyBillRequest, idBill);
+    }
 
 }

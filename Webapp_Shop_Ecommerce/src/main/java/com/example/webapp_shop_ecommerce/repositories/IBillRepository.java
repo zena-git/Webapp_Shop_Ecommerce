@@ -14,7 +14,7 @@ import java.util.Map;
 @Repository
 public interface IBillRepository extends IBaseReporitory<Bill, Long> {
     List<Bill> findBillByCustomer(Customer customer);
-    @Query("select b from Bill b where b.billType = ?1 and b.status = ?2  and b.deleted = false")
+    @Query("select b from Bill b where b.billType = ?1 and b.status = ?2  and b.deleted = false order by b.createdDate desc")
     List<Bill> findAllTypeAndStatus(String type, String status);
 
     @Query("SELECT COALESCE(COUNT(b), 0) FROM Bill b WHERE b.billType = :type AND b.status = :status and b.deleted = false GROUP BY b.billType, b.status ")

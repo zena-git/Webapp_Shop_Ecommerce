@@ -20,4 +20,9 @@ public class BillDetailsServiceImpl extends BaseServiceImpl<BillDetails, Long, I
     public List<BillDetails> findAllByBill(Bill bill) {
         return repository.findAllByBill(bill);
     }
+
+    @Override
+    public List<BillDetails> findAllByBillAndStatus(Bill bill, String status) {
+        return repository.findAllByBillAndStatus(bill, status);
+    }
 }

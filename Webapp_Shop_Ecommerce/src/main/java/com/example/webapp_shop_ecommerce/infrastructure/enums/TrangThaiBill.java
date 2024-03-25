@@ -4,17 +4,14 @@ public enum TrangThaiBill {
     TAT_CA(""),
     TAO_DON_HANG("-1"),
     CHO_XAC_NHAN("0"),
-    DA_XAC_NHAN("1"),
+    CHO_GIAO("1"),
+    DANG_GIAO("2"),
+    DA_THANH_TOAN("3"),
+    HOAN_THANH("4"),
+    HUY("5"),
 
-    CHO_GIAO("2"),
-    DANG_GIAO("3"),
-    DA_GIAO_HANG("4"),
-    HOAN_THANH("5"),
-    HUY("6"),
-    TRA_MOT_PHAN("7"),
-
-    TRA_HANG("8"),
-    DANG_BAN("9"),
+    TRA_HANG("6"),
+    DANG_BAN("7"),
     NEW("New");
 
 
