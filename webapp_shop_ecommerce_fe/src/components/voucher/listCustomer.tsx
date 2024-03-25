@@ -78,15 +78,11 @@ export default function ListTable() {
             id: "select",
             header: ({ table }) => (
                 <Checkbox
-                    checked={
-                        selectedCustomer.length > 0 && (
-                            selectedCustomer.every(cus => cus.selected)
-                        )
-                    }
+                    defaultChecked={ selectedCustomer.length > 0 && selectedCustomer.every(cus => cus.selected)}
                     onChange={(value) => dispatch(set({
                         value: {
                             selected: listCustomer.map(cus => {
-                                return { id: cus.id, selected: !!value.target.value }
+                                return { id: cus.id, selected: !!value.target.checked }
                             })
                         }
                     }))}
@@ -95,7 +91,7 @@ export default function ListTable() {
             cell: ({ row }) => (
                 <Checkbox
                     checked={(selectedCustomer.find(value => value.id === row.getValue("id"))?.selected || false)}
-                    onChange={(value) => { row.toggleSelected(!!value.target.value); dispatch(updateSelected({ id: row.getValue("id"), selected: !!value.target.value })) }}
+                    onChange={(value) => { row.toggleSelected(!!value.target.checked); dispatch(updateSelected({ id: row.getValue("id"), selected: !!value.target.checked })) }}
                 />
             ),
             enableSorting: false,
@@ -134,7 +130,7 @@ export default function ListTable() {
             accessorKey: "birthday",
             header: () => <div className="text-center">sinh nhật</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.birthday ? row.original.birthday.toString() : ''}</div>
+                return <div className='flex justify-center'>{row.original.birthday ? row.original.birthday.toString().split("T")[0] : ''}</div>
             },
         },
         {
@@ -214,7 +210,7 @@ export default function ListTable() {
                 </div>
                 <div className="flex items-center py-4">
                     <Input
-                        placeholder="Filter name..."
+                        placeholder="tìm kiếm bằng tên"
                         value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
                             table.getColumn("fullName")?.setFilterValue(event.target.value)

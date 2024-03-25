@@ -83,15 +83,14 @@ export default function ListTable({ data }) {
             header: ({ table }) => (
                 <Checkbox
                     checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                        table.getIsAllPageRowsSelected()
                     }
                     onChange={(value) => dispatch(set({
                         value: {
                             selected: data.map(product => {
                                 return {
-                                    id: product.id, selected: !!value.target.value, children: product.lstProductDetails.map(detail => {
-                                        return { id: detail.id, selected: !!value.target.value }
+                                    id: product.id, selected: !!value.target.checked, children: product.lstProductDetails.map(detail => {
+                                        return { id: detail.id, selected: !!value.target.checked }
                                     })
                                 }
                             })
@@ -102,8 +101,8 @@ export default function ListTable({ data }) {
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    checked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
-                    onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.value })) }}
+                    defaultChecked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
+                    onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.checked })) }}
                     aria-label="Select row"
                 />
             ),
@@ -309,9 +308,8 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    // eslint-disable-next-line no-unused-expressions
-                    checked={!!selectedProduct.find(slt => slt.id == targetDataId).children.find(child => child.id == row.getValue("id").selected)}
-                    onCheckedChange={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value })) }}
+                    defaultChecked={!!selectedProduct.find(slt => slt.id == targetDataId).children.find(child => {return child.id == row.original.id}).selected}
+                    onChange={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value.target.checked })) }}
                     aria-label="Select row"
                 />
             ),

@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
     });
 
     let revenueData = [];
+    let completedOrdersData = []; // Array to store completed orders data
+
     const timeDiff = Math.abs(new Date(enddate) - new Date(startdate));
     const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
@@ -29,16 +31,22 @@ export async function GET(req: NextRequest) {
 
         while (currentDate <= new Date(enddate)) {
             const totalRevenueOfDay = listCompletedBill.reduce((acc, bill) => {
-                const billDate = new Date(bill.complete_date).toISOString().split('T')[0];
+                const billDate = new Date(bill.completion_date).toISOString().split('T')[0];
                 if (billDate === currentDate.toISOString().split('T')[0]) {
                     return acc + calculateDailyRevenue(bill.BillDetails);
                 }
                 return acc;
             }, 0);
 
+            const totalCompletedOrders = listCompletedBill.filter(bill => {
+                const billDate = new Date(bill.completion_date).toISOString().split('T')[0];
+                return billDate === currentDate.toISOString().split('T')[0];
+            }).length;
+
             revenueData.push({
                 time: currentDate.toLocaleDateString('en-GB'),
-                revenue: totalRevenueOfDay
+                revenue: totalRevenueOfDay,
+                completedOrders: totalCompletedOrders
             });
 
             currentDate.setDate(currentDate.getDate() + 1);
@@ -57,9 +65,15 @@ export async function GET(req: NextRequest) {
                 return acc;
             }, 0);
 
+            const totalCompletedOrders = listCompletedBill.filter(bill => {
+                const billWeek = getWeekNumber(new Date(bill.completion_date));
+                return billWeek === currentWeek;
+            }).length;
+
             revenueData.push({
                 time: `Tuần ${currentWeek}`,
-                revenue: totalRevenueOfWeek
+                revenue: totalRevenueOfWeek,
+                completedOrders: totalCompletedOrders
             });
 
             currentWeek++;
@@ -79,9 +93,15 @@ export async function GET(req: NextRequest) {
                 return acc;
             }, 0);
 
+            const totalCompletedOrders = listCompletedBill.filter(bill => {
+                const billMonth = new Date(bill.completion_date).getMonth();
+                return billMonth === currentMonth;
+            }).length;
+
             revenueData.push({
                 time: startDateObj.toLocaleString('en-GB', { month: 'long' }),
-                revenue: totalRevenueOfMonth
+                revenue: totalRevenueOfMonth,
+                completedOrders: totalCompletedOrders
             });
 
             currentMonth++;

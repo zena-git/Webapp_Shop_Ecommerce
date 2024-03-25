@@ -69,14 +69,14 @@ export default function ListTable() {
                     checked={
                         table.getIsAllPageRowsSelected()
                     }
-                    onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.value)}
+                    onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.checked)}
                     aria-label="Select all"
                 />
             ),
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onChange={(value) => row.toggleSelected(!!value.target.value)}
+                    onChange={(value) => row.toggleSelected(!!value.target.checked)}
                     aria-label="Select row"
                 />
             ),

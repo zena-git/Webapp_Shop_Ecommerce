@@ -83,7 +83,7 @@ export default function ListTable() {
             cell: ({ row }) => (
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onChange={(value) => row.toggleSelected(!!value.target.value)}
+                    onChange={(value) => row.toggleSelected(!!value.target.checked)}
                     // onCheckedChange={}
                     aria-label="Select row"
                 />
