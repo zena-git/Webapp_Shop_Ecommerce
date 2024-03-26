@@ -190,7 +190,7 @@ const OrderDataProvider = ({ children }) => {
         //2- Chờ Giao
         let status = '4';
         if (isDelivery) {
-            status = '0';
+            status = '2';
         }
 
         //Validate tạm số tiền
@@ -213,6 +213,7 @@ const OrderDataProvider = ({ children }) => {
             receiverCommune: addressBill?.commune,
             receiverDistrict: addressBill?.district,
             receiverProvince: addressBill?.province,
+            description: addressBill?.description,
             status: status
         }
 

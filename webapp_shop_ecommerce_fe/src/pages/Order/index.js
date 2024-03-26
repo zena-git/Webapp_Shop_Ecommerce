@@ -38,6 +38,7 @@ function Order() {
 
 
   useEffect(() => {
+
     const lst = lstBill.map((billNews, index) => {
       return {
         id: billNews.id,
@@ -75,17 +76,25 @@ function Order() {
 
 
   const handleDeleteBill = (id) => {
+
+
+
     axios.delete('http://localhost:8080/api/v1/counters/' + id)
       .then(response => {
         toast.success(response.data.message);
         updateDataLstBill()
         updateDataProductDetails();
-        updateDataDataCart();
+        // updateDataDataCart();
+
+        if (lstBill.length == 1) {
+          fetchAddBillNew();
+        }
       })
       .catch(error => {
         toast.error(error.response.data.message);
         console.error(error);
-      });
+      })
+
 
   }
 
@@ -123,7 +132,7 @@ function Order() {
           <OrderCustomer></OrderCustomer>
         </div>
         <div className='flex justify-between bg-white shadow-lg mt-20 p-4 mb-20 pt-6' style={{
-          minHeight: '552px'
+          minHeight: '580px'
         }}>
 
           <div className='w-1/2' style={{

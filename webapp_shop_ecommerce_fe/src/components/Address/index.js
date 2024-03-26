@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Modal, Radio, Space, Input, Select } from 'antd';
+import { Button, Checkbox, Radio, Space, Input, Select } from 'antd';
 import axios from "axios";
 import { useSaleData } from '~/provider/OrderDataProvider';
 import { ToastContainer, toast } from 'react-toastify';
@@ -261,6 +261,14 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                                 }
                                 )
                             }} />
+                    </div>
+                    <div className='mt-6 mb-10'>
+                        <Checkbox value={address?.defaultAddress}  onChange={(e) => {
+                            setAddress({
+                                ...address,
+                                defaultAddress: e.target.checked
+                            })
+                        }}>Đặt Làm Địa Chỉ Mặc Định</Checkbox>
                     </div>
                 </div>
             </div>
