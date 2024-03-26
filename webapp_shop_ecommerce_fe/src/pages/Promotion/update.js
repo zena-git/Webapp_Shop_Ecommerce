@@ -80,6 +80,10 @@ function EditPage() {
         } else if (value.toString().trim().length == 0) {
             toast.error('đặt mức giảm giá')
         } else {
+            let allPro = [];
+            listProduct.map(pro => {
+                allPro.push(...pro.lstProductDetails.map(detail => detail.id))
+            })
             const t = {
                 id: path.id,
                 name: name,
@@ -89,7 +93,7 @@ function EditPage() {
                 description: description,
                 startDate: dayjs(date[0]).toDate(),
                 endDate: dayjs(date[1]).toDate(),
-                lstProductDetails: lst
+                lstProductDetails: PromotionType == "0" ? allPro : lst
             }
 
             axios.put(`${baseUrl}/promotion/${t.id}`, t).then(res => {

@@ -14,8 +14,11 @@ const VoucherPage = () => {
     }, [])
 
     return (
-        <div className="py-6">
-            <Link to={'/user/customer/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>Thêm khách hàng mới</Link>
+        <div className="py-6 flex flex-col gap-3 p-6 bg-white rounded-md shadow-lg">
+            <p className='text-lg font-semibold'>Khách hàng</p>
+            <div>
+                <Link to={'/user/customer/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>Thêm khách hàng mới</Link>
+            </div>
             <div className='mt-5'>
                 <ListTable data={data} />
             </div>

@@ -79,12 +79,12 @@ function EditPage() {
                 <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 pb-3 rounded-lg'>
                     <ToastContainer />
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
-                        <Input value={name} onChange={e => { setName(e.target.value) }} />
-                    </label>
-                    <label>
                         <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
                         <Input value={code} onChange={e => { setCode(e.target.value) }} />
+                    </label>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
+                        <Input value={name} onChange={e => { setName(e.target.value) }} />
                     </label>
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>

@@ -5,11 +5,12 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://erinasai_webapp_user:webappabcd111@@103.200.22.212:3306/erinasai_webapp_ecommerce?connection_limit=12"
+  url      = "mysql://pioeddvp_webapp_user:Webapp_password@210.211.125.205:3306/pioeddvp_webapp_ecommerce"
 }
 
 model Address {
   delete_flag                                   Boolean?  @db.Bit(1)
+  is_default                                    Boolean?  @db.Bit(1)
   created_date                                  DateTime? @db.DateTime(6)
   customer_id                                   BigInt?
   id                                            BigInt    @id @default(autoincrement())
@@ -22,7 +23,6 @@ model Address {
   province                                      String?   @db.VarChar(255)
   receiver_name                                 String?   @db.VarChar(255)
   receiver_phone                                String?   @db.VarChar(255)
-  is_default                                    Boolean?  @db.Bit(1)
   Customer                                      Customer? @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKc90hq90y53kiv2106tsfr0pm8")
   Customer_Customer_default_address_idToAddress Customer? @relation("Customer_default_address_idToAddress")
 
@@ -47,17 +47,16 @@ model Bill {
   bill_type          String?         @db.VarChar(255)
   code_bill          String?         @db.VarChar(255)
   created_by         String          @db.VarChar(255)
-  last_modified_by   String?         @db.VarChar(255)
-  receiver_address   String?         @db.VarChar(255)
-  receiver_name      String?         @db.VarChar(255)
-  receiver_phone     String?         @db.VarChar(255)
-  status             String?         @db.VarChar(255)
   email              String?         @db.VarChar(255)
+  last_modified_by   String?         @db.VarChar(255)
+  payment_method     String?         @db.VarChar(255)
   receiver_commune   String?         @db.VarChar(255)
   receiver_details   String?         @db.VarChar(255)
   receiver_district  String?         @db.VarChar(255)
+  receiver_name      String?         @db.VarChar(255)
+  receiver_phone     String?         @db.VarChar(255)
   receiver_province  String?         @db.VarChar(255)
-  payment_method     String?         @db.VarChar(255)
+  status             String?         @db.VarChar(255)
   Users              Users?          @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK8uj2vsobqgiynns1cqvmva3q7")
   Customer           Customer?       @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKbspdwf59pyvty1xwhga3ew7e0")
   BillDetails        BillDetails[]
@@ -71,7 +70,6 @@ model Bill {
 model BillDetails {
   delete_flag        Boolean?       @db.Bit(1)
   quantity           Int?
-  status             String?        @db.VarChar(255)
   unit_price         Decimal?       @db.Decimal(38, 2)
   bill_id            BigInt?
   created_date       DateTime?      @db.DateTime(6)
@@ -80,6 +78,7 @@ model BillDetails {
   product_detail_id  BigInt?
   created_by         String         @db.VarChar(255)
   last_modified_by   String?        @db.VarChar(255)
+  status             String?        @db.VarChar(255)
   Bill               Bill?          @relation(fields: [bill_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK1grtkupr231unsdw175mfpvi4")
   ProductDetail      ProductDetail? @relation(fields: [product_detail_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKbp6ksvdfe8pty3d4191phxge9")
 
@@ -154,9 +153,9 @@ model Customer {
   gender                                       Boolean?        @db.Bit(1)
   birthday                                     DateTime?       @db.DateTime(6)
   created_date                                 DateTime?       @db.DateTime(6)
+  default_address_id                           BigInt?         @unique(map: "UK_h2g81iut98ufgb8sb01vy9fd0")
   id                                           BigInt          @id @default(autoincrement())
   last_modified_date                           DateTime?       @db.DateTime(6)
-  address                                      String?         @db.VarChar(255)
   code_customer                                String?         @db.VarChar(255)
   created_by                                   String          @db.VarChar(255)
   email                                        String?         @db.VarChar(255)
@@ -165,7 +164,6 @@ model Customer {
   password                                     String?         @db.VarChar(255)
   phone                                        String?         @db.VarChar(255)
   username                                     String?         @db.VarChar(255)
-  default_address_id                           BigInt?         @unique(map: "UK_h2g81iut98ufgb8sb01vy9fd0")
   Address                                      Address[]
   Bill                                         Bill[]
   Cart                                         Cart?
@@ -174,15 +172,14 @@ model Customer {
 }
 
 model HistoryBill {
-  id                 BigInt    @id @default(autoincrement())
-  created_by         String    @db.VarChar(255)
-  created_date       DateTime? @db.DateTime(6)
-  last_modified_by   String?   @db.VarChar(255)
-  last_modified_date DateTime? @db.DateTime(6)
   delete_flag        Boolean?  @db.Bit(1)
-  describe_text      String?   @db.VarChar(255)
   bill_id            BigInt?
+  created_date       DateTime? @db.DateTime(6)
+  id                 BigInt    @id @default(autoincrement())
+  last_modified_date DateTime? @db.DateTime(6)
+  created_by         String    @db.VarChar(255)
   description        String?   @db.VarChar(255)
+  last_modified_by   String?   @db.VarChar(255)
   Bill               Bill?     @relation(fields: [bill_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKcha5apjetqh0ct25e98kj6c1h")
 
   @@index([bill_id], map: "FKcha5apjetqh0ct25e98kj6c1h")
@@ -201,7 +198,6 @@ model Material {
 
 model Product {
   delete_flag        Boolean?        @db.Bit(1)
-  status             String?         @db.VarChar(255)
   created_date       DateTime?       @db.DateTime(6)
   id                 BigInt          @id @default(autoincrement())
   id_brand           BigInt?
@@ -215,6 +211,7 @@ model Product {
   image_url          String?         @db.VarChar(255)
   last_modified_by   String?         @db.VarChar(255)
   name               String?         @db.VarChar(255)
+  status             String?         @db.VarChar(255)
   Brand              Brand?          @relation(fields: [id_brand], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK22ajv4e5balh8n7h42xtul5v5")
   Material           Material?       @relation(fields: [id_material], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK2brsnl13wfbihxgi5fk1lqbxu")
   Category           Category?       @relation(fields: [id_category], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK605rywsssynyyl79wv7q8tj02")
@@ -231,7 +228,6 @@ model ProductDetail {
   delete_flag         Boolean?           @db.Bit(1)
   price               Decimal?           @db.Decimal(38, 2)
   quantity            Int?
-  status              String?            @db.VarChar(255)
   color_id            BigInt?
   created_date        DateTime?          @db.DateTime(6)
   id                  BigInt             @id @default(autoincrement())
@@ -243,6 +239,7 @@ model ProductDetail {
   created_by          String             @db.VarChar(255)
   image_url           String?            @db.VarChar(255)
   last_modified_by    String?            @db.VarChar(255)
+  status              String?            @db.VarChar(255)
   BillDetails         BillDetails[]
   CartDetails         CartDetails[]
   Color               Color?             @relation(fields: [color_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK5eoco0hcsd9kiddxn8g581yxq")
@@ -257,7 +254,7 @@ model ProductDetail {
 
 model Promotion {
   delete_flag        Boolean?           @db.Bit(1)
-  status             String?            @db.VarChar(255)
+  value              Float?             @db.Float
   created_date       DateTime?          @db.DateTime(6)
   end_date           DateTime?          @db.DateTime(6)
   id                 BigInt             @id @default(autoincrement())
@@ -268,13 +265,12 @@ model Promotion {
   description        String?            @db.VarChar(255)
   last_modified_by   String?            @db.VarChar(255)
   name               String?            @db.VarChar(255)
-  value              Float?             @db.Float
+  status             String?            @db.VarChar(255)
   PromotionDetails   PromotionDetails[]
 }
 
 model PromotionDetails {
   delete_flag        Boolean?       @db.Bit(1)
-  value              Float?         @db.Float
   created_date       DateTime?      @db.DateTime(6)
   id                 BigInt         @id @default(autoincrement())
   last_modified_date DateTime?      @db.DateTime(6)
@@ -360,31 +356,29 @@ model Users {
 
 model Voucher {
   delete_flag        Boolean?        @db.Bit(1)
+  discount_type      Int?
+  max_discount_value Float?          @db.Float
+  order_min_value    Float?          @db.Float
+  quantity           Int?
   value              Float?          @db.Float
   created_date       DateTime?       @db.DateTime(6)
   end_date           DateTime?       @db.DateTime(6)
   id                 BigInt          @id @default(autoincrement())
   last_modified_date DateTime?       @db.DateTime(6)
   start_date         DateTime?       @db.DateTime(6)
+  code               String?         @db.VarChar(255)
   created_by         String          @db.VarChar(255)
+  description        String?         @db.VarChar(255)
   last_modified_by   String?         @db.VarChar(255)
   name               String?         @db.VarChar(255)
   status             String?         @db.VarChar(255)
-  code               String?         @db.VarChar(255)
-  description        String?         @default("")
-  discount_type      Int             @default(0)
-  max_discount_value Float?
-  order_min_value    Float           @default(0) @db.Float
   target_type        String?         @db.VarChar(255)
   usage_limit        String?         @db.VarChar(255)
-  code_voucher       String?         @db.VarChar(255)
-  quantity           Int?
   VoucherDetail      VoucherDetail[]
 }
 
 model VoucherDetail {
   delete_flag        Boolean?  @db.Bit(1)
-  status             String?   @db.VarChar(255)
   bill_id            BigInt?
   created_date       DateTime? @db.DateTime(6)
   customer_id        BigInt?
@@ -394,6 +388,7 @@ model VoucherDetail {
   voucher_id         BigInt?
   created_by         String    @db.VarChar(255)
   last_modified_by   String?   @db.VarChar(255)
+  status             String?   @db.VarChar(255)
   Bill               Bill?     @relation(fields: [bill_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK9l46vdh3sfs1top9pr2ljyw5o")
   Customer           Customer? @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKov997a2uxnvpabx1i8ycjinig")
   Voucher            Voucher?  @relation(fields: [voucher_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FKrb0cio78y2ao5etcgjfn4mg80")

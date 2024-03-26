@@ -6,14 +6,12 @@ import { redirect, Link } from 'react-router-dom';
 const PromotionPage = () => {
     return (
 
-        <div className="py-6">
+        <div className="p-6 bg-white rounded-md shadow-lg flex flex-col gap-3">
             <p className='text-xl font-bold'>Sự kiện giảm giá</p>
-            <div className='px-3 py-2 w-fit my-3 bg-slate-200 rounded-lg border border-slate-700'>
-                <div className='px-2 py-1 w-fit'>
-                    <Link to={'/discount/promotion/add'} className='text-lg font-semibold'>
-                        Thêm đợt giảm giá mới
-                    </Link>
-                </div>
+            <div>
+                <Link to={'/discount/promotion/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>
+                    Thêm đợt giảm giá mới
+                </Link>
             </div>
             <div>
                 <div className='mt-5 rounded-lg'>

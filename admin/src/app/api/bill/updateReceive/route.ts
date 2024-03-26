@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
             id: bill.id
         },
         data: {
-            receiver_address: body.receive_detail,
             receiver_commune: body.receive_commune,
             receiver_details: body.receive_detail,
             receiver_district: body.receive_district,

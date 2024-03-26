@@ -1,6 +1,5 @@
-"use client"
 import { Tag, Checkbox } from 'antd/lib'
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -39,24 +38,59 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-import { ProductResponse, PromotionResponse } from "~/lib/type"
+import { VoucherResponse } from "~/lib/type"
+import axios from 'axios'
+import { baseUrl, nextUrl } from '~/lib/functional'
 import { Link, redirect } from 'react-router-dom'
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
-
+import { set, updateSelected } from '../../redux/features/voucher-deleted'
+import { useDispatch } from 'react-redux'
 export default function ListTable() {
-
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<VoucherResponse[]>([]);
+    const dispatch = useDispatch()
 
     const fillData = () => {
-        axios.get(`${baseUrl}/promotion`).then(res => {
+        axios.get(`${nextUrl}/voucher/deleted`).then(res => {
             setData(res.data);
         })
     }
     useEffect(() => {
-        fillData()
+        // fillData()
+        setData([{
+            id: 1,
+            code: "asdasda",
+            description: "",
+            discount_type: 0,
+            endDate: new Date(),
+            last_modified_by: "admin",
+            last_modified_date: new Date(),
+            lstVoucherDetails: [],
+            max_discount_value: 10000,
+            name: "abcd",
+            order_min_value: 1000,
+            startDate: new Date(),
+            status: "3",
+            target_type: 0,
+            usage_limit: 1000,
+            value: 10000
+        }, {
+            id: 2,
+            code: "asdasda",
+            description: "",
+            discount_type: 0,
+            endDate: new Date(),
+            last_modified_by: "admin",
+            last_modified_date: new Date(),
+            lstVoucherDetails: [],
+            max_discount_value: 10000,
+            name: "abcd",
+            order_min_value: 1000,
+            startDate: new Date(),
+            status: "3",
+            target_type: 0,
+            usage_limit: 1000,
+            value: 10000
+        }])
     }, [])
-
 
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -65,18 +99,20 @@ export default function ListTable() {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
 
+    useEffect(() => {
+        const keysArray = Object.keys(rowSelection).map(Number);
+        dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
+    }, [rowSelection])
 
-    const columns: ColumnDef<PromotionResponse>[] = useMemo(() => [
+    const columns: ColumnDef<VoucherResponse>[] = useMemo(() => [
         {
             id: "select",
             header: ({ table }) => (
                 <Checkbox
-                    //@ts-ignore
                     checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
+                        table.getIsAllPageRowsSelected()
                     }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.checked)}
                     aria-label="Select all"
                 />
             ),
@@ -84,7 +120,6 @@ export default function ListTable() {
                 <Checkbox
                     checked={row.getIsSelected()}
                     onChange={(value) => row.toggleSelected(!!value.target.checked)}
-                    // onCheckedChange={}
                     aria-label="Select row"
                 />
             ),
@@ -114,18 +149,11 @@ export default function ListTable() {
             cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
         },
         {
-            accessorKey: "status",
-            header: () => <div className="text-center">trạng thái</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center font-semibold'>{row.original.status == 0 ? <Tag className='text-lg' color='blue'>Sắp diễn ra</Tag> : row.original.status == 1 ? <Tag className='text-lg' color='blue'>Đang diễn ra</Tag> : row.original.status == 2 ? <Tag className='text-lg' color='yellow'>Đã kết thúc</Tag> : <Tag className='text-lg' color='red'>Đã hủy</Tag>}</div>
-            },
-        },
-        {
             accessorKey: "startDate",
             header: () => <div className="text-center">ngày bắt đầu</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.startDate.toString().split("T")[1] + " : " + row.original.startDate.toString().split("T")[0]}
+                    {row.original.startDate.toString().split("T")[0] + " - " + row.original.startDate.toString().split("T")[1]}
                 </div>
             },
         },
@@ -134,7 +162,7 @@ export default function ListTable() {
             header: () => <div className="text-center">ngày kết thúc</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.endDate.toString().split("T")[1] + " : " + row.original.endDate.toString().split("T")[0]}
+                    {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
                 </div>
             },
         },
@@ -143,7 +171,7 @@ export default function ListTable() {
             header: () => <div className="text-center">giá trị giảm</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {row.getValue("value")}d
+                    {row.original.value + `${row.original.discount_type == 0 ? "đ" : "%"}`}
                 </div>
             },
         },
@@ -166,10 +194,13 @@ export default function ListTable() {
                                 <DropdownMenuItem onClick={() => {
                                     // eslint-disable-next-line no-restricted-globals
                                     let t = confirm('xác nhận xóa');
-                                    if (t) axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => { fillData() })
-                                }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
+                                    if (t) {
+                                        axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
+                                            alert("xóa thành công");
+                                            fillData();
+                                        })
+                                    }
+                                }}>khôi phục</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -236,7 +267,7 @@ export default function ListTable() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border bg-white p-3">
+                <div className="rounded-md border p-3 bg-white">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (

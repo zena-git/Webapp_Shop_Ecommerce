@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
             completion_date: null,
             receiver_name: null,
             customer_id: null,
-            receiver_address: null,
             receiver_phone: null,
             cash: null,
             created_by: "admin",
