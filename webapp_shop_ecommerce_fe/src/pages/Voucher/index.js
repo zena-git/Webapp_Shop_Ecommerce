@@ -7,6 +7,7 @@ import ReduxProvider from '../../redux/provider'
 import { Link } from 'react-router-dom';
 import { Button, Modal } from 'antd';
 import { useAppSelector } from '../../redux/storage';
+import { useNavigate } from "react-router-dom";
 
 const VoucherPage = () => {
 
@@ -31,6 +32,7 @@ const VoucherPage = () => {
 
 const Recover = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate()
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -39,6 +41,7 @@ const Recover = () => {
             return axios.get(`${nextUrl}/voucher/recover?id=${slt.id}`)
         })
         Promise.all(promises).then(() => {
+            navigate(0);
             setIsModalOpen(false);
         })
 
@@ -49,9 +52,6 @@ const Recover = () => {
 
     const listVoucherDeleteSelected = useAppSelector(state => state.voucherDeletedReducer.value.selected)
 
-    useEffect(() => {
-        console.log(listVoucherDeleteSelected)
-    }, [listVoucherDeleteSelected])
     return (
         <>
             <Button type="primary" onClick={showModal}>
