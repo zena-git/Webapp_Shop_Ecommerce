@@ -54,54 +54,19 @@ export default function ListTable() {
         })
     }
     useEffect(() => {
-        // fillData()
-        setData([{
-            id: 1,
-            code: "asdasda",
-            description: "",
-            discount_type: 0,
-            endDate: new Date(),
-            last_modified_by: "admin",
-            last_modified_date: new Date(),
-            lstVoucherDetails: [],
-            max_discount_value: 10000,
-            name: "abcd",
-            order_min_value: 1000,
-            startDate: new Date(),
-            status: "3",
-            target_type: 0,
-            usage_limit: 1000,
-            value: 10000
-        }, {
-            id: 2,
-            code: "asdasda",
-            description: "",
-            discount_type: 0,
-            endDate: new Date(),
-            last_modified_by: "admin",
-            last_modified_date: new Date(),
-            lstVoucherDetails: [],
-            max_discount_value: 10000,
-            name: "abcd",
-            order_min_value: 1000,
-            startDate: new Date(),
-            status: "3",
-            target_type: 0,
-            usage_limit: 1000,
-            value: 10000
-        }])
+        fillData();
     }, [])
 
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        []
-    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
 
     useEffect(() => {
         const keysArray = Object.keys(rowSelection).map(Number);
-        dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
+        if(keysArray.length > 0){
+            dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
+        }
     }, [rowSelection])
 
     const columns: ColumnDef<VoucherResponse>[] = useMemo(() => [
@@ -153,7 +118,8 @@ export default function ListTable() {
             header: () => <div className="text-center">ngày bắt đầu</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.startDate.toString().split("T")[0] + " - " + row.original.startDate.toString().split("T")[1]}
+                    {/* @ts-ignore */}
+                    {row.original.start_date.toString().split("T")[0] + " - " + row.original.start_date.toString().split("T")[1]}
                 </div>
             },
         },
@@ -162,7 +128,8 @@ export default function ListTable() {
             header: () => <div className="text-center">ngày kết thúc</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
+                    {/* @ts-ignore */}
+                    {row.original.end_date.toString().split("T")[0] + " - " + row.original.end_date.toString().split("T")[1]}
                 </div>
             },
         },
