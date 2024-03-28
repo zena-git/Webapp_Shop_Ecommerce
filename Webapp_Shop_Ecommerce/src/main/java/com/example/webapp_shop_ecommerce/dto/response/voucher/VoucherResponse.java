@@ -21,7 +21,6 @@ public class VoucherResponse {
     private String code;
     private String name;
     private Float value;
-    private Integer quantity;
     private String status;
     private Integer discount_type;
 

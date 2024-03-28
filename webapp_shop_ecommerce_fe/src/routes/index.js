@@ -12,6 +12,8 @@ import Material from '~/pages/Material'
 import Size from '~/pages/Size'
 import Color from '~/pages/Color'
 import User from '~/pages/User'
+import UserAdd from '~/pages/User/add'
+import UserUpdate from '~/pages/User/update'
 import Home from '~/pages/Home';
 import Default from '~/pages/Default';
 
@@ -62,6 +64,9 @@ const privateRouter = [
     { path: '/discount/promotion/detail/:id', component: PromotionDetail },
 
     { path: '/user/staff', component: User },
+    { path: '/user/staff/add', component: UserAdd },
+    { path: '/user/staff/update/:id', component: UserUpdate },
+
     { path: '/user/customer', component: Customer },
     { path: '/user/customer/add', component: CustomerAdd },
     { path: '/user/customer/detail/:id', component: CustomerDetail },

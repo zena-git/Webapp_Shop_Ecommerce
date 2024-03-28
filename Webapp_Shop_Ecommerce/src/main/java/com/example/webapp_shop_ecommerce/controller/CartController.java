@@ -72,7 +72,6 @@ public class CartController {
         return cartService.createNew(mapper.map(cartDto, Cart.class));
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> deleteCart( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);

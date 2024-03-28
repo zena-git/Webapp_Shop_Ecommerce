@@ -19,16 +19,21 @@ import java.util.Date;
 @Entity
 @Table(name = "Users")
 public class Users extends BaseEntity {
-    @Column(name = "code_user")
-    private String codeUser;
+
     @Column(name = "full_name")
     private String fullName;
     @Column(name = "birthday")
     private Date birthday;
     @Column(name = "gender")
     private Boolean gender;
-    @Column(name = "address")
-    private String address;
+    @Column(name = "detail")
+    private String detail;
+    @Column(name = "commune")
+    private String commune;
+    @Column(name = "province")
+    private String province;
+    @Column(name = "district")
+    private String district;
     @Column(name = "email")
     private String email;
     @Column(name = "phone")

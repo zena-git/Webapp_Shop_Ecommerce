@@ -6,13 +6,14 @@ module.exports = {
     './src/pages/Promotion/**/*.{js,jsx}',
     './src/pages/Product/update.{js,jsx}',
     './src/pages/Customer/**/*.{js,jsx}',
+    './src/pages/User/**/*.{js,jsx}',
     './src/pages/Bill/**/*.{js,jsx}',
     './src/pages/Home/**/*.{js,jsx}',
     './src/components/ui/**/*.{js,jsx}',
     './src/components/promotion/**/*.{js,jsx}',
     './src/components/voucher/**/*.{js,jsx}',
     './src/components/customer/**/*.{js,jsx}',
-    
+    './src/components/user/**/*.{js,jsx}',
   ],
   prefix: "",
   theme: {

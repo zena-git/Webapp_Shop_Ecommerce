@@ -89,6 +89,8 @@ function ProductAdd() {
             key: 'price',
             render: (text, record) => (
                 <InputNumber
+                    defaultValue={1000}
+                    min={1000}
                     value={record.price}
                     formatter={(value) => `${value}VNĐ`}
                     parser={(value) => value.replace('VNĐ', '')}
@@ -101,7 +103,7 @@ function ProductAdd() {
             dataIndex: 'quantity',
             key: 'quantity',
             render: (text, record) => (
-                <InputNumber min={1} value={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+                <InputNumber min={1} defaultValue={record.quantity} value={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
             ),
         },
         {
@@ -132,6 +134,27 @@ function ProductAdd() {
                                 listType="picture-card"
                                 fileList={record.imageUrl}
                                 multiple
+                                method='POST'
+                                customRequest={(q) => {
+                                    const formData = new FormData();
+                                    formData.append("file", q.file);
+                                    formData.append("cloud_name", "db9i1b2yf")
+                                    formData.append("upload_preset", "product")
+                                    // axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+                                    //     // res.data.image là ra cái link ảnh đã upload lên cloud
+                                    //     alert("upload image successfully" + res.data.url)
+                                    //     axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.url}`).then((response) => {
+                                    //         //response.data là cái data của productDetail đã được update lại image url
+                                    //         console.log("updated Detail: " + JSON.stringify(response.data))
+                                    //     })
+                                    //     same.map(idSame => {
+                                    //         axios.get(`http://localhost:8081/api/productDetail/update/image?id=${idSame}&imageUrl=${res.data.url}`).then((response) => {
+                                    //             //response.data là cái data của product đã được update lại image url
+                                    //             console.log("updatedSameDetail :" + JSON.stringify(response.data))
+                                    //         })
+                                    //     })
+                                    // })
+                                }}
                                 onPreview={handlePreview}
                                 onChange={handleChange}
                             >
@@ -161,7 +184,6 @@ function ProductAdd() {
     const [valueNameProduct, setValueNameProduct] = useState("");
     const [valueCodeProduct, setValueCodeProduct] = useState("");
     const [valueDecProduct, setValueDecProduct] = useState("");
-
 
     const [valueCategory, setValueCategory] = useState(null);
     const [valueMaterial, setValueMaterial] = useState(null);
@@ -201,6 +223,10 @@ function ProductAdd() {
     const [valueInputQuantityCustom, setValueInputQuantityCustom] = useState(null);
     const [valueInputPriceCustom, setValueInputPriceCustom] = useState(null);
 
+
+    useEffect(() => {
+
+    }, [])
 
     // selectcategory
     const handleChangeCategory = (value) => {
@@ -529,7 +555,7 @@ function ProductAdd() {
         // Cập nhật danh sách sản phẩm
     }, [valueColor, valueSize, valueNameProduct])
 
-    const fillDataProductDetail = (data)=>{
+    const fillDataProductDetail = (data) => {
         console.log(data);
         setDataRowProductDetail(data)
     }
@@ -924,7 +950,7 @@ function ProductAdd() {
                         rowSelection={rowSelection}
                         columns={columnsTable}
                         dataSource={dataRowProductDetail}
-                        // pagination={false}
+
                     />
                 </div>
 

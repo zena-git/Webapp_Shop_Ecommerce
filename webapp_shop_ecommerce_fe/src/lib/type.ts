@@ -208,3 +208,52 @@ export type SelectedProductDetail = {
     price: number,
     quantity: number
 }
+
+export type User = {
+    "delete_flag": boolean,
+    "gender": boolean,
+    "birthday": Date,
+    "created_date": Date,
+    "id": number,
+    "last_modified_date": Date,
+    "created_by": string,
+    "email": string,
+    "full_name": string,
+    "last_modified_by": string,
+    "password": string,
+    "phone": string,
+    "username": string,
+    "district": string,
+    "commune": string,
+    "province": string,
+    "detail": string,
+    "User_roles": User_role[]
+}
+
+type Address = {
+    "delete_flag": boolean,
+    "is_default": boolean,
+    "created_date": Date,
+    "customer_id": number,
+    "id": "2",
+    "last_modified_date": Date,
+    "commune": "Xã Quang Vinh",
+    "created_by": "admin",
+    "detail": "",
+    "district": "Huyện Trùng Khánh",
+    "last_modified_by": "admin",
+    "province": "Tỉnh Cao Bằng",
+    "receiver_name": "nguyen van q",
+    "receiver_phone": "046384589374"
+}
+
+type User_role = {
+    "delete_flag": boolean,
+    "created_date": null,
+    "id": "2",
+    "last_modified_date": null,
+    "role_id": "2",
+    "user_id": "2",
+    "created_by": "Admin",
+    "last_modified_by": null
+}

@@ -1,6 +1,5 @@
-"use client"
 import { Tag, Checkbox } from 'antd/lib'
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -39,40 +38,58 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-import { ProductResponse, PromotionResponse } from "~/lib/type"
+import { User, VoucherResponse } from "~/lib/type"
+import axios from 'axios'
+import { baseUrl, nextUrl } from '~/lib/functional'
 import { Link, redirect } from 'react-router-dom'
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
-
+import { set, updateSelected } from '../../redux/features/user-deleted'
+import { useDispatch } from 'react-redux'
 export default function ListTable() {
-
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<User[]>([]);
+    const dispatch = useDispatch()
 
     const fillData = () => {
-        axios.get(`${baseUrl}/promotion`).then(res => {
+        axios.get(`${nextUrl}/user/deleted`).then(res => {
             setData(res.data);
         })
     }
     useEffect(() => {
-        fillData()
+        fillData();
     }, [])
 
-
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        []
-    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
 
+    useEffect(() => {
+        const keysArray = Object.keys(rowSelection).map(Number);
+        if (keysArray.length > 0) {
+            dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
+        }
+    }, [rowSelection])
 
-    const columns: ColumnDef<PromotionResponse>[] = useMemo(() => [
+    const columns: ColumnDef<User>[] = useMemo(() => [
         {
-            accessorKey: "id",
-            header: "#",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected()
+                    }
+                    onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.checked)}
+                    aria-label="Select all"
+                />
             ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onChange={(value) => row.toggleSelected(!!value.target.checked)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
         },
         {
             accessorKey: "name",
@@ -87,69 +104,24 @@ export default function ListTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase">{row.original.full_name}</div>,
         },
         {
-            accessorKey: "status",
-            header: () => <div className="text-center">trạng thái</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.status == 0 ? <Tag className='' color='blue'>Sắp diễn ra</Tag> : row.original.status == 1 ? <Tag className='text-lg' color='blue'>Đang diễn ra</Tag> : row.original.status == 2 ? <Tag className='text-lg' color='yellow'>Đã kết thúc</Tag> : <Tag className='text-lg' color='red'>Đã hủy</Tag>}</div>
-            },
-        },
-        {
-            accessorKey: "startDate",
-            header: () => <div className="text-center">ngày bắt đầu</div>,
+            accessorKey: "phone",
+            header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.startDate.toString().split("T")[1] + " : " + row.original.startDate.toString().split("T")[0]}
+                    {row.original.phone}
                 </div>
             },
         },
         {
-            accessorKey: "endDate",
-            header: () => <div className="text-center">ngày kết thúc</div>,
+            accessorKey: "email",
+            header: () => <div className="text-center">Email</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.endDate.toString().split("T")[1] + " : " + row.original.endDate.toString().split("T")[0]}
+                    {row.original.email}
                 </div>
-            },
-        },
-        {
-            accessorKey: "value",
-            header: () => <div className="text-center">giá trị giảm</div>,
-            cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
-                    {numberToPrice(row.getValue("value"))}
-                </div>
-            },
-        },
-        {
-            id: "hành động",
-            enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {
-                                    // eslint-disable-next-line no-restricted-globals
-                                    let t = confirm('xác nhận xóa');
-                                    if (t) axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => { fillData() })
-                                }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                )
             },
         },
     ], []);
@@ -212,7 +184,7 @@ export default function ListTable() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border bg-white p-3">
+                <div className="rounded-md border p-3 bg-white">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -289,9 +261,4 @@ export default function ListTable() {
             </div>
         </>
     )
-}
-
-const numberToPrice = (value) => {
-    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    return formattedAmount;
 }

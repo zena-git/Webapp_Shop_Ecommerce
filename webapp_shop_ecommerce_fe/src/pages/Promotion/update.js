@@ -35,33 +35,44 @@ function EditPage() {
     const [listProduct, setListProduct] = useState([]);
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
+    useEffect(() => {
+        axios.get(`${baseUrl}/product`).then(res => {
+            setListProduct(res.data);
+            let temp = []
+            res.data.forEach(product => {
+                temp.push(
+                    {
+                        id: product.id,
+                        selected: false,
+                        children: product.lstProductDetails.map(proDetail => {
+                            return {
+                                id: proDetail.id,
+                                selected: false
+                            }
+                        })
+                    }
+                )
+            });
+            dispatch(set({ value: { selected: temp } }));
+            axios.get(`${nextUrl}/promotion/data?id=${path.id}`).then(resp => {
+                setTargetPromotion(resp.data);
+                setName(resp.data.name);
+                setValue(resp.data.value);
+                setDescription(resp.data.description);
+                setDate([dayjs(resp.data.start_date), dayjs(resp.data.end_date)])
+                setCode(resp.data.code_promotion)
+
+                resp.data.PromotionDetails.forEach((detail) => {
+                    dispatch(toggleChildren({ id: detail.ProductDetail.id, parentId: detail.ProductDetail.product_id, value: true }))
+                })
+
+            });
+        });
+    }, [dispatch, path.id]);
 
     useEffect(() => {
         console.log(listSelectedProduct)
     }, [listSelectedProduct])
-
-    useEffect(() => {
-        axios.get(`${baseUrl}/product`).then(res => { setListProduct(res.data) });
-    }, [])
-
-    useEffect(() => {
-        if (path && path.id) {
-            axios.get(`${nextUrl}/promotion/data?id=${path.id}`).then(res => {
-                setTargetPromotion(res.data);
-                setName(res.data.name);
-                setValue(res.data.value);
-                setDescription(res.data.description);
-                setDate([dayjs(res.data.start_date), dayjs(res.data.end_date)])
-                setCode(res.data.code_promotion)
-
-                res.data.PromotionDetails.map((detail) => {
-                    dispatch(toggleChildren({ id: detail.ProductDetail.id, targetParent: detail.ProductDetail.product_id, selected: true }))
-                })
-
-            });
-        }
-    }, [path])
-
 
     const handleSubmitForm = () => {
 
@@ -71,8 +82,8 @@ function EditPage() {
                 if (child.selected) { lst.push(child.id) }
             })
         })
-        if (!date) {
-
+        if (!date[0] || !date[1] || dayjs(date[0]).toDate().getTime() < new Date().getTime() || dayjs(date[1]).toDate().getTime() < new Date().getTime()) {
+            toast.error("ngày bắt đầu hoặc kết thúc phải là tương lai")
         } else if (name.trim().length == 0) {
             toast.error('chưa nhập tên chương trình')
         } else if (PromotionType == "1" && lst.length == 0) {
@@ -104,49 +115,52 @@ function EditPage() {
     }
 
     return (
-        <div className='w-full flex flex-col p-5 gap-5'>
-            <div className='flex flex-col gap-3 w-full'>
-                <label>
-                    <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
-                    <Input value={name} onChange={e => { setName(e.target.value) }} />
-                </label>
-                <label>
-                    <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
-                    <Input value={code} onChange={e => setCode(e)} />
-                </label>
-                <label>
-                    <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>
-                    <InputNumber min={0} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
-                </label>
-                <label>
-                    <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
-                    <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
-                </label>
-                <label>
-                    <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
-                    <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="0" id="option-one" />
-                            <Label htmlFor="option-one">Tất cả sản phẩm</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="1" id="option-two" />
-                            <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
-                        </div>
-                    </RadioGroup>
-                </label>
-                <label>
-                    <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
-                    <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
-                </label>
-                <Button onClick={() => { handleSubmitForm() }} type='primary' className='bg-blue-500'>
-                    {'Cập nhật'}
-                </Button>
+        <div>
+            <p className='my-1 ml-5 text-lg font-bold'>Cập nhật đợt giảm giá</p>
+            <div className='w-full flex max-lg:flex-col p-5 gap-5'>
+                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 pb-3 rounded-lg pt-5'>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
+                        <Input value={code} onChange={e => setCode(e)} />
+                    </label>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
+                        <Input value={name} onChange={e => { setName(e.target.value) }} />
+                    </label>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>
+                        <InputNumber min={0} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
+                    </label>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
+                        <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
+                    </label>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
+                        <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="0" id="option-one" />
+                                <Label htmlFor="option-one">Tất cả sản phẩm</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="1" id="option-two" />
+                                <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
+                            </div>
+                        </RadioGroup>
+                    </label>
+                    <label>
+                        <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                        <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
+                    </label>
+                    <Button onClick={() => { handleSubmitForm() }} type='primary' className='bg-blue-500'>
+                        {'Cập nhật'}
+                    </Button>
+                </div>
+                <div className='flex-grow bg-slate-50 px-3 rounded-lg h-fit'>
+                    <ListDetailProduct data={listProduct} />
+                </div>
+                <ToastContainer />
             </div>
-            <div className='w-full'>
-                <ListDetailProduct data={listProduct} />
-            </div>
-            <ToastContainer />
         </div>
     )
 

@@ -300,7 +300,7 @@ const VoucherPage = () => {
                                             </FormItem>
                                         )}
                                     />
-                                    <FormField
+                                    {/* <FormField
                                         control={form.control}
                                         name="target_type"
                                         render={({ field }) =>
@@ -321,8 +321,8 @@ const VoucherPage = () => {
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
-                                        )}
-                                    />
+                                        )} 
+                                    /> */}
                                     <div>
                                         <p className='my-1 text-sm font-semibold'>Đối tượng áp dụng</p>
                                         <RadioGroup value={VoucherType} onValueChange={e => { setVoucherType(e) }}>

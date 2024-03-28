@@ -1,6 +1,5 @@
-"use client"
 import { Tag, Checkbox } from 'antd/lib'
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -18,7 +17,8 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
+import { useAppSelector } from '../../redux/storage';
+import { Modal } from 'antd';
 import { Button } from "~/components/ui/button"
 // import { Checkbox } from "~/components/ui/checkbox"
 import {
@@ -39,24 +39,24 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-import { ProductResponse, PromotionResponse } from "~/lib/type"
-import { Link, redirect } from 'react-router-dom'
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
-
+import { VoucherResponse, User } from "~/lib/type"
+import axios from 'axios'
+import { baseUrl, nextUrl } from '~/lib/functional'
+import { Link, redirect, useNavigate } from 'react-router-dom'
+import ListDeleted from '../../components/user/listDeleted'
 export default function ListTable() {
+    const [data, setData] = useState<User[]>([]);
 
-    const [data, setData] = useState([]);
+    const navigate = useNavigate();
 
     const fillData = () => {
-        axios.get(`${baseUrl}/promotion`).then(res => {
+        axios.get(`${nextUrl}/user`).then(res => {
             setData(res.data);
         })
     }
     useEffect(() => {
         fillData()
     }, [])
-
 
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -65,14 +65,15 @@ export default function ListTable() {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
 
-
-    const columns: ColumnDef<PromotionResponse>[] = useMemo(() => [
+    const columns: ColumnDef<User>[] = useMemo(() => [
         {
-            accessorKey: "id",
-            header: "#",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
-            ),
+            id: "#",
+            header: () => <div className="text-center">#</div>,
+            cell: ({ row }) => {
+                return <div className='text-center'>
+                    {row.index + 1}
+                </div>
+            },
         },
         {
             accessorKey: "name",
@@ -82,44 +83,37 @@ export default function ListTable() {
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên
+                        Tên
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="">{row.original.full_name}</div>,
         },
         {
-            accessorKey: "status",
-            header: () => <div className="text-center">trạng thái</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.status == 0 ? <Tag className='' color='blue'>Sắp diễn ra</Tag> : row.original.status == 1 ? <Tag className='text-lg' color='blue'>Đang diễn ra</Tag> : row.original.status == 2 ? <Tag className='text-lg' color='yellow'>Đã kết thúc</Tag> : <Tag className='text-lg' color='red'>Đã hủy</Tag>}</div>
-            },
-        },
-        {
-            accessorKey: "startDate",
-            header: () => <div className="text-center">ngày bắt đầu</div>,
+            accessorKey: "email",
+            header: () => <div className="text-center">Email</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.startDate.toString().split("T")[1] + " : " + row.original.startDate.toString().split("T")[0]}
+                    {row.original.email}
                 </div>
             },
         },
         {
-            accessorKey: "endDate",
-            header: () => <div className="text-center">ngày kết thúc</div>,
+            accessorKey: "birthday",
+            header: () => <div className="text-center">Ngày sinh</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.endDate.toString().split("T")[1] + " : " + row.original.endDate.toString().split("T")[0]}
+                    {row.original.birthday && row.original.birthday.toString().split("T")[0]}
                 </div>
             },
         },
         {
-            accessorKey: "value",
-            header: () => <div className="text-center">giá trị giảm</div>,
+            accessorKey: "phone",
+            header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {numberToPrice(row.getValue("value"))}
+                    {row.original.phone}
                 </div>
             },
         },
@@ -142,10 +136,15 @@ export default function ListTable() {
                                 <DropdownMenuItem onClick={() => {
                                     // eslint-disable-next-line no-restricted-globals
                                     let t = confirm('xác nhận xóa');
-                                    if (t) axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => { fillData() })
+                                    if (t) {
+                                        axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
+                                            alert("xóa thành công");
+                                            fillData();
+                                        })
+                                    }
                                 }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
+                                <DropdownMenuItem><Link to={`/discount/voucher/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
+                                <DropdownMenuItem><Link to={`/discount/voucher/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -175,10 +174,17 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full">
+            <div className="w-full bg-white p-6 rounded-md">
+                <div>
+                    <p className='text-lg font-bold mb-3'>Nhân viên</p>
+                </div>
+                <div className='flex gap-5'>
+                    <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white">Thêm nhân viên</Button>
+                    <Recover />
+                </div>
                 <div className="flex items-center py-4">
                     <Input
-                        placeholder="Filter name..."
+                        placeholder="tìm kiếm theo tên"
                         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
                             table.getColumn("name")?.setFilterValue(event.target.value)
@@ -188,7 +194,7 @@ export default function ListTable() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
-                                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                                Cột <ChevronDownIcon className="ml-2 h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -212,7 +218,7 @@ export default function ListTable() {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="rounded-md border bg-white p-3">
+                <div className="rounded-md border p-3 bg-white">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -295,3 +301,36 @@ const numberToPrice = (value) => {
     const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     return formattedAmount;
 }
+
+const Recover = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate()
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+    const handleOk = () => {
+        const promises = listVoucherDeleteSelected.map(slt => {
+            return axios.get(`${nextUrl}/user/recover?id=${slt.id}`)
+        })
+        Promise.all(promises).then(() => {
+            navigate(0);
+            setIsModalOpen(false);
+        })
+
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const listVoucherDeleteSelected = useAppSelector(state => state.userDeletedReducer.value.selected)
+
+    return (
+        <>
+            <Button onClick={showModal} variant="outline" className="bg-red-500 text-white">Nhân viên đã xóa</Button>
+            <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <ListDeleted />
+            </Modal>
+        </>
+    );
+}
+

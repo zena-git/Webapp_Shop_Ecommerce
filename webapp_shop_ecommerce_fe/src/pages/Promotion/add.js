@@ -36,6 +36,10 @@ function EditPage() {
 
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
+    useEffect(() => {
+        console.log(listSelectedProduct[1])
+    }, [listSelectedProduct])
+
     const handleSubmitForm = () => {
         let lst = []
         listSelectedProduct.map(value => {

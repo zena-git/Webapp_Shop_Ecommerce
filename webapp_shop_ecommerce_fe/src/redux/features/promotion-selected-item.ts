@@ -20,17 +20,19 @@ export const selectedData = createSlice({
         },
         toggleChildren: (state, action: PayloadAction<{ parentId: number; id: number; value: boolean }>) => {
             const { parentId, id, value } = action.payload;
-            const parentItem = state.value.selected.find(item => item.id === parentId);
+            const parentItem = state.value.selected.find(item => item.id == parentId);
             if (parentItem) {
-                const childItem = parentItem.children.find(child => child.id === id);
+                const childItem = parentItem.children.find(child => child.id == id);
                 if (childItem) {
                     childItem.selected = value;
+                } else {
+                    parentItem.children.push({ id: id, selected: value })
                 }
             }
             state.value.selected.forEach(item => {
                 if (item.children.some(child => !child.selected)) {
                     item.selected = false;
-                }else{
+                } else {
                     item.selected = true;
                 }
             });

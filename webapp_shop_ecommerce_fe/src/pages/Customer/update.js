@@ -90,33 +90,43 @@ export default function AddCustomer() {
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
 
+    const [targetCustomer, setTargetCustomer] = useState();
+    const [listAddress, setListAddress] = useState([])
+
     const path = useParams();
+
 
     const setAddProvinceP = (value, key) => {
         const province = vnData.find(target => { return target.name == value });
         if (!province) return;
         const t = province.districts;
         setListDistricts(t)
-        setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, province: value, district: t[0].name, commune: t[0].wards[0].name } }); })
+        setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, province: value, district: t[0].name, commune: t[0].wards[0].name } } else { return target } }); })
     }
 
     const setAddDistrictP = (value, key) => {
         const t = listDistricts.find(target => { return target.name == value }).wards;
         setListWards(t)
-        setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, district: value, commune: t[0].name } }); })
+        setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, district: value, commune: t[0].name } } else { return target } }); })
     }
 
     const setAddCommuneP = (value, key) => {
-        setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, commune: value } }); })
+        setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, commune: value } } else { return target } }); })
     }
 
-    const [targetCustomer, setTargetCustomer] = useState();
-    const [listAddress, setListAddress] = useState([])
+
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
             setTargetCustomer(res.data)
-            setListAddress(res.data.lstAddress)
+            setListAddress(res.data.lstAddress.map((add, index) => {
+                return {
+                    ...add,
+                    key: index,
+                    receivername: add.receiverName,
+                    phone: add.receiverPhone
+                }
+            }))
         })
     }, [path.id])
 
@@ -153,7 +163,7 @@ export default function AddCustomer() {
             accessorKey: "key",
             header: "#",
             cell: ({ row }) => (<>
-                {row.original && <div className="capitalize">{row.original.key}</div>}
+                {row.original && <div className="capitalize">{row.index + 1}</div>}
             </>
             ),
         },
@@ -163,7 +173,7 @@ export default function AddCustomer() {
                 return (
                     <Button
                         variant="ghost"
-                        className='flex items-center'
+                        className='flex items-center border-none'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         tên người nhận
@@ -252,8 +262,6 @@ export default function AddCustomer() {
         },
     ], [listDistricts, listWards]);
 
-
-
     const table = useReactTable({
         data: listAddress,
         columns,
@@ -327,7 +335,7 @@ export default function AddCustomer() {
     return (
         <div className='flex xl:flex-col'>
             <ToastContainer />
-            <div className='flex flex-col gap-3 w-full'>
+            <div className='flex flex-col gap-3 w-full bg-white shadow-lg rounded-md p-5'>
                 <Form {...form}>
                     <form onSubmit={e => { e.preventDefault() }} className="space-y-8">
                         <div className='grid grid-cols-2 max-lg:grid-cols-1 p-3 gap-x-6'>

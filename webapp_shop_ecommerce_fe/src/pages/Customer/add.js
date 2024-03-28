@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Select, Button } from 'antd/lib';
+import { DatePicker, InputNumber, Select, Button, Checkbox } from 'antd/lib';
 import { Input } from "../../components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState, useMemo } from 'react';
@@ -96,14 +96,17 @@ export default function AddCustomer() {
     const [addDistrict, setAddDistrict] = useState("Quận Ba Đình");
     const [addWard, setAddWard] = useState("Phường Phúc Xá");
 
+    const [defaultAddress, setDefaultAddress] = useState(0);
+
     const setAddProvinceP = (value, key) => {
+        if (!key) return;
         setAddProvince(value);
         const province = vnData.find(target => { return target.name == value });
         if (!province) return;
         const t = province.districts;
         setListDistricts(t)
         try {
-            setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, province: value, district: t[0].name, commune: t[0].wards[0].name } }); })
+            setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, province: value, district: t[0].name, commune: t[0].wards[0].name } } else { return target } }) })
         } catch (error) {
 
         }
@@ -111,11 +114,12 @@ export default function AddCustomer() {
     }
 
     const setAddDistrictP = (value, key) => {
+        if (!key) return;
         setAddDistrict(value);
         const t = listDistricts.find(target => { return target.name == value }).wards;
         setListWards(t)
         try {
-            setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, district: value, commune: t[0].name } }); })
+            setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, district: value, commune: t[0].name } } else { return target } }); })
         } catch (error) {
 
         }
@@ -123,9 +127,10 @@ export default function AddCustomer() {
     }
 
     const setAddCommuneP = (value, key) => {
+        if (!key) return;
         setAddWard(value);
         try {
-            setListAddress(prev => { return prev.map(target => { if (target.key == key) return { ...target, commune: value } }); })
+            setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, commune: value } } else { return target } }); })
         } catch (error) {
 
         }
@@ -133,13 +138,10 @@ export default function AddCustomer() {
 
     const [listAddress, setListAddress] = useState([]);
 
-    useEffect(() => {
-        console.log(listAddress)
-    }, [listAddress])
-
     const navigate = useNavigate();
 
     const handleChangeReceiverName = (key, newValue) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 return prev.map(address => {
@@ -155,6 +157,7 @@ export default function AddCustomer() {
     };
 
     const handleChangeReceiverPhone = (key, newValue) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 return prev.map(address => {
@@ -193,7 +196,7 @@ export default function AddCustomer() {
                 )
             },
             cell: ({ row }) => <div className="lowercase">
-                {row.original && <Input value={row.original.receivername} onChange={e => handleChangeReceiverName(row.original.key, e.target.value)} />}
+                {row.original && <Input value={row.original.receivername} onChange={e => { if (row.original) { handleChangeReceiverName(row.original.key, e.target.value) } }} />}
             </div>,
         },
         {
@@ -201,7 +204,7 @@ export default function AddCustomer() {
             header: () => <div className="text-center">số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {row.original && <Input value={row.original.phone} onChange={e => { handleChangeReceiverPhone(row.original.key, e.target.value) }} />}
+                    {row.original && <Input value={row.original.phone} onChange={e => { if (row.original) { handleChangeReceiverPhone(row.original.key, e.target.value) } }} />}
                 </div>
             },
         },
@@ -210,7 +213,7 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.province} onChange={value => { setAddProvinceP(value, row.original.key); }}>
+                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.province} onChange={value => { if (row.original) { setAddProvinceP(value, row.original.key); } }}>
                         {vnData.map((province) => {
                             return <option key={province.code} value={province.name}>{province.name}</option>
                         })}
@@ -223,7 +226,7 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Quận/ huyện</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.district} onChange={value => { setAddDistrictP(value, row.original.key); }}>
+                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.district} onChange={value => { if (row.original) { setAddDistrictP(value, row.original.key); } }}>
                         {
                             listDistricts.map(district => {
                                 return <option key={district.code} value={district.name}>{district.name}</option>
@@ -238,7 +241,7 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Xã/ phường</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.commune} onChange={value => { setAddCommuneP(value, row.original.key); }}>
+                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.commune} onChange={value => { if (row.original) { setAddCommuneP(value, row.original.key); } }}>
                         {
                             listWards.map(ward => {
                                 return <option key={ward.code} value={ward.name}>{ward.name}</option>
@@ -248,29 +251,39 @@ export default function AddCustomer() {
                     }
                 </div>
             },
-        }, {
-            id: "hành động",
-            enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button type='primary' variant="ghost" className="h-8 w-8 p-0 flex justify-center items-center">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => { setListAddress(listAddress.map(target => { if (target.key != row.original.key) return target })) }}>Xóa</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                )
-            },
         },
+        // {
+        //     accessorKey: "default",
+        //     header: () => <div className="text-center">mặc định</div>,
+        //     cell: ({ row }) => {
+        //         return <div className='text-center'>
+        //             <Checkbox checked={defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.key) }} />
+        //         </div>
+        //     },
+        // },
+        // {
+        //     id: "hành động",
+        //     enableHiding: false,
+        //     header: () => <div className="text-center">hành động</div>,
+        //     cell: ({ row }) => {
+        //         return (
+        //             <div className="flex justify-center">
+        //                 <DropdownMenu>
+        //                     <DropdownMenuTrigger asChild>
+        //                         <Button type='primary' variant="ghost" className="h-8 w-8 p-0 flex justify-center items-center">
+        //                             <DotsHorizontalIcon className="h-4 w-4" />
+        //                         </Button>
+        //                     </DropdownMenuTrigger>
+        //                     <DropdownMenuContent align="end">
+        //                         <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+        //                         <DropdownMenuSeparator />
+        //                         <DropdownMenuItem onClick={() => { setListAddress(listAddress.map(target => { if (target.key != row.original.key) return target })) }}>Xóa</DropdownMenuItem>
+        //                     </DropdownMenuContent>
+        //                 </DropdownMenu>
+        //             </div>
+        //         )
+        //     },
+        // },
     ], [listDistricts, listWards]);
 
 
@@ -344,8 +357,9 @@ export default function AddCustomer() {
     }, [listAddress])
 
     return (
-        <div className='flex gap-5 pb-8'>
-            <div className='flex flex-col gap-3 w-2/5 bg-white p-5 shadow-lg rounded-lg'>
+        <div className='flex max-lg:flex-col gap-5 pb-8'>
+            <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-white p-5 shadow-lg rounded-lg'>
+                <p className='ml-3 text-lg font-semibold'>Thêm mới khách hàng</p>
                 <ToastContainer />
                 <Form {...form}>
                     <form onSubmit={e => { e.preventDefault() }} className="space-y-8">
@@ -403,7 +417,7 @@ export default function AddCustomer() {
                                             <FormLabel></FormLabel>
                                             <FormControl>
                                                 <>
-                                                    <p>Sinh nhật</p>
+                                                    <p>Ngày sinh</p>
                                                     <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => setBirthday(birthDay)} />
                                                 </>
                                             </FormControl>
@@ -508,32 +522,6 @@ export default function AddCustomer() {
                         )}
                     </TableBody>
                 </Table>
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
-                    <div className="space-x-2">
-                        <Button
-                            type='primary'
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            type='primary'
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
             </div>
 
         </div>

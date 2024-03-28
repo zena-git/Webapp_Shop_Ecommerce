@@ -29,13 +29,13 @@ function Detail() {
                         <p className='text-lg font-semibold text-slate-800'>Mã chương trình giảm giá: </p>
                         <p className='text-lg font-semibold text-slate-800'>{targetPromotion?.code}</p>
                         <p className='text-lg font-semibold text-slate-800'>Trạng thái:</p>
-                        <p><Tag color='blue' className='font-semibold text-lg'>{targetPromotion?.status == 0 ? 'Sắp diễn ra' : targetPromotion.status == 1 ? 'Đang diễn ra' : 'Đã kết thúc'}</Tag></p>
+                        {targetPromotion && <p><Tag color='blue' className='font-semibold text-lg'>{targetPromotion?.status == 0 ? 'Sắp diễn ra' : targetPromotion.status == 1 ? 'Đang diễn ra' : 'Đã kết thúc'}</Tag></p>}
                         <p className='text-lg font-semibold text-slate-800'>Ngày hoạt động:</p>
                         <p className='text-lg font-semibold text-slate-800'>{targetPromotion?.startDate.split("T")[1] + ":" + targetPromotion?.startDate.split("T")[0] + " đến " + targetPromotion?.endDate.split("T")[1] + ":" + targetPromotion?.endDate.split("T")[0]}</p>
                     </div>
                 </div>
                 <p className='text-lg font-semibold text-slate-800 mb-1'>Mô tả:</p>
-                <Input.TextArea value={targetPromotion?.description}/>
+                <Input.TextArea value={targetPromotion?.description} />
             </div>
             <div className='bg-white p-6 rounded-md shadow-lg'>
                 {targetPromotion && <ListDetailPromotion data={targetPromotion.lstPromotionDetails} />}

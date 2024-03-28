@@ -41,9 +41,11 @@ import {
 import { VoucherResponse } from "~/lib/type"
 import axios from 'axios'
 import { baseUrl } from '~/lib/functional'
-import { Link, redirect } from 'react-router-dom'
+import { Link, redirect, useNavigate } from 'react-router-dom'
 export default function ListTable() {
     const [data, setData] = useState<VoucherResponse[]>([]);
+
+    const navigate = useNavigate();
 
     const fillData = () => {
         axios.get(`${baseUrl}/voucher`).then(res => {
@@ -137,7 +139,7 @@ export default function ListTable() {
             header: () => <div className="text-center">giá trị giảm</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {row.original.value + `${row.original.discount_type == 0 ? "đ" : "%"}`}
+                    {row.original.discount_type == 0 ? numberToPrice(row.original.value) : `${row.original.value}%`}
                 </div>
             },
         },
@@ -163,7 +165,8 @@ export default function ListTable() {
                                     if (t) {
                                         axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
                                             alert("xóa thành công");
-                                            fillData();
+                                            navigate(0)
+
                                         })
                                     }
                                 }}>Xóa</DropdownMenuItem>
@@ -312,4 +315,9 @@ export default function ListTable() {
             </div>
         </>
     )
+}
+
+const numberToPrice = (value) => {
+    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return formattedAmount;
 }

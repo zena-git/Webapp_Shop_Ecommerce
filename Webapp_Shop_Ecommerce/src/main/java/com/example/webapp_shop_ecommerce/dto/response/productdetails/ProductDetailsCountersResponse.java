@@ -8,6 +8,7 @@ import com.example.webapp_shop_ecommerce.dto.response.size.SizeResponse;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,6 +25,6 @@ public class ProductDetailsCountersResponse {
     private Integer status;
     private SizeResponse size;
     private ColorResponse color;
-    private ProductCountersResponse product;
+    private Set<ProductCountersResponse> product;
 
 }

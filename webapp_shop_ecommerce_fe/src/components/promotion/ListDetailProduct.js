@@ -51,25 +51,6 @@ export default function ListTable({ data }) {
 
     const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected)
 
-    useEffect(() => {
-        let temp = []
-        data.forEach(product => {
-            temp.push(
-                {
-                    id: product.id,
-                    selected: false,
-                    children: product.lstProductDetails.map(proDetail => {
-                        return {
-                            id: proDetail.id,
-                            selected: false
-                        }
-                    })
-                }
-            )
-        });
-        dispatch(set({ value: { selected: temp } }))
-    }, [data, dispatch])
-
     const handleToggleOpen = (id) => {
         setOpen((prevOpen) => ({
             ...prevOpen,
@@ -78,6 +59,13 @@ export default function ListTable({ data }) {
     };
 
     const columns = useMemo(() => [
+        {
+            id: "#",
+            header: () => <div className="text-center">#</div>,
+            cell: ({ row }) => {
+                return (<div className='flex justify-center'>{row.index + 1}</div>)
+            },
+        },
         {
             id: "select",
             header: ({ table }) => (
@@ -134,6 +122,15 @@ export default function ListTable({ data }) {
             cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
         },
         {
+            accessorKey: "giá",
+            header: ({ column }) => {
+                return (
+                    <div className='flex justify-center'>Giá</div>
+                )
+            },
+            cell: ({ row }) => <div className="lowercase text-center">{minMaxPrice(row.original.lstProductDetails)}</div>,
+        },
+        {
             id: "accordion",
             header: () => <div className="text-center">Chi tiết</div>,
             cell: ({ row }) => (
@@ -142,7 +139,7 @@ export default function ListTable({ data }) {
             enableSorting: false,
             enableHiding: false,
         },
-    ], [dispatch, open, selectedProduct]);
+    ], [data, dispatch, open, selectedProduct]);
 
     const table = useReactTable({
         data,
@@ -237,8 +234,7 @@ export default function ListTable({ data }) {
                                             ))}
                                         </TableRow>
                                         <TableRow data-state={row.getIsSelected() && "selected"}>
-                                            {open[row.original.id] && <TableCell colSpan={columns.length}><ProductDetailTable targetDataId={row.original.id} selected={row.getIsSelected()} belowData={row.original.lstProductDetails
-                                            }></ProductDetailTable></TableCell>}
+                                            {open[row.original.id] && <TableCell colSpan={columns.length}><ProductDetailTable targetDataId={row.original.id} selected={row.getIsSelected()} belowData={row.original.lstProductDetails}></ProductDetailTable></TableCell>}
                                         </TableRow>
                                     </>
                                 ))
@@ -294,10 +290,6 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
 
     const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected)
 
-    useEffect(() => {
-        console.log(selectedProduct)
-    }, [selectedProduct])
-
     const dispatch = useDispatch();
 
     const belowColumns = useMemo(() => [
@@ -308,8 +300,8 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    defaultChecked={!!selectedProduct.find(slt => slt.id == targetDataId).children.find(child => {return child.id == row.original.id}).selected}
-                    onChange={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value.target.checked })) }}
+                    defaultChecked={!!selectedProduct.find(slt => slt.id == targetDataId).children.find(child => { return child.id == row.original.id }).selected}
+                    onClick={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value.target.checked })) }}
                     aria-label="Select row"
                 />
             ),
@@ -318,9 +310,9 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
         },
         {
             accessorKey: "id",
-            header: "id",
+            header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
+                <div className="capitalize">{row.index + 1}</div>
             ),
         },
         {
@@ -339,7 +331,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
                     <div className='text-center'>Kích cỡ</div>
                 )
             },
-            cell: ({ row }) => <div className="text-center lowercase">{row.getValue("size").name}</div>,
+            cell: ({ row }) => <div className="text-center">{row.getValue("size").name}</div>,
         },
         {
             accessorKey: "color",
@@ -354,7 +346,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             header: () => <div className="text-center">Giá</div>,
             cell: ({ row }) => {
 
-                return <div className="text-center font-medium">{row.original.price}</div>
+                return <div className="text-center font-medium">{numberToPrice(row.original.price)}</div>
             },
         },
         {
@@ -366,7 +358,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
                 </div>
             },
         }
-    ], []);
+    ], [selectedProduct]);
 
     const belowTable = useReactTable({
         data: belowData,
@@ -386,6 +378,15 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             rowSelection: belowRowSelection,
         },
     })
+
+    useEffect(() => {
+        const keysArray = Object.keys(belowRowSelection).map(Number);
+        if (keysArray.length > 0) {
+            keysArray.map(key => {
+                dispatch(toggleChildren({ id: belowTable.getRow(key.toString()).original.id, parentId: targetDataId, value: true }))
+            })
+        }
+    }, [belowRowSelection, belowTable, dispatch, targetDataId])
 
     useEffect(() => {
         belowTable.toggleAllRowsSelected(selected);
@@ -471,4 +472,29 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             </div>
         </>
     )
+}
+
+function minMaxPrice(lstProductDetails) {
+    if (!lstProductDetails || lstProductDetails.length === 0) {
+        return [null, null];
+    }
+
+    let minPrice = lstProductDetails[0].price;
+    let maxPrice = lstProductDetails[0].price;
+    lstProductDetails.forEach(productDetail => {
+        const price = productDetail.price;
+        if (price < minPrice) {
+            minPrice = price;
+        }
+        if (price > maxPrice) {
+            maxPrice = price;
+        }
+    });
+
+    return `${numberToPrice(minPrice)} - ${numberToPrice(maxPrice)}`;
+}
+
+const numberToPrice = (value) => {
+    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return formattedAmount;
 }
