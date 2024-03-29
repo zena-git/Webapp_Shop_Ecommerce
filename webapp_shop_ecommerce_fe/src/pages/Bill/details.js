@@ -100,6 +100,7 @@ function BillDetail() {
     const [isModalOpenConfirmCompletion, setIsModalOpenConfirmCompletion] = useState(false);
     const [isModalOpenPayment, setIsModalOpenPayment] = useState(false);
     const [isModalOpenTimelineDetails, setIsModalOpenTimelineDetails] = useState(false);
+    const [isModalOpenCancelling, setIsModalOpenCancelling] = useState(false);
     const [confirmAcceptOrderDes, setConfirmAcceptOrderDes] = useState("")
 
 
@@ -265,11 +266,17 @@ function BillDetail() {
                             </div>
 
                             <div>
-                                <Modal title="Xác Nhận Hoàn Thành" width={500} open={isModalOpenConfirmCompletion} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
+                                <Modal title="Xác Nhận Hoàn Thành" width={500} open={isModalOpenConfirmCompletion} footer={null} onCancel={() => { setIsModalOpenConfirmCompletion(false) }} >
                                     <label>Ghi Chú</label>
                                     <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
+                                            if( bill?.lstPaymentHistory.length == "0"){
+                                                 toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán !");
+                                                setIsModalOpenConfirmCompletion(false)
+                                                 return;
+                                            }
+
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.HOAN_THANH,
                                                 description: confirmAcceptOrderDes
@@ -294,9 +301,26 @@ function BillDetail() {
                             </div>
 
                             <div>
+                            <Modal title="Xác Nhận Hủy" width={500} open={isModalOpenCancelling} footer={null} onCancel={() => { setIsModalOpenCancelling(false) }} >
+                                    <label>Bạn Có Chắc Muốn Hủy Hóa Đơn Này ?</label>
+                                    <div className='flex justify-end mt-4 gap-3'>
+                                        <Button type='primary' onClick={() => {
+                                            axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`)
+                                            .then(res => {
+                                                fetchDataBill();
+                                                toast.success(res.data.message);
+                                                setIsModalOpenCancelling(false)
+                                            }).catch(err => {
+                                                toast.error(err.response.data.message);
+                                            })
+                                        }}>Xác nhận</Button>
+                                        <Button type='default' onClick={() => { setIsModalOpenCancelling(false) }}>Hủy</Button>
+                                    </div>
+                                </Modal>
+
                                 {
                                     bill && (bill.status == TrangThaiBill.CHO_GIAO || bill.status == TrangThaiBill.CHO_XAC_NHAN) && <Button onClick={() => {
-
+                                        setIsModalOpenCancelling(true)
                                     }} type="primary" danger className='ml-4'>
                                         Hủy Đơn
                                     </Button>
@@ -510,7 +534,7 @@ function BillDetail() {
                             </Modal>
 
                             {
-                                bill?.lstPaymentHistory.length == "0" && <Button danger onClick={() => {
+                                bill?.status != TrangThaiBill.HUY &&  bill?.lstPaymentHistory.length == "0" && <Button danger onClick={() => {
                                     setIsModalOpenPayment(true)
                                 }}>Xác Nhận Thanh Toán</Button>
 

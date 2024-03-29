@@ -598,11 +598,12 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                     <span className='text-red-600  font-medium'>{fixMoney(data.quantity * data.unitPrice)}</span>
                 </>,
                 action: <>
-                    {bill && (bill?.status === TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
                         <Button onClick={() => { handleDeleteProduct(data.id) }}>
                             <DeleteOutlined />
                         </Button>
                     ) : (
+                        bill && bill?.status != TrangThaiBill.HUY &&
                         <div>
                             <Button onClick={() => {
                                 setDataReturntProduct({
@@ -629,15 +630,15 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     const handleReturntProduct = (idBillDetail) => {
         console.log(idBillDetail);
         console.log(dataReturntProduct);
-        axios.post(`http://localhost:8080/api/v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`,dataReturntProduct )
-        .then(response=>{
-            fetchDataBill();
-             toast.success(response.data.message)
-             setIsOpenModalReturntProduct(false)
-        })
-        .catch(error=>{
-             toast.error(error.response.data.message)
-         })
+        axios.post(`http://localhost:8080/api/v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`, dataReturntProduct)
+            .then(response => {
+                fetchDataBill();
+                toast.success(response.data.message)
+                setIsOpenModalReturntProduct(false)
+            })
+            .catch(error => {
+                toast.error(error.response.data.message)
+            })
 
 
     }
