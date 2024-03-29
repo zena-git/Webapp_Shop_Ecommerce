@@ -186,21 +186,25 @@ const OrderDataProvider = ({ children }) => {
     }, [idBill]);
 
     const handlePaymentBill = () => {
-        //5 - Hoàn Thành
-        //2- Chờ Giao
+        //4 - Hoàn Thành
+        //1- Chờ Giao
         let status = '4';
-        if (isDelivery) {
-            status = '2';
-        }
+        // if (isDelivery) {
+        //     status = '1';
+        // }
 
+        let returnUrl = window.location.origin;
+
+
+        
         //Validate tạm số tiền
         if (idBill == null) {
             return;
         }
-        if (paymentCustomer < intoMoney) {
-            toast.error('Số Tiền Khách Nhập Chưa Đủ')
-            return;
-        }
+        // if (paymentCustomer < intoMoney) {
+        //     toast.error('Số Tiền Khách Nhập Chưa Đủ')
+        //     return;
+        // }
         const dataBill = {
             paymentMethod: paymentMethods,
             totalMoney: totalPrice,
@@ -214,14 +218,22 @@ const OrderDataProvider = ({ children }) => {
             receiverDistrict: addressBill?.district,
             receiverProvince: addressBill?.province,
             description: addressBill?.description,
-            status: status
+            isDelivery: isDelivery,
+            status: status,
+            returnUrl: returnUrl
         }
-
+        console.log(dataBill);
         axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)
             .then((response) => {
-                toast.success(response.data.message);
-                updateDataLstBill();
-                resetData();
+                if (response.data.status =="redirect") {
+                    window.location.href = response.data.data;
+                }else{
+                    console.log(response.data);
+                    toast.success(response.data.message);
+                    updateDataLstBill();
+                    resetData();
+                }
+               
             })
             .catch((error) => {
                 toast.error(error.response.data.message);

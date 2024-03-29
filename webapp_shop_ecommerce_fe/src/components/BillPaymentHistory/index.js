@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import React, {useState, useEffect } from 'react';
-import {  Table,Tag, } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Tag, } from 'antd';
 
 import { fixMoney } from '~/ultils/fixMoney';
 import dayjs from 'dayjs';
@@ -29,8 +29,8 @@ const columns = [
 
   {
     title: 'Thời Gian',
-    dataIndex: 'createdDate',
-    key: 'createdDate',
+    dataIndex: 'paymentDate',
+    key: 'paymentDate',
   },
   {
     title: 'Loại Giao Dịch',
@@ -65,11 +65,13 @@ function PaymentHistory({ bill, lstPaymentHistory }) {
         id: data?.id,
         index: data?.index,
         tradingCode: data?.tradingCode,
-        paymentAmount: fixMoney(data.paymentAmount),
-        paymentMethod: <>
-          <Tag color="#da7493"> {data.paymentMethod == "0" ? "Tiền mặt" : "Chuyển Khoản"}</Tag>
+        paymentAmount: <>
+          <span class="text-red-600">{fixMoney(data.paymentAmount)}</span>
         </>,
-        createdDate: dayjs(data?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
+        paymentMethod: <>
+          <Tag color="#da7493"> {data.paymentMethod == "0" ? "Tiền mặt" : data.paymentMethod == "1" ? "Chuyển Khoản" : "Phương Thức Khác"}</Tag>
+        </>,
+        paymentDate: dayjs(data?.paymentDate).format('YYYY-MM-DD HH:mm:ss'),
         type: <>
           <Tag color="#da7493"> {data.type == "0" ? "Thanh Toán" : "Hoàn Tiền"}</Tag>
 

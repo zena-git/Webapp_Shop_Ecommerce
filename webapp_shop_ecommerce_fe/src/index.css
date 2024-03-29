@@ -26,6 +26,10 @@
   border: 1px solid #ccc;
 }
 
+.site-result-demo-error-icon {
+  color: red;
+}
+
 /* .ant-radio-group-solid :where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
   border: 1px solid #1890ff !important;
   background-color: #fff !important;

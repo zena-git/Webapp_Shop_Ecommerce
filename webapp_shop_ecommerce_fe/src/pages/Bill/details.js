@@ -335,9 +335,9 @@ function BillDetail() {
                                                             history?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
                                                                 history?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
                                                                     history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                        history?.type == TrangThaiBill.DA_THANH_TOAN ? "Hoàn Thành" :
+                                                                        history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                             history?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                                history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                                                history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                                 }</Tag>,
                                                 createdDate: dayjs(history?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
                                                 createdBy: history.createdBy,
@@ -410,7 +410,7 @@ function BillDetail() {
                                     }
                                 </Tag>
                             </Descriptions.Item>
-                            <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}>{bill?.billType == "0" ? "Online" : bill?.billType == "1" ? "Offline" : "Không Biết"}</Descriptions.Item>
+                            <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}>{bill?.billFormat == "0" ? "Online" : bill?.billFormat == "1" ? "Offline" : bill?.billFormat == "2" ? "Giao Hàng" : "Khác"}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Địa Chỉ</span>}>{bill?.receiverDetails} {bill?.receiverCommune} {bill?.receiverDistrict} {bill?.receiverProvince}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Ghi Chú</span>}>{bill?.description}</Descriptions.Item>
 
@@ -510,7 +510,7 @@ function BillDetail() {
                             </Modal>
 
                             {
-                                bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
+                                bill?.lstPaymentHistory.length == "0" && <Button danger onClick={() => {
                                     setIsModalOpenPayment(true)
                                 }}>Xác Nhận Thanh Toán</Button>
 
@@ -528,13 +528,15 @@ function BillDetail() {
                         <BillProducts bill={bill} fetchDataBill={fetchDataBill} lstBillDetails={lstBillDetails}></BillProducts>
                     </div>
                 </div>
+                {lstBillDetailsReturn.length > 0 &&
+                    <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
 
-                <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
-
-                    <div>
-                        <BillProductsBack bill={bill} fetchDataBill={fetchDataBill} lstBillDetailsReturn={lstBillDetailsReturn}></BillProductsBack>
+                        <div>
+                            <BillProductsBack bill={bill} fetchDataBill={fetchDataBill} lstBillDetailsReturn={lstBillDetailsReturn}></BillProductsBack>
+                        </div>
                     </div>
-                </div>
+                }
+
 
                 <div className='bg-white p-4 mt-6 mb-20 shadow-lg '>
                     <div className='flex justify-between'>
@@ -575,7 +577,7 @@ function BillDetail() {
 
 
             </div>
-            <ToastContainer />;
+            <ToastContainer />
 
         </>
     );

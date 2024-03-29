@@ -17,6 +17,7 @@ import Customer from '~/pages/Customer'
 import User from '~/pages/User'
 import Home from '~/pages/Home';
 import Default from '~/pages/Default';
+import PaymentIpn from '~/pages/PaymenIpn';
 const publicRouter = [
 
 ];
@@ -40,6 +41,7 @@ const privateRouter = [
     { path: '/discount/promotion', component: Promotion },
     { path: '/user/staff', component: User },
     { path: '/user/customer', component: Customer },
+    { path: '/paymentIPN', component: PaymentIpn },
     { path: '/*', component: Default },
 ];
 
