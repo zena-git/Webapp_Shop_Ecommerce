@@ -149,7 +149,7 @@ export default function ListTable() {
         <>
             <div className="w-full">
                 <div className="flex items-center py-4">
-                    <Input
+                    {/* <Input
                         placeholder="Filter name..."
                         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
@@ -182,7 +182,7 @@ export default function ListTable() {
                                     )
                                 })}
                         </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu> */}
                 </div>
                 <div className="rounded-md border p-3 bg-white">
                     <Table>
