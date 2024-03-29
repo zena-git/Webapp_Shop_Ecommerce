@@ -31,6 +31,7 @@ public class BillShowResponse {
     private String status;
     private String paymentMethod;
 
+    private String billFormat;
     private String billType;
     private BigDecimal cash;
     private BigDecimal digitalCurrency;
@@ -51,6 +52,7 @@ public class BillShowResponse {
     private String receiverDistrict;
     private String receiverProvince;
     private String description;
+    private LocalDateTime lastModifiedDate;
     private LocalDateTime createdDate;
 
 

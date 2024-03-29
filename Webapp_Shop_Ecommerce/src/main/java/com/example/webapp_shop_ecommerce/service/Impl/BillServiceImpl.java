@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -67,6 +68,11 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
     @Autowired
     private IPaymentHistoryService paymentHistoryService;
+
+    @Autowired
+    IHistoryBillRepository historyBillRepo;
+    @Autowired
+    VnpayService vnpayService;
 
     @Override
     public ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) {
@@ -335,38 +341,73 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     }
 
     @Override
-    public ResponseEntity<ResponseObject> billCounterPay(BillRequest billDto, Long id) {
+    public ResponseEntity<ResponseObject> billCounterPay(BillRequest billDto, Long id) throws UnsupportedEncodingException {
 
         Optional<Bill> otp = findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, billDto), HttpStatus.BAD_REQUEST);
         }
         Bill bill = otp.get();
+        if (bill.getStatus().equalsIgnoreCase(TrangThaiBill.HOAN_THANH.getLabel())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Hóa Đơn Đã Đa Thanh Toán", 1, billDto), HttpStatus.BAD_REQUEST);
+        }
+
 
         List<BillDetails> lstBillDetail = billDetailsRepo.findAllByBill(bill);
         if (lstBillDetail.size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, id), HttpStatus.BAD_REQUEST);
         }
-
         bill = mapper.map(billDto, Bill.class);
+
+        BigDecimal totalMoney = lstBillDetail.stream()
+                .map(billDetails -> billDetails.getUnitPrice().multiply(new BigDecimal(billDetails.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal intoMoney = totalMoney
+                .subtract(billDto.getVoucherMoney())
+                .add(bill.getShipMoney());
         bill.setId(id);
+        bill.setTotalMoney(totalMoney);
+        bill.setIntoMoney(intoMoney);
         bill.setBookingDate(new Date());
         bill.setPaymentDate(new Date());
         bill.setBillType(otp.get().getBillType());
+        bill.setBillFormat(otp.get().getBillType());
         bill.setCodeBill(otp.get().getCodeBill());
         bill.setCustomer(otp.get().getCustomer());
         bill.setUser(otp.get().getUser());
 
-        update(bill);
-        if (billDto.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_GIAO.getLabel())){
+
+
+        if (billDto.getIsDelivery()) {
+            bill.setBillFormat(BillType.DELIVERY.getLabel());
+            bill.setStatus(TrangThaiBill.CHO_GIAO.getLabel());
             historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_GIAO.getLabel(), "");
-        }
-        if (billDto.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
-            historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
-        }
-        if (billDto.getStatus().equalsIgnoreCase(TrangThaiBill.HOAN_THANH.getLabel())){
+        }else {
             historyBillService.addHistoryBill(bill,TrangThaiBill.HOAN_THANH.getLabel(), "");
+            bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
         }
+
+        if (billDto.getPaymentMethod().equalsIgnoreCase("1") && !billDto.getIsDelivery() ) {
+            bill.setStatus(otp.get().getStatus());
+            update(bill);
+            return vnpayService.createPayment(bill, billDto.getReturnUrl());
+        }
+
+        update(bill);
+
+        if (!billDto.getIsDelivery()) {
+            PaymentHistory paymentHistory = new PaymentHistory();
+            paymentHistory.setBill(bill);
+            paymentHistory.setDescription("");
+            paymentHistory.setPaymentMethod("0");
+            paymentHistory.setType("0");
+            paymentHistory.setStatus("0");
+            paymentHistory.setPaymentDate(LocalDateTime.now());
+            paymentHistory.setPaymentAmount(bill.getIntoMoney());
+            paymentHistory.setDeleted(false);
+            paymentHistoryService.createNew(paymentHistory);
+        }
+
         return new ResponseEntity<>(new ResponseObject("success", "Thanh Toán Thành Công", 0, billDto), HttpStatus.CREATED);
 
     }
@@ -390,7 +431,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         productDetailsRepo.save(productDetails);
 
         billDetailsRepo.delete(billDetails);
-//        updateChangeMoneyBill()
+//       updateChangeMoneyBill();
 
         return new ResponseEntity<>(new ResponseObject("success", "Xóa Sản Phẩm Khỏi Giỏ Hàng Thành Công", 0, idBillDetail), HttpStatus.CREATED);
 
@@ -412,6 +453,12 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         lstVouchers.stream().map(voucherDetails -> {
             voucherDetailsRepo.delete(voucherDetails);
             return voucherDetails;
+        }).collect(Collectors.toList());
+    //Xóa history dang mao ping
+        List<HistoryBill> lstHistoryBill = historyBillRepo.findByIdBill(otp.get().getId());
+        lstHistoryBill.stream().map(historyBill -> {
+            historyBillRepo.delete(historyBill);
+            return historyBill;
         }).collect(Collectors.toList());
 
 
@@ -664,13 +711,15 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         PaymentHistory paymentHistory = mapper.map(paymentHistoryRequest, PaymentHistory.class);
         paymentHistory.setBill(optionalBill.get());
+        paymentHistory.setPaymentDate(LocalDateTime.now());
         HistoryBill historyBill = new HistoryBill();
         historyBill.setBill(optionalBill.get());
-        historyBill.setType(TrangThaiBill.DA_THANH_TOAN.getLabel());
+        historyBill.setType( TrangThaiBill.DA_THANH_TOAN.getLabel());
         historyBillService.createNew(historyBill);
         paymentHistoryService.createNew(paymentHistory);
         return new ResponseEntity<>(new ResponseObject("seccess", "Xác Nhận Thanh Toán Thành Công", 0, paymentHistoryRequest), HttpStatus.OK);
 
     }
+
 
 }

@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +87,7 @@ public class CountersController {
     }
 
     @PutMapping("/{id}/payment")
-    public ResponseEntity<?> billCounterPay(@RequestBody BillRequest billDto, @PathVariable("id") Long id) {
+    public ResponseEntity<?> billCounterPay(@RequestBody BillRequest billDto, @PathVariable("id") Long id) throws UnsupportedEncodingException {
         System.out.println("Update ID: " + id);
         return billService.billCounterPay(billDto, id);
     }

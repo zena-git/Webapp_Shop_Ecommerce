@@ -3,6 +3,7 @@ package com.example.webapp_shop_ecommerce.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,9 +22,11 @@ public class PaymentHistory extends BaseEntity{
     @Column(name = "trading_ode")
     private String tradingCode;
     @Column(name = "payment_amount")
-    private String paymentAmount;
+    private BigDecimal paymentAmount;
     @Column(name = "payment_method")
     private String paymentMethod;
+    @Column(name = "payment_date")
+    private LocalDateTime paymentDate;
     @Column(name = "description")
     private String description;
     @Column(name = "status")

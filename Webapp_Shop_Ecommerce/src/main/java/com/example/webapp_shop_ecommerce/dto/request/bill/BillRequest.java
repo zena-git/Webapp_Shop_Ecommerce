@@ -39,6 +39,8 @@ public class BillRequest {
     private String receiverProvince;
     private Long customer;
     private String description;
+    private Boolean isDelivery;
+    private String returnUrl;
 
     //    private List<Long> lstCartDetails;
     private List<CartDetails> lstCartDetails;

@@ -12,8 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest);
@@ -29,7 +31,7 @@ public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> billUpdateCustomer(BillRequest billRequest, Long id);
     ResponseEntity<ResponseObject> countersAddProductBarcode( Long id, String barcode );
     ResponseEntity<ResponseObject> chaneQuantityBillDetails(BillDetailsRequest chaneQuantityBillDetails, Long idBillDetail);
-    ResponseEntity<ResponseObject> billCounterPay( BillRequest billDto, Long id);
+    ResponseEntity<ResponseObject> billCounterPay( BillRequest billDto, Long id) throws UnsupportedEncodingException;
     ResponseEntity<ResponseObject> billDeleteBillDetail(Long idBillDetail);
     ResponseEntity<ResponseObject> deleteBillToBillDetailAll(Long idBill);
 
@@ -44,4 +46,9 @@ public interface IBillService extends IBaseService<Bill, Long> {
 
     ResponseEntity<ResponseObject> addHistorybill(HistoryBillRequest historyBillRequest ,Long idBill);
     ResponseEntity<ResponseObject> billPaymentHistory(PaymentHistoryRequest paymentHistoryRequest , Long idBill);
+
+
+
+
+
 }

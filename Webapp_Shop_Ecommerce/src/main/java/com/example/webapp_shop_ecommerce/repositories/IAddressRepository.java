@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface IAddressRepository extends IBaseReporitory<Address,Long> {
     List<Address> findAddressByCustomerAndDeletedFalse(Customer customer);
+    List<Address> findAddressByCustomerAndDefaultAddressTrue(Customer customer);
 }

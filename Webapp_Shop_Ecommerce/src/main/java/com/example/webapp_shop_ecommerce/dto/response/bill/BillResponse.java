@@ -28,6 +28,7 @@ public class BillResponse {
 
     private String status;
     private String billType;
+    private String billFormat;
     private BigDecimal cash;
     private BigDecimal digitalCurrency;
     private BigDecimal totalMoney;
@@ -46,6 +47,7 @@ public class BillResponse {
     private String receiverDistrict;
     private String receiverProvince;
     private String description;
+    private LocalDateTime lastModifiedDate;
 
 
     private CustomerResponse customer;

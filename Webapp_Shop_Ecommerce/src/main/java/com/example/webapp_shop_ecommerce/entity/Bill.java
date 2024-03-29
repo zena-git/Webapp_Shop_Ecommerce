@@ -25,6 +25,8 @@ public class Bill extends BaseEntity{
 
     @Column(name = "bill_type")
     private String billType;
+    @Column(name = "bill_format")
+    private String billFormat;
 
     @Column(name = "payment_method")
     private String paymentMethod;
@@ -33,19 +35,19 @@ public class Bill extends BaseEntity{
     private BigDecimal cash;
 
     @Column(name = "digital_currency")
-    private BigDecimal digitalCurrency;
+    private BigDecimal digitalCurrency= BigDecimal.ZERO;
 
     @Column(name = "total_money")
-    private BigDecimal totalMoney;
+    private BigDecimal totalMoney = BigDecimal.ZERO;
 
     @Column(name = "into_money")
-    private BigDecimal intoMoney;
+    private BigDecimal intoMoney = BigDecimal.ZERO;
 
     @Column(name = "ship_money")
-    private BigDecimal shipMoney;
+    private BigDecimal shipMoney = BigDecimal.ZERO;
 
     @Column(name = "voucher_money")
-    private BigDecimal voucherMoney;
+    private BigDecimal voucherMoney = BigDecimal.ZERO;
 
     @Column(name = "status")
     private String status;

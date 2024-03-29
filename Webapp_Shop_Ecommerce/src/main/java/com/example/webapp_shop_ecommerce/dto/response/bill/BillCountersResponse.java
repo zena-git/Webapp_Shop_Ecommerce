@@ -24,6 +24,8 @@ public class BillCountersResponse {
     private String paymentMethod;
 
     private String billType;
+    private String billFormat;
+
     private BigDecimal cash;
     private BigDecimal digitalCurrency;
     private BigDecimal totalMoney;
@@ -44,6 +46,7 @@ public class BillCountersResponse {
     private String receiverProvince;
     private String description;
     private LocalDateTime createdDate;
+    private LocalDateTime lastModifiedDate;
 
     private CustomerResponse customer;
 
