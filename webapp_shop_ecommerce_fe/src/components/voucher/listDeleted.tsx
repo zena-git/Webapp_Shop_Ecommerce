@@ -138,7 +138,8 @@ export default function ListTable() {
             header: () => <div className="text-center">giá trị giảm</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {row.original.value + `${row.original.discount_type == 0 ? "đ" : "%"}`}
+                    {/* eslint-disable-next-line eqeqeq */}
+                    {row.original.value + `${row.original.discount_type == "0" ? "đ" : "%"}`}
                 </div>
             },
         },
