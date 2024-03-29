@@ -220,4 +220,9 @@ public class BillController {
         return billService.billPaymentHistory(historyBillRequest, idBill);
     }
 
+    @PutMapping("/{idBill}/cancelling")
+    public ResponseEntity<?> cancellingBill(@PathVariable("idBill") Long idBill) {
+        return billService.cancellingBill(idBill);
+    }
+
 }

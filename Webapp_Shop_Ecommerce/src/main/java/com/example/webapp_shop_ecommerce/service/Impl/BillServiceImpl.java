@@ -721,5 +721,30 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
     }
 
+    @Override
+    public ResponseEntity<ResponseObject> cancellingBill(Long idBill) {
+        Optional<Bill> optionalBill = billRepo.findById(idBill);
+        if (optionalBill.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 1, idBill), HttpStatus.BAD_REQUEST);
+        }
+
+        Bill bill = optionalBill.get();
+        List<BillDetails> lstBillDetails = billDetailsService.findAllByBill(bill);
+
+        lstBillDetails.stream().map(entity -> {
+            ProductDetails productDetails = entity.getProductDetails();
+            productDetails.setQuantity(productDetails.getQuantity() + entity.getQuantity());
+            productDetailsService.update(productDetails);
+            return entity;
+        }).collect(Collectors.toList());
+
+        bill.setStatus(TrangThaiBill.HUY.getLabel());
+        update(bill);
+        historyBillService.addHistoryBill(bill,TrangThaiBill.HUY.getLabel(), "");
+
+        return new ResponseEntity<>(new ResponseObject("sucsess", "Hủy Hóa Đơn Thành Công", 0, idBill), HttpStatus.OK);
+
+    }
+
 
 }

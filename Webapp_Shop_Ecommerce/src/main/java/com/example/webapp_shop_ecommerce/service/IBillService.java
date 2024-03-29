@@ -46,6 +46,7 @@ public interface IBillService extends IBaseService<Bill, Long> {
 
     ResponseEntity<ResponseObject> addHistorybill(HistoryBillRequest historyBillRequest ,Long idBill);
     ResponseEntity<ResponseObject> billPaymentHistory(PaymentHistoryRequest paymentHistoryRequest , Long idBill);
+    ResponseEntity<ResponseObject> cancellingBill(Long idBill);
 
 
 
