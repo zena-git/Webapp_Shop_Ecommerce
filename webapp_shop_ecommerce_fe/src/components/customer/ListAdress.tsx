@@ -52,10 +52,10 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
 
     const columns: ColumnDef<AdressResponse>[] = useMemo(() => [
         {
-            accessorKey: "id",
-            header: "id",
+            accessorKey: "#",
+            header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
+                <div className="capitalize">{row.index + 1}</div>
             ),
         },
         {
@@ -74,8 +74,8 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             cell: ({ row }) => <div className="lowercase">{row.original.receiverName}</div>,
         },
         {
-            accessorKey: "startDate",
-            header: () => <div className="text-center">xã phường</div>,
+            accessorKey: "commune",
+            header: () => <div className="text-center">xã/phường</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
                     {row.original.commune}
@@ -83,8 +83,8 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             },
         },
         {
-            accessorKey: "value",
-            header: () => <div className="text-center">province</div>,
+            accessorKey: "province",
+            header: () => <div className="text-center">quận/huyện</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original.province}
@@ -92,8 +92,8 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             },
         },
         {
-            accessorKey: "value",
-            header: () => <div className="text-center">district</div>,
+            accessorKey: "district",
+            header: () => <div className="text-center">tỉnh/thành phố</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original.district}
@@ -101,7 +101,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             },
         },
         {
-            accessorKey: "value",
+            accessorKey: "receiverPhone",
             header: () => <div className="text-center">sdt</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
@@ -145,7 +145,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
-                                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                                Cột <ChevronDownIcon className="ml-2 h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
