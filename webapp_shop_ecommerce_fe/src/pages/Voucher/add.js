@@ -99,11 +99,11 @@ const VoucherPage = () => {
     }, [])
 
     const handleSubmitForm = (values) => {
+        if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
+            toast.error('cần nhập giá trị ngày trong tương lai')
+            return;
+        }
         if (VoucherType == "0") {
-            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-                toast.error('cần nhập giá trị ngày trong tương lai')
-                return;
-            }
             axios.post(`${baseUrl}/voucher`, {
                 code: values.code,
                 name: values.name,
@@ -118,12 +118,9 @@ const VoucherPage = () => {
                 lstCustomer: listCustomer.map(val => { return val.id })
             }).then(res => {
                 toast.success("Đã tạo voucher thành công")
-            })
+                form.reset();
+            }).catch(err => { toast.error(err) });
         } else {
-            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-                toast.error('cần nhập giá trị ngày trong tương lai')
-                return;
-            }
             if (selectedCustomer.length > 0) {
                 axios.post(`${baseUrl}/voucher`, {
                     code: values.code,
@@ -139,6 +136,7 @@ const VoucherPage = () => {
                     lstCustomer: selectedCustomer.map(val => { return val.id })
                 }).then(res => {
                     toast.success("Đã tạo voucher thành công")
+                    form.reset();
                 })
             } else {
                 toast.error("chưa chọn khách hàng nào")
