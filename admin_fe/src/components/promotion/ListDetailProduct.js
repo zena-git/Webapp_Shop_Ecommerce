@@ -51,6 +51,10 @@ export default function ListTable({ data }) {
 
     const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected)
 
+    useEffect(() => {
+        console.log(selectedProduct)
+    }, [selectedProduct])
+
     const handleToggleOpen = (id) => {
         setOpen((prevOpen) => ({
             ...prevOpen,
@@ -300,7 +304,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    defaultChecked={!!selectedProduct.find(slt => slt.id == targetDataId).children.find(child => { return child.id == row.original.id }).selected}
+                    defaultChecked={selectedProduct.find(slt => slt.id == targetDataId) && selectedProduct.find(slt => slt.id == targetDataId).children.find(child => { return child.id == row.original.id })?.selected}
                     onClick={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value.target.checked })) }}
                     aria-label="Select row"
                 />
@@ -358,7 +362,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
                 </div>
             },
         }
-    ], [selectedProduct]);
+    ], [dispatch, selectedProduct, targetDataId]);
 
     const belowTable = useReactTable({
         data: belowData,

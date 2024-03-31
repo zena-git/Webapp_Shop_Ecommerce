@@ -83,6 +83,7 @@ const VoucherPage = () => {
             axios.get(`${nextUrl}/voucher/data?id=${path.id}`).then(res => {
                 setTargetVoucher(res.data);
                 setDate([dayjs(res.data.start_date), dayjs(res.data.end_date)])
+                setDiscountType(res.data.discount_type == "1");
                 res.data.VoucherDetail.map(detail => {
                     dispatch(updateSelected({ id: Number.parseInt(detail.customer_id), selected: true }))
                 })
@@ -120,12 +121,30 @@ const VoucherPage = () => {
     )
 
     const handleSubmitForm = (values) => {
+        if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
+            toast.error('cần nhập giá trị ngày trong tương lai')
+            return;
+        }
         if (VoucherType == "0") {
-            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-                toast.error('cần nhập giá trị ngày trong tương lai')
-                return;
-            }
-            axios.put(`${baseUrl}/voucher/${path.id}`, {
+            // axios.put(`${baseUrl}/voucher/${path.id}`, {
+            //     id: path.id,
+            //     code: values.code,
+            //     name: values.name,
+            //     value: values.value,
+            //     target_type: values.target_type,
+            //     usage_limit: values.usage_limit,
+            //     discount_type: values.discount_type,
+            //     max_disount_value: values.max_discount_value,
+            //     order_min_value: values.order_min_value,
+            //     startDate: date[0].toDate(),
+            //     endDate: date[1].toDate(),
+            //     lstCustomer: listCustomer.map(val => { return val.id })
+            // }).then(res => {
+            //     toast.success("Đã cập nhật voucher thành công")
+            //     navigate(`/discount/voucher/detail/${path.id}`)
+            // })
+
+            axios.post(`${nextUrl}/voucher/update`, {
                 id: path.id,
                 code: values.code,
                 name: values.name,
@@ -135,20 +154,14 @@ const VoucherPage = () => {
                 discount_type: values.discount_type,
                 max_disount_value: values.max_discount_value,
                 order_min_value: values.order_min_value,
+                description: values.description,
                 startDate: date[0].toDate(),
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
-            }).then(res => {
-                toast.success("Đã cập nhật voucher thành công")
-                navigate(`/discount/voucher/detail/${path.id}`)
             })
         } else {
-            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-                toast.error('cần nhập giá trị ngày trong tương lai')
-                return;
-            }
             if (selectedCustomer.length > 0) {
-                axios.put(`${baseUrl}/voucher/${path.id}`, {
+                axios.post(`${nextUrl}/voucher/update`, {
                     id: path.id,
                     code: values.code,
                     name: values.name,
@@ -157,6 +170,7 @@ const VoucherPage = () => {
                     usage_limit: values.usage_limit,
                     discount_type: values.discount_type,
                     max_disount_value: values.max_discount_value,
+                    description: values.description,
                     order_min_value: values.order_min_value,
                     startDate: date[0].toDate(),
                     endDate: date[1].toDate(),
@@ -185,6 +199,7 @@ const VoucherPage = () => {
         <>
             <div className="">
                 <p className='mt-2 ml-5 text-lg font-bold'>Cập nhật phiếu giảm giá</p>
+                <p className='text-xs ml-5 text-red-600'>lưu ý là khi cập nhật thì sẽ không thay đổi các khách hàng đã dùng voucher</p>
                 <div>
                     <div className='w-full flex max-xl:flex-col justify-center p-5 gap-5'>
                         <div className='bg-white p-5 shadow-lg flex flex-col gap-3 w-5/12 max-xl:w-full'>
@@ -224,9 +239,9 @@ const VoucherPage = () => {
                                                 <FormItem>
                                                     <FormLabel>Hình thức giảm giá</FormLabel>
                                                     <FormControl>
-                                                        <RadioGroup className="flex gap-3 items-center" defaultValue='0' onValueChange={e => { setDiscountType(e == '1') }}>
+                                                        <RadioGroup className="flex gap-3 items-center" defaultValue={discountType ? "0" : "1"} onValueChange={e => { setDiscountType(e == '0') }}>
                                                             <div className="flex items-center space-x-2">
-                                                                <RadioGroupItem value="0" id="option-one" defaultChecked />
+                                                                <RadioGroupItem value="0" id="option-one" />
                                                                 <Label htmlFor="option-one">giảm trực tiếp</Label>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
@@ -239,7 +254,7 @@ const VoucherPage = () => {
                                                 </FormItem>
                                             )}
                                         />
-                                        {discountType
+                                        {!discountType
                                             &&
                                             <FormField
                                                 control={form.control}

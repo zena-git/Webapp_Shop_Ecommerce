@@ -391,7 +391,6 @@ export default function ListTable() {
 }
 
 const numberToPrice = (value) => {
-    // const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    // return formattedAmount;
-    return value;
+    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return formattedAmount;
 }

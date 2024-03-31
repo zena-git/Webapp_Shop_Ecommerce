@@ -28,16 +28,30 @@ function EditPage() {
     const [PromotionType, setPromotionType] = useState("0");
 
     const navigate = useNavigate();
+    const dispatch = useDispatch()
 
     const [listProduct, setListProduct] = useState([]);
     useEffect(() => {
-        axios.get(`${baseUrl}/product`).then(res => { setListProduct(res.data) });
+        axios.get(`${baseUrl}/product`).then(res => {
+            setListProduct(res.data);
+            dispatch(set({
+                value: {
+                    selected: res.data.map(pro => {
+                        return {
+                            id: pro.id, selected: false, children: pro.lstProductDetails.map(detail => {
+                                return { id: detail.id, selected: false }
+                            })
+                        }
+                    })
+                }
+            }))
+        });
     }, [])
 
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
     useEffect(() => {
-        console.log(listSelectedProduct[1])
+        console.log(listSelectedProduct)
     }, [listSelectedProduct])
 
     const handleSubmitForm = () => {

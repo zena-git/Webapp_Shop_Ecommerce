@@ -103,6 +103,10 @@ const VoucherPage = () => {
             toast.error('cần nhập giá trị ngày trong tương lai')
             return;
         }
+        if (!discountType && values.value > 100) {
+            toast.error('mức giảm không quá 100% được');
+            return;
+        }
         if (VoucherType == "0") {
             axios.post(`${baseUrl}/voucher`, {
                 code: values.code,
@@ -110,9 +114,10 @@ const VoucherPage = () => {
                 value: values.value,
                 target_type: values.target_type,
                 usage_limit: values.usage_limit,
-                discount_type: values.discount_type,
-                max_disount_value: values.max_discount_value,
+                discount_type: discountType ? 0 : 1,
+                max_discount_value: values.max_discount_value,
                 order_min_value: values.order_min_value,
+                description: values.description,
                 startDate: date[0].toDate(),
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
@@ -128,9 +133,10 @@ const VoucherPage = () => {
                     value: values.value,
                     target_type: values.target_type,
                     usage_limit: values.usage_limit,
-                    discount_type: values.discount_type,
+                    discount_type: discountType,
                     max_disount_value: values.max_discount_value,
                     order_min_value: values.order_min_value,
+                    description: values.description,
                     startDate: date[0].toDate(),
                     endDate: date[1].toDate(),
                     lstCustomer: selectedCustomer.map(val => { return val.id })
@@ -142,7 +148,6 @@ const VoucherPage = () => {
                 toast.error("chưa chọn khách hàng nào")
             }
         }
-
     }
 
     return (
@@ -188,9 +193,9 @@ const VoucherPage = () => {
                                                 <FormItem>
                                                     <FormLabel>Hình thức giảm giá</FormLabel>
                                                     <FormControl>
-                                                        <RadioGroup className="flex gap-3 items-center" defaultValue='0' onValueChange={e => { setDiscountType(e == '1') }}>
+                                                        <RadioGroup className="flex gap-3 items-center" onValueChange={e => { setDiscountType(e == '0') }}>
                                                             <div className="flex items-center space-x-2">
-                                                                <RadioGroupItem value="0" id="option-one" defaultChecked />
+                                                                <RadioGroupItem value="0" id="option-one" />
                                                                 <Label htmlFor="option-one">giảm trực tiếp</Label>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
@@ -203,7 +208,7 @@ const VoucherPage = () => {
                                                 </FormItem>
                                             )}
                                         />
-                                        {discountType
+                                        {!discountType
                                             &&
                                             <FormField
                                                 control={form.control}

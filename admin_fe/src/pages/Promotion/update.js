@@ -107,7 +107,7 @@ function EditPage() {
                 lstProductDetails: PromotionType == "0" ? allPro : lst
             }
 
-            axios.put(`${baseUrl}/promotion/${t.id}`, t).then(res => {
+            axios.post(`${nextUrl}/promotion/update`, t).then(res => {
                 toast.success("cập nhật thành công");
                 navigate(`/discount/promotion/detail/${targetPromotion.id}`)
             })
