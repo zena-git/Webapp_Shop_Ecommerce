@@ -483,8 +483,13 @@ const Product = () => {
             });
     };
     return (
-        <div className='bg-white p-4'>
-            <div className='font-medium mb-10'>
+        <div className=''>
+            <div>
+                <h3>
+                    Quản Lý Sản Phẩm
+                </h3>
+            </div>
+            <div className='font-medium bg-white p-4 mt-4 mb-10 shadow-lg'>
                 <div>
                     <label>Tìm Kiếm</label>
                     <div className='grid grid-cols-7 gap-4 my-4'>
@@ -551,58 +556,59 @@ const Product = () => {
 
 
             </div>
-
-            <div className='mb-4' >
-                <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
-                    Excell
-                </Button>
-                <Button type="primary" onClick={() => setOpen(true)} className='ml-4'>
-                    <DeleteOutlined />
-                </Button>
-                <>
-                    <Modal
-                        title="Sản Phẩm Đã Xóa"
-                        centered
-                        open={open}
-                        onOk={() => { }}
-                        onCancel={() => setOpen(false)}
-                        width={1000}
-                        footer={null}
-                    >
-                        <div>
-                            <Table columns={columnsDeleted} pagination={{
-                                pageSize: 5,
-                            }} dataSource={dataColumDeleted} />
-                        </div>
-                    </Modal>
-                </>
-            </div>
-            <Table rowSelection={rowSelection} pagination={{
-                pageSize: 5,
-            }} columns={columns} dataSource={dataColum} />
-            <ToastContainer />
-
-            {loadingUpdate && (
-
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 1,
-                        backgroundColor: 'rgba(000, 000, 000, 0.08)',
-                        width: '100%',
-                        height: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-
-                    }}
-                >
-                    <Spin size="large" tip="product..." />
+            <div className='bg-white p-4 mt-4 mb-20 shadow-lg'>
+                <div className='mb-6 mt-2' >
+                    <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
+                        Excell
+                    </Button>
+                    <Button type="primary" onClick={() => setOpen(true)} className='ml-4'>
+                        <DeleteOutlined />
+                    </Button>
+                    <>
+                        <Modal
+                            title="Sản Phẩm Đã Xóa"
+                            centered
+                            open={open}
+                            onOk={() => { }}
+                            onCancel={() => setOpen(false)}
+                            width={1000}
+                            footer={null}
+                        >
+                            <div>
+                                <Table columns={columnsDeleted} pagination={{
+                                    pageSize: 5,
+                                }} dataSource={dataColumDeleted} />
+                            </div>
+                        </Modal>
+                    </>
                 </div>
-            )}
+                <Table rowSelection={rowSelection} pagination={{
+                    pageSize: 5,
+                }} columns={columns} dataSource={dataColum} />
+                <ToastContainer />
+
+                {loadingUpdate && (
+
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            zIndex: 1,
+                            backgroundColor: 'rgba(000, 000, 000, 0.08)',
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+
+                        }}
+                    >
+                        <Spin size="large" tip="product..." />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

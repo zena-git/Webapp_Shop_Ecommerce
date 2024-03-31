@@ -157,7 +157,7 @@ function ProductDetail() {
         {
             key: '4',
             label: 'Trạng Thái',
-            children: product?.status || 'empty',
+            children: product?.status=="0"?"Đang Bán": product?.status=="1"?"Ngừng Bán": "Khác" || 'empty',
         },
         {
             key: '5',
@@ -448,7 +448,7 @@ function ProductDetail() {
 
     return (
         <div>
-            <div className='bg-white p-4 mt-4'>
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
 
                 <div>
                     <Descriptions title="Thông Tin Sản Phẩm"
@@ -510,11 +510,11 @@ function ProductDetail() {
                 </div>
             </div>
 
-            <div className='bg-white p-4 mt-6'>
+            <div className='bg-white p-4 mt-4 mb-20 shadow-lg'>
 
                 <div >
 
-                    <div className='flex justify-between mb-4 mt-4'>
+                    <div className='flex justify-between mb-6 mt-4'>
                         <Button type="primary" disabled={!hasSelected} loading={loading} onClick={dowloadBarcode}>
                             BarCode
                         </Button>
