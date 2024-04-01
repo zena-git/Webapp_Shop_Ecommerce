@@ -71,6 +71,10 @@ const VoucherPage = () => {
     }, [])
 
     useEffect(() => {
+        console.log(selectedCustomer)
+    },[selectedCustomer])
+
+    useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
     }, [])
 
@@ -133,7 +137,7 @@ const VoucherPage = () => {
                     value: values.value,
                     target_type: values.target_type,
                     usage_limit: values.usage_limit,
-                    discount_type: discountType,
+                    discount_type: discountType ? 0 : 1,
                     max_disount_value: values.max_discount_value,
                     order_min_value: values.order_min_value,
                     description: values.description,
@@ -193,7 +197,7 @@ const VoucherPage = () => {
                                                 <FormItem>
                                                     <FormLabel>Hình thức giảm giá</FormLabel>
                                                     <FormControl>
-                                                        <RadioGroup className="flex gap-3 items-center" onValueChange={e => { setDiscountType(e == '0') }}>
+                                                        <RadioGroup className="flex gap-3 items-center" defaultValue="1" onValueChange={e => { setDiscountType(e == '0') }}>
                                                             <div className="flex items-center space-x-2">
                                                                 <RadioGroupItem value="0" id="option-one" />
                                                                 <Label htmlFor="option-one">giảm trực tiếp</Label>
@@ -277,7 +281,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel></FormLabel>
                                                 <FormControl defaultValue='1'>
-                                                    <RadioGroup className="flex gap-3 items-center hidden">
+                                                    <RadioGroup className=" gap-3 items-center hidden">
                                                         <div className="flex items-center space-x-2">
                                                             <RadioGroupItem value="0" id="option-one" />
                                                             <Label htmlFor="option-one">vận chuyển</Label>

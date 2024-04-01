@@ -85,7 +85,11 @@ function EditPage() {
                 lstProductDetails: PromotionType == "0" ? t : lst
             }).then(res => {
                 toast.success('Thêm thành công')
-                navigate(`/discount/promotion`)
+                setValue("");
+                setCode(makeid());
+                setName("");
+                setDescription("");
+                // navigate(`/discount/promotion`)
             })
         }
     }

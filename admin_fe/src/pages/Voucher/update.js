@@ -83,7 +83,7 @@ const VoucherPage = () => {
             axios.get(`${nextUrl}/voucher/data?id=${path.id}`).then(res => {
                 setTargetVoucher(res.data);
                 setDate([dayjs(res.data.start_date), dayjs(res.data.end_date)])
-                setDiscountType(res.data.discount_type == "1");
+                setDiscountType(res.data.discount_type == "0");
                 res.data.VoucherDetail.map(detail => {
                     dispatch(updateSelected({ id: Number.parseInt(detail.customer_id), selected: true }))
                 })
@@ -151,13 +151,16 @@ const VoucherPage = () => {
                 value: values.value,
                 target_type: values.target_type,
                 usage_limit: values.usage_limit,
-                discount_type: values.discount_type,
+                discount_type: discountType ? 0 : 1,
                 max_disount_value: values.max_discount_value,
                 order_min_value: values.order_min_value,
                 description: values.description,
                 startDate: date[0].toDate(),
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
+            }).then(r => {
+                toast.success("Đã cập nhật voucher thành công");
+                navigate(`/discount/voucher/detail/${path.id}`)
             })
         } else {
             if (selectedCustomer.length > 0) {
@@ -168,7 +171,7 @@ const VoucherPage = () => {
                     value: values.value,
                     target_type: values.target_type,
                     usage_limit: values.usage_limit,
-                    discount_type: values.discount_type,
+                    discount_type: discountType ? 0 : 1,
                     max_disount_value: values.max_discount_value,
                     description: values.description,
                     order_min_value: values.order_min_value,
@@ -232,7 +235,7 @@ const VoucherPage = () => {
                                         )}
                                     />
                                     <div className='grid grid-cols-2 gap-3'>
-                                        <FormField
+                                        {targetVoucher && <FormField
                                             control={form.control}
                                             name="discount_type"
                                             render={({ field }) => (
@@ -246,7 +249,7 @@ const VoucherPage = () => {
                                                             </div>
                                                             <div className="flex items-center space-x-2">
                                                                 <RadioGroupItem value="1" id="option-two" />
-                                                                <Label htmlFor="option-two">%</Label>
+                                                                <Label htmlFor="option-two">giảm theo %</Label>
                                                             </div>
                                                         </RadioGroup>
                                                     </FormControl>
@@ -254,6 +257,7 @@ const VoucherPage = () => {
                                                 </FormItem>
                                             )}
                                         />
+                                        }
                                         {!discountType
                                             &&
                                             <FormField

@@ -171,6 +171,7 @@ export type PromotionResponse = {
 }
 
 export type PromotionDetailResponse = {
+    ProductDetail: any;
     id: number,
     promotion: {
         id: number,

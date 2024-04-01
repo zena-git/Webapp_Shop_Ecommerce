@@ -50,9 +50,9 @@ export default function ListTable({ data }: { data: PromotionDetailResponse[] })
     const columns: ColumnDef<PromotionDetailResponse>[] = useMemo(() => [
         {
             accessorKey: "id",
-            header: "id",
+            header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.original.id}</div>
+                <div className="capitalize">{row.index + 1}</div>
             ),
         },
         {
@@ -68,14 +68,14 @@ export default function ListTable({ data }: { data: PromotionDetailResponse[] })
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.productDetails.code}</div>,
+            cell: ({ row }) => <div className="lowercase">{row.original.ProductDetail.code}</div>,
         },
         {
             id: "type",
             header: () => <div className="text-center">phân loại</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {"[ " + row.original.productDetails.color.name + " - " + row.original.productDetails.size.name + " ]"}
+                    {"[ " + row.original.ProductDetail.Color.name + " - " + row.original.ProductDetail.Size.name + " ]"}
                 </div>
             },
         },
@@ -84,7 +84,7 @@ export default function ListTable({ data }: { data: PromotionDetailResponse[] })
             header: () => <div className="text-center">số lượng</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.productDetails.quantity}
+                    {row.original.ProductDetail.quantity}
                 </div>
             },
         },
