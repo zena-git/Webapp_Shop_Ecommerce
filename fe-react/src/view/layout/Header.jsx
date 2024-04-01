@@ -43,7 +43,7 @@ function Header() {
         <>
             <Drawer style={{
                 width: "1000px",
-                height:"auto",
+                height: "auto",
                 marginLeft: "auto",
                 marginRight: "auto",
                 textAlign: "center",
@@ -70,7 +70,7 @@ function Header() {
                     style={{
                         width: "95%",
                         height: "30px",
-                        
+
                     }}
                 />
             </Drawer>
@@ -165,15 +165,20 @@ function Header() {
                                         marginRight: "5px"
                                     }} /> Xin chào ? </span>
                                 </Dropdown> :
-                                    <Link to={"/profile"}>
+                                    <Link style={{
+                                        textDecoration: "none",
+                                    }} to={"/profile"}>
                                         <span style={{
                                             letterSpacing: "0.5px",
                                             fontWeight: 500,
-                                            lineHeight: "16px",
                                             marginLeft: "6px",
                                             padding: '8px 12px',
                                             borderRadius: '4px',
                                             cursor: 'pointer',
+                                            color: "#555556",
+                                            paddingTop: "10px",
+                                            fontSize: "16px"
+
                                         }}>Đăng nhập</span>
                                     </Link>
                                 }
