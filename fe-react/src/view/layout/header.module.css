@@ -2,7 +2,7 @@
     color: red;
 }
 
-.navContainer{
+.navContainer {
     margin-right: 20px;
     text-transform: uppercase;
     font-weight: 500;
@@ -10,7 +10,11 @@
     font-size: 16.75px;
 }
 
-.navContainer a{
-    color: #3a5f74 !important;
-    text-decoration: none !important;
+.navContainer a {
+    color: #555556 !important;
+    text-decoration: none ;
+}
+
+.navContainer a:hover{
+    text-decoration: underline;
 }

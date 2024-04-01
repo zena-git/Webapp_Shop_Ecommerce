@@ -6,9 +6,20 @@ import { AiOutlineShoppingCart } from "react-icons/ai";
 import { TbSearch } from "react-icons/tb";
 import { Badge, Drawer } from "antd";
 import { useState, useContext } from "react";
-import { Button, Dropdown, Space } from 'antd';
+import { Button, Dropdown, Space, Input } from 'antd';
 import DataContext from "../../DataContext";
+import { AudioOutlined } from '@ant-design/icons';
+const { Search } = Input;
 function Header() {
+    const onSearch = (value, _e, info) => console.log(info?.source, value);
+    const suffix = (
+        <AudioOutlined
+            style={{
+                fontSize: 16,
+                color: '#1677ff',
+            }}
+        />
+    );
     const [openSearch, setOpenSearch] = useState(false)
     const { data, dataLength, isAccount } = useContext(DataContext);
     const items = [
@@ -30,18 +41,40 @@ function Header() {
     ];
     return (
         <>
-            <Drawer
-                title="Drawer with extra actions"
+            <Drawer style={{
+                width: "1000px",
+                height:"auto",
+                marginLeft: "auto",
+                marginRight: "auto",
+                textAlign: "center",
+                boxShadow: "none"
+            }}
+                title={
+                    <div style={{
+                        borderBottom: "none"
+                    }}>
+                        <img src="/logoLolita.png" alt="Logo Lolita" style={{ width: "30%", height: "30%" }} />
+
+                    </div>
+                }
                 placement={"top"}
                 onClose={() => {
                     setOpenSearch(false)
                 }}
                 open={openSearch}
             >
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
+                <Search
+                    placeholder=" Bạn đang tìm kiếm sản phẩm nào?"
+                    allowClear
+                    onSearch={onSearch}
+                    style={{
+                        width: "95%",
+                        height: "30px",
+                        
+                    }}
+                />
             </Drawer>
+
             <div style={{
                 height: "94px",
                 position: "fixed",
@@ -90,7 +123,7 @@ function Header() {
                                     listStyle: "none"
                                 }}>
                                     <li className={styles.navContainer} style={{
-                                        marginLeft: "94px"
+                                        marginLeft: "100px"
                                     }}>
                                         <Link to={"/"} >Trang chủ</Link>
                                     </li>
@@ -98,10 +131,7 @@ function Header() {
                                         <Link to={"/catalog"}>Danh mục</Link>
                                     </li>
                                     <li className={styles.navContainer}>
-                                        <Link to={"/catalog"}>Chính sách</Link>
-                                    </li>
-                                    <li className={styles.navContainer}>
-                                        <Link to={"/catalog"}>Thành viên</Link>
+                                        <Link to={"/catalog"}>Chính sách thành viên</Link>
                                     </li>
                                     <li className={styles.navContainer}>
                                         <Link to={"/catalog"}>Cửa hàng</Link>
@@ -127,27 +157,26 @@ function Header() {
                                         fontWeight: 500,
                                         lineHeight: "16px",
                                         marginLeft: "6px",
-                                        backgroundColor: '#cccccc',
                                         padding: '8px 12px',
                                         borderRadius: '4px',
                                         cursor: 'pointer',
-
-                                    }}><FaUser /> Xin Chào ! ?</span>
+                                        color: "#555556"
+                                    }}><FaUser style={{
+                                        marginRight: "5px"
+                                    }} /> Xin chào ? </span>
                                 </Dropdown> :
-                                    <span style={{
-                                        letterSpacing: "0.5px",
-                                        fontWeight: 500,
-                                        lineHeight: "16px",
-                                        marginLeft: "6px",
-                                        backgroundColor: '#cccccc',
-                                        padding: '8px 12px',
-                                        borderRadius: '4px',
-                                        cursor: 'pointer',
-
-                                    }}>Login</span>
+                                    <Link to={"/profile"}>
+                                        <span style={{
+                                            letterSpacing: "0.5px",
+                                            fontWeight: 500,
+                                            lineHeight: "16px",
+                                            marginLeft: "6px",
+                                            padding: '8px 12px',
+                                            borderRadius: '4px',
+                                            cursor: 'pointer',
+                                        }}>Đăng nhập</span>
+                                    </Link>
                                 }
-
-
 
 
                             </div>
@@ -164,12 +193,16 @@ function Header() {
                                     letterSpacing: "0.5px",
                                     fontWeight: 700,
                                     lineHeight: "16px",
-                                    marginLeft: "6px"
+                                    marginLeft: "6px",
+                                    marginTop: "5px",
+                                    color: "#555556"
                                 }}><TbSearch /></span>
                             </div>
                             <div style={{
                                 display: "flex",
-                                flexDirection: "row"
+                                flexDirection: "row",
+                                marginTop: "5px"
+
                             }}>
                                 <Badge count={dataLength}>
                                     <span style={{
@@ -177,8 +210,10 @@ function Header() {
                                         letterSpacing: "0.5px",
                                         fontWeight: 700,
                                         lineHeight: "16px",
-                                        marginLeft: "6px"
-                                    }}><Link to={"/cart"}>
+                                        marginLeft: "6px",
+                                    }}><Link to={"/cart"} style={{
+                                        color: "#555556"
+                                    }}>
                                             <AiOutlineShoppingCart /></Link></span>
                                 </Badge>
                             </div>

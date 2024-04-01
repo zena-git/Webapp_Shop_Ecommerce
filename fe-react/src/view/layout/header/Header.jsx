@@ -81,10 +81,7 @@ function Header() {
                                         <Link to={"/catalog"}>Danh mục</Link>
                                     </li>
                                     <li className={styles.navContainer}>
-                                        <Link to={"/catalog"}>Chính sách</Link>
-                                    </li>
-                                    <li className={styles.navContainer}>
-                                        <Link to={"/catalog"}>Thành viên</Link>
+                                        <Link to={"/catalog"}>Chính sách thành viên</Link>
                                     </li>
                                     <li className={styles.navContainer}>
                                         <Link to={"/catalog"}>Cửa hàng</Link>

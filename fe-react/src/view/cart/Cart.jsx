@@ -86,9 +86,10 @@ function Cart() {
                     }}>Giỏ hàng của tôi</h1>
                 </div>
 
-
-                <div>
-
+                <div style={{
+                    marginLeft: "15px",
+                    marginRight: "15px",
+                }}>
                     {data.length === 0 ? (
                         <p>Giỏ hàng trống rỗng</p>
                     ) : (
