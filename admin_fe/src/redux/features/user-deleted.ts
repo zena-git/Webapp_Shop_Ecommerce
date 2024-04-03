@@ -16,6 +16,7 @@ export const selectedData = createSlice({
     } as Init,
     reducers: {
         set: (state, action: PayloadAction<Init>) => {
+            console.log(action.payload.value.selected);
             state.value.selected = action.payload.value.selected;
         },
         updateSelected: (state, action: PayloadAction<{ id: number; selected: boolean }>) => {

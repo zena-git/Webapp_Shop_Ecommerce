@@ -334,9 +334,10 @@ export default function AddCustomer() {
             })
             Promise.all(promises).then(() => {
                 toast.success('thêm khách hàng thành công');
-                setTimeout(() => {
-                    navigate(`/user/customer/detail/${res.data.data.id}`)
-                }, 2000)
+                form.reset();
+                // setTimeout(() => {
+                //     navigate(`/user/customer/detail/${res.data.data.id}`)
+                // }, 2000)
             })
         })
     }

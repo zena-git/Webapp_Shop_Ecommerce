@@ -72,7 +72,7 @@ const VoucherPage = () => {
 
     useEffect(() => {
         console.log(selectedCustomer)
-    },[selectedCustomer])
+    }, [selectedCustomer])
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
@@ -138,12 +138,12 @@ const VoucherPage = () => {
                     target_type: values.target_type,
                     usage_limit: values.usage_limit,
                     discount_type: discountType ? 0 : 1,
-                    max_disount_value: values.max_discount_value,
+                    max_discount_value: values.max_discount_value,
                     order_min_value: values.order_min_value,
                     description: values.description,
                     startDate: date[0].toDate(),
                     endDate: date[1].toDate(),
-                    lstCustomer: selectedCustomer.map(val => { return val.id })
+                    lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
                 }).then(res => {
                     toast.success("Đã tạo voucher thành công")
                     form.reset();

@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Button, Upload, Select } from 'antd/lib';
+import { DatePicker, InputNumber, Button, Upload, Select, Modal } from 'antd/lib';
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -17,6 +17,15 @@ import {
     FormLabel,
     FormMessage,
 } from "~/components/ui/form"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "~/components/ui/dialog"
+
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -24,6 +33,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { vnData } from '../../lib/extra'
 import { useDropzone } from 'react-dropzone'
+import QRScanner from 'qr-scanner'
+import { QrReader } from "react-qr-reader";
 import {
     // editor
     locale_en_gb,
@@ -193,6 +204,17 @@ export default function Add() {
         multiple: false,
     });
 
+    const [result, setResult] = useState()
+
+    const scanImage = (e) => {
+        const file = e.target.file;
+        if (!file) return;
+        QRScanner.scanImage(file, { returnDetailedScanResult: true }).then(QRResult => {
+            console.log(QRResult);
+            setResult(QRResult);
+        })
+    }
+
 
     const handleSubmitForm = (values) => {
         if (originalThumbnail) {
@@ -216,9 +238,51 @@ export default function Add() {
                 form.reset();
             }).catch(error => {
                 toast.error(error)
-            }) 
+            })
         }
     }
+
+    const [webScan, setWebScan] = useState();
+
+
+    const camError = (error) => {
+        if (error) {
+            console.info(error);
+        }
+    };
+
+    const handleModalOk = () => {
+        // 
+    }
+
+    function ScanResult(result) {
+        if (result) {
+            if (result.text) {
+                setWebScan(result);
+                const resultText = result.text;
+                const id = resultText.split("||")[0]
+                const name = resultText.split("||")[1].split("|")[0]
+                const birthday = dayjs(resultText.split("||")[1].split("|")[1], 'DDMMYYYY')
+                const gender = resultText.split("||")[1].split("|")[2] == "Nam" ? "0" : "1"
+                const province = resultText.split("||")[1].split("|")[3].split(", ")[3]
+                const district = resultText.split("||")[1].split("|")[3].split(", ")[2]
+                const commune = resultText.split("||")[1].split("|")[3].split(", ")[1]
+                const detail = resultText.split("||")[1].split("|")[3].split(", ")[0]
+                form.setValue("birthday", birthday)
+                form.setValue("detail", detail)
+                form.setValue("full_name", name)
+                form.setValue("gender", gender)
+                setAddDistrict(district);
+                setAddProvince(province);
+                setAddWard(commune);
+            }
+        }
+    }
+
+    useEffect(() => {
+        console.log(webScan);
+    }, [webScan])
+
 
     return (
         <div className="mb-9">
@@ -249,37 +313,6 @@ export default function Add() {
                             <p className='text-lg font-bold'>Thông tin nhân viên</p>
                             <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
                             <div className='w-full flex flex-col'>
-                                {/* <Upload
-                                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                                    method='POST'
-                                    previewFile={previewImage}
-                                    className='w-1/2 aspect-square flex justify-center self-center items-center rounded-full border border-dashed border-slate-600 mx-5'
-                                    customRequest={(q) => {
-                                        setPreviewImage(q.file)
-                                        const formData = new FormData();
-                                        formData.append("file", q.file);
-                                        formData.append("cloud_name", "db9i1b2yf")
-                                        formData.append("upload_preset", "product")
-                                        axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-
-                                            // alert("upload image successfully" + res.data.url)
-                                            // axios.get(`http://localhost:8081/api/productDetail/update/image?id=${record.id}&imageUrl=${res.data.url}`).then((response) => {
-                                            //     //response.data là cái data của productDetail đã được update lại image url
-                                            //     console.log("updated Detail: " + JSON.stringify(response.data))
-                                            // })
-                                        })
-                                    }}
-                                >
-                                    <button style={{ border: 0, background: 'none', }} className='w-full h-full' type="button">
-                                        {previewImage ? <img alt='' src={URL.createObjectURL(previewImage)} className='w-full h-full rounded-full' /> : <>
-                                            <PlusOutlined />
-                                            <div style={{ marginTop: 8 }}>
-                                                Upload
-                                            </div>
-                                        </>}
-                                    </button>
-                                </Upload> */}
-
                                 <div
                                     {...getThumbnailRootProps()}
                                     className="w-1/2 aspect-square self-center rounded-full border border-dashed border-slate-600 mx-5 flex items-center text-center justify-center"
@@ -319,7 +352,27 @@ export default function Add() {
                             </div>
                         </div>
                         <div className="flex-grow flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
-                            <p className='text-lg font-bold'>Thông tin chi tiết</p>
+                            <div className='flex justify-between items-center'>
+                                <p className='text-lg font-bold'>Thông tin chi tiết</p>
+                                <Dialog>
+                                    <DialogTrigger>
+                                        <Button type='primary'>Quét mã</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        {/* <Select onChange={val => setSelectedCamera(val)} options={devices.map(t => { return { label: t.label, value: t.deviceId } })}></Select> */}
+                                        <QrReader
+                                            delay={600}
+                                            facingMode="user"
+                                            onError={camError}
+                                            chooseDeviceId={"2"}
+                                            onResult={ScanResult}
+                                            style={{ width: "100%" }}
+                                            legacyMode={false}
+                                        />
+                                        <p>{webScan && webScan.text}</p>
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
                             <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
                             <div className='flex flex-col gap-3'>
                                 <div className='grid grid-cols-2 gap-3 items-center'>

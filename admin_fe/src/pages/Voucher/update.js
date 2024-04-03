@@ -126,24 +126,6 @@ const VoucherPage = () => {
             return;
         }
         if (VoucherType == "0") {
-            // axios.put(`${baseUrl}/voucher/${path.id}`, {
-            //     id: path.id,
-            //     code: values.code,
-            //     name: values.name,
-            //     value: values.value,
-            //     target_type: values.target_type,
-            //     usage_limit: values.usage_limit,
-            //     discount_type: values.discount_type,
-            //     max_disount_value: values.max_discount_value,
-            //     order_min_value: values.order_min_value,
-            //     startDate: date[0].toDate(),
-            //     endDate: date[1].toDate(),
-            //     lstCustomer: listCustomer.map(val => { return val.id })
-            // }).then(res => {
-            //     toast.success("Đã cập nhật voucher thành công")
-            //     navigate(`/discount/voucher/detail/${path.id}`)
-            // })
-
             axios.post(`${nextUrl}/voucher/update`, {
                 id: path.id,
                 code: values.code,
@@ -152,9 +134,9 @@ const VoucherPage = () => {
                 target_type: values.target_type,
                 usage_limit: values.usage_limit,
                 discount_type: discountType ? 0 : 1,
-                max_disount_value: values.max_discount_value,
+                max_discount_value: targetVoucher.max_discount_value,
                 order_min_value: values.order_min_value,
-                description: values.description,
+                description: targetVoucher.description,
                 startDate: date[0].toDate(),
                 endDate: date[1].toDate(),
                 lstCustomer: listCustomer.map(val => { return val.id })
@@ -172,12 +154,12 @@ const VoucherPage = () => {
                     target_type: values.target_type,
                     usage_limit: values.usage_limit,
                     discount_type: discountType ? 0 : 1,
-                    max_disount_value: values.max_discount_value,
-                    description: values.description,
+                    max_discount_value: targetVoucher.max_discount_value,
+                    description: targetVoucher.description,
                     order_min_value: values.order_min_value,
                     startDate: date[0].toDate(),
                     endDate: date[1].toDate(),
-                    lstCustomer: selectedCustomer.map(val => { return val.id })
+                    lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
                 }).then(res => {
                     toast.success("Đã cập nhật voucher thành công");
                     navigate(`/discount/voucher/detail/${path.id}`)
@@ -260,6 +242,7 @@ const VoucherPage = () => {
                                         }
                                         {!discountType
                                             &&
+                                            targetVoucher &&
                                             <FormField
                                                 control={form.control}
                                                 name="max_discount_value"
@@ -267,7 +250,7 @@ const VoucherPage = () => {
                                                     <FormItem>
                                                         <FormLabel>Mức giảm tối đa</FormLabel>
                                                         <FormControl>
-                                                            <InputNumber className='w-full' {...field} />
+                                                            <InputNumber value={targetVoucher.max_discount_value} onChange={value => { setTargetVoucher(prev => { return { ...prev, max_discount_value: value } }) }} className='w-full' {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -305,7 +288,7 @@ const VoucherPage = () => {
                                             )}
                                         />
                                     </div>
-                                    <FormField
+                                    {targetVoucher && <FormField
                                         control={form.control}
                                         name="description"
                                         render={({ field }) =>
@@ -313,12 +296,13 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Mô tả</FormLabel>
                                                 <FormControl>
-                                                    <Textarea placeholder="mô tả" {...field} />
+                                                    <Textarea value={targetVoucher.description} onChange={e => setTargetVoucher(prev => { return { ...prev, description: e.target.value } })} placeholder="mô tả" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
+                                    }
                                     {/* <FormField
                                         control={form.control}
                                         name="target_type"

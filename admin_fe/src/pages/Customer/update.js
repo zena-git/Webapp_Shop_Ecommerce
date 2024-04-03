@@ -119,6 +119,7 @@ export default function AddCustomer() {
     useEffect(() => {
         axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
             setTargetCustomer(res.data)
+            setBirthday(dayjs(res.data.birthday))
             setListAddress(res.data.lstAddress.map((add, index) => {
                 return {
                     ...add,
@@ -426,7 +427,7 @@ export default function AddCustomer() {
                                 />
                             </div>
                         </div>
-                        <FormField
+                        {/* <FormField
                             control={form.control}
                             name="address"
                             render={({ field }) =>
@@ -439,7 +440,7 @@ export default function AddCustomer() {
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                        /> */}
 
                         <Button type='primary' onClick={handleAddAddress}>Thêm địa chỉ mới</Button>
 

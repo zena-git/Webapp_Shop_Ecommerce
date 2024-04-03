@@ -137,14 +137,17 @@ export default function ListTable() {
                                     // eslint-disable-next-line no-restricted-globals
                                     let t = confirm('xác nhận xóa');
                                     if (t) {
-                                        axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
+                                        axios.post(`${nextUrl}/user/delete`, {
+                                            id: row.original.id
+                                        }).then(res => {
                                             alert("xóa thành công");
+                                            navigate(0);
                                             fillData();
                                         })
                                     }
                                 }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/voucher/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/voucher/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
+                                <DropdownMenuItem><Link to={`/user/staff/update/${row.original.id}`}>Cập nhật</Link></DropdownMenuItem>
+                                <DropdownMenuItem><Link to={`/user/staff/detail/${row.original.id}`}>Chi tiết</Link></DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -308,8 +311,11 @@ const Recover = () => {
     const showModal = () => {
         setIsModalOpen(true);
     };
+
+    const listUserDeletedSelect = useAppSelector(state => state.voucherDeletedReducer.value.selected)
+
     const handleOk = () => {
-        const promises = listVoucherDeleteSelected.map(slt => {
+        const promises = listUserDeletedSelect.map(slt => {
             return axios.get(`${nextUrl}/user/recover?id=${slt.id}`)
         })
         Promise.all(promises).then(() => {
@@ -322,11 +328,11 @@ const Recover = () => {
         setIsModalOpen(false);
     };
 
-    const listVoucherDeleteSelected = useAppSelector(state => state.userDeletedReducer.value.selected)
+    
 
     return (
         <>
-            <Button onClick={showModal} variant="outline" className="bg-red-500 text-white">Nhân viên đã xóa</Button>
+            <button onClick={showModal} style={{ backgroundColor: "red" }} className="bg-opacity-55 px-3 text-white font-semibold rounded-md">Nhân viên đã xóa</button>
             <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                 <ListDeleted />
             </Modal>

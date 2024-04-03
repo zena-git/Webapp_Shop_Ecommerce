@@ -42,8 +42,9 @@ import { User, VoucherResponse } from "~/lib/type"
 import axios from 'axios'
 import { baseUrl, nextUrl } from '~/lib/functional'
 import { Link, redirect } from 'react-router-dom'
-import { set, updateSelected } from '../../redux/features/user-deleted'
+import { set, updateSelected } from '../../redux/features/voucher-deleted'
 import { useDispatch } from 'react-redux'
+import { useAppSelector } from '~/redux/storage'
 export default function ListTable() {
     const [data, setData] = useState<User[]>([]);
     const dispatch = useDispatch()
@@ -62,12 +63,7 @@ export default function ListTable() {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
 
-    useEffect(() => {
-        const keysArray = Object.keys(rowSelection).map(Number);
-        if (keysArray.length > 0) {
-            dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
-        }
-    }, [rowSelection])
+    
 
     const columns: ColumnDef<User>[] = useMemo(() => [
         {
@@ -144,6 +140,17 @@ export default function ListTable() {
             rowSelection,
         },
     })
+
+    const selected = useAppSelector(state => state.voucherDeletedReducer.value.selected)
+
+    useEffect(() => {
+        const keysArray = Object.keys(rowSelection).map(Number);
+        if (keysArray.length > 0) {
+            let t = keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } });
+            console.log(t);
+            dispatch(set({ value: { selected:  t} }))
+        }
+    }, [dispatch, rowSelection, table])
 
     return (
         <>
