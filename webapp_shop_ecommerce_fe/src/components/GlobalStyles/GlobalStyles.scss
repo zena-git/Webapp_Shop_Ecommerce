@@ -22,6 +22,12 @@ body {
     font-size: 1.6rem;
     font-weight: 500;
 }
+
+
+.ant-btn {
+
+    font-size: 1.3rem;
+}
 .ant-btn-primary {
     background-color: var(--color-primary);
     font-weight: 500;
@@ -107,4 +113,8 @@ body {
 
 :where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab:hover {
     color: var(--color-primary);
+}
+
+.ant-table-thead th {
+    background-color: #da749392 !important;
 }

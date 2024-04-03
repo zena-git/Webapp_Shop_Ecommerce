@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Table, Radio, Select, Input, Space, Dropdown, Switch, Spin, Popconfirm, Tooltip, Modal } from 'antd';
 import axios from 'axios';
 import { useDebounce } from '~/hooks';
-import { ToolOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, RedoOutlined } from '@ant-design/icons';
+import { ToolOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, RedoOutlined, FilterOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -109,6 +109,9 @@ const columnsDeleted = [
 ];
 const Product = () => {
 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [productIdToDelete, setProductIdToDelete] = useState(null);
+
     const [valueRadio, setValueRadio] = useState("");
     const [valueSearch, setValueSearch] = useState("");
     const [valueCategory, setValueCategory] = useState("");
@@ -158,23 +161,7 @@ const Product = () => {
                             key: '1',
                         },
                         {
-                            label: <>
-                                <Popconfirm
-                                    title="Bạn Có Chắc Muốn Xóa?"
-                                    icon={
-                                        <QuestionCircleOutlined
-                                            style={{
-                                                color: 'red',
-                                            }}
-                                        />
-                                    }
-                                    onConfirm={() => handleDeleteProduct(data.id)}
-                                >
-                                    <div style={{ color: 'red' }}>
-                                        <DeleteOutlined /> Delete
-                                    </div>
-                                </Popconfirm>
-                            </>,
+                            label: <div style={{ color: 'red' }} onClick={() => showModal(data.id)}><DeleteOutlined /> Delete</div>,
                             key: '2',
                         }
                     ];
@@ -482,6 +469,26 @@ const Product = () => {
                 // }, 1000);
             });
     };
+
+
+    const showModal = (productId) => {
+        setModalVisible(true);
+        setProductIdToDelete(productId);
+    };
+
+    const handleOk = () => {
+        if (productIdToDelete) {
+            handleDeleteProduct(productIdToDelete);
+        }
+        setModalVisible(false);
+        setProductIdToDelete(null);
+    };
+
+    const handleCancel = () => {
+        setModalVisible(false);
+        setProductIdToDelete(null);
+    };
+
     return (
         <div className=''>
             <div>
@@ -489,7 +496,10 @@ const Product = () => {
                     Quản Lý Sản Phẩm
                 </h3>
             </div>
-            <div className='font-medium bg-white p-4 mt-4 mb-10 shadow-lg'>
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                <div className='mb-6 mt-2 '>
+                    <div className='text-[16px] font-semibold'><FilterOutlined className='mr-2'></FilterOutlined>Bộ Lọc</div>
+                </div>
                 <div>
                     <label>Tìm Kiếm</label>
                     <div className='grid grid-cols-7 gap-4 my-4'>
@@ -550,41 +560,54 @@ const Product = () => {
                     </div>
                 </div>
 
-
-
-
-
-
             </div>
             <div className='bg-white p-4 mt-4 mb-20 shadow-lg'>
-                <div className='mb-6 mt-2' >
-                    <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
-                        Excell
-                    </Button>
-                    <Button type="primary" onClick={() => setOpen(true)} className='ml-4'>
-                        <DeleteOutlined />
-                    </Button>
-                    <>
-                        <Modal
-                            title="Sản Phẩm Đã Xóa"
-                            centered
-                            open={open}
-                            onOk={() => { }}
-                            onCancel={() => setOpen(false)}
-                            width={1000}
-                            footer={null}
-                        >
-                            <div>
-                                <Table columns={columnsDeleted} pagination={{
-                                    pageSize: 5,
-                                }} dataSource={dataColumDeleted} />
-                            </div>
-                        </Modal>
-                    </>
+                <div className='flex justify-between	'>
+
+                    <div className='mb-6 mt-2 '>
+                        <div className='text-[16px] font-semibold'>Danh Sách Sản Phẩm</div>
+                    </div>
+                    <div className='mb-6 mt-2' >
+                        <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
+                            Excell
+                        </Button>
+                        <Button type="primary" onClick={() => setOpen(true)} className='ml-4'>
+                            <DeleteOutlined />
+                        </Button>
+                        <>
+                            <Modal
+                                title="Sản Phẩm Đã Xóa"
+                                centered
+                                open={open}
+                                onOk={() => { }}
+                                onCancel={() => setOpen(false)}
+                                width={1000}
+                                footer={null}
+                            >
+                                <div>
+                                    <Table columns={columnsDeleted} pagination={{
+                                        pageSize: 5,
+                                    }} dataSource={dataColumDeleted} />
+                                </div>
+                            </Modal>
+                        </>
+                    </div>
                 </div>
+
                 <Table rowSelection={rowSelection} pagination={{
                     pageSize: 5,
                 }} columns={columns} dataSource={dataColum} />
+
+                <Modal
+                    title="Xác nhận xóa"
+                    visible={modalVisible}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    okText="Xác Nhận"
+                    cancelText="Hủy"
+                >
+                    <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+                </Modal>
                 <ToastContainer />
 
                 {loadingUpdate && (

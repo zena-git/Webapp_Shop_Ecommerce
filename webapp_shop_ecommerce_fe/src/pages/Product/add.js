@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber, message } from 'antd';
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber, Tooltip } from 'antd';
 import axios from 'axios';
 import Compressor from 'compressorjs';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
 const { TextArea } = Input;
 
 
@@ -27,19 +27,19 @@ const tagRender = (props) => {
                 marginRight: 3,
             }}
         >
-            {label}
+            {hexToColorName(label)}
         </Tag>
     );
 };
 
+
 const calculateRowSpan = (data, dataIndex, rowIndex) => {
-    // console.log(data[rowIndex][dataIndex]);
-    if (rowIndex > 0 && data[rowIndex][dataIndex].id === data[rowIndex - 1][dataIndex].id) {
+    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
         return 0;
     }
     let count = 1;
     for (let i = rowIndex + 1; i < data.length; i++) {
-        if (data[i][dataIndex].id === data[i - 1][dataIndex].id) {
+        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
             count++;
         } else {
             break;
@@ -55,6 +55,9 @@ const getBase64 = (file) =>
         reader.onerror = (error) => reject(error);
     });
 function ProductAdd() {
+    const navigate = useNavigate();
+
+
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -147,7 +150,15 @@ function ProductAdd() {
             title: 'Màu Sắc',
             dataIndex: 'color',
             key: 'color',
-            render: (color) => <Tag color={color.name}>{color.name}</Tag>,
+            render: (color) => <>
+                <div className='flex'>
+                    <Tooltip title={hexToColorName(color.name) + ' - ' + color.name} color={color.name} key={color.name}>
+                        <div style={{ width: '20px', height: '20px', backgroundColor: color.name }}></div>
+                    </Tooltip>
+                    <span className='ml-2 mr-2'>-</span>
+                    <span>{hexToColorName(color.name)}</span>
+                </div>
+            </>,
 
         },
         {
@@ -184,7 +195,7 @@ function ProductAdd() {
         }
         ,
         {
-            title: 'Cân Nặng',
+            title: 'Khối Nượng',
             dataIndex: 'weight',
             key: 'weight',
             render: (text, record) => (
@@ -218,6 +229,7 @@ function ProductAdd() {
                     children: (
                         <>
                             <Upload
+                                accept="image/*"
                                 key={index}
                                 listType="picture-card"
                                 fileList={record.imageUrl}
@@ -321,6 +333,7 @@ function ProductAdd() {
 
     const [valueInputQuantityCustom, setValueInputQuantityCustom] = useState(null);
     const [valueInputPriceCustom, setValueInputPriceCustom] = useState(null);
+    const [valueInputWeightCustom, setValueInputWeightCustom] = useState(null);
 
 
     // selectcategory
@@ -562,10 +575,10 @@ function ProductAdd() {
             .then((response) => {
                 const newObj = response.data.map(rep => ({
 
-                    label: hexToColorName(rep.name),
+                    label: rep.name,
                     value: rep.id,
                     emoji: <ColorPicker defaultValue={rep.name} disabled size="small" />,
-                    desc: rep.name,
+                    desc: hexToColorName(rep.name),
                     key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
                 }));
                 setOptionColor(newObj);
@@ -746,12 +759,18 @@ function ProductAdd() {
             toast.info("Giá Phải Lớn Hơn 1000 !")
             return;
         }
+
+        if (valueInputWeightCustom < 1) {
+            toast.info("Khối Lượng Phải Lớn Hơn 1 gam!")
+            return;
+        }
         const updatedProductList = dataRowProductDetail.map(product => {
             if (selectedRowKeys.includes(product.key)) {
                 return {
                     ...product,
                     price: valueInputPriceCustom,
                     quantity: valueInputQuantityCustom,
+                    weight: valueInputWeightCustom
                 };
             }
             return product;
@@ -762,6 +781,7 @@ function ProductAdd() {
         setIsModalOpen(false);
         setValueInputPriceCustom(null);
         setValueInputQuantityCustom(null);
+        setValueInputWeightCustom(null);
     }
 
     //Add product
@@ -804,6 +824,8 @@ function ProductAdd() {
             toast.success(message);
             console.log(response.data);
             resetModel();
+            navigate('/product')
+
         } catch (error) {
             const { status, message, errCode } = error.response.data;
             toast.error(message);
@@ -837,9 +859,7 @@ function ProductAdd() {
     const [imageUrlAvatar, setImageAvatar] = useState(null);
     const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
 
-    const handleDeleteImage = () => {
-        // setSelectedImage(null);
-    };
+
     const handleImageChange = (event) => {
         const file = event?.target?.files[0];
         console.log(file);
@@ -879,8 +899,13 @@ function ProductAdd() {
     };
     return (
         <div className=''>
+            
             <div>
                 <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                    <div className='mb-10 mt-2 '>
+                        <div className='text-[16px] font-semibold	'>Thông Tin Cơ Bản</div>
+                    </div>
+
                     <div className='flex items-end mt-4	mb-10'>
                         <div className='w-1/4 flex justify-center	'>
                             <div style={{
@@ -1000,6 +1025,15 @@ function ProductAdd() {
                         <label>Mô Tả Sản Phẩm</label>
                         <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
                     </div>
+                </div>
+
+
+
+                <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                    <div className='mb-10 mt-2 '>
+                        <div className='text-[16px] font-semibold	'>Thông Tin Chi Tiết</div>
+                    </div>
+
                     <div className='grid grid-cols-4 gap-4 my-4'>
                         <div>
                             <label>Loại</label>
@@ -1147,7 +1181,7 @@ function ProductAdd() {
                                         <span role="img" aria-label={option.data.label}>
                                             {option.data.emoji}
                                         </span>
-                                        {option.data.desc + "-" + option.data.label}
+                                        {option.data.label + "-" + option.data.desc}
                                     </Space>
                                 )}
                                 onChange={handleChangeColor}
@@ -1190,25 +1224,38 @@ function ProductAdd() {
 
 
                 <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                    <div className='mb-6 mt-2 '>
+                        <div className='text-[16px] font-semibold'>Chi Tiết Sản Phẩm</div>
+                    </div>
+
                     <div className='mt-2 flex justify-between	'>
-                        <Button type="primary" onClick={handleAddProduct}>Thêm Sản Phẩm</Button>
-                        <Button type="primary" onClick={showModal}>Chỉnh Sửa Số Lượng Và Giá Chung</Button>
-                        <> <Modal title="Chỉnh Sửa Số Lượng Và Giá Chung" okText="Cập Nhật" open={isModalOpen}
+                        <Button className='mr-4' type="primary" onClick={handleAddProduct}>Thêm Sản Phẩm</Button>
+                        <Button type="primary" onClick={showModal}>Áp Dụng Chung Cho Các Phân Loại</Button>
+                        <> <Modal title="Áp Dụng Chung Cho Các Phân Loại" okText="Cập Nhật" open={isModalOpen}
                             onOk={onChangeQuantityPriceCustom}
                             onCancel={handleCancelModal}>
                             <div>
-                                <label>Số Lượng</label>
-                                <Input className='mt-2 mb-2' placeholder="Nhập Số Lượng"
-                                    value={valueInputQuantityCustom}
-                                    onChange={(e) => { setValueInputQuantityCustom(e.target.value) }}
-                                ></Input>
+                                <label>Đơn Giá</label>
+                                <InputNumber className='mt-2 mb-2 w-full' placeholder="Nhập Đơn Giá"
+                                    value={valueInputPriceCustom}
+                                    onChange={(value) => { setValueInputPriceCustom(value) }}
+                                ></InputNumber>
                             </div>
                             <div>
-                                <label>Đơn Giá</label>
-                                <Input className='mt-2 mb-2' placeholder="Nhập Đơn Giá"
-                                    value={valueInputPriceCustom}
-                                    onChange={(e) => { setValueInputPriceCustom(e.target.value) }}
-                                ></Input>
+                                <label>Số Lượng</label>
+                                <InputNumber className='mt-2 mb-2 w-full' placeholder="Nhập Số Lượng"
+                                    value={valueInputQuantityCustom}
+                                    onChange={(value) => { setValueInputQuantityCustom(value) }}
+                                ></InputNumber>
+                            </div>
+
+
+                            <div>
+                                <label>Khối Lượng</label>
+                                <InputNumber className='mt-2 mb-2 w-full' placeholder="Nhập Khối Lượng"
+                                    value={valueInputWeightCustom}
+                                    onChange={(value) => { setValueInputWeightCustom(value) }}
+                                ></InputNumber>
                             </div>
                         </Modal></>
                     </div>

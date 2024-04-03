@@ -6,6 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DeleteOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 function Brand() {
     const columns = [
         {
@@ -31,6 +34,11 @@ function Brand() {
             dataIndex: 'createdDate',
             key: 'createdDate',
             align: 'center',
+            render: (text, record, index) => (
+                <React.Fragment key={index}>
+                    <span> {dayjs(record.createdDate).format('DD-MM-YYYY')}</span>
+                </React.Fragment>
+            ),
         },
         {
             title: 'Action',
@@ -138,6 +146,8 @@ function Brand() {
                 toast.success(response.data.message);
                 setValueInputAdd(null)
                 fetchData();
+                setIsModalOpenAdd(false);
+
 
             })
             .catch(err => {
@@ -145,7 +155,6 @@ function Brand() {
                 console.error(err)
             });
         console.log(valueInputAdd);
-        setIsModalOpenAdd(false);
     };
     const handleCancelAdd = () => {
         setValueInputAdd(null)
@@ -156,37 +165,40 @@ function Brand() {
     return (
         <>
             <h3>Quản Lý Thương Hiệu</h3>
-            <div className='bg-white p-4 mt-4'>
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
                 <label>Tìm Kiếm</label>
                 <Input className='mt-4 mb-4' type="text" placeholder='Nhập value cần tìm' onChange={(e) => handleSearch(e.target.value)} />
             </div>
-            <div className='bg-white p-4 mt-6'>
-                <div>
-                    <h3>Danh Sách Thương Hiệu</h3>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'end' }}>
-                    <Button type="primary" onClick={showModalAdd}>
-                        Thêm Mới
-                    </Button>
-                    <Modal title="Thêm Mới" open={isModalOpenAdd} onOk={handleOkAdd} onCancel={handleCancelAdd}>
-                        <div>
+
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                <div className='mb-4 flex justify-between	'>
+                    <div className='text-[16px] font-semibold'>
+                        Danh Sách
+                    </div>
+                    <div >
+                        <Button type="primary" onClick={showModalAdd}>
+                            Thêm Mới
+                        </Button>
+                        <Modal title="Thêm Mới" open={isModalOpenAdd} onOk={handleOkAdd} onCancel={handleCancelAdd}>
                             <div>
-                                <label>Tên</label>
-                                <Input
-                                    className='mt-4 mb-4'
-                                    type="text"
-                                    placeholder='Nhập value'
-                                    value={valueInputAdd}
-                                    onChange={(e) => { setValueInputAdd(e.target.value) }}
-                                />
+                                <div>
+                                    <label>Tên</label>
+                                    <Input
+                                        className='mt-4 mb-4'
+                                        type="text"
+                                        placeholder='Nhập value'
+                                        value={valueInputAdd}
+                                        onChange={(e) => { setValueInputAdd(e.target.value) }}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    </Modal>
+                        </Modal>
+                    </div>
                 </div>
+                <Table pagination={{
+                    pageSize: 5,
+                }} dataSource={filteredData} columns={columns} />
             </div>
-            <Table pagination={{
-                pageSize: 5,
-            }} dataSource={filteredData} columns={columns} />
 
             <Modal
                 open={open}

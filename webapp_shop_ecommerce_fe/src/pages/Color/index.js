@@ -7,7 +7,9 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
-
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 function Color() {
     const columns = [
         {
@@ -33,7 +35,7 @@ function Color() {
                         <div style={{ width: '25px', height: '25px', backgroundColor: record.name, border: '1px solid #ccc' }}>
                         </div>
                         <div className='ml-2'>
-                        <span className='ml-2'>{record.name} - {hexToColorName(record.name)}</span>
+                            <span className='ml-2'>{record.name} - {hexToColorName(record.name)}</span>
                         </div>
                     </div>
                 </React.Fragment>
@@ -44,6 +46,11 @@ function Color() {
             dataIndex: 'createdDate',
             key: 'createdDate',
             align: 'center',
+            render: (text, record, index) => (
+                <React.Fragment key={index}>
+                    <span> {dayjs(record.createdDate).format('DD-MM-YYYY')}</span>
+                </React.Fragment>
+            ),
         },
         {
             title: 'Action',
@@ -151,6 +158,7 @@ function Color() {
                 toast.success(response.data.message);
                 setValueInputAdd(null)
                 fetchData();
+                setIsModalOpenAdd(false);
 
             })
             .catch(err => {
@@ -158,7 +166,6 @@ function Color() {
                 console.error(err)
             });
         console.log(valueInputAdd);
-        setIsModalOpenAdd(false);
     };
     const handleCancelAdd = () => {
         setValueInputAdd(null)
@@ -169,40 +176,42 @@ function Color() {
     return (
         <>
             <h3>Quản Lý Màu Sắc</h3>
-            <div className='bg-white p-4 mt-4'>
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
                 <label>Tìm Kiếm</label>
-
                 <Input className='mt-4 mb-4' type="text" placeholder='Nhập value cần tìm' onChange={(e) => handleSearch(e.target.value)} />
             </div>
-            <div className='bg-white p-4 mt-6'>
-                <div>
-                    <h3>Danh Sách Màu Sắc</h3>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'end' }}>
-                    <Button type="primary" onClick={showModalAdd}>
-                        Thêm Mới
-                    </Button>
-                    <Modal title="Thêm Mới" open={isModalOpenAdd} onOk={handleOkAdd} onCancel={handleCancelAdd}>
-                        <div>
-                            <div>
-                                <label>Màu Sắc</label>
-                                <br ></br>
-                                <div className='flex items-center'>
-                                    <ColorPicker className='mt-4 mb-4' showText value={valueInputAdd}
-                                        onChange={(e) => setValueInputAdd(e.toHexString())}
-                                        onKeyDown={(e) => e.stopPropagation()}
-                                    />
-                                    <span className='ml-2'> - {hexToColorName(valueInputAdd)}</span>
-                                </div>
 
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                <div  className='mb-4 flex justify-between	'>
+                    <div className='text-[16px] font-semibold'>
+                        Danh Sách
+                    </div>
+                    <div >
+                        <Button type="primary" onClick={showModalAdd}>
+                            Thêm Mới
+                        </Button>
+                        <Modal title="Thêm Mới" open={isModalOpenAdd} onOk={handleOkAdd} onCancel={handleCancelAdd}>
+                            <div>
+                                <div>
+                                    <label>Màu Sắc</label>
+                                    <br ></br>
+                                    <div className='flex items-center'>
+                                        <ColorPicker className='mt-4 mb-4' showText value={valueInputAdd}
+                                            onChange={(e) => setValueInputAdd(e.toHexString())}
+                                            onKeyDown={(e) => e.stopPropagation()}
+                                        />
+                                        <span className='ml-2'> - {hexToColorName(valueInputAdd)}</span>
+                                    </div>
+
+                                </div>
                             </div>
-                        </div>
-                    </Modal>
+                        </Modal>
+                    </div>
                 </div>
+                <Table pagination={{
+                    pageSize: 5,
+                }} dataSource={filteredData} columns={columns} />
             </div>
-            <Table pagination={{
-                pageSize: 5,
-            }} dataSource={filteredData} columns={columns} />
 
             <Modal
                 open={open}
@@ -229,7 +238,7 @@ function Color() {
                 ]}
             >
                 <div>
-                    <label>Mày Sắc</label>
+                    <label>Màu Sắc</label>
                     <br></br>
                     <div className='flex items-center'>
 

@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Form, Input, InputNumber, Popconfirm, Table, Typography, Button, Descriptions, Tag, Slider, Select, Tooltip, Space, ColorPicker } from 'antd';
+import { Form, Input, InputNumber, Carousel, Popconfirm, Table, Typography, Button, Descriptions, Tag, Slider, Select, Tooltip, Space, ColorPicker } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import hexToColorName from "~/ultils/HexToColorName";
@@ -43,7 +43,20 @@ const EditableCell = ({
         </td>
     );
 };
-
+const calculateRowSpan = (data, dataIndex, rowIndex) => {
+    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
+        return 0;
+    }
+    let count = 1;
+    for (let i = rowIndex + 1; i < data.length; i++) {
+        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
+            count++;
+        } else {
+            break;
+        }
+    }
+    return count;
+};
 function ProductDetail() {
 
     const { id } = useParams();
@@ -65,79 +78,6 @@ function ProductDetail() {
     const debounceMax = useDebounce(valueMax, 500)
 
     const [checkPrice, setCheckPrice] = useState(true);
-    const fetchData = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/v1/product/${id}`, {
-                params: {
-                    size: valueSize,
-                    color: valueColor,
-                    min: valueMin,
-                    max: valueMax,
-                },
-            });
-
-            console.log(response.data);
-            setProduct(response.data);
-
-            const sortedDataTable = [...response.data.lstProductDetails].sort((a, b) => a.id - b.id);
-
-            const dataTable = sortedDataTable.map((data, index) => {
-                let product = {
-                    key: data.id,
-                    index: index + 1,
-                    name: (
-                        <>
-                            <div className='flex'>
-                                <div className='mr-4 '>{response.data.name}</div>
-                                <div className='flex'>
-                                    <Tooltip title={hexToColorName(data.color.name) + ' - ' + data.color.name} color={data.color.name} key={data.color.name}>
-                                        <div style={{ width: '20px', height: '20px', backgroundColor: data.color.name }}></div>
-                                    </Tooltip>
-                                    <span className='ml-2 mr-2'>-</span>
-                                    <span>{data.size.name}</span>
-                                </div>
-                            </div>
-                        </>
-                    ),
-                    code: data.code,
-                    color: data.color,
-                    size: data.size,
-                    price: data.price,
-                    quantity: data.quantity,
-                    action: (
-                        <Button danger>
-                            <DeleteOutlined />
-                        </Button>
-                    ),
-                    imageUrl: (
-                        <div>
-                            <img src={response.data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
-                        </div>
-                    ),
-                };
-                return product;
-            });
-
-            if (checkPrice) {
-                const highestPriceProduct = dataTable.reduce((maxPriceProduct, currentProduct) => {
-                    return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
-                }, dataTable[0]);
-                console.log("setMaxx");
-                setInputValueMax(highestPriceProduct.price);
-                setCheckPrice(false);
-            }
-
-            setDataColum(dataTable);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [id, historyProductDetails, valueSize, valueColor, debounceMin, debounceMax]);
-
-
     const lstInfoProduct = [
         {
             key: '1',
@@ -157,7 +97,7 @@ function ProductDetail() {
         {
             key: '4',
             label: 'Trạng Thái',
-            children: product?.status=="0"?"Đang Bán": product?.status=="1"?"Ngừng Bán": "Khác" || 'empty',
+            children: product?.status == "0" ? "Đang Bán" : product?.status == "1" ? "Ngừng Bán" : "Khác" || 'empty',
         },
         {
             key: '5',
@@ -191,6 +131,201 @@ function ProductDetail() {
         },
 
     ];
+    const columnsTable = [
+
+        {
+            title: '#',
+            dataIndex: 'index', // Change 'index' to 'key'
+            key: 'index',
+            width: 50,
+            align: 'center',
+        },
+        {
+            title: 'Ảnh',
+            dataIndex: 'imageUrl',
+            key: 'imageUrl',
+            align: 'center',
+            width: 140,
+            render: (text, record, index) => {
+                // Kiểm tra xem rowSpan cho record.index đã được đặt chưa, nếu chưa thì đặt mặc định là 1
+                const rowSpan = calculateRowSpan(dataColum, 'color', index);
+
+                return {
+                    children: (
+                        <><div className='flex justify-center'>
+                            <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                {
+                                    record.imageUrl.map((imageUrl, index) => {
+                                        return (
+                                            <img src={imageUrl} key={index} style={{ width: '100px' }}></img>
+                                        )
+                                    })
+                                }
+                            </Carousel>
+                        </div>
+                        </>
+                    ),
+                    props: {
+                        rowSpan: rowSpan,  // Sử dụng rowSpan cho dòng hiện tại
+                    },
+                };
+            },
+        },
+
+        {
+            title: 'Tên',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Màu Sắc',
+            dataIndex: 'color',
+            key: 'color',
+            render: (color) => (
+                <div className='flex'>
+                    <Tooltip title={hexToColorName(color.name) + ' - ' + color.name} color={color.name} key={color.name}>
+                        <div style={{ width: '20px', height: '20px', backgroundColor: color.name }}></div>
+                    </Tooltip>
+                    <span className='ml-2 mr-2'>-</span>
+                    <span>{hexToColorName(color.name)}</span>
+                </div>
+            ),
+        },
+        {
+            title: 'Kích Thước',
+            dataIndex: 'size',
+            key: 'size',
+            render: (size) => (
+                <>{size.name}</>
+            ),
+        },
+        {
+            title: 'Đơn Giá',
+            dataIndex: 'price',
+            key: 'price',
+            editable: true,
+        },
+        {
+            title: 'Số Lượng',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            editable: true,
+        },
+
+        {
+            title: 'Khối Lượng',
+            dataIndex: 'weight',
+            key: 'weight',
+            editable: true,
+        },
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            key: 'action',
+            render: (_, record) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <span>
+                        <Typography.Link
+                            onClick={() => save(record.key)}
+                            style={{
+                                marginRight: 8,
+                            }}
+                        >
+                            Save
+                        </Typography.Link>
+                        <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+                            <a>Cancel</a>
+                        </Popconfirm>
+                    </span>
+                ) : (
+                    <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+                        Edit
+                    </Typography.Link>
+                );
+            },
+        }
+
+    ];
+
+
+    const mergedColumns = columnsTable.map((col) => {
+        if (!col.editable) {
+            return col;
+        }
+        return {
+            ...col,
+            onCell: (record) => ({
+                record,
+                inputType: col.dataIndex === 'price' ? 'number' : col.dataIndex === 'quantity' ? 'number' : col.dataIndex === 'weight' ? 'number' : 'text',
+                dataIndex: col.dataIndex,
+                title: col.title,
+                editing: isEditing(record),
+            }),
+        };
+    });
+
+
+    const fetchData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/v1/product/${id}`, {
+                params: {
+                    size: valueSize,
+                    color: valueColor,
+                    min: valueMin,
+                    max: valueMax,
+                },
+            });
+
+            console.log(response.data);
+            setProduct(response.data);
+
+            const sortedDataTable = [...response.data.lstProductDetails].sort((a, b) => a.color.id - b.color.id);
+
+            const dataTable = sortedDataTable.map((data, index) => {
+                let product = {
+                    key: data.id,
+                    index: index + 1,
+                    name: (
+                        <>
+                            <div className='flex'>
+                                <div className='mr-4 '>{response.data.name}</div>
+
+                            </div>
+                        </>
+                    ),
+                    code: data.code,
+                    color: data.color,
+                    size: data.size,
+                    price: data.price,
+                    quantity: data.quantity,
+                    weight: data.weight,
+                    imageUrl: data.imageUrl ? data.imageUrl.split("|") : [],
+                };
+                return product;
+            });
+
+            if (checkPrice) {
+                const highestPriceProduct = dataTable.reduce((maxPriceProduct, currentProduct) => {
+                    return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
+                }, dataTable[0]);
+                console.log("setMaxx");
+                setInputValueMax(highestPriceProduct.price);
+                setCheckPrice(false);
+            }
+
+            setDataColum(dataTable);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [id, historyProductDetails, valueSize, valueColor, debounceMin, debounceMax]);
+
+
+
 
     //checkd box table
     const onSelectChange = (newSelectedRowKeys) => {
@@ -260,13 +395,13 @@ function ProductDetail() {
             console.log(productDetail);
             axios.put(`http://localhost:8080/api/v1/productDetail/${key}`, {
                 id: key,
-                imageUrl: productDetail.img,
                 quantity: row.quantity,
                 price: row.price,
+                weight: row.weight
             })
                 .then((response) => {
                     const { status, message, errCode } = response.data;
-                    setHistoryProductDetails(response.data.data);
+                    // setHistoryProductDetails(response.data.data);
                     toast.success(message);
                     console.log(response.data);
                     setCheckPrice(true);
@@ -288,97 +423,7 @@ function ProductDetail() {
             console.log('Validate Failed:', errInfo);
         }
     };
-    const columnsTable = [
 
-        {
-            title: '#',
-            dataIndex: 'index', // Change 'index' to 'key'
-            key: 'index',
-        },
-        {
-            title: 'Ảnh',
-            dataIndex: 'imageUrl',
-            key: 'imageUrl',
-
-        },
-
-        {
-            title: 'Tên',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: 'Màu Sắc',
-            dataIndex: 'color',
-            key: 'color',
-            render: (color) => (
-                <Tag color={color.name}>{color.name}</Tag>
-            ),
-        },
-        {
-            title: 'Kích Thước',
-            dataIndex: 'size',
-            key: 'size',
-            render: (size) => (
-                <>{size.name}</>
-            ),
-        },
-        {
-            title: 'Đơn Giá',
-            dataIndex: 'price',
-            key: 'price',
-            editable: true,
-        },
-        {
-            title: 'Số Lượng',
-            dataIndex: 'quantity',
-            key: 'quantity',
-            editable: true,
-        },
-        {
-            title: 'Action',
-            dataIndex: 'action',
-            key: 'action',
-            render: (_, record) => {
-                const editable = isEditing(record);
-                return editable ? (
-                    <span>
-                        <Typography.Link
-                            onClick={() => save(record.key)}
-                            style={{
-                                marginRight: 8,
-                            }}
-                        >
-                            Save
-                        </Typography.Link>
-                        <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
-                        </Popconfirm>
-                    </span>
-                ) : (
-                    <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-                        Edit
-                    </Typography.Link>
-                );
-            },
-        }
-
-    ];
-    const mergedColumns = columnsTable.map((col) => {
-        if (!col.editable) {
-            return col;
-        }
-        return {
-            ...col,
-            onCell: (record) => ({
-                record,
-                inputType: col.dataIndex === 'price' ? 'number' : col.dataIndex === 'quantity' ? 'number' : 'text',
-                dataIndex: col.dataIndex,
-                title: col.title,
-                editing: isEditing(record),
-            }),
-        };
-    });
 
     const handleChangeColor = (value) => {
         setValueColor(value)
@@ -511,7 +556,9 @@ function ProductDetail() {
             </div>
 
             <div className='bg-white p-4 mt-4 mb-20 shadow-lg'>
-
+                <div className='mb-6 mt-2 '>
+                    <div className='text-[16px] font-semibold'>Danh Sách Sản Phẩm</div>
+                </div>
                 <div >
 
                     <div className='flex justify-between mb-6 mt-4'>
