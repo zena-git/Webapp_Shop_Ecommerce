@@ -227,15 +227,40 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
             if (billDetailsOpt.isPresent()) {
                 BillDetails billDetails = billDetailsOpt.get();
+                // Cần xác định giá của sản phẩm từ đâu
+                if (productDetails.getPromotionDetailsActive() != null) {
+                    BigDecimal price = productDetails.getPrice().subtract(
+                            productDetails.getPrice()
+                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                            .divide(BigDecimal.valueOf(100))));
+                    billDetails.setUnitPrice(price);
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }else {
+                    billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }
                 billDetails.setQuantity(billDetails.getQuantity() + billDetailsDto.getQuantity());
-                billDetailsRepo.save(billDetails);
+                billDetailsService.update(billDetails);
                 productDetails.setQuantity(productDetails.getQuantity() - billDetailsDto.getQuantity());
                 productDetailsService.update(productDetails);
             } else {
                 BillDetails billDetails = mapper.map(billDetailsDto, BillDetails.class);
+
+                 // Cần xác định giá của sản phẩm từ đâu
+                if (productDetails.getPromotionDetailsActive() != null) {
+                    BigDecimal price = productDetails.getPrice().subtract(
+                            productDetails.getPrice()
+                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                            .divide(BigDecimal.valueOf(100))));
+                    billDetails.setUnitPrice(price);
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }else {
+                    billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }
+                billDetails.setId(null);
                 billDetails.setBill(bill);
                 billDetails.setProductDetails(productDetails);
-                billDetails.setUnitPrice(productDetails.getPrice()); // Cần xác định giá của sản phẩm từ đâu
                 billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
                 billDetailsService.createNew(billDetails);
 
@@ -333,10 +358,23 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
 
         productDetails.setQuantity(productDetails.getQuantity() + opt.get().getQuantity() - billDto.getQuantity());
-        productDetailsRepo.save(productDetails);
+
         BillDetails billDetails = opt.get();
         billDetails.setQuantity(billDto.getQuantity());
+
+        if (productDetails.getPromotionDetailsActive() != null) {
+            BigDecimal price = productDetails.getPrice().subtract(
+                    productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
+            billDetails.setUnitPrice(price);
+            billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+        }else {
+            billDetails.setUnitPrice(productDetails.getPrice());
+            billDetails.setPromotionDetailsActive(null);
+        }
         billDetailsRepo.save(billDetails);
+        productDetailsRepo.save(productDetails);
         return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDto), HttpStatus.CREATED);
     }
 

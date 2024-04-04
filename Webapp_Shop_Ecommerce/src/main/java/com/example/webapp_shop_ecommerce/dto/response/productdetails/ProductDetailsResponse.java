@@ -27,7 +27,8 @@ public class ProductDetailsResponse {
     private String status;
     private SizeResponse size;
     private ColorResponse color;
-    private  Float weight;
+    private  Integer weight;
+
 
 //    private ProductResponse product;
 

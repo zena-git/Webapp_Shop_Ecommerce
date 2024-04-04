@@ -1,10 +1,7 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,4 +33,9 @@ public class BillDetails extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetails productDetails;
+
+    @ManyToOne
+    @JoinColumn(name = "ative_promotion_detail_id")
+    @JsonIgnore
+    private PromotionDetails promotionDetailsActive;
 }

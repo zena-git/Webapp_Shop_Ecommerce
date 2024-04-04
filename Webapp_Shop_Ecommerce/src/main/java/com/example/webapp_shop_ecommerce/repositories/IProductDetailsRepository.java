@@ -36,6 +36,6 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
 
     Optional<ProductDetails> findByBarcode(String bacode);
 
-    @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.product.status = '0'")
+    @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.product.status = '0' and proDetail.quantity >0")
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable pageable);
 }

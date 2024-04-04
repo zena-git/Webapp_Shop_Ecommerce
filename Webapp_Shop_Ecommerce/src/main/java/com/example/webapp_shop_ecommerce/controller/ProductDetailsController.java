@@ -90,10 +90,11 @@ public class ProductDetailsController {
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, object), HttpStatus.BAD_REQUEST);
         }
+
         ProductDetails productDetails = otp.get();
         productDetails.setPrice(object.getPrice());
         productDetails.setQuantity(object.getQuantity());
-        productDetails.setImageUrl(object.getImageUrl());
+        productDetails.setWeight(object.getWeight());
         return productDetailsService.update(productDetails);
     }
 

@@ -9,14 +9,19 @@ import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsCou
 import com.example.webapp_shop_ecommerce.dto.response.billdetails.BillDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
+import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionCountersResponse;
+import com.example.webapp_shop_ecommerce.dto.response.promotionDetails.PromotionDetailsCountersResponse;
+import com.example.webapp_shop_ecommerce.dto.response.promotionDetails.PromotionDetailsResponse;
 import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
+import com.example.webapp_shop_ecommerce.entity.PromotionDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import com.example.webapp_shop_ecommerce.service.IBillService;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
+import com.example.webapp_shop_ecommerce.service.IPromotionDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +49,8 @@ public class CountersController {
     @Autowired
     private IProductDetailsService productDetailsService;
 
+    @Autowired
+    private IPromotionDetailsService promotionDetailsService;
 
     @GetMapping()
     public ResponseEntity<?> findBillCounter() {
@@ -135,8 +142,20 @@ public class CountersController {
         if (page >= 0) {
             pageable = PageRequest.of(page, size);
         }
-        lstProductDetails = productDetailsService.findAllDeletedFalse(pageable).getContent();
-        List<ProductDetailsCountersResponse> resultDto = lstProductDetails.stream().map(attr -> mapper.map(attr, ProductDetailsCountersResponse.class)).collect(Collectors.toList());
+        lstProductDetails = productDetailsService.findAllDeletedFalseAndStatusFalse(pageable).getContent();
+
+        List<ProductDetailsCountersResponse> resultDto = lstProductDetails.stream().map(attr -> mapper.map(attr, ProductDetailsCountersResponse.class))
+//                .map(entity -> {
+//                    Optional<PromotionDetails> optPromotionDetails = promotionDetailsService.findPromotionDetailsActiveProductDetail(entity.getId());
+//                    if (optPromotionDetails.isEmpty()) {
+//                        entity.setPromotionDetailsActive(null);
+//                    }else {
+//                        entity.setPromotionDetailsActive( mapper.map(optPromotionDetails.orElse(null), PromotionDetailsCountersResponse.class));
+//                    }
+//                    return entity;
+//                })
+                .collect(Collectors.toList());
+
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 

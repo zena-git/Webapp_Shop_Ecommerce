@@ -23,7 +23,8 @@ public class ProductDetailsBillResponse {
     private String status;
     private SizeResponse size;
     private ColorResponse color;
-    private  Float weight;
+    private  Integer weight;
+
 
     private ProductBillResponse product;
 

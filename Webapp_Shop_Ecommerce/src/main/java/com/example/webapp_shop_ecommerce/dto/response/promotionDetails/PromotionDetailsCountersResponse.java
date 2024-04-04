@@ -1,20 +1,23 @@
 package com.example.webapp_shop_ecommerce.dto.response.promotionDetails;
 
-import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
+import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionResponse;
-import com.example.webapp_shop_ecommerce.entity.Promotion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 
-public class PromotionDetailsResponse {
+public class PromotionDetailsCountersResponse {
     private Long id;
-    private PromotionResponse promotion;
+    private PromotionCountersResponse promotion;
+    private BigDecimal promotionPrice;
+
 //    private ProductDetailsResponse productDetails;
 }

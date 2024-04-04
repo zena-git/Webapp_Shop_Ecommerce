@@ -33,5 +33,7 @@ public class ProductDetailsRequest {
     private Long color;
     @NotNull(message = "Kích thước không được để trống")
     private Long size;
+    @Min(value = 1, message = "Cân Nặng phải lớn hơn 0")
+    private  Integer weight;
 
 }

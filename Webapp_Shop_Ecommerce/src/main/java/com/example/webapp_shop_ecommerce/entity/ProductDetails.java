@@ -1,10 +1,7 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Entity
 @Table(name = "ProductDetail")
@@ -37,7 +35,7 @@ public class ProductDetails extends BaseEntity{
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url" , length = 1000)
     private String imageUrl;
 
     @Column(name = "price")
@@ -52,6 +50,13 @@ public class ProductDetails extends BaseEntity{
 
     @Column(name = "status")
     private String status;
+    @JsonIgnore
+    @OneToMany(mappedBy = "productDetails")
+    private Set<PromotionDetails> lstPromotionDetails;
 
+    @ManyToOne
+    @JoinColumn(name = "ative_promotion_detail_id")
+    @JsonIgnore
+    private PromotionDetails promotionDetailsActive;
 
 }

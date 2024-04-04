@@ -58,6 +58,7 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
         List<PromotionDetails> lstPromotionDetails = lstProductDetails.stream().map(
                 productDetails -> {
 
+
                     PromotionDetails promotionDetails = new PromotionDetails();
                     promotionDetails.setPromotion(promotion);
                     promotionDetails.setProductDetails(productDetails);
@@ -68,10 +69,13 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
                     promotionDetails.setLastModifiedDate(LocalDateTime.now());
                     promotionDetails.setLastModifiedBy("Admin");
 
+                    PromotionDetails promotionDetailsActive = promotionDetailsRepo.save(promotionDetails);
+                    productDetails.setPromotionDetailsActive(promotionDetailsActive);
+                    productDetailsRepo.save(productDetails);
                     return promotionDetails;
         }).collect(Collectors.toList());
 
-        promotionDetailsRepo.saveAll(lstPromotionDetails);
+//        promotionDetailsRepo.saveAll(lstPromotionDetails);
 
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, promotionRequest), HttpStatus.OK);
 
@@ -115,10 +119,13 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
                     promotionDetails.setLastModifiedDate(LocalDateTime.now());
                     promotionDetails.setLastModifiedBy("Admin");
 
+                    PromotionDetails promotionDetailsActive = promotionDetailsRepo.save(promotionDetails);
+                    productDetails.setPromotionDetailsActive(promotionDetailsActive);
+                    productDetailsRepo.save(productDetails);
                     return promotionDetails;
                 }).collect(Collectors.toList());
         //save all list PromotionDetails
-        promotionDetailsRepo.saveAll(lstPromotionDetails);
+//        promotionDetailsRepo.saveAll(lstPromotionDetails);
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, promotionRequest), HttpStatus.OK);
 
     }

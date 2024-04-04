@@ -35,7 +35,7 @@ public class ProductDetailConverter {
         return ProductDetails.builder().code(request.getCode()).imageUrl(request
                 .getImageUrl()).price(request.getPrice()).quantity(request.getQuantity())
                 .barcode(request.getBarcode()).status(request.getStatus())
-                .product(product).color(color).size(size).build();
+                .product(product).color(color).size(size).weight(request.getWeight()).build();
     }
 
 

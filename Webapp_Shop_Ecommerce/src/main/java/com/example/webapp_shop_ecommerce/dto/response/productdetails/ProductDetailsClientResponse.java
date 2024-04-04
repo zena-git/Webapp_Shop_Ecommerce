@@ -23,7 +23,7 @@ public class ProductDetailsClientResponse {
     private Integer status;
     private SizeResponse size;
     private ColorResponse color;
-    private  Float weight;
+    private  Integer weight;
 
     private ProductClientResponse product;
 
