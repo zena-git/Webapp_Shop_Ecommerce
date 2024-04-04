@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin } from 'antd';
+import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin, Carousel } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
@@ -61,7 +61,7 @@ function OrderProducts() {
                     <Tooltip title={hexToColorName(color.name) + ' - ' + color.name} color={color.name} key={color.name}>
                         <div style={{ width: '20px', height: '20px', backgroundColor: color.name }}></div>
                     </Tooltip>
-                    <span className='ml-2'>- {color.name}</span>
+                    <span className='ml-2'>- {hexToColorName(color.name)}</span>
                 </div>
 
             ),
@@ -101,7 +101,7 @@ function OrderProducts() {
             title: 'Sản Phẩm',
             dataIndex: 'name',
             key: 'name',
-            width: 250,
+            width: 320,
         },
         {
             title: 'Đơn Giá',
@@ -140,7 +140,7 @@ function OrderProducts() {
             title: 'Sản Phẩm',
             dataIndex: 'name',
             key: 'name',
-            width: 250,
+            width: 350,
         },
         {
             title: 'Màu Sắc',
@@ -151,7 +151,7 @@ function OrderProducts() {
                     <Tooltip title={hexToColorName(color?.name) + ' - ' + color?.name} color={color?.name} key={color?.name}>
                         <div style={{ width: '20px', height: '20px', backgroundColor: color?.name }}></div>
                     </Tooltip>
-                    <span className='ml-2'>- {color?.name}</span>
+                    <span className='ml-2'>- {hexToColorName(color?.name)}</span>
                 </div>
 
             ),
@@ -230,17 +230,46 @@ function OrderProducts() {
                 index: index + 1,
                 name: <>
                     <div className='flex flex-start'>
-                        <div>
-                            <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='product' />
-                        </div>
-                        <h4> {data?.product?.name}</h4>
+                        {data?.imageUrl && (
+                            <div className='relative'>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '120px' }}>
+                                    {data.imageUrl.split("|").map((imageUrl, index) => (
+                                        <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                    ))}
+                                </Carousel>
+                                {
+                                    data?.promotionDetailsActive &&
+                                    <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+                                        <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive.promotion.value}%</span>
+                                    </div>
+                                }
+                            </div>
+
+                        )}
+                        <h4 className='ml-4'> {data?.product?.name}</h4>
                     </div>
 
                 </>,
                 code: data?.code,
                 color: data?.color,
                 size: data?.size,
-                price: fixMoney(data.price),
+                price: <>
+                    {
+                        data?.promotionDetailsActive ? (
+                            <div className='flex flex-col	'>
+                                <span className='line-through text-slate-500	text-xl	'>
+                                    {fixMoney(data.price)}
+                                </span>
+                                <span className='text-red-600	'>
+                                    {fixMoney(data.price - (data.promotionDetailsActive.promotion.value * data.price / 100))}
+                                </span>
+                            </div>
+                        ) : (
+                            <span>
+                                {fixMoney(data.price)}
+                            </span>)
+                    }
+                </>,
                 quantity: data.quantity,
             };
             return product;
@@ -279,28 +308,49 @@ function OrderProducts() {
                 index: index + 1,
                 name: <>
                     <div className='flex'>
-                        <div className='flex'>
-                            <div>
-                                <img src={data.productDetails.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
-                            </div>
-                            <div className='ml-4'>
-                                <h4>{data.productDetails.product.name}</h4>
-                                <div div style={{ fontSize: '12px' }}>
-                                    [{data.productDetails.size.name} - {hexToColorName(data.productDetails.color.name)}]
-                                </div>
+                        {data?.productDetails.imageUrl && (
+                            <div className='relative'>
 
-                                {/* <div style={{ fontSize: '12px' }}>
-                                    <div className='flex'>Màu Sắc:
-                                        <div style={{ width: '16px', height: '16px', backgroundColor: data.productDetails.color.name, marginLeft: '4px', marginRight: '4px' }}></div>
-                                        <span>- {hexToColorName(data.productDetails.color.name)}</span>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                    {data.productDetails.imageUrl.split("|").map((imageUrl, index) => (
+                                        <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                    ))}
+                                </Carousel>
+                                {
+                                    data?.promotionDetailsActive &&
+                                    <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+                                        <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive?.promotion.value}%</span>
                                     </div>
-                                    <div>Kích Thước: {data.productDetails.size.name}</div>
-                                </div> */}
+                                }
                             </div>
+                        )}
+
+                        <div className='ml-4'>
+                            <h4>{data.productDetails.product.name}</h4>
+                            <div div style={{ fontSize: '12px' }}>
+                                [{data.productDetails.size.name} - {hexToColorName(data.productDetails.color.name)}]
+                            </div>
+
                         </div>
                     </div>
                 </>,
-                price: fixMoney(data.productDetails.price),
+                price: <>
+                    {
+                        data?.promotionDetailsActive ? (
+                            <div className='flex flex-col'>
+                                <span className='line-through text-slate-500	text-xl	'>
+                                    {fixMoney(data.productDetails.price)}
+                                </span>
+                                <span className='text-red-600'>
+                                    {fixMoney(data.unitPrice)}
+                                </span>
+                            </div>
+                        ) : (
+                            <span>
+                                {fixMoney(data.unitPrice)}
+                            </span>)
+                    }
+                </>,
                 color: data.productDetails.color,
                 size: data.productDetails.size,
                 quantity: <InputNumber
@@ -310,7 +360,7 @@ function OrderProducts() {
                     value={data.quantity} // Sử dụng giá trị quantity như mặc định
                     onChange={(value) => onChangeQuantityProductCart(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
-                totalMoney: <span className='text-rose-600	'>{fixMoney(data.productDetails.price * data.quantity)}</span>,
+                totalMoney: fixMoney(data.unitPrice * data.quantity),
                 action: <>
                     <Button danger className='border-none' onClick={() => { showDeleteConfirmCart(data.id) }} > <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon></Button>
                 </>
@@ -353,9 +403,22 @@ function OrderProducts() {
                 name: <>
                     <div className='flex'>
                         <div className='flex'>
-                            <div>
-                                <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
-                            </div>
+                            {data?.imageUrl && (
+                                <div className='relative'>
+                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                        {data.imageUrl.split("|").map((imageUrl, index) => (
+                                            <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                        ))}
+                                    </Carousel>
+                                    {
+                                        data?.promotionDetailsActive &&
+                                        <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+                                            <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive.promotion.value}%</span>
+                                        </div>
+                                    }
+                                </div>
+
+                            )}
                             <div className='ml-4'>
                                 <h4>{data.product.name}</h4>
                                 <div style={{ fontSize: '12px' }}>
@@ -369,14 +432,32 @@ function OrderProducts() {
                         </div>
                     </div>
                 </>,
-                price: data.price,
+                price: <>
+                    {
+                        data?.promotionDetailsActive ? (
+                            <div className='flex flex-col	'>
+                                <span className='line-through text-slate-500	text-xl	'>
+                                    {fixMoney(data.price)}
+                                </span>
+                                <span className='text-red-600	'>
+                                    {fixMoney(data.price - (data.promotionDetailsActive.promotion.value * data.price / 100))}
+                                </span>
+                            </div>
+                        ) : (
+                            <span>
+                                {fixMoney(data.price)}
+                            </span>)
+                    }
+                </>,
                 quantity: <InputNumber
                     min={1}
                     max={data.quantityMax}
                     value={data.quantity} // Sử dụng giá trị quantity như mặc định
                     onChange={(value) => onChangeQuantityProductConfig(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
-                totalMoney: data.price * data.quantity,
+                totalMoney: data?.promotionDetailsActive ?
+                    fixMoney((data.price - (data.promotionDetailsActive.promotion.value * data.price / 100)) * data.quantity)
+                    : fixMoney(data.price * data.quantity),
                 action: <>
                     <Button danger onClick={() => { handleDeleteProductConfig(data.id) }} ><DeleteOutlined></DeleteOutlined></Button>
                 </>
@@ -721,7 +802,7 @@ function OrderProducts() {
                                                 <Modal
                                                     okText="Hoàn Tất" // Thay đổi nội dung của nút OK
                                                     cancelText="Cancel" // Thay đổi nội dung của nút Cancel
-                                                    width={840}
+                                                    width={900}
                                                     title="Thêm Sản Phẩm" open={openAddProductConfig}
                                                     onOk={() => handleAddProductDetailsConfig()}
                                                     onCancel={() => setOpenAddProductConfig(false)}>

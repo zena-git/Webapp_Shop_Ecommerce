@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin } from 'antd';
+import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, Carousel, Space, Tag, Spin } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
@@ -61,7 +61,22 @@ function BillProductsBack({ bill,lstBillDetailsReturn }) {
                 name: <>
                     <div className='flex items-start'>
                         <div className='mr-6'>
-                            <img src={data.productDetails.imageUrl} style={{ width: '140px', height: '140px' }}></img>
+                        {data?.productDetails.imageUrl && (
+                                <div className='relative'>
+
+                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '140px', height: '180px' }}>
+                                        {data.productDetails.imageUrl.split("|").map((imageUrl, index) => (
+                                            <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                        ))}
+                                    </Carousel>
+                                    {
+                                        data?.promotionDetailsActive &&
+                                        <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+                                            <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive?.promotion.value}%</span>
+                                        </div>
+                                    }
+                                </div>
+                            )}
                         </div>
                         <div className='leading-10	'>
                             <div className='flex text-[16px]'>
@@ -71,8 +86,24 @@ function BillProductsBack({ bill,lstBillDetailsReturn }) {
                                 </div>
                             </div>
                             <div className='flex flex-col font-medium'>
-                                <span className='text-red-600 text-[15px] '> {fixMoney(data.unitPrice)}</span>
-                                <span className='text-gray-400 line-through text-[13px] '> {fixMoney(data.unitPrice)}</span>
+                                {
+                                    data?.promotionDetailsActive ? (
+                                        <div className='flex flex-col'>
+                                            <span className='text-red-600 text-[15px] '>
+                                                {fixMoney(data.unitPrice)}
+
+                                            </span>
+                                            <span className='text-gray-400 line-through text-[13px] '>
+                                                {fixMoney(data.productDetails.price)}
+
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className='text-red-600 text-[15px] '>
+                                            {fixMoney(data.unitPrice)}
+                                        </span>)
+                                }
+
                             </div>
                             <div className='flex text-[14px] font-medium'>
                                 x<span> {data.quantity}</span>
