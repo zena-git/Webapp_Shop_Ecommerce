@@ -1,0 +1,38 @@
+.slick-slider {
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.slick-item {
+    width: 104px;
+}
+
+.slick-item img {
+    width: 100px;
+    height: auto;
+}
+
+.slick-item-1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.same-product {
+    width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 7px 12px 0 rgba(157, 202, 196, .5) !important;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 12px;
+    margin-top: 12px;
+    cursor: pointer;
+    border: 1px solid white;
+}
+
+.same-product:hover {
+    border: 1px solid rgba(35, 104, 212, .2);
+}
