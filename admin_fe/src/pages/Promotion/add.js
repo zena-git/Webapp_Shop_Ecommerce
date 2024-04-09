@@ -1,17 +1,17 @@
-'use client'
 import { DatePicker, InputNumber, Button } from 'antd/lib';
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from 'axios';
-import { baseUrl, makeid } from '~/lib/functional';
+import { baseUrl, makeid, nextUrl } from '~/lib/functional';
 import { redirect, useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
 import ReduxProvider from '~/redux/provider'
 import { useDispatch } from 'react-redux';
-import { set, updateSelected } from '~/redux/features/promotion-selected-item'
+import { set, updateSelected, disableChildren } from '~/redux/features/promotion-selected-item'
+import { setDateRange } from '../../redux/features/promotion-date-selected'
 import { Label } from "~/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 // import { Button } from '../../components/ui/button'
@@ -31,28 +31,55 @@ function EditPage() {
     const dispatch = useDispatch()
 
     const [listProduct, setListProduct] = useState([]);
+
+
+    const recheck = () => {
+        let canSelectedProductDetail = listProduct.map(product => {
+            return {
+                id: product.id,
+                productDetail: product.ProductDetail.filter(detail => {
+                    return !detail.PromotionDetails.some(promotionDetail => {
+                        return (
+                            dayjs(promotionDetail.Promotion.start_date).toDate() >= date[0].toDate() &&
+                            dayjs(promotionDetail.Promotion.end_date).toDate() <= date[1].toDate()
+                        );
+                    });
+                })
+            }
+        })
+
+        canSelectedProductDetail.map(pro => {
+            pro.productDetail.map(proDetail => {
+                dispatch(disableChildren(
+                    {
+                        parentId: pro.id,
+                        id: proDetail.id,
+                        disable: false,
+                    }
+                ))
+            })
+        })
+    }
+
     useEffect(() => {
-        axios.get(`${baseUrl}/product`).then(res => {
+        axios.get(`${nextUrl}/product`).then(res => {
             setListProduct(res.data);
             dispatch(set({
                 value: {
                     selected: res.data.map(pro => {
                         return {
-                            id: pro.id, selected: false, children: pro.lstProductDetails.map(detail => {
-                                return { id: detail.id, selected: false }
+                            id: pro.id, selected: false, disable: true, children: pro.ProductDetail.map(detail => {
+                                return { id: detail.id, selected: false, disable: true }
                             })
                         }
                     })
                 }
             }))
+            recheck()
         });
     }, [])
 
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
-
-    useEffect(() => {
-        console.log(listSelectedProduct)
-    }, [listSelectedProduct])
 
     const handleSubmitForm = () => {
         let lst = []
@@ -93,6 +120,15 @@ function EditPage() {
             })
         }
     }
+
+    useEffect(() => {
+        setDateRange({ value: { date: { startDate: date[0].toDate().toISOString(), endDate: date[1].toDate().toISOString() } } });
+        recheck();
+    }, [date])
+
+    useEffect(() => {
+        console.log(listSelectedProduct)
+    }, [listSelectedProduct])
 
     return (
         <div>

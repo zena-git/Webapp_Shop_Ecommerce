@@ -186,12 +186,14 @@ export type PromotionDetailResponse = {
 type Child = {
     id: number;
     selected: boolean;
+    disable?: boolean;
 };
 
 export type Selected = {
     id: number;
     selected: boolean;
     children: Child[];
+    disable?: boolean;
 };
 
 export type SelectedCustomer = {

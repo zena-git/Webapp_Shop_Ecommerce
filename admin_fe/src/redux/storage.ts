@@ -5,6 +5,7 @@ import voucherReducer from './features/voucher-selected-item'
 import voucherDeletedReducer from './features/voucher-deleted'
 import userDeletedReducer from './features/voucher-deleted'
 import SellReducer from './features/sell-selected-product-detail'
+import promotionDateReducer from './features/promotion-date-selected'
 import { TypedUseSelectorHook, useSelector } from 'react-redux'
 
 export const storage = configureStore({
@@ -14,7 +15,8 @@ export const storage = configureStore({
         sidebarReducer,
         SellReducer,
         voucherDeletedReducer,
-        userDeletedReducer
+        userDeletedReducer,
+        promotionDateReducer
     }
 })
 

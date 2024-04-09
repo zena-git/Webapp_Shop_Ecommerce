@@ -51,10 +51,6 @@ export default function ListTable({ data }) {
 
     const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected)
 
-    useEffect(() => {
-        console.log(selectedProduct)
-    }, [selectedProduct])
-
     const handleToggleOpen = (id) => {
         setOpen((prevOpen) => ({
             ...prevOpen,
@@ -81,7 +77,7 @@ export default function ListTable({ data }) {
                         value: {
                             selected: data.map(product => {
                                 return {
-                                    id: product.id, selected: !!value.target.checked, children: product.lstProductDetails.map(detail => {
+                                    id: product.id, selected: !!value.target.checked, children: product.ProductDetail.map(detail => {
                                         return { id: detail.id, selected: !!value.target.checked }
                                     })
                                 }
@@ -93,6 +89,7 @@ export default function ListTable({ data }) {
             ),
             cell: ({ row }) => (
                 <Checkbox
+                    disabled={!!selectedProduct.find(pro => pro.id == row.original.id).disable}
                     defaultChecked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
                     onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.checked })) }}
                     aria-label="Select row"
@@ -106,7 +103,7 @@ export default function ListTable({ data }) {
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return (<div className='flex justify-center'>
-                    {row.original.imageUrl ? <img src={row.original.imageUrl.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
+                    {row.original.image_url ? <img src={row.original.image_url.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
                 </div>)
             },
         },
@@ -132,7 +129,7 @@ export default function ListTable({ data }) {
                     <div className='flex justify-center'>Giá</div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase text-center">{minMaxPrice(row.original.lstProductDetails)}</div>,
+            cell: ({ row }) => <div className="lowercase text-center">{minMaxPrice(row.original.ProductDetail)}</div>,
         },
         {
             id: "accordion",
@@ -238,7 +235,10 @@ export default function ListTable({ data }) {
                                             ))}
                                         </TableRow>
                                         <TableRow data-state={row.getIsSelected() && "selected"}>
-                                            {open[row.original.id] && <TableCell colSpan={columns.length}><ProductDetailTable targetDataId={row.original.id} selected={row.getIsSelected()} belowData={row.original.lstProductDetails}></ProductDetailTable></TableCell>}
+                                            {open[row.original.id] && <TableCell colSpan={columns.length}>
+                                                <ProductDetailTable targetDataId={row.original.id} selected={row.getIsSelected()} belowData={row.original.ProductDetail}></ProductDetailTable>
+                                                {/* {ProductDetailTable({belowData: row.original.ProductDetail,selected:row.getIsSelected() , targetDataId:row.original.id })} */}
+                                            </TableCell>}
                                         </TableRow>
                                     </>
                                 ))
@@ -292,7 +292,8 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
     const [belowColumnVisibility, setBelowColumnVisibility] = useState({})
     const [belowRowSelection, setBelowRowSelection] = useState({})
 
-    const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected)
+    const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected);
+    const dateRange = useAppSelector(state => state.promotionDateReducer.value.date);
 
     const dispatch = useDispatch();
 
@@ -304,6 +305,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
             cell: ({ row }) => (
                 <Checkbox
+                    disabled={!!selectedProduct.find(pro => pro.id == targetDataId).children.find(child => child.id == row.original.id).disable}
                     defaultChecked={selectedProduct.find(slt => slt.id == targetDataId) && selectedProduct.find(slt => slt.id == targetDataId).children.find(child => { return child.id == row.original.id })?.selected}
                     onClick={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value.target.checked })) }}
                     aria-label="Select row"
@@ -320,29 +322,29 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
         },
         {
-            accessorKey: "imageUrl",
+            accessorKey: "image_url",
             header: () => <div className="text-center">ảnh</div>,
             cell: ({ row }) => {
                 return <div className="text-center flex justify-center font-medium max-h-16">
-                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
+                    {row.original.image_url ? <img className="w-16 aspect-square" src={row.original.image_url.split(" | ")[0]}></img> : "không có"}
                 </div>
             },
         },
         {
-            accessorKey: "size",
+            accessorKey: "Size",
             header: ({ column }) => {
                 return (
                     <div className='text-center'>Kích cỡ</div>
                 )
             },
-            cell: ({ row }) => <div className="text-center">{row.getValue("size").name}</div>,
+            cell: ({ row }) => <div className="text-center">{row.original.Size.name}</div>,
         },
         {
-            accessorKey: "color",
+            accessorKey: "Color",
             header: () => <div className="text-center">màu sắc</div>,
             cell: ({ row }) => {
 
-                return <div className={`text-center font-medium rounded-md px-1 py-1 text-slate-200`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
+                return <div className={`text-center font-medium rounded-md px-1 py-1 text-slate-200`} style={{ backgroundColor: row.original.Color.name }}>{row.original.Color.name}</div>
             },
         },
         {
@@ -395,6 +397,12 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
     useEffect(() => {
         belowTable.toggleAllRowsSelected(selected);
     }, [belowTable, selected])
+
+
+    useEffect(() => {
+        // selectedProduct.
+        console.log(belowData)
+    }, [belowData, dateRange])
 
     return (
         <>
@@ -478,14 +486,14 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
     )
 }
 
-function minMaxPrice(lstProductDetails) {
-    if (!lstProductDetails || lstProductDetails.length === 0) {
+function minMaxPrice(ProductDetail) {
+    if (!ProductDetail || ProductDetail.length === 0) {
         return [null, null];
     }
 
-    let minPrice = lstProductDetails[0].price;
-    let maxPrice = lstProductDetails[0].price;
-    lstProductDetails.forEach(productDetail => {
+    let minPrice = ProductDetail[0].price;
+    let maxPrice = ProductDetail[0].price;
+    ProductDetail.forEach(productDetail => {
         const price = productDetail.price;
         if (price < minPrice) {
             minPrice = price;

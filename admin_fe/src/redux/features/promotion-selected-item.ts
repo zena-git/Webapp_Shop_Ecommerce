@@ -26,7 +26,7 @@ export const selectedData = createSlice({
                 if (childItem) {
                     childItem.selected = value;
                 } else {
-                    parentItem.children.push({ id: id, selected: value })
+                    parentItem.children.push({ id: id, selected: value, disable: false })
                 }
             }
             state.value.selected.forEach(item => {
@@ -34,6 +34,25 @@ export const selectedData = createSlice({
                     item.selected = false;
                 } else {
                     item.selected = true;
+                }
+            });
+        },
+        disableChildren: (state, action: PayloadAction<{ parentId: number; id: number; disable: boolean }>) => {
+            const { parentId, id, disable } = action.payload;
+            const parentItem = state.value.selected.find(item => item.id == parentId);
+            if (parentItem) {
+                const childItem = parentItem.children.find(child => child.id == id);
+                if (childItem) {
+                    childItem.disable = disable;
+                }else{
+                    parentItem.children.push({ id: id, selected: false, disable: disable })
+                }
+            }
+            state.value.selected.forEach(item => {
+                if (item.children.some(child => !child.disable)) {
+                    item.disable = false;
+                } else {
+                    item.disable = true;
                 }
             });
         },
@@ -63,4 +82,4 @@ export const selectedData = createSlice({
 });
 
 export default selectedData.reducer;
-export const { set, updateSelected, toggleChildren } = selectedData.actions;
+export const { set, updateSelected, toggleChildren, disableChildren } = selectedData.actions;
