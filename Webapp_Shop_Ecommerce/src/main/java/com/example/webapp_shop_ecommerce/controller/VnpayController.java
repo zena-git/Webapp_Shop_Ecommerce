@@ -306,7 +306,11 @@ public class VnpayController {
             // Phân tích chuỗi thành LocalDateTime
             LocalDateTime paymentDate = LocalDateTime.parse(vnp_PayDate, formatters);
             paymentHistory.setPaymentDate(paymentDate);
-            bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
+            if (bill.getBillType().equalsIgnoreCase(BillType.OFFLINE.getLabel())){
+                bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
+            }else {
+                bill.setStatus(TrangThaiBill.CHO_XAC_NHAN.getLabel());
+            }
             billService.update(bill);
             paymentHistoryService.createNew(paymentHistory);
             System.out.println("Thanh Toans Ok");

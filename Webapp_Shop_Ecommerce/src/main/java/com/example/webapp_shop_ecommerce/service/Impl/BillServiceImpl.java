@@ -124,7 +124,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     }
 
     @Override
-    public ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest) {
+    public ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest) throws UnsupportedEncodingException {
         if (billRequest.getLstCartDetails().size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
@@ -132,6 +132,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         billDto.setId(null);
         billDto.setCodeBill(invoiceGenerator.generateInvoiceNumber());
         billDto.setBillType(BillType.ONLINE.getLabel());
+        billDto.setBillFormat(BillType.DELIVERY.getLabel());
         billDto.setBookingDate(new Date());
         billDto.setDeleted(false);
         billDto.setCreatedBy("Admin");
@@ -139,16 +140,37 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         billDto.setLastModifiedDate(LocalDateTime.now());
         billDto.setLastModifiedBy("Admin");
         billDto.setCustomer(null);
+        billDto.setStatus(TrangThaiBill.CHO_XAC_NHAN.getLabel());
+        //Thanh TOna tai khona
+        if (billDto.getPaymentMethod().equalsIgnoreCase("1")){
+            billDto.setStatus(TrangThaiBill.CHO_THANH_TOAN.getLabel());
+        }
+
         Bill bill = billRepo.save(billDto);
 
         List<BillDetails> lstBillDetails = billRequest.getLstCartDetails().stream().map(cartDetails -> {
             BillDetails billDetails = new BillDetails();
-            ProductDetails productDetails = cartDetails.getProductDetails();
+            Optional<ProductDetails> poductDetailsOpt = productDetailsRepo.findById(cartDetails.getProductDetails().getId());
+            if (poductDetailsOpt.isEmpty()) {
+            return null;
+            }
+            ProductDetails productDetails = poductDetailsOpt.get();
             billDetails.setBill(bill);
             billDetails.setProductDetails(productDetails);
-            billDetails.setUnitPrice(productDetails.getPrice());
+            if (productDetails.getPromotionDetailsActive() != null) {
+                BigDecimal price = productDetails.getPrice().subtract(
+                        productDetails.getPrice()
+                                .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                        .divide(BigDecimal.valueOf(100))));
+                billDetails.setUnitPrice(price);
+                billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+            }else {
+                billDetails.setUnitPrice(productDetails.getPrice());
+                billDetails.setPromotionDetailsActive(null);
+            }
             billDetails.setQuantity(cartDetails.getQuantity());
             billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
+
             billDetails.setId(null);
             billDetails.setDeleted(false);
             billDetails.setCreatedBy("Admin");
@@ -160,6 +182,14 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             productDetailsRepo.save(productDetails);
             return billDetailsRepo.save(billDetails);
         }).collect(Collectors.toList());
+
+        historyBillService.addHistoryBill(bill,TrangThaiBill.TAO_DON_HANG.getLabel(),"");
+        historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_THANH_TOAN.getLabel(),"");
+
+        if (bill.getPaymentMethod().equalsIgnoreCase("1")){
+           return vnpayService.createPayment(bill, billRequest.getReturnUrl());
+        }
+
         return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, billRequest), HttpStatus.CREATED);
 
     }
@@ -341,7 +371,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         if (opt.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy IdBilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
         }
-
+        System.out.println("idBillDetail"+idBillDetail);
         Optional<ProductDetails> optProductDetails = productDetailsService.findById(opt.get().getProductDetails().getId());
         if (optProductDetails.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, idBillDetail), HttpStatus.BAD_REQUEST);

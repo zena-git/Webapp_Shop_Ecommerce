@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDeta
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.entity.Product;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThai;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import com.example.webapp_shop_ecommerce.service.IProductService;
 import org.modelmapper.ModelMapper;
@@ -39,8 +40,8 @@ public class ProductClientController {
                                             @RequestParam(value = "category", defaultValue = "") String category,
                                             @RequestParam(value = "material", defaultValue = "") String material,
                                             @RequestParam(value = "brand", defaultValue = "") String brand,
-                                            @RequestParam(value = "style", defaultValue = "") String style,
-                                            @RequestParam(value = "status", defaultValue = "") String status
+                                            @RequestParam(value = "style", defaultValue = "") String style
+
     ) {
         Pageable pageable = Pageable.unpaged();
         if (size < 0) {
@@ -58,12 +59,12 @@ public class ProductClientController {
         keyWork.put("material", material.trim());
         keyWork.put("brand", brand.trim());
         keyWork.put("style", style.trim());
-        keyWork.put("status", status.trim());
+        keyWork.put("status", TrangThai.HOAT_DONG.getLabel());
 
 
 
         System.out.println("page=" + page + " size=" + size + "search=" + keyWork.get("search"));
-        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted(pageable, keyWork).getContent();
+        List<Product> lstPro = productService.findProductsClientAndDetailsNotDeleted(pageable, keyWork).getContent();
         List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
@@ -74,7 +75,7 @@ public class ProductClientController {
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
-        List<ProductDetails> lstProductDetails = productDetailsService.findAllByProductToPage(Long.valueOf(id), Pageable.unpaged()).getContent();
+        List<ProductDetails> lstProductDetails = productDetailsService.findAllClientDeletedFalseAndStatusFalse(Long.valueOf(id), Pageable.unpaged()).getContent();
         List<ProductDetailsClientResponse> resultDto = lstProductDetails.stream().map(attr -> mapper.map(attr, ProductDetailsClientResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }

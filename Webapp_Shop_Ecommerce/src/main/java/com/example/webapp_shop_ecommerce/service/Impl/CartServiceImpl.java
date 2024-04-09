@@ -9,6 +9,7 @@ import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.ICartDetailsRepository;
 import com.example.webapp_shop_ecommerce.repositories.ICartRepository;
+import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.service.ICartDetailsService;
 import com.example.webapp_shop_ecommerce.service.ICartService;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
@@ -26,6 +27,8 @@ public class CartServiceImpl extends BaseServiceImpl<Cart, Long, ICartRepository
     @Autowired
     private IProductDetailsService productDetailsService;
     @Autowired
+    private IProductDetailsRepository productDetailsRepo;
+    @Autowired
     private Authentication authentication;
     @Autowired
     private ICartRepository cartRepo;
@@ -38,7 +41,7 @@ public class CartServiceImpl extends BaseServiceImpl<Cart, Long, ICartRepository
         Customer customer = authentication.getCustomer();
         CartDetails cartDetail = new CartDetails();
 
-        Optional<ProductDetails> productDetails = productDetailsService.findById(cartRequest.getProductDetail());
+        Optional<ProductDetails> productDetails = productDetailsRepo.findById(cartRequest.getProductDetail());
         if (productDetails.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm khong tồn tại", 1, cartRequest), HttpStatus.BAD_REQUEST);
         }

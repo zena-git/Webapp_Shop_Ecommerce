@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface IProductDetailsService extends IBaseService<ProductDetails, Long> {
 
     Page<ProductDetails> findAllByProductToPage(Long productId, Pageable page);
+    Page<ProductDetails> findAllClientDeletedFalseAndStatusFalse(Long productId, Pageable page);
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable page);
     List<ProductDetails> findAllByProduct(Long productId);
 

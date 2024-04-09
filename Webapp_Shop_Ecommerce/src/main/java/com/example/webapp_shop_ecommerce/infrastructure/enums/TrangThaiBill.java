@@ -12,6 +12,7 @@ public enum TrangThaiBill {
 
     TRA_HANG("6"),
     DANG_BAN("7"),
+    CHO_THANH_TOAN("8"),
     NEW("New");
 
 

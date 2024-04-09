@@ -36,6 +36,11 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
     }
 
     @Override
+    public Page<ProductDetails> findAllClientDeletedFalseAndStatusFalse(Long productId, Pageable page) {
+        return repository.findAllClientDeletedFalseAndStatusFalse(productId, page);
+    }
+
+    @Override
     public Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable page) {
         return repository.findAllDeletedFalseAndStatusFalse(page);
     }
@@ -101,6 +106,7 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                                 entity.setLastModifiedDate(LocalDateTime.now());
                                 entity.setLastModifiedBy("Admin");
                                 entity.setDeleted(false);
+                                entity.setStatus("0");
                                 entity.setId(productDetailsDto.getId());
                             }
                             return entity;

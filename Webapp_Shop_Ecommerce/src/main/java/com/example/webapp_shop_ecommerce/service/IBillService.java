@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest);
-    ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest);
+    ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest) throws UnsupportedEncodingException;
     List<Bill> findBillByCustomer();
 
     List<Bill> findAllTypeAndStatus(String type, String status);

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class BillClientController {
     }
 
     @PostMapping("/guest")
-    public ResponseEntity<ResponseObject> saveBillGuest(@RequestBody BillRequest billDto){
+    public ResponseEntity<ResponseObject> saveBillGuest(@RequestBody BillRequest billDto) throws UnsupportedEncodingException {
         return billService.buyBillClientGuest(billDto);
     }
 }

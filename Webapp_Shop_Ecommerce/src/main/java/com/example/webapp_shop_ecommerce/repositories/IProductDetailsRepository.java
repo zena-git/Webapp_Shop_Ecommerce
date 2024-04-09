@@ -19,6 +19,10 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where  proDetail.product.id = ?1")
     Page<ProductDetails> findAllByProductToPage(Long idPro, Pageable pageable);
 
+    @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.id = ?1 and proDetail.deleted = false and proDetail.product.deleted = false and proDetail.product.status = '0'")
+    Page<ProductDetails> findAllClientDeletedFalseAndStatusFalse(Long idPro,Pageable pageable);
+
+
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where  proDetail.product.id = ?1")
     List<ProductDetails> findAllByProduct(Long idPro);
 
@@ -38,4 +42,6 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
 
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.product.status = '0' and proDetail.quantity >0")
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable pageable);
+
+
 }

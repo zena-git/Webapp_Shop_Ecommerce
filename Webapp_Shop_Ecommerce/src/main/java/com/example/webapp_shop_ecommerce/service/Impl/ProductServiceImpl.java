@@ -197,6 +197,11 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     }
 
     @Override
+    public Page<Product> findProductsClientAndDetailsNotDeleted(Pageable pageable, Map<String, String> keyWork) {
+        return repository.findProductsClientAndDetailsNotDeleted(pageable,keyWork);
+    }
+
+    @Override
     public Optional<Product> findProductByIdAndDetailsNotDeleted(Long id,Map<String,String> keyWork) {
         Optional<Product> otp = repository.findProductByIdAndDetailsNotDeleted(id,keyWork);
         if (otp.isEmpty()) {

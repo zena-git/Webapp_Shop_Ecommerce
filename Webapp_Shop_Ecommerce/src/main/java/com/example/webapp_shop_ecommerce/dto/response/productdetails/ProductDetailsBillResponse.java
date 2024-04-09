@@ -3,6 +3,7 @@ package com.example.webapp_shop_ecommerce.dto.response.productdetails;
 import com.example.webapp_shop_ecommerce.dto.response.color.ColorResponse;
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductBillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
+import com.example.webapp_shop_ecommerce.dto.response.promotionDetails.PromotionDetailsCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.size.SizeResponse;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class ProductDetailsBillResponse {
     private SizeResponse size;
     private ColorResponse color;
     private  Integer weight;
+    private PromotionDetailsCountersResponse promotionDetailsActive;
 
 
     private ProductBillResponse product;
