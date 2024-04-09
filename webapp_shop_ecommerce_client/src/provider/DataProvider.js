@@ -7,20 +7,56 @@ import { ToastContainer, toast } from 'react-toastify';
 const DataProvider = ({ children }) => {
     const navigate = useNavigate();
     const [isAccount, setIsAccount] = useState(false);
+    const [customer, setCustomer] = useState()
 
     const [data, setData] = useState([]);
     const [dataCheckout, setDataCheckout] = useState([]);
-    const [totalPayment, setTotalPayment] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [intoMoney, setIntoMoney] = useState(0);
+    const [shipMoney, setShipMoney] = useState(0);
+    const [voucherMoney, setVoucherMoney] = useState(0);
+    const [paymentMethods, setPaymentMethods] = useState(0);
     const [addressBill, setAddressBill] = useState('');
 
+    const [checkedList, setCheckedList] = useState([]);
+    useEffect(() => {
+        if (isAccount) {
+            axios.get('http://localhost:8080/api/v2/profile')
+                .then(response => {
+                    setCustomer(response.data)
+                    console.log(response.data);
+                })
+                .catch(err => {
+
+                })
+        }
+    }, []);
+
+
+
+    useEffect(() => {
+        const money = totalPrice - voucherMoney + shipMoney;
+        setIntoMoney(money);
+    }, [totalPrice, voucherMoney, shipMoney])
 
     useEffect(() => {
         if (isAccount) {
             const fetchDataAndSetState = async () => {
                 axios.get('http://localhost:8080/api/v2/cart')
                     .then(res => {
+                        const dataCart = res.data.lstCartDetails.sort((a, b) => a.id - b.id).map(data => {
+                            let totalMoney = data?.productDetails?.promotionDetailsActive == null ?
+                                data?.productDetails.price * data?.quantity :
+                                (data?.productDetails.price -
+                                    (data.productDetails.price * data.productDetails.promotionDetailsActive.promotion.value / 100))
+                                * data?.quantity
 
-                        setData(res.data.lstCartDetails.sort((a, b) => a.id - b.id));
+                            return {
+                                ...data,
+                                totalMoney: totalMoney
+                            }
+                        });
+                        setData(dataCart);
                     })
                     .catch(err => {
                         console.log(err);
@@ -30,13 +66,15 @@ const DataProvider = ({ children }) => {
             fetchDataAndSetState();
         } else {
             const storedProducts = JSON.parse(localStorage.getItem('cart')) || [];
+            console.log(storedProducts);
             setData(storedProducts);
         }
 
-    }, []);
+    }, [isAccount]);
 
     useEffect(() => {
         if (!isAccount) {
+            console.log(data);
             localStorage.setItem('cart', JSON.stringify(data));
         }
     }, [data]);
@@ -44,7 +82,21 @@ const DataProvider = ({ children }) => {
     const setAddressBillClient = (newData) => {
         setAddressBill(newData)
     };
-
+    const setDataToTotalPrice = (newData) => {
+        setTotalPrice(newData)
+    };
+    const setDataPaymentMethods = (newData) => {
+        setPaymentMethods(newData)
+    };
+    const setDataShipMoney = (newData) => {
+        setShipMoney(newData)
+    };
+    const setDataVoucherMoney = (newData) => {
+        setVoucherMoney(newData)
+    };
+    const setDataCart = (newData) => {
+        setData(newData)
+    };
     const setLstDataCheckout = (newData) => {
         // console.log(newData);
         const lstCartDetail = newData.map((idData) => {
@@ -53,14 +105,24 @@ const DataProvider = ({ children }) => {
         console.log(lstCartDetail);
         setDataCheckout(lstCartDetail)
     };
+    useEffect(() => {
+        const lstCartDetail = checkedList.map((id) => {
+            return data.find(cartDetail => cartDetail.id === id);
+        }).filter(cartDetail => cartDetail !== undefined)
 
+        const totalMoney = lstCartDetail.reduce((acc, item) => acc + item.totalMoney, 0);
+        // console.log(lstCartDetail);
+
+        setTotalPrice(totalMoney || 0)
+    }, [data])
     const setTotalPaymentMoney = (lstId) => {
+
         const lstCartDetail = lstId.map((id) => {
             return data.find(cartDetail => cartDetail.id === id);
         })
-        const totalMoney = lstCartDetail.reduce((acc, item) => acc + (item.productDetails.price * item.quantity), 0);
+        const totalMoney = lstCartDetail.reduce((acc, item) => acc + item.totalMoney, 0);
         console.log(totalMoney);
-        setTotalPayment(totalMoney)
+        setTotalPrice(totalMoney)
     };
 
     // Chỉ gọi API khi component được tạo
@@ -70,7 +132,19 @@ const DataProvider = ({ children }) => {
         if (isAccount) {
             axios.get('http://localhost:8080/api/v2/cart')
                 .then(res => {
-                    setData(res.data.lstCartDetails.sort((a, b) => a.id - b.id));
+                    const dataCart = res.data.lstCartDetails.sort((a, b) => a.id - b.id).map(data => {
+                        let totalMoney = data?.productDetails?.promotionDetailsActive == null ?
+                            data?.productDetails.price * data?.quantity :
+                            (data?.productDetails.price -
+                                (data.productDetails.price * data.productDetails.promotionDetailsActive.promotion.value / 100))
+                            * data?.quantity
+
+                        return {
+                            ...data,
+                            totalMoney: totalMoney
+                        }
+                    });
+                    setData(dataCart);
                 })
                 .catch(err => {
                     console.log(err);
@@ -81,7 +155,7 @@ const DataProvider = ({ children }) => {
 
 
     const moneyQuantity = useCallback(async (value, idCartdetail) => {
-
+        console.log(value);
         if (isAccount) {
             axios.put(`http://localhost:8080/api/v2/cartDetails/` + idCartdetail, {
                 quantity: value
@@ -94,12 +168,20 @@ const DataProvider = ({ children }) => {
                     console.log(err);
                 })
         } else {
+
             const existingItemIndex = data.findIndex((item) => item.id == idCartdetail);
             if (existingItemIndex != -1) {
                 const existingItem = data[existingItemIndex];
+
+                let totalMoney = existingItem?.productDetails?.promotionDetailsActive == null ?
+                    existingItem?.productDetails.price * value :
+                    (existingItem?.productDetails.price -
+                        (existingItem.productDetails.price * existingItem.productDetails.promotionDetailsActive.promotion.value / 100))
+                    * value
                 const newItem = {
                     ...existingItem,
-                    quantity: value
+                    quantity: value,
+                    totalMoney: totalMoney
                 }
                 console.log(existingItem);
                 const dataCart = [...data];
@@ -108,6 +190,8 @@ const DataProvider = ({ children }) => {
 
             }
         }
+
+
     }, [data, isAccount]);
 
     const deleteData = useCallback(async (itemId) => {
@@ -126,18 +210,21 @@ const DataProvider = ({ children }) => {
             const dataCart = [...data];
             dataCart.splice(existingItemIndex, 1);
             setData(dataCart);
+
         }
 
     }, [data, isAccount]);
-    const paymentBill = useCallback(async () => {
+    const handlePaymentBill = useCallback(async () => {
         console.log(addressBill);
         console.log(dataCheckout);
+        let returnUrl = window.location.origin;
+
         const dataBill = {
-            billType: 'Online',
-            cash: totalPayment,
-            digitalCurrency: totalPayment,
-            totalMoney: totalPayment,
-            intoMoney: totalPayment,
+            shipMoney: shipMoney,
+            totalMoney: totalPrice,
+            paymentMethod: paymentMethods,
+            voucherMoney: voucherMoney,
+            intoMoney: intoMoney,
             email: addressBill.email,
             receiverName: addressBill.receiverName,
             receiverPhone: addressBill.receiverPhone,
@@ -145,43 +232,70 @@ const DataProvider = ({ children }) => {
             receiverCommune: addressBill.commune,
             receiverDistrict: addressBill.district,
             receiverProvince: addressBill.province,
+            description: addressBill?.description,
             lstCartDetails: dataCheckout,
+            voucher: voucherMoney,
+            returnUrl: returnUrl
         }
+        console.log(dataBill);
         if (isAccount) {
             axios.post('http://localhost:8080/api/v2/bill', dataBill)
                 .then(res => {
                     updateData()
-                    toast.success('Đặt Hàng Thành Công')
-                    setTimeout(() => {
-                        navigate('/cart');
-                    }, 1000);
+                    setDataCheckout([]);
+
+                    if (res.data.status == "redirect") {
+                        window.location.href = res.data.data;
+                    } else {
+                        toast.success('Đặt Hàng Thành Công')
+                        setTimeout(() => {
+                            navigate('/cart');
+                        }, 1000);
+                    }
                 })
                 .catch(err => {
                     console.log(err);
                 })
-        }else{
+        } else {
 
             axios.post('http://localhost:8080/api/v2/bill/guest', dataBill)
-            .then(res => {
-                toast.success('Đặt Hàng Thành Công')
-                setTimeout(() => {
-                    // navigate('/cart');
-                }, 1000);
-            })
-            .catch(err => {
-                console.log(err);
-            })
+                .then(res => {
+                    const dataCart = data.filter(item => !dataCheckout.some(checkoutItem => checkoutItem.id === item.id));
+                    setData(dataCart);
+                    setDataCheckout([]);
+
+                    if (res.data.status == "redirect") {
+                        window.location.href = res.data.data;
+                    } else {
+                        toast.success('Đặt Hàng Thành Công')
+                        setTimeout(() => {
+                            navigate('/cart');
+                        }, 1000);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         }
 
-    }, [addressBill]);
+    }, [addressBill, paymentMethods]);
 
 
     // thêm giỏ hàng
     const addGioHang = useCallback(async (dataProduct) => {
+        const totalMoney = dataProduct?.productDetails?.promotionDetailsActive == null ?
+            dataProduct.productDetails.price * dataProduct.quantity :
+            (dataProduct.productDetails.price -
+                (dataProduct.productDetails.price * dataProduct.productDetails.promotionDetailsActive.promotion.value / 100))
+            * dataProduct.quantity
+        console.log(totalMoney);
+
         if (isAccount) {
+
             const product = {
                 productDetail: dataProduct.productDetails.id,
-                quantity: dataProduct.quantity
+                quantity: dataProduct.quantity,
+                totalMoney: totalMoney,
             }
             // console.log(product);
             axios.post('http://localhost:8080/api/v2/cart', product)
@@ -207,10 +321,16 @@ const DataProvider = ({ children }) => {
                     toast.error('Số Lượng Sản Phẩm Đang Có Không Đủ');
                     return;
                 }
+                let totalMoney = dataProduct?.productDetails?.promotionDetailsActive == null ?
+                    dataProduct.productDetails.price * dataProduct.quantity :
+                    (dataProduct.productDetails.price -
+                        (dataProduct.productDetails.price * dataProduct.productDetails.promotionDetailsActive.promotion.value / 100))
+                    * (existingItem.quantity + dataProduct.quantity)
 
                 const updatedItem = {
                     ...existingItem,
                     quantity: existingItem.quantity + dataProduct.quantity,
+                    totalMoney: totalMoney
                 };
 
                 const dataCart = [...data];
@@ -222,6 +342,7 @@ const DataProvider = ({ children }) => {
                     id: Math.floor(Math.random() * 1000000),
                     productDetails: dataProduct.productDetails,
                     quantity: dataProduct.quantity,
+                    totalMoney: totalMoney,
                 }];
                 setData(dataCart);
             }
@@ -234,11 +355,16 @@ const DataProvider = ({ children }) => {
 
     // Mua ngya
     const buyCart = useCallback(async (dataProduct) => {
-
+        const totalMoney = dataProduct?.productDetails?.promotionDetailsActive == null ?
+            dataProduct.productDetails.price * dataProduct.quantity :
+            (dataProduct.productDetails.price -
+                (dataProduct.productDetails.price * dataProduct.productDetails.promotionDetailsActive.promotion.value / 100))
+            * dataProduct.quantity
         if (isAccount) {
             const product = {
                 productDetail: dataProduct.productDetails.id,
-                quantity: dataProduct.quantity
+                quantity: dataProduct.quantity,
+                totalMoney: totalMoney
             }
             // console.log(product);
             axios.post('http://localhost:8080/api/v2/cart', product)
@@ -261,10 +387,15 @@ const DataProvider = ({ children }) => {
                     toast.error('Số Lượng Sản Phẩm Đang Có Không Đủ');
                     return;
                 }
-
+                let totalMoney = dataProduct?.productDetails?.promotionDetailsActive == null ?
+                    dataProduct.productDetails.price * dataProduct.quantity :
+                    (dataProduct.productDetails.price -
+                        (dataProduct.productDetails.price * dataProduct.productDetails.promotionDetailsActive.promotion.value / 100))
+                    * (existingItem.quantity + dataProduct.quantity)
                 const updatedItem = {
                     ...existingItem,
                     quantity: existingItem.quantity + dataProduct.quantity,
+                    totalMoney: totalMoney
                 };
 
                 const dataCart = [...data];
@@ -276,6 +407,7 @@ const DataProvider = ({ children }) => {
                     id: Math.floor(Math.random() * 1000000),
                     productDetails: dataProduct.productDetails,
                     quantity: dataProduct.quantity,
+                    totalMoney: totalMoney
                 }];
                 setData(dataCart);
             }
@@ -285,26 +417,40 @@ const DataProvider = ({ children }) => {
 
     }, [data, isAccount]);
 
-
+    const setDataCheckedList = (data) => {
+        setCheckedList(data);
+    };
     const dataContextValue = {
         isAccount,
-
+        customer,
         //cart
         data,
         dataLength: data.length,
         dataCheckout,
+        checkedList,
+        intoMoney,
+        shipMoney,
+        voucherMoney,
+        paymentMethods,
+        totalPrice,
+        addressBill,
         updateData, // Include the updateData function in the context
         deleteData,
         moneyQuantity,
         setLstDataCheckout,
-        totalPayment,
         setTotalPaymentMoney,
+        setDataCheckedList,
+        setDataShipMoney,
+        setDataVoucherMoney,
+        setDataPaymentMethods,
+        setDataCart,
         setAddressBillClient,
-        paymentBill,
 
         //productDetail
         addGioHang,
-        buyCart
+        buyCart,
+        handlePaymentBill,
+
     };
 
     return (

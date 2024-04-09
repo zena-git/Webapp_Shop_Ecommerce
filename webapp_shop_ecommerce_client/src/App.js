@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import React from 'react';
 import { privateRouter, publicRouter } from '~/routes';
 
-import DefaultLayout from './components/Layout/DefaultLayout';
+import DefaultLayout from './layouts/DefaultLayout';
 
 import DataProvider from './provider/DataProvider';
 

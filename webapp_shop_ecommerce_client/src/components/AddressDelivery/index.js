@@ -287,7 +287,7 @@ function AddressDelivery() {
         }, 0);
 
         const weightProduct = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
-            return accumulator + (currentProduct.productDetails.weight * currentProduct.quantity);
+            return accumulator +(currentProduct.productDetails.weight * currentProduct.quantity);
         }, 0);
 
         if (valueDistrict != null) {

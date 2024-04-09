@@ -1,7 +1,5 @@
-import { Layout, theme, Button, Badge, Avatar } from 'antd';
-import Menu from '~/components/Menu';
+import { Layout, Button, Badge, Avatar } from 'antd';
 import React, { useState } from 'react';
-
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -14,11 +12,14 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import Footer from './Footer';
 import Header from './Header';
+import Content from './Content';
 function DefaultLayout({ children }) {
   return (
-    <div >
+    <div>
       <Header></Header>
-      {children}
+      <Content>
+        {children}
+      </Content>
       <Footer>
       </Footer>
     </div>

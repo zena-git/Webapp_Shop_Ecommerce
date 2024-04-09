@@ -78,7 +78,6 @@ function Header() {
             <div style={{
                 height: "94px",
                 position: 'sticky',
-                width: "100vw",
                 top: 0,
                 zIndex: "5",
                 backgroundColor: "#ffffff",

@@ -1,96 +1,131 @@
 import './ProductPay.css';
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Modal, Radio, Space, Input, Select ,ColorPicker} from 'antd';
+import { Button, Tooltip, Carousel, Space, Input, Select, ColorPicker } from 'antd';
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { fixMoney } from '~/ultils/fixMoney';
+import hexToColorName from '~/ultils/HexToColorName';
 import DataContext from "../../DataContext";
 
 function ProductPay() {
-
-    const { data, dataLength, updateData, deleteData, dataCheckout } = useContext(DataContext);
-
+    const navigate = useNavigate();
+    const { data, dataLength, updateData, deleteData, dataCheckout, totalPrice } = useContext(DataContext);
+    useEffect(() => {
+        if (dataCheckout.length == 0) {
+            navigate('/cart');
+        }
+    }, [dataCheckout])
 
     return (<>
-        <div>
-            <div >
-                <div 
-                    style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        fontSize: '16px',
-                        paddingTop: '10px',
-                        backgroundColor: '#ccc',
-                        paddingBottom: '10px',
-                        marginTop: `20px`,
-
-                    }}>
-
-                    <div style={{ flex: '1', }}>Tên Sản Phẩm</div>
-                    <div style={{ flex: '0.2',justifyContent: 'center' }}>Đơn Giá</div>
-                    <div style={{ flex: '0.2',justifyContent: 'center' }}>Số Lượng</div>
-                    <div style={{ flex: '0.2',justifyContent: 'center' }}>Thành Tiền</div>
-                </div>
-                <div style={{
-                    backgroundColor: 'white',
-                    width: '100%',
-                }}>
-
-                    {dataCheckout.map((cartDetail) => (
-                        <div key={cartDetail.id} style={{
+        {
+            dataCheckout.length != 0 &&
+            <div>
+                <div >
+                    <div
+                        style={{
                             width: '100%',
+                            backgroundColor: '#ccc',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            borderBottom: '1px solid #ccc',
-                            paddingTop: '4px',
-                        }}>
+                            marginBottom: '10px',
+                            fontSize: '16px',
+                            paddingTop: '10px',
+                            paddingBottom: '10px',
 
-                            <div style={{ flex: '1', display: 'flex', alignItems: 'start' }}>
-                                <div>
-                                    <img
-                                        style={{
-                                            width: '100px',
-                                            height: '100px'
-                                        }}
-                                        src="https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-1/212869555_903187000546897_616635507650364142_n.jpg?stp=dst-jpg_p320x320&_nc_cat=108&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeHUtaFAQzZIuqBM3YYvro7jpMC7lk7KZ2ykwLuWTspnbCAaW_NKg-IMain8k07U_ys&_nc_ohc=vyrY0myh2f4AX_0b_xe&_nc_ht=scontent-hkg4-1.xx&oh=00_AfDplaPAhr9NgzTwlsIBmcx0e4aSDoKZyOSrV2vG4QvYsA&oe=65ED0660">
 
-                                    </img>
+                        }}
+                        className='shadow-md font-medium pl-4'
+                    >
+                        <div style={{ flex: '0.8', justifyContent: 'center' }}>Tên Sản Phẩm</div>
+                        <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>Đơn Giá</div>
+                        <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>Số Lượng</div>
+                        <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>Thành Tiền</div>
+                    </div>
+                    <div className='shadow-md' style={{
+                        backgroundColor: 'white',
+                        width: '100%',
+                    }}>
+
+                        {dataCheckout?.map((cartDetail) => (
+                            <div key={cartDetail?.id} style={{
+                                width: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                borderBottom: '1px solid rgb(223 223 223)',
+                                paddingTop: '10px',
+                                paddingBottom: '10px',
+                            }}>
+
+                                <div style={{ flex: '0.8', display: 'flex', alignItems: 'start' }}>
+                                    <div className='ml-10'>
+                                        <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '140px' }}>
+                                            {cartDetail?.productDetails?.imageUrl.split("|").map((imageUrl, index) => (
+                                                <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                            ))}
+                                        </Carousel>
+                                    </div>
+                                    <div className='ml-10'>
+                                        <h4 style={{
+                                            margin: '0px'
+                                        }}> {cartDetail?.productDetails?.product.name}
+                                        </h4>
+                                        <div className='flex items-center mt-4'>
+                                            <div>
+                                                Phân loại:
+                                            </div>
+                                            <div className='flex items-center ml-4'>
+                                                <Tooltip title={hexToColorName(cartDetail?.productDetails?.color?.name) + ' - ' + cartDetail?.productDetails?.color?.name} color={cartDetail?.productDetails?.color?.name} key={cartDetail?.productDetails?.color?.name}>
+                                                    <div style={{ width: '20px', height: '20px', backgroundColor: cartDetail?.productDetails?.color?.name }}></div>
+                                                </Tooltip>
+                                                <span className='ml-2'>- {cartDetail?.productDetails?.size?.name}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
-                                <div style={{
-                                    marginLeft: '10px'
-
-                                }}>
-                                    <h4 style={{
-                                        margin: '0px'
-                                    }}> {cartDetail.productDetails.product.name}
-                                    </h4>
-                                    <span style={{display: 'flex', alignItems: 'center'}}>
-                                        Phân loại: <ColorPicker style={{marginLeft: '10px', marginRight: '10px'}} disabled defaultValue={cartDetail.productDetails.color.name}/> - {cartDetail.productDetails.size.name}
+                                <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>
+                                    <span>
+                                        {
+                                            cartDetail?.productDetails?.promotionDetailsActive ?
+                                                <div className="flex items-center	">
+                                                    <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(cartDetail?.productDetails?.price)}</span>
+                                                    <span className="ml-2 text-rose-500 text-2xl font-medium	">{
+                                                        fixMoney(cartDetail?.productDetails.price -
+                                                            (cartDetail?.productDetails?.price * cartDetail?.productDetails?.promotionDetailsActive?.promotion?.value / 100))}</span>
+                                                </div> :
+                                                <div>
+                                                    <span className="text-rose-500 text-2xl font-medium	">{fixMoney(cartDetail.productDetails.price)}</span>
+                                                </div>
+                                        }
                                     </span>
                                 </div>
+                                <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>
+                                    <span className="text-2xl font-medium	">
+                                        {cartDetail?.quantity}
+                                    </span>
+                                </div>
+                                <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>
+                                    <span className="text-rose-500 text-2xl font-medium	">
+                                        {fixMoney(cartDetail?.totalMoney)}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
 
-                            </div>
-                            <div style={{ flex: '0.2',justifyContent: 'center' }}>
-                                <span>
-                                    {cartDetail.productDetails.price}
-                                </span>
-                            </div>
-                            <div style={{ flex: '0.2',justifyContent: 'center' }}>
-                                <span>
-                                {cartDetail.quantity}
-                                </span>
-                            </div>
-                            <div style={{ flex: '0.2',justifyContent: 'center' }}>
-                                <span>
-                                    {cartDetail.productDetails.price * cartDetail.quantity}
-                                </span>
-                            </div>
+
+                    </div>
+                    <div className='shadow-md flex justify-end	bg-white	p-4'>
+                        <div>
+                            Tổng số tiền
+                            <span className='text-2xl'> ({dataCheckout.length} sản Phẩm): </span>
+                            <span className="text-rose-500 text-3xl font-medium">{fixMoney(totalPrice)}</span>
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
-        </div>
+        }
 
     </>);
 }

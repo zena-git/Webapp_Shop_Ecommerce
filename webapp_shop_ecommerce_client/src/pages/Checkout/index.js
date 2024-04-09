@@ -11,13 +11,7 @@ function CheckOut() {
     const { isAccount } = useContext(DataContext);
     return (
         <>
-            <div style={{
-                marginTop: "99px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                width: "1230px",
-
-            }}>
+            <div>
                 <div style={{ display: isAccount ? 'block' : 'none', }}>
                     <Address></Address>
                 </div>
@@ -31,12 +25,15 @@ function CheckOut() {
                     justifyContent: "Space-between",
                     marginTop: '40px'
                 }}>
-
-                    <div style={{ visibility: isAccount ? 'hidden' : 'visible', width: '50%' }} >
-
-
+                    {
+                        isAccount ? 
+                        <div style={{width: '50%'}}>
+                        </div>:
+                        <div style={{width: '50%'}}>
                         <AddressGress />
-                    </div>
+
+                        </div>
+                    }
                     <div style={{ width: '40%' }}>
 
                         <Buy />

@@ -20,17 +20,17 @@ html {
 }
 body {
     font-size: 1.6rem;
-    font-weight: 500;
+    font-weight: 400;
+    background-color: rgb(243 244 246)
+
 }
 
 //Bỏ thẻ canvas trong quét barcode
-.drawingBuffer{
-    display: none !important;;
+.drawingBuffer {
+    display: none !important;
 }
 
-
 .ant-btn {
-
     font-size: 1.3rem;
 }
 .ant-btn-primary {
@@ -44,8 +44,8 @@ body {
     font-size: 1.8rem;
 }
 :where(.css-dev-only-do-not-override-1k979oh).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
-    color: var(--color-primary-bold);
-    border-color: var(--color-primary-bold);
+    color: var(--color-primary-bold) !important;
+    border-color: var(--color-primary-bold) !important;
     background: #ffffff;
 }
 :where(.css-dev-only-do-not-override-1k979oh).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
@@ -123,6 +123,29 @@ body {
 .ant-table-thead th {
     background-color: #da749392 !important;
 }
-.ant-drawer-content-wrapper{
-    box-shadow: none!important;
+.ant-drawer-content-wrapper {
+    box-shadow: none !important;
 }
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-default.ant-btn-dangerous {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    font-weight: 500;
+    border-radius: 4px;
+
+}
+.ant-radio-button-wrapper {
+    border: 2px solid #7e7e7e8a !important;
+    background-color: #fff !important;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before,
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
+    border: 2px solid #da7493 !important;
+    background-color: #fff !important;
+    color: var(--color-primary) !important;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper:not(:first-child)::before,
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before{
+    display: none !important;
+}
+

@@ -1,12 +1,26 @@
-import React, { useState, useEffect,useContext } from 'react';
-import { Button, Modal, Radio, Space, Input, Select } from 'antd';
+import React, { useState, useEffect, useContext } from 'react';
+import { Button, Modal, Radio, Tag, Input, Select } from 'antd';
 import axios from "axios";
-import './AddressGress.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faMap } from '@fortawesome/free-regular-svg-icons';
+import Address from '../Address';
+import dayjs from 'dayjs';
 import DataContext from "~/DataContext";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import './AddressGress.css';
+dayjs.extend(customParseFormat);
+const { TextArea } = Input;
 function AddressGress() {
-    const {setAddressBillClient } = useContext(DataContext);
+    const { setAddressBillClient, dataCheckout, setDataShipMoney ,totalPrice } = useContext(DataContext);
 
 
+    const [lstAddress, setLstAddress] = useState([]);
+    const [checkValueAddress, setCheckValueAddress] = useState(1);
+    const [address, setAddress] = useState({});
+
+    const [isTabAddreiss, setIsTabAddress] = useState(false);
+    const [valueTabAddreiss, setValueTabAddress] = useState(null);
 
     const [dataProvince, setDataProvince] = useState([]);
     const [dataDistrict, setDataDistrict] = useState([]);
@@ -17,76 +31,213 @@ function AddressGress() {
     const [valueDistrict, setValueDistrict] = useState(null);
     const [valueWard, setValueWard] = useState(null);
 
+    const [valueProvinceDefautl, setValueProvinceDefautl] = useState(null);
+    const [valueDistrictDefautl, setValueDistrictDefautl] = useState(null);
+    const [valueWardDefautl, setValueWardDefautl] = useState(null);
 
-    const [fullName, setFullName] = useState('');
+    const [serviceId, setServiceId] = useState('53321');
+    const [leadtime, setLeadtime] = useState(null);
+
+
+    const [receiverName, setReceiverName] = useState('');
+    const [receiverPhone, setReceiverPhone] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [details, setDetails] = useState('');
+    const [description, setDescription] = useState('');
     const [labelProvince, setLabelProvince] = useState(null);
     const [labelDistrict, setLabelDistrict] = useState(null);
     const [labelWard, setLabelWard] = useState(null);
 
-    useEffect(() =>{
+    useEffect(() => {
         const address = {
-            receiverName: fullName,
+            receiverName: receiverName,
+            receiverPhone: receiverPhone,
             email: email,
-            receiverPhone: phone,
-            receiverDetails: details,
-            receiverCommune: labelWard,
-            receiverDistrict: labelDistrict,
-            receiverProvince: labelProvince,
+            detail: details,
+            commune: labelWard,
+            district: labelDistrict,
+            province: labelProvince,
+            description: description
         }
         setAddressBillClient(address)
-    },[fullName, email, phone, details, labelProvince , labelDistrict, labelDistrict, labelWard])
+    }, [receiverName, receiverPhone,email, details, labelProvince, labelDistrict, labelDistrict, labelWard, address, description])
+
+
+    useEffect(() => {
+        setAddressBillClient(address)
+        fillDataAddress(address)
+
+
+    }, [address])
+
+    const fillDataAddress = (address) => {
+        setReceiverName(address?.receiverName)
+        setReceiverPhone(address?.receiverPhone)
+        setDetails(address?.detail)
+
+        setLabelWard(address?.commune ? address.commune : null);
+        setLabelDistrict(address?.district ? address.district : null);
+        setLabelProvince(address?.province ? address.province : null);
+
+
+        const foundProvince = dataProvince.find(item => item.label === address?.province);
+        setValueProvince(foundProvince?.value);
+
+        const foundDistrict = dataDistrict.find(item => item.label === address?.district);
+        // console.log(dataDistrict);
+        setValueDistrict(foundDistrict?.value);
+
+        const foundWard = dataWard.find(item => item.label === address?.commune);
+        // console.log(foundWard);
+        setValueWard(foundWard?.value);
+
+
+    }
+
+    // const fetchDataLstAddress = async () => {
+
+    //     try {
+    //         const response = await axios.get('http://localhost:8080/api/v1/customer/' + customer.id);
+    //         console.log(response.data);
+    //         setLstAddress(response.data.lstAddress);
+    //         // Kiểm tra và thiết lập giá trị kiểm tra
+    //         response.data.lstAddress.forEach(address => {
+    //             if (address.defaultAddress) {
+    //                 setCheckValueAddress(address.id);
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     console.log(customer);
+    //     if (isDelivery && customer !== null) {
+    //         // console.log(isDelivery);
+    //         fetchDataLstAddress();
+    //     }
+    // }, [customer, isDelivery])
 
     //lấy province
     useEffect(() => {
-        axios.get('https://vapi.vnappmob.com/api/province')
+        axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
+            headers: {
+                token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+            }
+        })
             .then((response) => {
-                const lstProvince = response.data.results.map((result) => {
+                const lstProvince = response.data.data.map((result) => {
                     return {
-                        value: result.province_id,
-                        label: result.province_name
+                        value: result.ProvinceID,
+                        label: result.ProvinceName
                     }
                 })
                 setDataProvince(lstProvince)
+
+
             })
             .catch((error) => {
                 console.log(error.response.data);
             })
+
     }, [])
 
     //lấy district
     useEffect(() => {
+        console.log("222");
         if (valueProvince != null) {
-            axios.get('https://vapi.vnappmob.com/api/province/district/' + valueProvince)
+            console.log("---");
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                    },
+                    params: {
+                        province_id: valueProvince
+                    }
+                }
+            )
                 .then((response) => {
-                    const lstDistrict = response.data.results.map((result) => {
+                    const lstDistrict = response.data.data.map((result) => {
                         return {
-                            value: result.district_id,
-                            label: result.district_name
+                            value: result.DistrictID,
+                            label: result.DistrictName
                         }
                     })
                     setDataDistrict(lstDistrict)
+
+                    if (address != null) {
+                        const foundDistrict = lstDistrict.find(item => item.label === address?.district);
+                        // console.log(dataDistrict);
+                        setValueDistrict(foundDistrict?.value);
+                    }
+
                 })
                 .catch((error) => {
                     console.log(error.response.data);
                 })
+
         }
     }, [valueProvince])
-    
+
     //lấy ward
     useEffect(() => {
+        console.log(valueDistrict);
         if (valueDistrict != null) {
-            axios.get('https://vapi.vnappmob.com/api/province/ward/' + valueDistrict)
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                    },
+                    params: {
+                        district_id: valueDistrict
+                    }
+                }
+            )
                 .then((response) => {
-                    const lstWard = response.data.results.map((result) => {
+                    const lstWard = response.data.data.map((result) => {
                         return {
-                            value: result.ward_id,
-                            label: result.ward_name
+                            value: result.WardCode,
+                            label: result.WardName
                         }
                     })
                     setDataWard(lstWard)
+
+                    if (address != null) {
+                        const foundWard = lstWard.find(item => item.label === address?.commune);
+                        setValueWard(foundWard?.value);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+
+
+        }
+    }, [valueDistrict])
+
+
+    //Lấy Dịch Vụ Vận Chuyển
+    useEffect(() => {
+        if (valueDistrict != null) {
+            console.log(valueWard);
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da',
+                    },
+                    params: {
+                        shop_id: 4962936,
+                        from_district: 3440,
+                        to_district: valueDistrict,
+                    }
+
+                }
+            )
+                .then((response) => {
+                    setServiceId(response.data.data[0].service_id)
+                    console.log(response.data.data[0].service_id);
                 })
                 .catch((error) => {
                     console.log(error.response.data);
@@ -94,13 +245,91 @@ function AddressGress() {
         }
     }, [valueDistrict])
 
+
+    //Tính phí ship
+    useEffect(() => {
+        if (dataCheckout.length <= 0) {
+            return;
+        }
+    
+        const weightProduct = dataCheckout.reduce((accumulator, currentProduct) => {
+            return accumulator + (currentProduct.productDetails.weight * currentProduct.quantity);
+        }, 0);
+
+        if (valueDistrict != null) {
+
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da',
+                        shop_id: 4962936
+                    },
+                    params: {
+                        service_id: serviceId,
+                        insurance_value: totalPrice,
+                        coupon: null,
+                        from_district_id: 3440,
+                        to_district_id: valueDistrict,
+                        to_ward_code: valueWard,
+                        weight: weightProduct,
+                    }
+
+                }
+            )
+                .then((response) => {
+
+                    console.log(response.data.data);
+                    setDataShipMoney(response.data.data.total)
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+        }
+    }, [valueDistrict, dataCheckout])
+
+    //Lấy Thời Gian Giao Hàng Dự Kiến
+    useEffect(() => {
+        if (valueDistrict != null && valueWard != null) {
+            console.log(valueWard);
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da',
+                    },
+                    params: {
+                        from_district_id: 3440,
+                        from_ward_code: 13007,
+                        to_district_id: valueDistrict,
+                        to_ward_code: valueWard,
+                        service_id: serviceId,
+                    }
+
+                }
+            )
+                .then((response) => {
+                    setLeadtime(response.data.data.leadtime)
+                    console.log(response.data.data);
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+        }
+    }, [valueDistrict, valueWard])
+
     const handleChangeProvince = (value) => {
         if (value) {
             const selectedOption = dataProvince.find(option => option.value === value);
             setValueProvince(selectedOption.value)
             setLabelProvince(selectedOption.label)
+
+            setDataShipMoney(0)
+
             setValueDistrict(null)
             setValueWard(null)
+
+            setLabelWard(null);
+            setLabelDistrict(null);
+
         }
 
     };
@@ -111,10 +340,13 @@ function AddressGress() {
             setValueDistrict(selectedOption.value)
             setLabelDistrict(selectedOption.label)
             setValueWard(null)
+            setLabelWard(null);
+
         }
 
     };
     const handleChangeWard = (value) => {
+        console.log(value);
         if (value) {
             const selectedOption = dataWard.find(option => option.value === value);
             setValueWard(selectedOption.value)
@@ -122,40 +354,53 @@ function AddressGress() {
         }
 
     };
+    const onChangeAddress = (e) => {
+        setCheckValueAddress(e.target.value)
+    };
+    const handleGoBack = () => {
+        setIsTabAddress(false);
+    };
+    const handleUpdateAddres = (address) => {
+        setValueTabAddress(address)
+        setIsTabAddress(true);
 
+    };
+
+    const handleAddAddres = () => {
+        setValueTabAddress(null)
+        setIsTabAddress(true);
+
+    };
 
     return (<>
-        <div className="box_addressGress">
-            <div className='box_addressGress-tile'>
+        <div className='shadow-md px-6 py-4 bg-white	'>
+            <div className='mb-4 pb-4' style={{
+                borderBottom: '1px solid rgb(232, 232, 232)'
+            }}>
                 <h4>Thông tin giao hàng</h4>
             </div>
-            <div className='box_addressGress-body'>
-                <div>
-                    <label>Họ Và Tên</label>
-                    <Input style={{marginTop: '2px'}}  placeholder="Họ Và Tên"  onChange={(e)=>{setFullName(e.target.value)}} />
+            <div >
+                <div className='mb-4'>
+                    <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Họ Và Tên</div>
+                    <Input placeholder="Họ Và Tên" value={receiverName} onChange={(e) => { setReceiverName(e.target.value) }} />
                 </div>
-                <div className='addressGress_body-emailphone'>
-                    <div style={{ flex: '0.9' }}>
-                        <label>Email</label>
-                        <Input style={{marginTop: '2px'}} type="email" placeholder="Email"  onChange={(e)=>{setEmail(e.target.value)}}  />
-                    </div>
-                    <div >
-                        <label>Số Điện Thoại</label>
-                        <Input style={{marginTop: '2px'}}  placeholder="Số Điện Thoại"  onChange={(e)=>{setPhone(e.target.value)}}  />
+                <div className='flex'>
+                    <div className='mb-4 w-full'>
+                        <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Số Điện Thoại</div>
+                        <Input placeholder="Số Điện Thoại" value={receiverPhone} onChange={(e) => { setReceiverPhone(e.target.value) }} />
                     </div>
                 </div>
-
-
-                <div>
-                    <label>Địa Chỉ</label>
-                    <Input style={{marginTop: '2px'}} placeholder="Địa Chỉ"  onChange={(e)=>{setDetails(e.target.value)}}  />
+                <div className='flex'>
+                    <div className='mb-4 w-full'>
+                        <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Email</div>
+                        <Input placeholder="Email" value={email} onChange={(e) => { setEmail(e.target.value) }} />
+                    </div>
                 </div>
-
-                <div className='addressGress_body-address'>
-                    <div>
-                        <label>Tỉnh/Thành</label>
+                <div className='flex justify-between mb-4'>
+                    <div className='flex flex-col w-1/3	'>
+                        <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Tỉnh/Thành</div>
                         <Select
-                             style={{marginTop: '2px'}} 
+                            defaultValue={valueProvinceDefautl}
                             placeholder="Tỉnh/Thành"
                             options={dataProvince}
                             value={valueProvince}
@@ -163,20 +408,18 @@ function AddressGress() {
                         />
                     </div>
 
-                    <div>
-                        <label>Quận/Huyện</label>
+                    <div className='flex flex-col w-1/3	ml-2 mr-2'>
+                        <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Quận/Huyện</div>
                         <Select
-                            style={{marginTop: '2px'}} 
                             placeholder="Quận/Huyện"
                             options={dataDistrict}
                             value={valueDistrict}
                             onChange={handleChangeDistrict}
                         />
                     </div>
-                    <div>
-                        <label>Phường/Xã</label>
+                    <div className='flex flex-col w-1/3'>
+                        <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Phường/Xã</div>
                         <Select
-                            style={{marginTop: '2px'}} 
                             placeholder="Phường/Xã"
                             options={dataWard}
                             value={valueWard}
@@ -184,9 +427,24 @@ function AddressGress() {
                         />
                     </div>
                 </div>
+                <div className='mb-4'>
+                    <div className='mb-2'>Địa Chỉ</div>
+                    <Input placeholder="Địa Chỉ" value={details} onChange={(e) => { setDetails(e.target.value) }} />
+                </div>
+                <div className='mb-4'>
+                    <div className='mb-2'>Ghi Chú</div>
+                    <TextArea rows={4} placeholder="Ghi Chú" onChange={(e) => { setDescription(e.target.value) }} />
+                </div>
+                <div className='mb-4'>
+                    <img style={{ width: '180px' }} src='https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHN-Slogan-En.png'></img>
+                    <div className='mt-2'>
+                        Thời Gian Giao Hàng Dự Kiến: {leadtime == null ? "" : dayjs?.unix(leadtime).format('DD/MM/YYYY')}
+                    </div>
 
+                </div>
 
             </div>
+
         </div>
     </>);
 }
