@@ -34,6 +34,7 @@ function EditPage() {
 
 
     const recheck = () => {
+        console.log("callcheck")
         let canSelectedProductDetail = listProduct.map(product => {
             return {
                 id: product.id,
@@ -48,34 +49,25 @@ function EditPage() {
             }
         })
 
-        canSelectedProductDetail.map(pro => {
-            pro.productDetail.map(proDetail => {
-                dispatch(disableChildren(
-                    {
-                        parentId: pro.id,
-                        id: proDetail.id,
-                        disable: false,
-                    }
-                ))
+        let t = listProduct.map(pro => {
+            let child = pro.ProductDetail.map(detail => {
+                return { id: detail.id, selected: false, disable: canSelectedProductDetail.find(target => target.id == pro.id).productDetail.find(targetDetail => targetDetail.id == detail.id) ? false : true }
             })
+            return {
+                id: pro.id, selected: false, disable: child.every(target => target.disable), children: child
+            }
         })
+        console.log(t);
+        dispatch(set({
+            value: {
+                selected: t
+            }
+        }))
     }
 
     useEffect(() => {
         axios.get(`${nextUrl}/product`).then(res => {
             setListProduct(res.data);
-            dispatch(set({
-                value: {
-                    selected: res.data.map(pro => {
-                        return {
-                            id: pro.id, selected: false, disable: true, children: pro.ProductDetail.map(detail => {
-                                return { id: detail.id, selected: false, disable: true }
-                            })
-                        }
-                    })
-                }
-            }))
-            recheck()
         });
     }, [])
 
@@ -101,7 +93,7 @@ function EditPage() {
             listProduct.map(pro => {
                 t.push(...pro.lstProductDetails.map(detail => detail.id))
             })
-            axios.post(`${baseUrl}/promotion`, {
+            axios.post(`${nextUrl}/promotion`, {
                 status: 0,
                 value: value,
                 code: code,
@@ -123,8 +115,10 @@ function EditPage() {
 
     useEffect(() => {
         setDateRange({ value: { date: { startDate: date[0].toDate().toISOString(), endDate: date[1].toDate().toISOString() } } });
-        recheck();
-    }, [date])
+        if (listProduct) {
+            recheck();
+        }
+    }, [date, listProduct])
 
     useEffect(() => {
         console.log(listSelectedProduct)

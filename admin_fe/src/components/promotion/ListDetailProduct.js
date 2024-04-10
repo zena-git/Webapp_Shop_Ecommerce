@@ -89,7 +89,7 @@ export default function ListTable({ data }) {
             ),
             cell: ({ row }) => (
                 <Checkbox
-                    disabled={!!selectedProduct.find(pro => pro.id == row.original.id).disable}
+                    disabled={!!selectedProduct.find(pro => pro.id == row.original.id)?.disable}
                     defaultChecked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
                     onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.checked })) }}
                     aria-label="Select row"
@@ -397,12 +397,6 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
     useEffect(() => {
         belowTable.toggleAllRowsSelected(selected);
     }, [belowTable, selected])
-
-
-    useEffect(() => {
-        // selectedProduct.
-        console.log(belowData)
-    }, [belowData, dateRange])
 
     return (
         <>
