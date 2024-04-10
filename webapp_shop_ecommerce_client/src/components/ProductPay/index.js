@@ -66,20 +66,31 @@ function ProductPay() {
                                             ))}
                                         </Carousel>
                                     </div>
-                                    <div className='ml-10'>
+                                    <div className='ml-8'>
                                         <h4 style={{
                                             margin: '0px'
                                         }}> {cartDetail?.productDetails?.product.name}
                                         </h4>
-                                        <div className='flex items-center mt-4'>
-                                            <div>
-                                                Phân loại:
+                                        <div className=''>
+                                            <div className='text-xl flex items-center mt-4 font-medium'>
+                                                <span>
+                                                    Màu Sắc:
+                                                </span>
+                                                <div className=' ml-2 flex items-center'>
+                                                    <Tooltip title={hexToColorName(cartDetail?.productDetails?.color?.name) + ' - ' + cartDetail?.productDetails?.color?.name} color={cartDetail?.productDetails?.color?.name} key={cartDetail?.productDetails?.color?.name}>
+                                                        <div style={{ width: '20px', height: '20px', backgroundColor: cartDetail.productDetails.color?.name, border: '1px solid #ccc' }}></div>
+                                                    </Tooltip>
+                                                    <span className='ml-2'>- {hexToColorName(cartDetail?.productDetails?.color?.name)}</span>
+                                                </div>
                                             </div>
-                                            <div className='flex items-center ml-4'>
-                                                <Tooltip title={hexToColorName(cartDetail?.productDetails?.color?.name) + ' - ' + cartDetail?.productDetails?.color?.name} color={cartDetail?.productDetails?.color?.name} key={cartDetail?.productDetails?.color?.name}>
-                                                    <div style={{ width: '20px', height: '20px', backgroundColor: cartDetail?.productDetails?.color?.name }}></div>
-                                                </Tooltip>
-                                                <span className='ml-2'>- {cartDetail?.productDetails?.size?.name}</span>
+                                            <div className='text-xl flex items-center mt-4 font-medium'>
+                                                <span>
+                                                    Kích Cỡ:
+                                                </span>
+                                                <div className=' ml-2 flex items-center'>
+
+                                                    <span className='ml-2'>{cartDetail?.productDetails?.size?.name}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -11,7 +11,7 @@
     --color-primary-bold: #dc4975;
 }
 * {
-    box-sizing: border-box;
+    box-sizing: border-box !important;
     margin: 0;
 }
 
@@ -19,10 +19,12 @@ html {
     font-size: 62.5%;
 }
 body {
-    font-size: 1.6rem;
-    font-weight: 400;
-    background-color: rgb(243 244 246)
-
+    font-size: 1.6rem !important;
+    font-weight: 400!important;
+    background-color: rgb(243 244 246)!important;
+    line-height: normal !important;
+    letter-spacing: normal !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 }
 
 //Bỏ thẻ canvas trong quét barcode
@@ -149,3 +151,20 @@ body {
     display: none !important;
 }
 
+:where(.css-dev-only-do-not-override-1k979oh).ant-input-search .ant-input:hover, :where(.css-dev-only-do-not-override-1k979oh).ant-input-search .ant-input:focus{
+    border-color: var(--color-primary)!important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-input-outlined:focus, :where(.css-dev-only-do-not-override-1k979oh).ant-input-outlined:focus-within {
+    box-shadow: 0 0 0 2px rgba(230, 5, 255, 0.1) !important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-ink-bar{
+    background-color: var(--color-primary)!important;
+}
+
+
+
+.MuiGrid-root{
+    width: 100%;
+}

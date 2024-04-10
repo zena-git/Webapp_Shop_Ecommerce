@@ -1,5 +1,5 @@
 
-import LayoutProfile from "../../component/LayoutProfile";
+import LayoutProfile from '~/components/LayoutProfile';
 import { Input, Radio, DatePicker, Button } from 'antd';
 import './profile.css';
 import React, { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ const Profile = () => {
     }, [historyCustomer]);
     const handleDateChange = (date, dateString) => {
         const dates = dayjs(date)?.format("YYYY-MM-DDTHH:mm:ss")
-        if(dates =="Invalid Date"){
+        if (dates == "Invalid Date") {
             return
         }
         // console.log(dates);
@@ -35,14 +35,14 @@ const Profile = () => {
         });
     };
 
-    const handleCustomers = ()=>{
-        axios.put('http://localhost:8080/api/v2/profile/'+customer.id, customer)
-         .then(res => {
+    const handleCustomers = () => {
+        axios.put('http://localhost:8080/api/v2/profile/' + customer.id, customer)
+            .then(res => {
                 console.log(res);
                 setHistoryCustomer(res.data)
                 toast.success('Cập nhật thành công');
             })
-         .catch(err => {
+            .catch(err => {
                 console.log(err);
                 toast.success('Cập nhật thất bại');
             })
@@ -51,13 +51,13 @@ const Profile = () => {
     return (<>
 
         <LayoutProfile>
-
+            <div>
+                <h4 className='text-3xl	font-medium	'>Thông Tin Tài Khoản</h4>
+            </div>
             <div className="box_profile">
-                <div>
-                    <h4 style={{ marginTop: 0 }}>Thông Tin Tài Khoản</h4>
-                </div>
+
                 <div className="box_profile-info">
-                    <label>Họ Và Tên</label>
+                    <label  className='text-2xl	'>Họ Và Tên</label>
                     <div className="profile_info">
                         <Input placeholder="Họ Và Tên" value={customer.fullName} onChange={(e) => {
                             setCustomer({
@@ -70,7 +70,7 @@ const Profile = () => {
                 </div>
 
                 <div className="box_profile-info">
-                    <label>Giới Tính</label>
+                    <label className='text-2xl	'>Giới Tính</label>
                     <div className="profile_info">
                         <Radio.Group style={{ width: '100%' }} value={customer.gender} onChange={(e) => {
                             setCustomer({
@@ -85,7 +85,7 @@ const Profile = () => {
                 </div>
 
                 <div className="box_profile-info">
-                    <label>Số điện thoại</label>
+                    <label className='text-2xl	'>Số điện thoại</label>
                     <div className="profile_info">
                         <Input placeholder="Số điện thoại" value={customer.phone} onChange={(e) => {
                             setCustomer({
@@ -98,7 +98,7 @@ const Profile = () => {
                 </div>
 
                 <div className="box_profile-info">
-                    <label>Email</label>
+                    <label className='text-2xl	'>Email</label>
                     <div className="profile_info">
                         <Input placeholder="Email" value={customer.email} onChange={(e) => {
                             setCustomer({
@@ -110,7 +110,7 @@ const Profile = () => {
 
                 </div>
                 <div className="box_profile-info">
-                    <label>Ngày Sinh</label>
+                    <label className='text-2xl	'>Ngày Sinh</label>
                     <div className="profile_info">
                         <DatePicker onChange={handleDateChange} format="YYYY-MM-DD" // Specify the desired format
                             value={dayjs(customer.birthday)} />
@@ -118,7 +118,7 @@ const Profile = () => {
 
                 </div>
                 <Button type="primary" onClick={handleCustomers}>Lưu Thay Đổi</Button>
-            <ToastContainer />
+                <ToastContainer />
 
             </div>
 

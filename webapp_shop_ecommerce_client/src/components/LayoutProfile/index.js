@@ -1,26 +1,21 @@
 import './layoutprofile.css';
-import Footer from '../../view/layout/Footer';
-import Header from "../../view/layout/Header";
+import React, { useEffect, useContext } from 'react';
+
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Space } from 'antd';
 import { Link } from 'react-router-dom';
+import DataContext from '~/DataContext';
 function LayoutProfile({ children }) {
+    const { customer } = useContext(DataContext);
+
     return (
-        <>  <Header />
-            <div style={{
-                marginTop: "99px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                width: "1230px",
-            }
-            }>
+        <>
+            <div className='mt-8'>
                 <div style={{
                     minHeight: '460px',
-                    paddingTop: '10px'
-
                 }}>
                     <div className="box_layout">
-                        <div className='box_layout-menu'>
+                        <div className='box_layout-menu' >
                             <div style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -29,28 +24,27 @@ function LayoutProfile({ children }) {
                                 <Avatar style={{
                                     marginRight: '20px'
                                 }} size={54} icon={<UserOutlined />} />
-                                <h4>Name Profile</h4>
+                                <h4>{customer?.fullName}</h4>
                             </div>
-                            <div className='layout_menu'>
+                            <div className='layout_menu mt-4'>
                                 <ul>
-                                    <li><Link to="/profile">Thông Tin Cá Nhân</Link></li>
-                                    <li><Link to="/address">Địa Chỉ</Link></li>
-                                    <li><Link to="/oder">Quản Lý Đơn Hàng</Link></li>
-                                    <li><Link to="/logout">Đăng Xuất</Link></li>
+                                    <Link to="/profile"><li>Thông Tin Cá Nhân</li></Link>
+                                    <Link to="/address"><li>Địa Chỉ</li></Link>
+                                    <Link to="/historyOrder"><li>Đơn Mua</li></Link>
+                                    <Link to="/logout"><li>Đăng Xuất</li></Link>
                                 </ul>
                             </div>
                         </div>
 
                         <div className='box_layout-conten'>
-                                {children}
+                            {children}
                         </div>
-                
+
 
                     </div>
                 </div>
 
             </div>
-            <Footer />
         </>
     );
 }

@@ -30,7 +30,7 @@ function Header() {
         {
             key: '2',
             label: (
-                <Link to="/oder">Quản Lý Đơn Hàng</Link>),
+                <Link to="/historyOrder">Quản Lý Đơn Hàng</Link>),
         },
         {
             key: '3',
@@ -75,25 +75,34 @@ function Header() {
                 />
             </Drawer>
 
-            <div style={{
+            <div className="shadow-lg" style={{
                 height: "94px",
                 position: 'sticky',
                 top: 0,
                 zIndex: "5",
                 backgroundColor: "#ffffff",
-                boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
             }}>
+
                 <div style={{
                     marginLeft: "auto",
                     marginRight: "auto",
                     width: "1200px",
                     padding: "0 15px",
                 }}>
+
+                    <div className="flex justify-end pt-4">
+                        <Link to="/orderTracking" className="no-underline text-black font-medium inline-block group">
+                            <div className="text-2xl flex items-center group-hover:underline">
+                                <TbSearch /><span className="ml-2">Tra Cứu Đơn Hàng</span>
+                            </div>
+                        </Link>
+                    </div>
+
                     <div
                         style={{
                             display: "flex",
                             alignItems: "center",
-                            height: "94px",
+                            height: "60px",
                             justifyContent: "space-between"
                         }}
                     >

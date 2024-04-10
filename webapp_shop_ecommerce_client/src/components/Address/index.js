@@ -12,7 +12,6 @@ function Address() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [addressCustomer, setAddressCustomer] = useState();
     const [addressCustomerModal, setAddressCustomerModal] = useState();
-    const [lstAddressCustomer, setLstAddressCustomer] = useState([]);
     
     const [lstAddress, setLstAddress] = useState([]);
     const [checkValueAddress, setCheckValueAddress] = useState(1);
@@ -34,9 +33,10 @@ function Address() {
 
     useEffect(() => {
         fetchDataLstAddress();
-        if(customer!=null){
-            setAddressBillClient(customer.defaultAddress)
-        }
+        // if(customer!=null){
+        //     console.log(customer);
+        //     setAddressBillClient(customer.defaultAddress)
+        // }
     }, [customer])
 
     const fetchDataLstAddress = async () => {
@@ -47,6 +47,7 @@ function Address() {
             response.data.forEach(address => {
                 if (address.defaultAddress) {
                     setCheckValueAddress(address.id);
+                    setAddressBillClient(address)
                 }
             });
         } catch (error) {

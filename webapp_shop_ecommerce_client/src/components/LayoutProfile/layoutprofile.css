@@ -1,17 +1,17 @@
 .box_layout {
     border-radius: 6px;
-    margin-top: 40px;
     display: flex;
     justify-content: space-between;
 }
 
 .box_layout-menu {
-    min-height: 500px;
+    height: 500px;
     background-color: #ffffff;
     border: 1px solid #e8e8e8;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     padding: 12px;
-    width: 26%;
+    width: 24%;
+    min-width: 300px;
     border-bottom: 1px solid #e8e8e8;
 }
 .box_layout-conten{
@@ -19,8 +19,9 @@
     background-color: #ffffff;
     border: 1px solid #e8e8e8;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    min-width: 800px;
     padding: 12px;
-    width: 68%;
+    width: 72%;
     border-bottom: 1px solid #e8e8e8;
 }
 
@@ -31,7 +32,7 @@
 .layout_menu ul li{
     padding: 14px 10px;
 }
-.layout_menu ul li a{
+.layout_menu ul a{
     text-decoration: none;
     font-size: 16px;
     font-weight: 500;
