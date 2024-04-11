@@ -1,5 +1,5 @@
-import { Tag, Checkbox, DatePicker, Select } from 'antd/lib'
-import { useState, useEffect, useMemo } from "react"
+import { Tag, Checkbox } from 'antd/lib'
+import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -38,64 +38,64 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-import { ProductResponse, PromotionResponse } from "~/lib/type"
-import { Link, redirect, useNavigate } from 'react-router-dom'
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
-const dayjs = require('dayjs');
-const { RangePicker } = DatePicker;
+import { PromotionResponse, VoucherResponse } from "~/lib/type"
+import axios from 'axios'
+import { baseUrl, nextUrl } from '~/lib/functional'
+import { Link, redirect } from 'react-router-dom'
+import { set, updateSelected } from '../../redux/features/promotion-deleted'
+import { useDispatch } from 'react-redux'
 export default function ListTable() {
-
-    const [data, setData] = useState([]);
-
-    const navigate = useNavigate();
+    const [data, setData] = useState<PromotionResponse[]>([]);
+    const dispatch = useDispatch()
 
     const fillData = () => {
-        axios.get(`${baseUrl}/promotion`).then(res => {
+        axios.get(`${nextUrl}/promotion/deleted`).then(res => {
             setData(res.data);
         })
     }
     useEffect(() => {
-        fillData()
+        fillData();
     }, [])
 
-
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-        []
-    )
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = useState({});
+    const [rowSelection, setRowSelection] = useState({})
 
-    const customStartDateFilter = (
-        row,
-        columnId,
-        filterValue
-    ) => {
-        if (filterValue == null) {
-            return true;
+    useEffect(() => {
+        const keysArray = Object.keys(rowSelection).map(Number);
+        if(keysArray.length > 0){
+            dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
         }
-        return dayjs(row.original.startDate).toDate() > filterValue.toDate();
-    };
-
-    const customEndDateFilter = (
-        row,
-        columnId,
-        filterValue
-    ) => {
-        if (filterValue == null) {
-            return true;
-        }
-        return dayjs(row.original.endDate).toDate() < filterValue.toDate();
-    };
-
+    }, [rowSelection])
 
     const columns: ColumnDef<PromotionResponse>[] = useMemo(() => [
         {
-            accessorKey: "id",
-            header: "#",
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={
+                        table.getIsAllPageRowsSelected()
+                    }
+                    onChange={(value) => table.toggleAllPageRowsSelected(!!value.target.checked)}
+                    aria-label="Select all"
+                />
+            ),
             cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onChange={(value) => row.toggleSelected(!!value.target.checked)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        {
+            accessorKey: "id",
+            header: "id",
+            cell: ({ row }) => (
+                <div className="capitalize">{row.getValue("id")}</div>
             ),
         },
         {
@@ -114,29 +114,22 @@ export default function ListTable() {
             cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
         },
         {
-            accessorKey: "status",
-            header: () => <div className="text-center">trạng thái</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.status == 0 ? <Tag className='' color='blue'>Sắp diễn ra</Tag> : row.original.status == 1 ? <Tag className='text-lg' color='blue'>Đang diễn ra</Tag> : row.original.status == 2 ? <Tag className='text-lg' color='yellow'>Đã kết thúc</Tag> : <Tag className='text-lg' color='red'>Đã hủy</Tag>}</div>
-            },
-        },
-        {
             accessorKey: "startDate",
             header: () => <div className="text-center">ngày bắt đầu</div>,
-            filterFn: customStartDateFilter,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.startDate.toString().split("T")[1] + " : " + row.original.startDate.toString().split("T")[0]}
+                    {/* @ts-ignore */}
+                    {row.original.start_date.toString().split("T")[0] + " - " + row.original.start_date.toString().split("T")[1]}
                 </div>
             },
         },
         {
             accessorKey: "endDate",
-            filterFn: customEndDateFilter,
             header: () => <div className="text-center">ngày kết thúc</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.endDate.toString().split("T")[1] + " : " + row.original.endDate.toString().split("T")[0]}
+                    {/* @ts-ignore */}
+                    {row.original.end_date.toString().split("T")[0] + " - " + row.original.end_date.toString().split("T")[1]}
                 </div>
             },
         },
@@ -145,7 +138,8 @@ export default function ListTable() {
             header: () => <div className="text-center">giá trị giảm</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {numberToPrice(row.getValue("value"))}
+                    {/* eslint-disable-next-line eqeqeq */}
+                    {row.original.value +"đ"}
                 </div>
             },
         },
@@ -168,10 +162,13 @@ export default function ListTable() {
                                 <DropdownMenuItem onClick={() => {
                                     // eslint-disable-next-line no-restricted-globals
                                     let t = confirm('xác nhận xóa');
-                                    if (t) axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => { navigate(0) })
-                                }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
+                                    if (t) {
+                                        axios.delete(`${baseUrl}/promotion/${row.getValue("id")}`).then(res => {
+                                            alert("xóa thành công");
+                                            fillData();
+                                        })
+                                    }
+                                }}>khôi phục</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -202,50 +199,43 @@ export default function ListTable() {
     return (
         <>
             <div className="w-full">
-                <div className='grid grid-cols-3 items-center my-3 bg-white rounded-md p-3 shadow-lg gap-5'>
-                    <div className='flex flex-col w-full'>
-                        <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
-                        <div className='min-w-[240px]'>
-                            <Select
-                                style={{width: '240px'}}
-                                defaultValue={0}
-                                defaultActiveFirstOption
-                                onChange={(value) => {
-                                    let filterValue = null;
-                                    if (value !== 0) {
-                                        filterValue = (value - 1).toString();
-                                    }
-                                    table.getColumn("status").setFilterValue(filterValue);
-                                }}
-                            >
-                                <option value={0}>Tất cả</option>
-                                <option value={1}>Sắp diễn ra</option>
-                                <option value={2}>Đang diễn ra</option>
-                                <option value={3}>Đã kết thúc</option>
-                                <option value={4}>Đã hủy</option>
-                            </Select>
-                        </div>
-                    </div>
-                    <div>
-                        <p className='mb-1 font-semibold text-sm'>Tìm kiếm</p>
-                        <Input
-                            placeholder="tên..."
-                            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                            onChange={(event) =>
-                                table.getColumn("name")?.setFilterValue(event.target.value)
-                            }
-                            className="max-w-sm"
-                        />
-                    </div>
-                    <div>
-                        <p className='mb-1 font-semibold text-sm'>Khoảng ngày</p>
-                        <RangePicker onChange={value => {
-                            table.getColumn("startDate").setFilterValue(value[0]);
-                            table.getColumn("endDate").setFilterValue(value[1])
-                        }} />
-                    </div>
+                <div className="flex items-center py-4">
+                    <Input
+                        placeholder="Filter name..."
+                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("name")?.setFilterValue(event.target.value)
+                        }
+                        className="max-w-sm"
+                    />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="ml-auto">
+                                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
-                <div className="rounded-md border bg-white p-3">
+                <div className="rounded-md border p-3 bg-white">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -322,9 +312,4 @@ export default function ListTable() {
             </div>
         </>
     )
-}
-
-const numberToPrice = (value) => {
-    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    return formattedAmount;
 }

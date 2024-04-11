@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const VoucherPage = () => {
 
     return (
-        <div className="py-6 p-6 bg-white rounded-md shadow-lg flex flex-col gap-3">
+        <div className="py-6 p-6 bg-white rounded-md shadow-lg flex flex-col gap-1">
             <p className='text-xl font-bold'>Phiếu giảm giá</p>
             <div className='flex gap-5 items-center'>
                 <Link to={'/discount/voucher/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>
@@ -21,7 +21,7 @@ const VoucherPage = () => {
                 <Recover />
             </div>
             <div>
-                <div className='mt-5 rounded-lg'>
+                <div className='mt-3 rounded-lg'>
                     <ListTable />
                 </div>
             </div>

@@ -57,7 +57,6 @@ function EditPage() {
                 id: pro.id, selected: false, disable: child.every(target => target.disable), children: child
             }
         })
-        console.log(t);
         dispatch(set({
             value: {
                 selected: t
@@ -91,7 +90,7 @@ function EditPage() {
         } else {
             let t = [];
             listProduct.map(pro => {
-                t.push(...pro.lstProductDetails.map(detail => detail.id))
+                t.push(...pro.ProductDetail.map(detail => detail.id))
             })
             axios.post(`${nextUrl}/promotion`, {
                 status: 0,
