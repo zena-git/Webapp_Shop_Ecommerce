@@ -147,6 +147,8 @@ const VoucherPage = () => {
                 }).then(res => {
                     toast.success("Đã tạo voucher thành công")
                     form.reset();
+                }).catch(err => {
+                    toast.error(err)
                 })
             } else {
                 toast.error("chưa chọn khách hàng nào")

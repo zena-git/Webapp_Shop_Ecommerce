@@ -90,9 +90,7 @@ const formSchema = z.object({
     full_name: z.string().min(2, {
         message: "tên tối thiểu phải có 2 ký tự",
     }),
-    gender: z.number({
-        required_error: "cần lựa chọn 1 loại hình thức",
-    }),
+    gender: z.enum('0', '1'),
     commune: z.string(),
     district: z.string(),
     province: z.string(),
@@ -223,7 +221,7 @@ export default function Add() {
             formData.append("cloud_name", "db9i1b2yf")
             formData.append("upload_preset", "product")
             axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-                axios.get(`${nextUrl}/user/create?birthday=${new Date(dayjs(values.birthday).toDate()).toISOString()}&commune=${addWard}&detail=${values.detail}&district=${addDistrict}&province=${addProvince}&email=${values.email}&full_name=${values.full_name}&gender=${values.gender}&phone=${values.phone}&image_url=${res.data.url}`).then(resp => {
+                axios.get(`${nextUrl}/user/create?birthday=${new Date(dayjs(values.birthday).toDate()).toISOString()}&commune=${addWard}&detail=${values.detail}&district=${addDistrict}&province=${addProvince}&email=${values.email}&full_name=${values.full_name}&gender=${values.gender == '0'}&phone=${values.phone}&image_url=${res.data.url}`).then(resp => {
                     console.log(resp.data);
                     toast.success("Thêm mới thành công")
                     form.reset();
@@ -232,9 +230,12 @@ export default function Add() {
                 })
             })
         } else {
-            axios.get(`${nextUrl}/user/create?birthday=${new Date(dayjs(values.birthday).toDate()).toISOString()}&commune=${addWard}&detail=${values.detail}&district=${addDistrict}&province=${addProvince}&email=${values.email}&full_name=${values.full_name}&gender=${values.gender}&phone=${values.phone}`).then(resp => {
+            axios.get(`${nextUrl}/user/create?birthday=${new Date(dayjs(values.birthday).toDate()).toISOString()}&commune=${addWard}&detail=${values.detail}&district=${addDistrict}&province=${addProvince}&email=${values.email}&full_name=${values.full_name}&gender=${values.gender == '0'}&phone=${values.phone}`).then(resp => {
                 console.log(resp.data);
                 toast.success("Thêm mới thành công")
+                form.reset();
+            }).then(res => {
+                toast.success('Thêm mới thành công');
                 form.reset();
             }).catch(error => {
                 toast.error(error)
@@ -303,13 +304,10 @@ export default function Add() {
                     }}
                 />
             )}
-            <div>
-
-            </div>
-            <div className="flex">
+            <div className="">
                 <Form {...form}>
-                    <form onSubmit={e => { e.preventDefault() }} className="w-full flex gap-5">
-                        <div className="w-1/3 flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
+                    <form onSubmit={e => { e.preventDefault() }} className="w-full flex gap-5 max-lg:flex-col">
+                        <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
                             <p className='text-lg font-bold'>Thông tin nhân viên</p>
                             <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
                             <div className='w-full flex flex-col'>
@@ -343,7 +341,7 @@ export default function Add() {
                                         <FormItem>
                                             <FormLabel>Họ và tên</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="name" {...field} />
+                                                <Input placeholder="Họ và tên" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -396,15 +394,23 @@ export default function Add() {
                                             <FormItem>
                                                 <FormLabel>Giới tính</FormLabel>
                                                 <FormControl>
-                                                    <RadioGroup className="flex gap-3 items-center" defaultValue='0'>
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="0" id="option-one" defaultChecked />
-                                                            <Label htmlFor="option-one">Nam</Label>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="1" id="option-two" />
-                                                            <Label htmlFor="option-two">Nữ</Label>
-                                                        </div>
+                                                    <RadioGroup className="flex gap-3 items-center" onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormItem className="flex items-center space-x-3 space-y-0">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="0" />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">
+                                                                Nam
+                                                            </FormLabel>
+                                                        </FormItem>
+                                                        <FormItem className="flex items-center space-x-3 space-y-0">
+                                                            <FormControl>
+                                                                <RadioGroupItem value="1" />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">
+                                                                Nữ
+                                                            </FormLabel>
+                                                        </FormItem>
                                                     </RadioGroup>
                                                 </FormControl>
                                                 <FormMessage />

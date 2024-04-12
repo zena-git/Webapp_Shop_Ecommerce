@@ -163,6 +163,8 @@ const VoucherPage = () => {
                 }).then(res => {
                     toast.success("Đã cập nhật voucher thành công");
                     navigate(`/discount/voucher/detail/${path.id}`)
+                }).catch(err => {
+                    toast.error(err)
                 })
             } else {
                 toast({ title: 'chưa chọn khách hàng nào' })

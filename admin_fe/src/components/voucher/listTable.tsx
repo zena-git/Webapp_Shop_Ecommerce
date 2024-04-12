@@ -191,7 +191,6 @@ export default function ListTable() {
                                     let t = confirm('xác nhận xóa');
                                     if (t) {
                                         axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
-                                            alert("xóa thành công");
                                             navigate(0)
                                         })
                                     }

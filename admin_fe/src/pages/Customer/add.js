@@ -175,9 +175,10 @@ export default function AddCustomer() {
     const columns = useMemo(() => [
         {
             accessorKey: "key",
-            header: "#",
+            header: "Mặc định",
             cell: ({ row }) => (<>
-                {row.original && <div className="capitalize">{row.original.key}</div>}
+                {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
+                <Checkbox checked={defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.key) }} />
             </>
             ),
         },
@@ -190,7 +191,7 @@ export default function AddCustomer() {
                         className='flex items-center'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên người nhận
+                        Tên người nhận
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
@@ -201,7 +202,7 @@ export default function AddCustomer() {
         },
         {
             accessorKey: "phone",
-            header: () => <div className="text-center">số điện thoại</div>,
+            header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original && <Input value={row.original.phone} onChange={e => { if (row.original) { handleChangeReceiverPhone(row.original.key, e.target.value) } }} />}
@@ -284,7 +285,7 @@ export default function AddCustomer() {
         //         )
         //     },
         // },
-    ], [listDistricts, listWards]);
+    ], [listDistricts, listWards, defaultAddress]);
 
 
 
@@ -330,7 +331,7 @@ export default function AddCustomer() {
         const data = { ...values, birthday: birthDay }
         axios.post(`${baseUrl}/customer`, data).then(res => {
             const promises = listAddress.map(add => {
-                return axios.get(`${nextUrl}/address?receiverName=${add.receivername}&receiverPhone=${add.phone}&customer=${res.data.data.id}&detail=${add.detail}&commune=${add.commune}&district=${add.district}&province=${add.province}&defaultAddress=${false}`)
+                return axios.get(`${nextUrl}/address?receiverName=${add.receivername}&receiverPhone=${add.phone}&customer=${res.data.data.id}&detail=${add.detail}&commune=${add.commune}&district=${add.district}&province=${add.province}&defaultAddress=${add.key == defaultAddress}`)
             })
             Promise.all(promises).then(() => {
                 toast.success('thêm khách hàng thành công');
@@ -452,7 +453,7 @@ export default function AddCustomer() {
                                 />
                             </div>
                         </div>
-                        <FormField
+                        {/* <FormField
                             control={form.control}
                             name="address"
                             render={({ field }) =>
@@ -465,7 +466,7 @@ export default function AddCustomer() {
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                        /> */}
                         <div className='flex gap-4'>
                             <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Tạo khách hàng</Button>
                         </div>

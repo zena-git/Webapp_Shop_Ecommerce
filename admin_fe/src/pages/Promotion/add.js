@@ -108,6 +108,8 @@ function EditPage() {
                 setName("");
                 setDescription("");
                 // navigate(`/discount/promotion`)
+            }).catch(err => {
+                toast.error(err)
             })
         }
     }

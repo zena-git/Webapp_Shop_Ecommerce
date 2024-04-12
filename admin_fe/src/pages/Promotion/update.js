@@ -110,6 +110,8 @@ function EditPage() {
             axios.post(`${nextUrl}/promotion/update`, t).then(res => {
                 toast.success("cập nhật thành công");
                 navigate(`/discount/promotion/detail/${targetPromotion.id}`)
+            }).catch(err => {
+                toast.error(err)
             })
         }
     }

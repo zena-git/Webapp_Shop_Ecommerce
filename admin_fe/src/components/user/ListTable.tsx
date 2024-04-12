@@ -140,7 +140,6 @@ export default function ListTable() {
                                         axios.post(`${nextUrl}/user/delete`, {
                                             id: row.original.id
                                         }).then(res => {
-                                            alert("xóa thành công");
                                             navigate(0);
                                             fillData();
                                         })

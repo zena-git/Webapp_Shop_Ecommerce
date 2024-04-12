@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Select, Button } from 'antd/lib';
+import { DatePicker, InputNumber, Select, Button, Checkbox } from 'antd/lib';
 import { Input } from "../../components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState, useMemo } from 'react';
@@ -94,6 +94,7 @@ export default function AddCustomer() {
     const [listAddress, setListAddress] = useState([])
 
     const path = useParams();
+    const [defaultAddress, setDefaultAddress] = useState(0);
 
 
     const setAddProvinceP = (value, key) => {
@@ -121,6 +122,9 @@ export default function AddCustomer() {
             setTargetCustomer(res.data)
             setBirthday(dayjs(res.data.birthday))
             setListAddress(res.data.lstAddress.map((add, index) => {
+                if (add.defaultAddress) {
+                    setDefaultAddress(add.id)
+                }
                 return {
                     ...add,
                     key: index,
@@ -162,9 +166,10 @@ export default function AddCustomer() {
     const columns = useMemo(() => [
         {
             accessorKey: "key",
-            header: "#",
+            header: "Mặc định",
             cell: ({ row }) => (<>
-                {row.original && <div className="capitalize">{row.index + 1}</div>}
+                {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
+                <Checkbox checked={defaultAddress == row.original.id} onClick={() => { setDefaultAddress(row.original.id) }} />
             </>
             ),
         },
@@ -261,7 +266,7 @@ export default function AddCustomer() {
                 )
             },
         },
-    ], [listDistricts, listWards]);
+    ], [listDistricts, listWards, defaultAddress]);
 
     const table = useReactTable({
         data: listAddress,
@@ -305,7 +310,7 @@ export default function AddCustomer() {
         const data = { ...values, birthDay: birthDay }
         axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
             const promises = listAddress.map(add => {
-                return axios.get(`${nextUrl}/address?receiverName=${add.receivername}&receiverPhone=${add.phone}&customer=${res.data.data.id}&detail=${add.detail}&commune=${add.commune}&district=${add.district}&province=${add.province}&defaultAddress=${false}`)
+                return axios.get(`${nextUrl}/address?receiverName=${add.receivername}&receiverPhone=${add.phone}&customer=${res.data.data.id}&detail=${add.detail}&commune=${add.commune}&district=${add.district}&province=${add.province}&defaultAddress=${defaultAddress == add.id}`)
             })
             return Promise.all(promises)
                 .then(() => {

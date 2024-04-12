@@ -55,7 +55,7 @@ const Recover = () => {
     return (
         <>
             <Button type="primary" onClick={showModal}>
-                Voucher đã xóa
+                Phiếu giảm giá đã xóa
             </Button>
             <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                 <ListDeleted />
