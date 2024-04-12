@@ -135,7 +135,7 @@ function Header() {
                                         <Link to={"/"} >Trang chủ</Link>
                                     </li>
                                     <li className={styles.navContainer}>
-                                        <Link to={"/catalog"}>Danh mục</Link>
+                                        <Link to={"/product"}>Sản Phẩm</Link>
                                     </li>
                                     <li className={styles.navContainer}>
                                         <Link to={"/catalog"}>Chính sách thành viên</Link>
@@ -174,7 +174,7 @@ function Header() {
                                 </Dropdown> :
                                     <Link style={{
                                         textDecoration: "none",
-                                    }} to={"/profile"}>
+                                    }} to={"/login"}>
                                         <span style={{
                                             letterSpacing: "0.5px",
                                             fontWeight: 500,

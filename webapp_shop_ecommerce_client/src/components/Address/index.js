@@ -7,15 +7,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import InnerAddres from '~/components/Address/InnerAddres';
 function Address() {
-    const { setAddressBillClient, customer,addressBill,dataCheckout ,totalPrice,setDataShipMoney} = useContext(DataContext);
+    const { isAccount, setAddressBillClient, customer, addressBill, dataCheckout, totalPrice, setDataShipMoney } = useContext(DataContext);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [addressCustomer, setAddressCustomer] = useState();
     const [addressCustomerModal, setAddressCustomerModal] = useState();
-    
+
     const [lstAddress, setLstAddress] = useState([]);
     const [checkValueAddress, setCheckValueAddress] = useState(1);
-    
+
     const [isTabAddreiss, setIsTabAddress] = useState(false);
     const [valueTabAddreiss, setValueTabAddress] = useState(null);
 
@@ -32,12 +32,11 @@ function Address() {
     const [leadtime, setLeadtime] = useState(null);
 
     useEffect(() => {
-        fetchDataLstAddress();
-        // if(customer!=null){
-        //     console.log(customer);
-        //     setAddressBillClient(customer.defaultAddress)
-        // }
-    }, [customer])
+        if (isAccount) {
+            fetchDataLstAddress();
+        }
+
+    }, [isAccount])
 
     const fetchDataLstAddress = async () => {
         try {
@@ -57,24 +56,27 @@ function Address() {
 
     // lấy province
     useEffect(() => {
-        axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
-            headers: {
-                token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
-            }
-        })
-            .then((response) => {
-                const lstProvince = response.data.data.map((result) => {
-                    return {
-                        value: result.ProvinceID,
-                        label: result.ProvinceName
-                    }
+        if (isAccount) {
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
+                headers: {
+                    token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'
+                }
+            })
+                .then((response) => {
+                    const lstProvince = response.data.data.map((result) => {
+                        return {
+                            value: result.ProvinceID,
+                            label: result.ProvinceName
+                        }
+                    })
+                    console.log();
+                    setDataProvince(lstProvince)
                 })
-                console.log();
-                setDataProvince(lstProvince)
-            })
-            .catch((error) => {
-                console.log(error.response.data);
-            })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+        }
+
 
     }, [addressBill])
 
@@ -184,7 +186,7 @@ function Address() {
         if (dataCheckout.length <= 0) {
             return;
         }
-    
+
         const weightProduct = dataCheckout.reduce((accumulator, currentProduct) => {
             return accumulator + (currentProduct.productDetails.weight * currentProduct.quantity);
         }, 0);
@@ -231,7 +233,7 @@ function Address() {
         const foundWard = dataWard.find(item => item.label === addressBill?.commune);
         // console.log(foundWard);
         setValueWard(foundWard?.value);
-    }, [addressBill, dataProvince,dataDistrict])
+    }, [addressBill, dataProvince, dataDistrict])
 
     const showModal = () => {
         setIsModalOpen(true);

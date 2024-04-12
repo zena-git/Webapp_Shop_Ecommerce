@@ -1,7 +1,7 @@
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from "react";
-import { Checkbox, Col, Tooltip, Avatar, Button, Flex, Carousel } from 'antd';
+import { Checkbox, Col, Tooltip, Avatar, Button, Empty, Carousel } from 'antd';
 import InputNumber from '~/components/InputNumber';
 import axios from "axios";
 import hexToColorName from '~/ultils/HexToColorName';
@@ -28,7 +28,9 @@ function Cart() {
     //         })
     // }, [historyLstCart])
 
-
+    useEffect(() => {
+        setDataCheckedList([])
+    }, [])
     const checkAll = data.length === checkedList.length;
     const indeterminate = checkedList.length > 0 && checkedList.length < data.length;
     const onChange = (list) => {
@@ -82,7 +84,7 @@ function Cart() {
 
                 <div>
                     {data.length === 0 ? (
-                        <p>Giỏ hàng trống rỗng</p>
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                     ) : (
                         <div >
                             <div
@@ -199,9 +201,8 @@ function Cart() {
                                                 </span>
                                             </div>
                                             <div style={{ flex: '0.4', justifyContent: 'center' }}>
-                                                <span className="mt-2 text-rose-500 text-2xl font-medium	">
-                                                    {fixMoney(cartDetail.totalMoney)}
-                                                </span>
+
+                                                <span className="text-rose-500 text-2xl font-medium	">{fixMoney(cartDetail.price * cartDetail.quantity)}</span>
                                             </div>
                                             <div style={{ flex: '0.2', justifyContent: 'center' }}>
                                                 <Button onClick={() => { handleDeleteCart(cartDetail.id) }}>

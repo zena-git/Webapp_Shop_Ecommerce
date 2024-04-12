@@ -121,6 +121,7 @@ function AddressGress() {
 
     //lấy province
     useEffect(() => {
+        setDataShipMoney(0);
         axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
             headers: {
                 token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da'

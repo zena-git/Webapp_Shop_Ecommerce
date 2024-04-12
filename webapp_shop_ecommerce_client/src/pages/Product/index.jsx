@@ -1,100 +1,300 @@
-import { Col, Row } from "antd";
-import Filter from "./Filter";
+import { Col, Slider, Checkbox } from "antd";
 import { useEffect, useState } from "react";
 import { fixMoney } from "~/extension/fixMoney";
 import { Link } from "react-router-dom";
 import { productApis } from "~/apis/Product";
-import { Pagination } from 'antd';
-import styles from "./homeproduct.module.css"
-
+import axios from "axios";
+import { FilterOutlined } from '@ant-design/icons';
 function HomeProduct() {
-    const [data, setData] = useState(undefined)
-    const [size, setSize] = useState(12)
+
     const [page, setPage] = useState(1)
-    // const [content, setContent] = useState("FPT Polytechnic - 2024 - AHIHI")
-    async function handleGetProduct() {
-        const data1 = await productApis.getProduct(page ? page - 1 : -1, size ? size : -1);
-        setData(data1.data);
+    const [lstData, setLstData] = useState([]);
+    const [lstProduct, setLstProduct] = useState([]);
+    const [lstCategory, setLstCategory] = useState([]);
+    const [lstBrand, setLstBrand] = useState([]);
+    const [lstMaterial, setLstMaterial] = useState([]);
+    const [lstStyle, setLstStyle] = useState([]);
+
+    const [valueCategory, setValueCategory] = useState([]);
+    const [valueBrand, setValueBrand] = useState([]);
+    const [valueMaterial, setValueMaterial] = useState([]);
+    const [valueStyle, setValueStyle] = useState([]);
+
+    const [inputValueMin, setInputValueMin] = useState(0);
+    const [inputValueMax, setInputValueMax] = useState(10000000);
+    const [priceRange, setPriceRange] = useState([0, inputValueMax]);
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v2/product')
+            .then(response => {
+                const data = response.data.map(product => {
+                    const sortedProductDetails = product.lstProductDetails.sort((a, b) => a.price - b.price);
+                    const productPromotionActive = sortedProductDetails.find(product => {
+                        return product.promotionDetailsActive != null;
+                    });
+                    const totalQuantity = sortedProductDetails.reduce((accumulator, productDetail) => {
+                        return accumulator + productDetail.quantity;
+                    }, 0);
+                    return {
+                        ...product,
+                        promotionDetailsActive: productPromotionActive ? productPromotionActive.promotionDetailsActive : null,
+                        price: productPromotionActive ? productPromotionActive.price : sortedProductDetails[0].price,
+                        quantity: totalQuantity
+                    };
+                });
+                console.log(data);
+
+                setLstProduct(data)
+                setLstData(data)
+                // const lstCategory = response.data.
+
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v2/category')
+            .then(response => {
+                setLstCategory(response.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v2/brand')
+            .then(response => {
+                setLstBrand(response.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v2/material')
+            .then(response => {
+                setLstMaterial(response.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/v2/style')
+            .then(response => {
+                setLstStyle(response.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }, [])
+
+    useEffect(() => {
+        if (lstData.length > 0) {
+            const highestPriceProduct = lstData.reduce((maxPriceProduct, currentProduct) => {
+                return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
+            }, lstData[0]);
+            console.log(highestPriceProduct.price);
+            setInputValueMax(highestPriceProduct.price);
+        }
+    }, [lstData])
+
+    const filterProduct = () => {
+        const filteredProducts = lstData.filter((product) => {
+
+            if (valueCategory.length > 0 && !valueCategory.includes(product.category.id)) {
+                return false;
+            }
+
+            if (valueBrand.length > 0 && !valueBrand.includes(product.category.id)) {
+                return false;
+            }
+
+            if (valueMaterial.length > 0 && !valueMaterial.includes(product.category.id)) {
+                return false;
+            }
+            if (valueStyle.length > 0 && !valueStyle.includes(product.category.id)) {
+                return false;
+            }
+
+            // Lọc theo phạm vi giá
+            if (product.price < priceRange[0] || product.price > priceRange[1]) {
+                return false;
+            }
+            return true;
+        });
+        setLstProduct(filteredProducts)
     }
 
     useEffect(() => {
-        handleGetProduct();
-    }, [size, page]);
-
-    const onShowSizeChange = (current, pageSize) => {
-        setPage(current)
+        filterProduct()
+    }, [valueCategory, valueStyle, valueBrand, valueMaterial,priceRange])
+    const onChangeCategory = (value) => {
+        setValueCategory(value);
     };
 
-    // useEffect(() => {
-    //     const i = setInterval(() => {
-    //         setContent(content.substring(1, content.length) + content[0])
-    //     }, 1000)
-    //     return () => {
-    //         clearInterval(i)
-    //     }
-    // }, [content])
     return (
         <>
-            <div>
-                <Filter />
-            </div>
-            <div style={{
-            }}>
-                <Row style={{
-                    marginTop: "12px"
-                }}>
-                    {data && data.map((item, index) => {
-                        const sortedProductDetails =item.lstProductDetails.sort((a, b) => a.price - b.price);
-                        return <Col key={index} span={6} style={{
-                            padding: "0 15px",
-                            marginBottom: "24px",
-                        }}>
-                            <Link to={"/product/" + item.id}>
-                                <img style={{
-                                    width: "100%",
-                                    minHeight: '380px',
-                                    
-                                }} src={item.imageUrl}  alt={item.name}/>
-                                <div style={{
-                                    marginTop: "0px"
-                                }}>
-                                    <h3 style={{
-                                        textAlign: "center",
-                                        fontWeight: 600,
-                                        letterSpacing: "1px",
-                                        fontSize: "100%",
-                                        color: "#555556"
-                                    }}>
+            <div className="flex">
+                <div className="w-2/12 p-4 mr-8">
+                    <div>
+                        <h3 className="font-normal	"><FilterOutlined className="mr-2"></FilterOutlined>Bộ lọc</h3>
+                    </div>
+                    <div className="mt-6">
+                        <h4 className="font-normal text-2xl	">Loại</h4>
+                        <div>
+                            <Checkbox.Group
+                                style={{
+                                    width: '100%',
+                                }}
+                                className="flex flex-col mt-2"
+                                onChange={onChangeCategory}
+                            >   {
+                                    lstCategory?.map((category, index) => {
+                                        return <Checkbox key={index} className="mt-1" value={category?.id}><span>{category?.name}</span></Checkbox>
+                                    })
+                                }
 
-                                        {item.name}</h3>
-                                    <div>
-                                        <p style={{
-                                            textAlign: "center",
-                                            letterSpacing: "1px",
-                                            fontSize: "100%",
-                                            color: "#555556"
-                                        }}>{fixMoney(sortedProductDetails[0].price) + " - " + fixMoney(sortedProductDetails[sortedProductDetails.length - 1].price)}</p>
-                                    </div>
+                            </Checkbox.Group>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <h4 className="font-normal text-2xl	">Thương Hiệu</h4>
+                        <div>
+                            <Checkbox.Group
+                                style={{
+                                    width: '100%',
+                                }}
+                                className="flex flex-col mt-2"
+                                onChange={(value) => {
+                                    setValueBrand(value)
+                                }}
+                            >   {
+                                    lstBrand?.map((entity, index) => {
+                                        return <Checkbox key={index} className="mt-1" value={entity?.id}><span>{entity?.name}</span></Checkbox>
+                                    })
+                                }
+
+                            </Checkbox.Group>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <h4 className="font-normal text-2xl	">Chất Liệu</h4>
+                        <div>
+                            <Checkbox.Group
+                                style={{
+                                    width: '100%',
+                                }}
+                                className="flex flex-col mt-2"
+                                onChange={(value) => {
+                                    setValueMaterial(value)
+                                }}
+                            >   {
+                                    lstMaterial?.map((entity, index) => {
+                                        return <Checkbox key={index} className="mt-1" value={entity?.id}><span>{entity?.name}</span></Checkbox>
+                                    })
+                                }
+
+                            </Checkbox.Group>
+                        </div>
+                    </div>
+                    <div className="mt-6">
+                        <h4 className="font-normal text-2xl	">Phong Cách</h4>
+                        <div>
+                            <Checkbox.Group
+                                style={{
+                                    width: '100%',
+                                }}
+                                className="flex flex-col mt-2"
+                                onChange={(value) => {
+                                    setValueStyle(value)
+                                }}
+                            >   {
+                                    lstStyle?.map((entity, index) => {
+                                        return <Checkbox key={index} className="mt-1" value={entity?.id}><span>{entity?.name}</span></Checkbox>
+                                    })
+                                }
+
+                            </Checkbox.Group>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <h4 className="font-normal text-2xl	">Khoảng Giá</h4>
+                        <div>
+                            <Slider
+                                className="w-full mt-4"
+                                range
+                                max={inputValueMax}
+                                defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
+                                value={priceRange}
+                                onChange={(value)=>{
+                                    setPriceRange(value)
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                </div>
+                <div className="w-10/12	flex flex-wrap ">
+                    {
+                        lstProduct?.map((product, index) => {
+                            return (
+                                <div key={index} className="ml-2 mr-2 mt-12">
+                                    <Link to={"/product/" + product.id} style={{
+                                        textDecoration: 'none',
+                                        color: 'black'
+                                    }}>
+                                        <div className=" w-[240px] shadow-md rounded-md h-[420px]
+                                        hover:shadow-2xl hover:bg-gray-100 transition duration-300 ease-in-out hover:scale-125
+                                        ">
+                                            <div className="relative">
+                                                <img className="rounded-t-md" src={product.imageUrl} style={{ width: '100%', height: '320px', objectFit: 'cover' }} alt={`Image ${index}`} />
+
+                                                {
+                                                    product?.promotionDetailsActive ? <div className="absolute top-0 right-0">
+                                                        <span className="px-4 bg-rose-500 text-white text-2xl">- {product?.promotionDetailsActive?.promotion?.value}%</span>
+                                                    </div> : <div></div>
+                                                }
+
+                                            </div>
+
+                                            <div className="px-6 py-4">
+                                                <div className="mt-2 h-[50px]">
+                                                    <p className="overflow-wrap break-word font-medium	">{product.name.length > 30 ? product.name.substring(0, 30) + '...' : product.name}</p>
+                                                </div>
+                                                <div className="flex justify-end	">
+
+                                                    {
+                                                        product?.promotionDetailsActive ?
+                                                            <div className="flex items-center	">
+                                                                <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(product.price)}</span>
+                                                                <span className="ml-2 text-rose-500 text-2xl font-medium	">{
+                                                                    fixMoney(product.price -
+                                                                        (product.price * product.promotionDetailsActive.promotion.value / 100))}</span>
+                                                            </div> :
+                                                            <div>
+                                                                <span className="text-rose-500 text-2xl font-medium	">{fixMoney(product.price)}</span>
+                                                            </div>
+                                                    }
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </Link>
                                 </div>
-                            </Link>
-                        </Col>
-                    })}
-                </Row>
-                <Pagination style={{
-                    display: "flex",
-                    justifyContent: "center"
-                }}
-                    onChange={onShowSizeChange}
-                    defaultCurrent={1}
-                    total={20}
-                />
-              
-                {/* <div style={{
-                    backgroundColor: "red",
-                    height: "40px",
-                    width: "100%",
-                    color: "#ffffff"
-                }}>{content}</div> */}
+                            )
+                        })
+                    }
+
+                </div>
             </div>
         </>
     );

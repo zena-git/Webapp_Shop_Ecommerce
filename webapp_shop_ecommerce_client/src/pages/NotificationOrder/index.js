@@ -7,22 +7,17 @@ import { Button, Result } from 'antd';
 import { SmileOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-function PaymentIpn() {
+function NotificationOrder() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const [isStatus, setIsStatus] = useState("-1");
     const [subTitle, setsubTitle] = useState("Vui Lòng Chờ Trong Giây Lát !");
     const [countdown, setCountdown] = useState();
+    const codeBill = searchParams.get('bill');
 
-    const vnpTxnRef = searchParams.get('vnp_TxnRef');
-    const vnpPayDate = searchParams.get('vnp_PayDate');
-    const transactionNo = searchParams.get('vnp_TransactionNo');
-    const vnpResponseCode = searchParams.get('vnp_ResponseCode');
     const navigate = useNavigate();
+    const status = searchParams.get('status');
 
-    useEffect(() => {
-        handlePaymentIpn();
-    }, [vnpTxnRef])
 
     useEffect(() => {
         if (isStatus == "0") {
@@ -40,32 +35,16 @@ function PaymentIpn() {
             }
         }
 
+
     }, [countdown]);
 
-    const handlePaymentIpn = () => {
-        axios.post(`http://localhost:8080/api/v1/payment/querydr`,
-            {
-                vnpTxnRef: vnpTxnRef,
-                vnpPayDate: vnpPayDate,
-                transactionNo: transactionNo,
-                vnpResponseCode: vnpResponseCode
-            }
-        )
-            .then(response => {
-                toast.success(response.data.message)
-                console.log(response.data.message);
-                setIsStatus('0')
-                setCountdown(15);
 
-            })
-            .catch(error => {
-                console.log(error.response.data.message);
-                // toast.error(error.response.data.message)
-                // setIsStatus('1')
-                // setsubTitle("Liên Hệ Tới Cửa Hàng Để Được Hỗ Trợ !");
-
-            });
-    }
+    useEffect(() => {
+        setIsStatus(status)
+        setCountdown(10);
+        console.log(codeBill);
+        // setCodeBill(code)
+    }, [status]);
 
     return (
         <>
@@ -78,18 +57,15 @@ function PaymentIpn() {
                                 <SmileOutlined />
                     }
                     title={
-                        isStatus === '0' ? "Thanh Toán Thành Công" :
-                            isStatus === '1' ? "Thanh Toán Thất Bại" :
-                                "Đang Xác Thực"
+                        isStatus === '0' ? "Đặt Hàng Thành Công" :
+                            isStatus === '1' ? "Đặt Hàng Thất Bại" :
+                                "Khác"
                     }
                     subTitle={<>
                         {subTitle}
                         <div className='mt-2'>
-                        Xem Lại Đơn Hàng tại {
-                            vnpTxnRef?<Link to={"/orderInvoice/"+vnpTxnRef}> {vnpTxnRef}</Link>:
-                            <Link to={"/orderTracking"}>Tra cứu</Link>
-                        }
-                        
+                            Xem Lại Đơn Hàng tại {codeBill?<Link to={"/orderInvoice/" + codeBill}> {codeBill}</Link>:
+                            <Link to={"/orderTracking"}>Tra cứu</Link>}
                         </div>
                     </>}
                     extra={[
@@ -110,4 +86,4 @@ function PaymentIpn() {
     );
 }
 
-export default PaymentIpn;
+export default NotificationOrder;

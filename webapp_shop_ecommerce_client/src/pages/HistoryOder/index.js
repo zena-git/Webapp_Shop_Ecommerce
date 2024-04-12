@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { fixMoney } from "~/ultils/fixMoney";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Scrollbar } from 'react-scrollbars-custom';
-
+import { useContext } from "react";
+import DataContext from "~/DataContext";
 import axios from "axios";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -60,8 +61,10 @@ function HistoryOder() {
     ];
     const [lstBill, setLstBill] = useState([])
     const [status, setStatus] = useState('');
+    const { loading, setDataLoading } = useContext(DataContext);
+
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v2/bill',{
+        axios.get('http://localhost:8080/api/v2/bill', {
             params: {
                 status: status
             }
@@ -77,6 +80,28 @@ function HistoryOder() {
         console.log(key);
         setStatus(key);
     };
+    const buyPayment = (codeBill) => {
+        if (codeBill == null) {
+            return;
+        }
+        setDataLoading(true);
+        let returnUrl = window.location.origin;
+
+        axios.post('http://localhost:8080/api/v1/payment', {
+            codeBill: codeBill,
+            returnUrl: returnUrl
+        })
+            .then(response => {
+                console.log(response.data);
+                window.location.href = response.data.data;
+            })
+            .catch(err => {
+                console.log(err);
+            })
+            .finally(() => {
+                setDataLoading(false);
+            })
+    }
 
     return (<>
 
@@ -133,8 +158,15 @@ function HistoryOder() {
                                 </div>
 
                                 <div className="flex justify-end mt-6 mb-4">
+                                    {
+                                        bill?.status == TrangThaiBill.CHO_THANH_TOAN &&
+                                        <Button danger className="mr-4" onClick={() => {
+                                            buyPayment(bill?.codeBill)
+                                        }}>Thanh Toán Ngay</Button>
+                                    }
+
                                     <Link to={"/historyOrder/" + bill.codeBill}>
-                                        <Button danger>Xem Chi Tiết</Button>
+                                        <Button type="primary">Xem Chi Tiết</Button>
                                     </Link>
                                 </div>
 

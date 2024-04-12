@@ -162,9 +162,21 @@ body {
 :where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-ink-bar{
     background-color: var(--color-primary)!important;
 }
+.ant-input-number .ant-input-number-input{
+    text-align: center !important;
+}
+.ant-input-number .ant-input-number-input:focus{
+    border-color: var(--color-primary);
 
-
-
+}
+.ant-input-number-outlined:hover{
+    border-color: var(--color-primary);
+}
+.ant-input-number-outlined:focus, 
+.ant-input-number-outlined:focus-within{
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(213, 5, 255, 0.1);
+}
 .MuiGrid-root{
     width: 100%;
 }

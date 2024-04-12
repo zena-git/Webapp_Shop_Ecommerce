@@ -10,16 +10,15 @@ import DataContext from "../../DataContext";
 function ProductPay() {
     const navigate = useNavigate();
     const { data, dataLength, updateData, deleteData, dataCheckout, totalPrice } = useContext(DataContext);
-    useEffect(() => {
-        if (dataCheckout.length == 0) {
-            navigate('/cart');
-        }
-    }, [dataCheckout])
+    // useEffect(() => {
+    //     if (dataCheckout.length == 0) {
+    //         navigate('/cart');
+    //     }
+    // }, [dataCheckout])
 
     return (<>
-        {
-            dataCheckout.length != 0 &&
-            <div>
+    
+        <div>
                 <div >
                     <div
                         style={{
@@ -78,7 +77,7 @@ function ProductPay() {
                                                 </span>
                                                 <div className=' ml-2 flex items-center'>
                                                     <Tooltip title={hexToColorName(cartDetail?.productDetails?.color?.name) + ' - ' + cartDetail?.productDetails?.color?.name} color={cartDetail?.productDetails?.color?.name} key={cartDetail?.productDetails?.color?.name}>
-                                                        <div style={{ width: '20px', height: '20px', backgroundColor: cartDetail.productDetails.color?.name, border: '1px solid #ccc' }}></div>
+                                                        <div style={{ width: '20px', height: '20px', backgroundColor: cartDetail?.productDetails.color?.name, border: '1px solid #ccc' }}></div>
                                                     </Tooltip>
                                                     <span className='ml-2'>- {hexToColorName(cartDetail?.productDetails?.color?.name)}</span>
                                                 </div>
@@ -119,7 +118,7 @@ function ProductPay() {
                                 </div>
                                 <div className='flex' style={{ flex: '0.35', justifyContent: 'center' }}>
                                     <span className="text-rose-500 text-2xl font-medium	">
-                                        {fixMoney(cartDetail?.totalMoney)}
+                                        {fixMoney(cartDetail?.quantity*cartDetail?.price)}
                                     </span>
                                 </div>
                             </div>
@@ -136,7 +135,6 @@ function ProductPay() {
                     </div>
                 </div>
             </div>
-        }
 
     </>);
 }

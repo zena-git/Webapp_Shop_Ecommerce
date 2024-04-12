@@ -47,8 +47,9 @@ function InputNumber({ value = 1, onChange, min = 0, max = 0, ...props }) {
     return (
         <>
             <div className="flex">
-                <Button  className="input_number_btn" onClick={handleDecrease} {...props} ><MinusOutlined /></Button>
+                <Button className="input_number_btn" onClick={handleDecrease} {...props} ><MinusOutlined /></Button>
                 <input type="text" value={inputValue} onChange={handleChange} {...props} className="input_number" />
+                {/* <InputNumber className="text-center	rounded-none w-[40px]" controls={false} min={min} max={max} value={inputValue} onChange={handleChange} /> */}
                 <Button className="input_number_btn" onClick={handleIncrease}{...props}><PlusOutlined /></Button>
             </div>
         </>

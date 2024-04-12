@@ -1,7 +1,7 @@
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Filter from "../Product/Filter";
 import { CiEdit } from "react-icons/ci";
-import { PlusOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined, HomeOutlined, MinusOutlined } from '@ant-design/icons';
 import { MdOutlineLocalShipping } from "react-icons/md";
 import { RiRefund2Line } from "react-icons/ri";
 import { LuBadgePercent } from "react-icons/lu";
@@ -9,10 +9,10 @@ import styles from "./ProductDetail.module.scss"
 import './ProductDetail.scss'
 import { useState, useEffect, useRef, useContext } from "react";
 import { fixMoney } from "~/extension/fixMoney";
-import { Rate, Radio, Tooltip, Button, Image, Breadcrumb } from 'antd'
-import InputNumber from "~/components/InputNumber";
+import { Rate, Radio, Tooltip, Button, Image, Breadcrumb, InputNumber } from 'antd'
 import { productApis } from "~/apis/Product";
 import DataContext from "~/DataContext";
+
 import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -68,7 +68,11 @@ function ProductDetail() {
                 }, 0);
                 setQuantityStock(totalQuantity);
                 const sortedProductDetails = [...lstProductDetails].sort((a, b) => a.price - b.price);
-                setPriceProduct(fixMoney(sortedProductDetails[0].price) + " - " + fixMoney(sortedProductDetails[sortedProductDetails.length - 1].price))
+                if (sortedProductDetails[0].price == sortedProductDetails[sortedProductDetails.length - 1].price) {
+                    setPriceProduct(fixMoney(sortedProductDetails[0].price))
+                } else {
+                    setPriceProduct(fixMoney(sortedProductDetails[0].price) + " - " + fixMoney(sortedProductDetails[sortedProductDetails.length - 1].price))
+                }
 
                 const lstColor = lstProductDetails.map(product => product.color);
                 const lstSize = lstProductDetails.map(product => product.size);
@@ -166,17 +170,28 @@ function ProductDetail() {
 
 
     const handleAddGioHang = () => {
-        console.log(productDetails);
 
         if (productDetails == null) {
             toast.error("Vui lòng chọn sản phẩm")
             return;
         }
-        console.log(productDetails);
+
+        const productCart = data.find(product => {
+            return product.productDetails.id === productDetails.id
+        })
+
+        if (productCart?.quantity + quantityProduct > productDetails?.quantity) {
+            toast.error("Bạn đã có " + productCart?.quantity + " sản phẩm trong giỏ hàng. Không thể thêm số lượng")
+            setQuantityProduct(productDetails.quantity - productCart.quantity);
+            return;
+        }
+
         const productDetail = {
             productDetails: productDetails,
             quantity: quantityProduct
         }
+
+
         addGioHang(productDetail);
 
     }
@@ -188,7 +203,18 @@ function ProductDetail() {
             toast.error("Vui lòng chọn sản phẩm")
             return;
         }
-        console.log(productDetails);
+        const productCart = data.find(product => {
+            return product.productDetails.id === productDetails.id
+        })
+
+        if (productCart) {
+            if (productCart?.quantity + quantityProduct > productDetails?.quantity) {
+                toast.error("Bạn đã có " + productCart?.quantity + " sản phẩm trong giỏ hàng. Không thể thêm số lượng")
+                setQuantityProduct(productDetails.quantity - productCart.quantity);
+                return;
+            }
+        }
+
         const productDetail = {
             productDetails: productDetails,
             quantity: quantityProduct
@@ -196,9 +222,40 @@ function ProductDetail() {
         buyCart(productDetail)
 
     }
+
+    const handleIncrease = () => {
+        onChangeQuanTity(quantityProduct + 1); // Tăng giá trị và gọi hàm onChange của parent component
+    };
+
+    const handleDecrease = () => {
+        if (quantityProduct == 1) {
+            return;
+        }
+        onChangeQuanTity(quantityProduct - 1); // Giảm giá trị và gọi hàm onChange của parent component
+    };
     const onChangeQuanTity = (value) => {
+
+        if (productDetails == null) {
+            toast.error("Vui lòng chọn sản phẩm")
+            return;
+        }
+
+
+        const productCart = data.find(product => {
+            return product.productDetails.id === productDetails.id
+        })
+
+
+        if (productCart) {
+            if (productCart?.quantity + value > productDetails?.quantity) {
+                toast.error("Số lượng bạn chọn đã đạt mức tối đa của sản phẩm này")
+                setQuantityProduct(productDetails.quantity - productCart.quantity);
+                return;
+            }
+        }
+
         setQuantityProduct(value);
-        console.log(value);
+        // console.log(value);
     }
     const [nav1, setNav1] = useState(null);
     const [nav2, setNav2] = useState(null);
@@ -375,8 +432,13 @@ function ProductDetail() {
                                         <span >Số lượng</span>
                                     </div>
                                     <div className="flex items-center	">
+                                        <div className="flex ">
+                                            <Button className="rounded-none" onClick={handleDecrease} icon={<MinusOutlined />} />
+                                            <InputNumber className="text-center	rounded-none w-[70px]" controls={false} min={1} max={quantityStock} value={quantityProduct} onChange={onChangeQuanTity} />
+                                            <Button className="rounded-none" onClick={handleIncrease} icon={<PlusOutlined />} />
+                                        </div>
 
-                                        <InputNumber min={1} max={quantityStock} value={quantityProduct} onChange={onChangeQuanTity} />
+
                                         <span className="ml-8">{quantityStock} sản phẩm có sẵn</span>
                                     </div>
 
