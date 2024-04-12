@@ -36,6 +36,7 @@ function BillDetail() {
         HUY: "5",
         TRA_HANG: "6",
         DANG_BAN: "7",
+        CHO_THANH_TOAN: "8",
         NEW: "New",
     }
     const [paymentHistory, setPaymentHistory] = useState({
@@ -158,13 +159,14 @@ function BillDetail() {
                                             color='#87a2c7'
                                             icon={FaRegFileAlt}
                                             title=<h4 className='text-2xl	'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
-                                                historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                    historyBill?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                        historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
-                                                            historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                    historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                        historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                    historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                        historyBill?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
+                                                            historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                                historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
+                                                                    historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                        historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                            historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
                                             }</h4>
 
                                             subtitle=<span className='text-xl font-medium	'>
@@ -271,10 +273,10 @@ function BillDetail() {
                                     <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
-                                            if( bill?.lstPaymentHistory.length == "0"){
-                                                 toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán !");
+                                            if (bill?.lstPaymentHistory.length == "0") {
+                                                toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán !");
                                                 setIsModalOpenConfirmCompletion(false)
-                                                 return;
+                                                return;
                                             }
 
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
@@ -301,18 +303,18 @@ function BillDetail() {
                             </div>
 
                             <div>
-                            <Modal title="Xác Nhận Hủy" width={500} open={isModalOpenCancelling} footer={null} onCancel={() => { setIsModalOpenCancelling(false) }} >
+                                <Modal title="Xác Nhận Hủy" width={500} open={isModalOpenCancelling} footer={null} onCancel={() => { setIsModalOpenCancelling(false) }} >
                                     <label>Bạn Có Chắc Muốn Hủy Hóa Đơn Này ?</label>
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`)
-                                            .then(res => {
-                                                fetchDataBill();
-                                                toast.success(res.data.message);
-                                                setIsModalOpenCancelling(false)
-                                            }).catch(err => {
-                                                toast.error(err.response.data.message);
-                                            })
+                                                .then(res => {
+                                                    fetchDataBill();
+                                                    toast.success(res.data.message);
+                                                    setIsModalOpenCancelling(false)
+                                                }).catch(err => {
+                                                    toast.error(err.response.data.message);
+                                                })
                                         }}>Xác nhận</Button>
                                         <Button type='default' onClick={() => { setIsModalOpenCancelling(false) }}>Hủy</Button>
                                     </div>
@@ -355,13 +357,14 @@ function BillDetail() {
                                                 key: history.id,
                                                 type: <Tag color="blue">{
                                                     history?.type == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                                        history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                            history?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                                history?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
-                                                                    history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                        history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                            history?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                                history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
+                                                        history?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                            history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                                history?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
+                                                                    history?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                                        history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
+                                                                            history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                                history?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                                    history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                                 }</Tag>,
                                                 createdDate: dayjs(history?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
                                                 createdBy: history.createdBy,
@@ -425,12 +428,13 @@ function BillDetail() {
                                 <Tag color="blue">
                                     {
                                         bill?.status == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                            bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                bill?.status == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                    bill?.status == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
-                                                        bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                            bill?.status == TrangThaiBill.HUY ? "Hủy" :
-                                                                bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                            bill?.status == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                    bill?.status == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
+                                                        bill?.status == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                            bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                bill?.status == TrangThaiBill.HUY ? "Hủy" :
+                                                                    bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
                                     }
                                 </Tag>
                             </Descriptions.Item>
@@ -534,7 +538,7 @@ function BillDetail() {
                             </Modal>
 
                             {
-                                bill?.status != TrangThaiBill.HUY &&  bill?.lstPaymentHistory.length == "0" && <Button danger onClick={() => {
+                                bill?.status != TrangThaiBill.HUY && bill?.lstPaymentHistory.length == "0" && <Button danger onClick={() => {
                                     setIsModalOpenPayment(true)
                                 }}>Xác Nhận Thanh Toán</Button>
 

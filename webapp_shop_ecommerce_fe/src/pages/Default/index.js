@@ -3,7 +3,7 @@ import { Upload, message } from 'antd';
 import { Image } from 'cloudinary-react';
 import Compressor from 'compressorjs';
 import useUploadImage from '~/hooks/useUploadImage';
-
+import BarcodeScanner from '~/components/BarcodeScanner';
 
 function Default() {
 
@@ -18,7 +18,7 @@ function Default() {
     return (
         <div>
             <h2>Default</h2>
-
+        <BarcodeScanner></BarcodeScanner>
         </div>
     );
 }

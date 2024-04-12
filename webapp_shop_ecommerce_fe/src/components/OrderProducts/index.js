@@ -10,7 +10,7 @@ import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
-
+import BarcodeScanner from '../BarcodeScanner';
 const { confirm } = Modal;
 const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
@@ -140,7 +140,7 @@ function OrderProducts() {
             title: 'Sản Phẩm',
             dataIndex: 'name',
             key: 'name',
-            width: 350,
+            width: 320,
         },
         {
             title: 'Màu Sắc',
@@ -160,6 +160,8 @@ function OrderProducts() {
             title: 'Kích Thước',
             dataIndex: 'size',
             key: 'size',
+            width: 120,
+
             render: (size) => (
                 <>{size.name}</>
             ),
@@ -190,6 +192,9 @@ function OrderProducts() {
 
     const [openAddProduct, setOpenAddProduct] = useState(false);
     const [openAddProductConfig, setOpenAddProductConfig] = useState(false);
+
+    const [isOpenModalQrcode, setIsOpenModalQrcode] = useState(false);
+
 
     const [dataColumProductDetails, setDataColumProductDetails] = useState([]);
 
@@ -709,9 +714,22 @@ function OrderProducts() {
                             </div>
                             <div>
                                 <div>
-                                    <Button>QR Code</Button>
+                                    <Button onClick={() => {
+                                        setIsOpenModalQrcode(true);
+                                    }}>QR Code</Button>
                                     <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
                                 </div>
+                                <>
+                                    <Modal width={700} title="Quét Barcode" open={isOpenModalQrcode} footer={null} onCancel={() => {
+                                        setIsOpenModalQrcode(false);
+                                    }}>
+                                        <div className='flex justify-center	'>
+                                            <BarcodeScanner isOpenModalQrcode={isOpenModalQrcode} setIsOpenModalQrcode={setIsOpenModalQrcode} idBill={bill?.id}></BarcodeScanner>
+                                        </div>
+                                    </Modal>
+                                </>
+
+
                                 <>
                                     <Modal
                                         title="Danh Sách Sản Phẩm"

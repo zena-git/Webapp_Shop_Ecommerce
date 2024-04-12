@@ -23,6 +23,11 @@ body {
     font-weight: 500;
 }
 
+//Bỏ thẻ canvas trong quét barcode
+.drawingBuffer{
+    display: none !important;;
+}
+
 
 .ant-btn {
 

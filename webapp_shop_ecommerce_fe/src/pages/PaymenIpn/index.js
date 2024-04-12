@@ -41,6 +41,7 @@ function PaymentIpn() {
         }
 
     }, [countdown]);
+
     const handlePaymentIpn = () => {
         axios.post(`http://localhost:8080/api/v1/payment/querydr`,
             {
