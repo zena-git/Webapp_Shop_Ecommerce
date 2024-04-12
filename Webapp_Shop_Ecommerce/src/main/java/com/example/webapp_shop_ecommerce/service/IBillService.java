@@ -18,9 +18,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface IBillService extends IBaseService<Bill, Long> {
-    ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest);
+    ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) throws UnsupportedEncodingException;
     ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest) throws UnsupportedEncodingException;
-    List<Bill> findBillByCustomer();
+    List<Bill> findBillByCustomerAndStatusAndStatusNot(String status, String statusNot);
 
     List<Bill> findAllTypeAndStatus(String type, String status);
 
@@ -47,6 +47,7 @@ public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> addHistorybill(HistoryBillRequest historyBillRequest ,Long idBill);
     ResponseEntity<ResponseObject> billPaymentHistory(PaymentHistoryRequest paymentHistoryRequest , Long idBill);
     ResponseEntity<ResponseObject> cancellingBill(Long idBill);
+    Optional<Bill> findBillByCode(String codeBill);
 
 
 

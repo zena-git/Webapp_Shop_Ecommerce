@@ -14,7 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface IBillRepository extends IBaseReporitory<Bill, Long> {
-    List<Bill> findBillByCustomer(Customer customer);
+    @Query("SELECT b FROM Bill b WHERE b.customer = :customer and b.status like %:status% AND b.status != :statusNot AND b.deleted = false order by b.createdDate desc ")
+    List<Bill> findBillByCustomerAndStatusAndStatusNot(@Param("customer") Customer customer,@Param("status") String status,@Param("statusNot") String statusNot);
     @Query("select b from Bill b where b.billType = ?1 and b.status = ?2  and b.deleted = false order by b.lastModifiedDate desc")
     List<Bill> findAllTypeAndStatus(String type, String status);
 

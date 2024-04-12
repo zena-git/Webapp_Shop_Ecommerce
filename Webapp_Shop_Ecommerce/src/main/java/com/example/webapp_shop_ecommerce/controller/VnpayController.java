@@ -12,6 +12,7 @@ import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.repositories.IBillRepository;
 import com.example.webapp_shop_ecommerce.service.IBillService;
+import com.example.webapp_shop_ecommerce.service.IHistoryBillService;
 import com.example.webapp_shop_ecommerce.service.IPaymentHistoryService;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -47,6 +48,9 @@ public class VnpayController {
     IPaymentHistoryService paymentHistoryService;
     @Autowired
     IBillService billService;
+
+    @Autowired
+    IHistoryBillService  historyBillService;
     @PostMapping
     public ResponseEntity<?> createPayment(@RequestBody PaymentRequest request) throws UnsupportedEncodingException {
 
@@ -83,7 +87,7 @@ public class VnpayController {
         } else {
             vnp_Params.put("vnp_Locale", "vn");
         }
-        vnp_Params.put("vnp_ReturnUrl", request.getReturnUrl()+"paymentIPN");
+        vnp_Params.put("vnp_ReturnUrl", request.getReturnUrl()+"/paymentIPN");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -313,6 +317,11 @@ public class VnpayController {
             }
             billService.update(bill);
             paymentHistoryService.createNew(paymentHistory);
+
+            historyBillService.addHistoryBill(bill,TrangThaiBill.DA_THANH_TOAN.getLabel(), "");
+            if (bill.getBillType().equalsIgnoreCase(BillType.ONLINE.getLabel())){
+                historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
+            }
             System.out.println("Thanh Toans Ok");
             return new ResponseEntity<>(new ResponseObject("success", vnp_Message, Integer.parseInt(vnp_ResponseCode), jsonResponse.toString()), HttpStatus.OK);
         }else {

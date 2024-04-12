@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.response.cart;
 
+import com.example.webapp_shop_ecommerce.dto.response.cartdetails.CartDetailResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import com.example.webapp_shop_ecommerce.entity.CartDetails;
 import lombok.AllArgsConstructor;
@@ -17,5 +18,5 @@ import java.util.Set;
 public class CartResponse {
     private Long id;
     private CustomerResponse customer;
-    private Set<CartDetails> lstCartDetails;
+    private Set<CartDetailResponse> lstCartDetails;
 }
