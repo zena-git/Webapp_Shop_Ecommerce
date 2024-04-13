@@ -31,7 +31,7 @@ function Color() {
             align: 'center',
             render: (text, record, index) => (
                 <React.Fragment key={index}>
-                    <div className='flex items-center justify-center'>
+                    <div className='flex items-center ml-8'>
                         <div style={{ width: '25px', height: '25px', backgroundColor: record.name, border: '1px solid #ccc' }}>
                         </div>
                         <div className='ml-2'>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Input, Modal, Popconfirm, Flex } from 'antd';
+import { Button, Table, Input, Modal, Popconfirm, Form } from 'antd';
 import axios from 'axios';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 function Brand() {
+    const [form] = Form.useForm();
+    const [formUpdate] = Form.useForm();
     const columns = [
         {
             title: '#',
@@ -87,6 +89,7 @@ function Brand() {
                 toast.success("Cập Nhật Thành Công");
                 fetchData();
                 setOpen(false);
+                formUpdate.resetFields();
 
             })
             .catch(err => {
@@ -113,10 +116,13 @@ function Brand() {
     const showModal = (data) => {
         console.log(data);
         setDataEntity(data)
+        formUpdate.setFieldsValue({ value: data?.name });
         setOpen(true);
     };
     const handleCancel = () => {
         setOpen(false);
+        formUpdate.resetFields();
+
     };
 
     const handleSearch = (value) => {
@@ -147,6 +153,7 @@ function Brand() {
                 setValueInputAdd(null)
                 fetchData();
                 setIsModalOpenAdd(false);
+                form.resetFields();
 
 
             })
@@ -159,6 +166,8 @@ function Brand() {
     const handleCancelAdd = () => {
         setValueInputAdd(null)
         setIsModalOpenAdd(false);
+        form.resetFields();
+
     };
     const filteredData = dataColum.filter(item => item && item.name && item.name.toLowerCase().includes(searchTerm.trim().toLowerCase()));
 
@@ -179,18 +188,39 @@ function Brand() {
                         <Button type="primary" onClick={showModalAdd}>
                             Thêm Mới
                         </Button>
-                        <Modal title="Thêm Mới" open={isModalOpenAdd} onOk={handleOkAdd} onCancel={handleCancelAdd}>
+                        <Modal title="Thêm Mới" open={isModalOpenAdd} footer={null} onCancel={handleCancelAdd}>
                             <div>
-                                <div>
-                                    <label>Tên</label>
-                                    <Input
-                                        className='mt-4 mb-4'
-                                        type="text"
-                                        placeholder='Nhập value'
-                                        value={valueInputAdd}
-                                        onChange={(e) => { setValueInputAdd(e.target.value) }}
-                                    />
-                                </div>
+                                <Form form={form} onFinish={handleOkAdd}>
+                                    <Form.Item
+                                        name={['value']}
+                                        label="Tên"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Vui lòng nhập giá trị',
+                                            },
+                                        ]}
+                                        labelCol={{ span: 24 }}
+                                        wrapperCol={{ span: 24 }}
+                                    >
+                                        <Input
+                                            type="text"
+                                            name='value'
+                                            placeholder='Nhập value'
+                                            onChange={(e) => { setValueInputAdd(e.target.value) }}
+                                        />
+                                    </Form.Item>
+
+                                    <div className='flex justify-end mt-10'>
+                                        <Button onClick={handleCancelAdd}>
+                                            Thoát
+                                        </Button>
+                                        <Button className='ml-4' type="primary" htmlType="submit">
+                                            Lưu
+                                        </Button>
+                                    </div>
+
+                                </Form>
                             </div>
                         </Modal>
                     </div>
@@ -205,35 +235,55 @@ function Brand() {
                 title="Sửa Thương Hiệu"
                 onOk={handleUpDate}
                 onCancel={handleCancel}
-                footer={[
-                    <Button key="ok" type="primary" onClick={handleUpDate}>
-                        Cập Nhật
-                    </Button>,
-                    <Button key="cancel" onClick={handleCancel}>
-                        Thoát
-                    </Button>,
-                    <Popconfirm
-                        title="Delete the task"
-                        description="Bạn Có Chắc Muốn Xóa?"
-                        onConfirm={() => handleDelete(dataEntity?.id)}
-                        okText="Yes"
-                        cancelText="No"
-                    >
-                        <Button danger> <DeleteOutlined /> Xóa</Button>
-                    </Popconfirm>
-                    ,
-                ]}
+                footer={null}
             >
+
                 <div>
-                    <label>Tên</label>
-                    <Input
-                        className='mt-4 mb-4'
-                        type="text"
-                        placeholder='Nhập value'
-                        value={dataEntity?.name}
-                        onChange={handleInputChange}
-                    />
+                    <Form form={formUpdate} onFinish={handleUpDate}>
+                        <Form.Item
+                            name='value'
+                            label="Tên"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Vui lòng nhập giá trị',
+                                },
+                            ]}
+                            labelCol={{ span: 24 }}
+                            wrapperCol={{ span: 24 }}
+
+                        >
+                            <Input
+                                // value={dataEntity?.name}
+
+                                type="text"
+                                placeholder='Nhập value'
+                                onChange={handleInputChange}
+                            />
+                        </Form.Item>
+
+                        <div className='flex justify-end mt-10'>
+
+                            <Button key="ok" type="primary" htmlType="submit">
+                                Cập Nhật
+                            </Button>,
+                            <Button key="cancel" className='ml-4' onClick={handleCancel}>
+                                Thoát
+                            </Button>,
+                            <Popconfirm
+                                title="Delete the task"
+                                description="Bạn Có Chắc Muốn Xóa?"
+                                onConfirm={() => handleDelete(dataEntity?.id)}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <Button danger  className='ml-4'> <DeleteOutlined /> Xóa</Button>
+                            </Popconfirm>
+                        </div>
+
+                    </Form>
                 </div>
+
             </Modal>
             <ToastContainer />
 

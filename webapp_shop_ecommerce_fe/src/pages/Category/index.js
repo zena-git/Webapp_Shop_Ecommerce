@@ -50,7 +50,7 @@ function Category() {
             align: 'center',
             render: (text, record, index) => (
                 <React.Fragment key={index}>
-                    <Button type="primary" onClick={() => showModal(record)}>
+                    <Button key={index} type="primary" onClick={() => showModal(record)}>
                         <FontAwesomeIcon icon={faPen} />
                     </Button>
                 </React.Fragment>
@@ -108,7 +108,6 @@ function Category() {
                 fetchData();
                 console.log('Delete data with id:', id);
                 setOpen(false);
-                formUpdate.resetFields();
 
             })
             .catch(err => {
