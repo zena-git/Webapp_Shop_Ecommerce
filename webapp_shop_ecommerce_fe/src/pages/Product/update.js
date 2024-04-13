@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Table, Spin, Select, Input, Space, Modal, Divider, Tag, ColorPicker, InputNumber, Upload, Tooltip } from 'antd';
+import { Button, Table, Spin, Select, Input, Space, Modal, Divider, Tag, ColorPicker, InputNumber, Upload, Tooltip, Popconfirm } from 'antd';
 import axios from 'axios';
 import Compressor from 'compressorjs';
 
@@ -264,10 +264,20 @@ function ProductUpdate() {
             dataIndex: 'action',
             key: 'action',
             render: (text, record) => (
-                <Button danger onClick={() => handleDeleteProduct(record.key, record.id)}>
-                    {record.index + "_" + record.key}
-                    <DeleteOutlined />
-                </Button>
+                <Popconfirm
+                    title="Loại bỏ chi tiết"
+                    description="Bạn có chắc muốn loại bỏ chi tiết này khỏi khay tạm?"
+                    onConfirm={() => handleDeleteProduct(record.key, record.id)}
+                    okText="Xác Nhận"
+                    cancelText="Không"
+                >
+                    <Button danger>
+                        {record.index + "_" + record.key}
+                        <DeleteOutlined />
+                    </Button>
+                </Popconfirm>
+
+
             ),
         },
         {
@@ -290,7 +300,7 @@ function ProductUpdate() {
                                 multiple
                                 onPreview={handlePreviewImg}
                                 onChange={({ fileList: newFileList }) => {
-                                    console.log(newFileList)
+                                    // console.log(newFileList)
                                     // console.log(record.color)
 
 
@@ -298,12 +308,14 @@ function ProductUpdate() {
                                         return file.type === 'image/png' || file.type === 'image/jpeg';
                                         // return file.status == "done";
                                     });
+
+                                    console.log(validFiles)
                                     if (validFiles.length >= 4) {
                                         toast.error("Chỉ Được Tải Lên Tối Đa 3 Ảnh !");
                                         return;
                                     }
 
-                                    const productDetailFinal = dataRowProductDetail.find(product => product.id === record.id);
+                                    const productDetailFinal = dataRowProductDetail.find(product => product.uuid === record.uuid);
                                     const dataProductDetail = dataRowProductDetail.map((productDetail) => {
                                         if (productDetail.color.id === productDetailFinal.color.id) {
                                             return {
@@ -318,8 +330,10 @@ function ProductUpdate() {
 
                                     })
 
+                                    console.log(product.uuid)
+                                    console.log(record.uuid)
 
-                                    console.log(productDetailFinal)
+                                    // console.log(productDetailFinal)
                                     console.log(dataProductDetail)
 
                                     setDataRowProductDetail(dataProductDetail)
@@ -380,6 +394,7 @@ function ProductUpdate() {
             let product = {
                 key: data.id,
                 id: data.id,
+                uuid: data.id,
                 index: index + 1,
                 barcode: data.barcode,
                 code: data.code,
@@ -842,7 +857,7 @@ function ProductUpdate() {
                 lstProductDetails: lstProductDetails,
             });
             const { status, message, errCode } = response.data;
-            toast.success(message);
+            toast.success("Cập nhật thành công");
             console.log(response.data);
         } catch (error) {
             const { status, message, errCode } = error.response.data;
@@ -879,6 +894,7 @@ function ProductUpdate() {
                 return {
                     key: `${index}_${i}`,
                     index: index,
+                    uuid: index,
                     group: index,
                     name: valueNameProduct,
                     color: optionColor.filter((c) => c.value == cl)
@@ -1250,7 +1266,7 @@ function ProductUpdate() {
                     </div>
                     <div className='mt-4 mb-6 flex justify-between'>
                         <div>
-                            <Button className='mr-4' type="primary" onClick={handleUpdateProduct} >Update Sản Phẩm</Button>
+                            <Button className='mr-4' type="primary" onClick={handleUpdateProduct} >Cập Nhật Sản Phẩm</Button>
                             <Button type="primary" onClick={showModal}>
                                 Thêm Chi Tiết
                             </Button>

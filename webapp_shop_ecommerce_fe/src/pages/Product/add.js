@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber, Tooltip } from 'antd';
+import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber, Tooltip,Popconfirm } from 'antd';
 import axios from 'axios';
 import Compressor from 'compressorjs';
 import { ToastContainer, toast } from 'react-toastify';
@@ -210,10 +210,20 @@ function ProductAdd() {
             dataIndex: 'action',
             key: 'action',
             render: (text, record) => (
-                <Button danger onClick={() => handleDeleteProduct(record.key)}>
-                    {record.index + "_" + record.key}
-                    <DeleteOutlined />
-                </Button>
+                <Popconfirm
+                    title="Loại bỏ chi tiết"
+                    description="Bạn có chắc muốn loại bỏ chi tiết này khỏi khay tạm?"
+                    onConfirm={() => handleDeleteProduct(record.key)}
+                    okText="Xác Nhận"
+                    cancelText="Không"
+                >
+                    <Button danger >
+                        {record.index + "_" + record.key}
+                        <DeleteOutlined />
+                    </Button>
+                </Popconfirm>
+
+
             ),
         },
         {
@@ -899,7 +909,7 @@ function ProductAdd() {
     };
     return (
         <div className=''>
-            
+
             <div>
                 <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
                     <div className='mb-10 mt-2 '>
