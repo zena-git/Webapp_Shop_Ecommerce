@@ -145,7 +145,7 @@ export default function ListTable() {
             header: () => <div className="text-center">giá trị giảm</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {numberToPrice(row.getValue("value"))}
+                    {row.getValue("value") + "%"}
                 </div>
             },
         },
@@ -207,7 +207,7 @@ export default function ListTable() {
                         <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
                         <div className='min-w-[240px]'>
                             <Select
-                                style={{width: '240px'}}
+                                style={{ width: '240px' }}
                                 defaultValue={0}
                                 defaultActiveFirstOption
                                 onChange={(value) => {

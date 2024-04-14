@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { baseUrl, nextUrl } from '~/lib/functional'
+import { baseUrl } from '~/lib/functional'
 import ListTable from '~/components/voucher/listTable'
 import ListDeleted from '~/components/voucher/listDeleted'
 import ReduxProvider from '../../redux/provider'
@@ -38,7 +38,7 @@ const Recover = () => {
     };
     const handleOk = () => {
         const promises = listVoucherDeleteSelected.map(slt => {
-            return axios.get(`${nextUrl}/voucher/recover?id=${slt.id}`)
+            return axios.get(`${baseUrl}/voucher/recover?id=${slt.id}`)
         })
         Promise.all(promises).then(() => {
             navigate(0);

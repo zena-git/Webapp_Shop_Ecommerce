@@ -20,6 +20,8 @@ import {
 import { useAppSelector } from '../../redux/storage';
 import { Modal } from 'antd';
 import { Button } from "~/components/ui/button"
+import { Label } from "~/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 // import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
@@ -63,7 +65,23 @@ export default function ListTable() {
         []
     )
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = useState({})
+    const [rowSelection, setRowSelection] = useState({});
+
+    const [filterType, setFilterType] = useState('0');
+
+    const customFilterType = (
+        row,
+        columnId,
+        filterValue
+    ) => {
+        if (filterValue == '0') {
+            return true;
+        } else if (filterValue == '1') {
+            return !row.original.delete_flag
+        } else if (filterValue == '2') {
+            return row.original.delete_flag
+        }
+    }
 
     const columns: ColumnDef<User>[] = useMemo(() => [
         {
@@ -114,6 +132,16 @@ export default function ListTable() {
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original.phone}
+                </div>
+            },
+        },
+        {
+            accessorKey: "delete_flag",
+            header: () => <div className="text-center">Trạng thái</div>,
+            filterFn: customFilterType,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    <Tag color={row.original.delete_flag ? 'red' : 'blue'}>{row.original.delete_flag ? 'đã nghỉ' : 'đang làm việc'}</Tag>
                 </div>
             },
         },
@@ -176,51 +204,72 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full bg-white p-6 rounded-md">
-                <div>
-                    <p className='text-lg font-bold mb-3'>Nhân viên</p>
+            <div className="w-full rounded-md">
+                <div className='bg-white rounded-md mb-3 p-6 shadow-md'>
+                    <div className='flex justify-between'>
+                        <p className='text-xl font-bold mb-3'>Nhân viên</p>
+                        <div className='flex gap-5'>
+                            <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white">Thêm nhân viên</Button>
+                            <Recover />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 my-3">
+                        <div>
+                            <p className='text-sm font-semibold mb-1'>Tên</p>
+                            <Input
+                                placeholder="tìm kiếm theo tên"
+                                value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                                onChange={(event) =>
+                                    table.getColumn("name")?.setFilterValue(event.target.value)
+                                }
+                                className="max-w-sm"
+                            />
+                        </div>
+                        <div>
+                            <p className='text-sm font-semibold mb-1'>Email</p>
+                            <Input
+                                placeholder="tìm kiếm theo email"
+                                value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                                onChange={(event) =>
+                                    table.getColumn("email")?.setFilterValue(event.target.value)
+                                }
+                                className="max-w-sm"
+                            />
+                        </div>
+                        <div>
+                            <p className='text-sm font-semibold mb-1'>Số điện thoại</p>
+                            <Input
+                                placeholder="tìm kiếm theo số điện thoại"
+                                value={(table.getColumn("phone")?.getFilterValue() as string) ?? ""}
+                                onChange={(event) =>
+                                    table.getColumn("phone")?.setFilterValue(event.target.value)
+                                }
+                                className="max-w-sm"
+                            />
+                        </div>
+                        <div>
+                            <p className='text-sm font-semibold mb-1'>Trạng thái</p>
+                            <RadioGroup defaultValue="0" value={(table.getColumn("delete_flag")?.getFilterValue() as string) ?? "0"} onValueChange={value => { table.getColumn("delete_flag")?.setFilterValue(value) }}>
+                                <div className='flex gap-2 items-center'>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="0" id="0" />
+                                        <Label htmlFor="0">Tất cả</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="1" id="1" />
+                                        <Label htmlFor="1">Đang làm việc</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="2" id="2" />
+                                        <Label htmlFor="2">Đã nghỉ</Label>
+                                    </div>
+                                </div>
+                            </RadioGroup>
+                        </div>
+                    </div>
                 </div>
-                <div className='flex gap-5'>
-                    <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white">Thêm nhân viên</Button>
-                    <Recover />
-                </div>
-                <div className="flex items-center py-4">
-                    <Input
-                        placeholder="tìm kiếm theo tên"
-                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Cột <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                <div className="rounded-md border p-3 bg-white">
+                <div className="rounded-md border p-3 bg-white shadow-md">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -270,38 +319,9 @@ export default function ListTable() {
                         </TableBody>
                     </Table>
                 </div>
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
-                    <div className="space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </div>
             </div>
         </>
     )
-}
-
-const numberToPrice = (value) => {
-    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    return formattedAmount;
 }
 
 const Recover = () => {
@@ -315,7 +335,7 @@ const Recover = () => {
 
     const handleOk = () => {
         const promises = listUserDeletedSelect.map(slt => {
-            return axios.get(`${nextUrl}/user/recover?id=${slt.id}`)
+            return axios.get(`${baseUrl}/user/recover?id=${slt.id}`)
         })
         Promise.all(promises).then(() => {
             navigate(0);
@@ -327,12 +347,12 @@ const Recover = () => {
         setIsModalOpen(false);
     };
 
-    
+
 
     return (
         <>
-            <button onClick={showModal} style={{ backgroundColor: "red" }} className="bg-opacity-55 px-3 text-white font-semibold rounded-md">Nhân viên đã xóa</button>
-            <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+            <button onClick={showModal} style={{ backgroundColor: "red" }} className="bg-opacity-55 px-3 text-white font-semibold rounded-md">Khôi phục nhân viên</button>
+            <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} className='w-fit min-w-[80%]'>
                 <ListDeleted />
             </Modal>
         </>

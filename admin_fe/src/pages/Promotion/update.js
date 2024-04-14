@@ -54,7 +54,7 @@ function EditPage() {
                 )
             });
             dispatch(set({ value: { selected: temp } }));
-            axios.get(`${nextUrl}/promotion/data?id=${path.id}`).then(resp => {
+            axios.get(`${baseUrl}/promotion/${path.id}`).then(resp => {
                 setTargetPromotion(resp.data);
                 setName(resp.data.name);
                 setValue(resp.data.value);
@@ -107,7 +107,7 @@ function EditPage() {
                 lstProductDetails: PromotionType == "0" ? allPro : lst
             }
 
-            axios.post(`${nextUrl}/promotion/update`, t).then(res => {
+            axios.post(`${baseUrl}/promotion/update`, t).then(res => {
                 toast.success("cập nhật thành công");
                 navigate(`/discount/promotion/detail/${targetPromotion.id}`)
             }).catch(err => {

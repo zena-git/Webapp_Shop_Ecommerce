@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Select, Button, Checkbox } from 'antd/lib';
+import { DatePicker, InputNumber, Select, Button, Checkbox, Modal } from 'antd/lib';
 import { Input } from "../../components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState, useMemo } from 'react';
@@ -22,7 +22,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl, nextUrl } from '../../lib/functional'
+import { baseUrl } from '../../lib/functional'
 import {
     CaretSortIcon,
     ChevronDownIcon,
@@ -54,9 +54,7 @@ import {
     TableHeader,
     TableRow,
 } from "~/components/ui/table"
-// import { Select } from '../../components/ui/select'
-
-import { vnData } from '../../lib/extra'
+import { IoArrowBackSharp } from "react-icons/io5";
 
 dayjs.extend(customParseFormat);
 
@@ -77,8 +75,15 @@ const formSchema = z.object({
         message: "",
     }),
     password: z.string()
+});
+
+const modalFormSchema = z.object({
+    receiverName: z.string(),
+    receiverPhone: z.string(),
 })
 
+
+const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function AddCustomer() {
 
     const [sorting, setSorting] = useState([])
@@ -87,6 +92,7 @@ export default function AddCustomer() {
     const [rowSelection, setRowSelection] = useState({})
 
     const [birthDay, setBirthday] = useState(dayjs(new Date()));
+    const [listProvince, setListProvince] = useState([]);
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
 
@@ -96,51 +102,143 @@ export default function AddCustomer() {
     const path = useParams();
     const [defaultAddress, setDefaultAddress] = useState(0);
 
-
-    const setAddProvinceP = (value, key) => {
-        const province = vnData.find(target => { return target.name == value });
-        if (!province) return;
-        const t = province.districts;
-        setListDistricts(t)
-        setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, province: value, district: t[0].name, commune: t[0].wards[0].name } } else { return target } }); })
-    }
-
-    const setAddDistrictP = (value, key) => {
-        const t = listDistricts.find(target => { return target.name == value }).wards;
-        setListWards(t)
-        setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, district: value, commune: t[0].name } } else { return target } }); })
-    }
-
-    const setAddCommuneP = (value, key) => {
-        setListAddress(prev => { return prev.map(target => { if (target.key == key) { return { ...target, commune: value } } else { return target } }); })
-    }
-
-
-
     useEffect(() => {
         axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
             setTargetCustomer(res.data)
-            setBirthday(dayjs(res.data.birthday))
+            if (res.data.birthday) {
+                setBirthday(dayjs(res.data.birthday))
+            }
             setListAddress(res.data.lstAddress.map((add, index) => {
                 if (add.defaultAddress) {
                     setDefaultAddress(add.id)
                 }
                 return {
                     ...add,
-                    key: index,
+                    province: {
+                        id: add.provinceID.toString(),
+                        name: add.province
+                    },
+                    district: {
+                        id: add.districtID.toString(),
+                        name: add.district
+                    },
+                    commune: {
+                        id: add.communeID.toString(),
+                        name: add.commune
+                    },
                     receivername: add.receiverName,
                     phone: add.receiverPhone
                 }
             }))
+            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/province`, {
+                headers: {
+                    token: token
+                }
+            }).then(resp => {
+                setListProvince(resp.data.data);
+
+            })
+
         })
     }, [path.id])
 
+    const setAddProvinceP = (value, key, id) => {
+        if (!key && !id) return;
+        axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${value}`, {
+            headers: {
+                token: token
+            }
+        }).then(res => {
+            let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451)
+            setListDistricts(listFilteredDistrict);
+            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0].DistrictID}`, {
+                headers: {
+                    token: token
+                }
+            }).then(resp => {
+                setListWards(resp.data.data);
+                setListAddress(prev => {
+                    return prev.map(target => {
+                        if ((key && target.key == key) || (id && target.id == id)) {
+                            let prov = listProvince.find(province => province.ProvinceID == value);
+                            setEditAddress({
+                                ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                                district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                                commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
+                            })
+                            return {
+                                ...target,
+                                province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                                district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                                commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
+                            }
+                        } else {
+                            return target
+                        }
+                    })
+                })
+            })
+
+        })
+    }
+
+    const setAddDistrictP = (value, key, id) => {
+        if (!key && !id) return;
+        axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${value}`, {
+            headers: {
+                token: token
+            }
+        }).then(res => {
+            setListWards(res.data.data);
+            setListAddress(prev => {
+                return prev.map(target => {
+                    if ((key && target.key == key) || (id && target.id == id)) {
+                        let dist = listDistricts.find(district => district.DistrictID == value)
+                        setEditAddress({
+                            ...editAddress,
+                            district: { id: dist.DistrictID, name: dist.DistrictName },
+                            commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
+                        })
+                        return {
+                            ...target,
+                            district: { id: dist.DistrictID, name: dist.DistrictName },
+                            commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
+                        }
+                    }
+                    else {
+                        return target
+                    }
+                });
+            })
+        })
+    }
+
+    const setAddCommuneP = (value, key, id) => {
+        if (!key && !id) return;
+        try {
+            setListAddress(prev => {
+                let ward = listWards.find(target => target.WardCode == value);
+                return prev.map(target => {
+                    if ((key && target.key == key) || (id && target.id == id)) {
+                        return { ...target, commune: { id: ward.WardCode, name: ward.WardName } }
+                    } else {
+                        return target
+                    }
+                });
+            })
+        } catch (error) {
+
+        }
+    }
+
     const navigate = useNavigate();
 
-    const handleChangeReceiverName = (key, newValue) => {
+    const handleChangeReceiverName = (key, newValue, id) => {
+        if (!key && !id) return;
+        setEditAddress({ ...editAddress, receiverName: newValue })
         setListAddress(prev => {
             return prev.map(address => {
-                if (address.key === key) {
+                if ((key && address.key == key) || (id && address.id == id)) {
                     return { ...address, receivername: newValue };
                 }
                 return address;
@@ -148,11 +246,13 @@ export default function AddCustomer() {
         });
     };
 
-    const handleChangeReceiverPhone = (key, newValue) => {
+    const handleChangeReceiverPhone = (key, newValue, id) => {
+        if (!key && !id) return;
         try {
+            setEditAddress({ ...editAddress, phone: newValue })
             setListAddress(prev => {
                 return prev.map(address => {
-                    if (address.key === key) {
+                    if ((key && address.key == key) || (id && address.id == id)) {
                         return { ...address, phone: newValue };
                     }
                     return address;
@@ -163,13 +263,42 @@ export default function AddCustomer() {
         }
     }
 
+    const handleChangeReceiverDetail = (key, newValue, id) => {
+        if (!key && !id) return;
+        try {
+            setListAddress(prev => {
+                return prev.map(address => {
+                    if ((key && address.key == key) || (id && address.id == id)) {
+                        return { ...address, detail: newValue };
+                    }
+                    return address;
+                });
+            });
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const Remove = (key, id) => {
+        if (key) {
+            let q = listAddress.filter(target => key != target.key)
+            setListAddress(q);
+        } else if (id) {
+            axios.delete(`${baseUrl}/address/${id}`)
+            let x = listAddress.filter(target => id != target.id)
+            setListAddress(x);
+        }
+    }
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const columns = useMemo(() => [
         {
             accessorKey: "key",
             header: "Mặc định",
             cell: ({ row }) => (<>
                 {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
-                <Checkbox checked={defaultAddress == row.original.id} onClick={() => { setDefaultAddress(row.original.id) }} />
+                <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} />
             </>
             ),
         },
@@ -188,7 +317,7 @@ export default function AddCustomer() {
                 )
             },
             cell: ({ row }) => <div className="lowercase">
-                {row.original && <Input value={row.original.receivername} onChange={e => handleChangeReceiverName(row.original.key, e.target.value)} />}
+                {row.original && <p>{row.original.receivername}</p>}
             </div>,
         },
         {
@@ -196,7 +325,7 @@ export default function AddCustomer() {
             header: () => <div className="text-center">số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {row.original && <Input value={row.original.phone} onChange={e => { handleChangeReceiverPhone(row.original.key, e.target.value) }} />}
+                    {row.original && <p>{row.original.phone}</p>}
                 </div>
             },
         },
@@ -205,11 +334,10 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.province} onChange={value => { setAddProvinceP(value, row.original.key); }}>
-                        {vnData.map((province) => {
-                            return <option key={province.code} value={province.name}>{province.name}</option>
-                        })}
-                    </Select>}
+                    {
+                        row.original &&
+                        <p>{row.original.province.name}</p>
+                    }
                 </div>
             },
         },
@@ -218,13 +346,9 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Quận/ huyện</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.district} onChange={value => { setAddDistrictP(value, row.original.key); }}>
-                        {
-                            listDistricts.map(district => {
-                                return <option key={district.code} value={district.name}>{district.name}</option>
-                            })
-                        }
-                    </Select>}
+                    {
+                        row.original && <p>{row.original.district.name}</p>
+                    }
                 </div>
             },
         },
@@ -233,17 +357,20 @@ export default function AddCustomer() {
             header: () => <div className="text-center">Xã/ phường</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original && <Select placeholder='Tỉnh/ Thành phố' value={row.original.commune} onChange={value => { setAddCommuneP(value, row.original.key); }}>
-                        {
-                            listWards.map(ward => {
-                                return <option key={ward.code} value={ward.name}>{ward.name}</option>
-                            })
-                        }
-                    </Select>
-                    }
+                    {row.original && <p>{row.original.commune.name}</p>}
                 </div>
             },
-        }, {
+        },
+        {
+            accessorKey: "detail",
+            header: () => <div className="text-center">Chi tiết</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    {row.original && <p>{row.original.detail}</p>}
+                </div>
+            },
+        },
+        {
             id: "hành động",
             enableHiding: false,
             header: () => <div className="text-center">hành động</div>,
@@ -259,14 +386,15 @@ export default function AddCustomer() {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => { setListAddress(listAddress.map(target => { if (target.key != row.original.key) return target })) }}>Xóa</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>Cập nhật</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { Remove(row.original.key, row.original.id) }}>Xóa</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 )
             },
         },
-    ], [listDistricts, listWards, defaultAddress]);
+    ], [listDistricts, listWards, defaultAddress, listProvince, listAddress, Remove]);
 
     const table = useReactTable({
         data: listAddress,
@@ -286,7 +414,6 @@ export default function AddCustomer() {
             rowSelection,
         },
     })
-
 
     const form = useForm(
         {
@@ -310,7 +437,21 @@ export default function AddCustomer() {
         const data = { ...values, birthDay: birthDay }
         axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
             const promises = listAddress.map(add => {
-                return axios.get(`${nextUrl}/address?receiverName=${add.receivername}&receiverPhone=${add.phone}&customer=${res.data.data.id}&detail=${add.detail}&commune=${add.commune}&district=${add.district}&province=${add.province}&defaultAddress=${defaultAddress == add.id}`)
+                const body = {
+                    receiverName: add.receivername,
+                    receiverPhone: add.phone,
+                    commune: add.commune.name,
+                    district: add.district.name,
+                    province: add.province.name,
+                    communeID: add.commune.id,
+                    districtID: add.district.id,
+                    provinceID: add.province.id,
+                    defaultAddress: defaultAddress == add.id,
+                    detail: add.detail,
+                    customer: path.id,
+                    id: add.id
+                }
+                return axios.post(`${baseUrl}/address`, body)
             })
             return Promise.all(promises)
                 .then(() => {
@@ -323,31 +464,54 @@ export default function AddCustomer() {
     }
 
     const handleAddAddress = () => {
-
-        setListAddress(prev => [...prev, {
+        let newObject = {
             key: listAddress.length + 1,
             receivername: "",
             phone: "",
-            province: "Thành phố Hà Nội",
-            district: "Quận Ba Đình",
-            commune: "Phường Phúc Xá"
-        }])
+            province: { id: '269', name: 'Lào Cai' },
+            district: { id: '2264', name: 'Huyện Si Ma Cai' },
+            commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
+        }
+        setEditAddress(newObject);
+        setListAddress(prev => [...prev, newObject])
+        // setIsModalOpen(true);
     }
 
     useEffect(() => {
         console.log(listAddress)
     }, [listAddress])
 
+    const [editAddress, setEditAddress] = useState({});
+
+    const modalForm = useForm(
+        {
+            resolver: zodResolver(modalFormSchema),
+            mode: 'all',
+            values: {
+                receiverName: editAddress.receiverName || '',
+                phone: "",
+                province: { id: '269', name: 'Lào Cai' },
+                district: { id: '2264', name: 'Huyện Si Ma Cai' },
+                commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
+            }
+        }
+    )
+
     return (
         <div className='flex xl:flex-col'>
             <ToastContainer />
             <div className='flex flex-col gap-3 w-full bg-white shadow-lg rounded-md p-5'>
+                <div className='flex gap-2 items-center'>
+                    <div className='text-lg cursor-pointer' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
+                    <p className='ml-3 text-lg font-semibold'>Thông tin khách hàng</p>
+                </div>
+                <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
                 <Form {...form}>
                     <form onSubmit={e => { e.preventDefault() }} className="space-y-8">
                         <div className='grid grid-cols-2 max-lg:grid-cols-1 p-3 gap-x-6'>
                             <FormField
                                 control={form.control}
-                                name="fullName"
+                                name="name"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Họ và tên</FormLabel>
@@ -399,7 +563,7 @@ export default function AddCustomer() {
                                             <FormControl>
                                                 <>
                                                     <p>Sinh nhật</p>
-                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => setBirthday(birthDay)} />
+                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay || new Date()} onChange={birthDay => setBirthday(birthDay)} />
                                                 </>
                                             </FormControl>
                                             <FormMessage />
@@ -432,23 +596,110 @@ export default function AddCustomer() {
                                 />
                             </div>
                         </div>
-                        {/* <FormField
-                            control={form.control}
-                            name="address"
-                            render={({ field }) =>
-                            (
-                                <FormItem>
-                                    <FormLabel>Địa chỉ chi tiết</FormLabel>
-                                    <FormControl>
-                                        <Textarea placeholder="địa chỉ chi tiết" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        /> */}
+                        <p className='ml-3 text-lg font-semibold'>Danh sách địa chỉ</p>
+                        <div className='mb-3 relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                        <Button type="primary" onClick={() => { handleAddAddress(); }}>
+                            Thêm địa chỉ mới
+                        </Button>
+                        <Modal title="Basic Modal" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
+                            <Form {...modalForm}>
+                                <form onSubmit={() => { }} className="space-y-8">
+                                    <FormField
+                                        control={modalForm.control}
+                                        name="receiverName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Họ và tên</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value, editAddress.id); }} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={modalForm.control}
+                                        name="phone"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Số điện thoại</FormLabel>
+                                                <FormControl>
+                                                    <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value, editAddress.id); }} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
 
-                        <Button type='primary' onClick={handleAddAddress}>Thêm địa chỉ mới</Button>
+                                    <FormField
+                                        control={modalForm.control}
+                                        name="phone"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Tỉnh thành phố</FormLabel>
+                                                <FormControl>
+                                                    <Select className='min-w-[110px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
+                                                        {
+                                                            listProvince.map((province, key) => {
+                                                                return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
+                                                            })
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={modalForm.control}
+                                        name="district"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Quận huyện</FormLabel>
+                                                <FormControl>
+                                                    <Select className='min-w-[110px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
+                                                        {
+                                                            listDistricts.map((district, key) => {
+                                                                return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
+                                                            })
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={modalForm.control}
+                                        name="phone"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Xã phường</FormLabel>
+                                                <FormControl>
+                                                    <Select {...field} className='min-w-[110px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
+                                                        {
+                                                            listWards.map((ward, key) => {
+                                                                return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
+                                                            })
+                                                        }
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div>
+                                        <p>Địa chỉ chi tiết</p>
+                                        <Textarea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
+                                    </div>
 
+                                    <div className='flex items-center'>
+                                        <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.id || editAddress.key) }} />
+                                        <p>Đặt làm địa chỉ mặc định</p>
+                                    </div>
+                                </form>
+                            </Form>
+                        </Modal>
                         <div className="rounded-md border bg-white p-3">
                             <Table>
                                 <TableHeader>
@@ -499,32 +750,6 @@ export default function AddCustomer() {
                                 </TableBody>
                             </Table>
                         </div>
-                        <div className="flex items-center justify-end space-x-2 py-4">
-                            <div className="flex-1 text-sm text-muted-foreground">
-                                {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                                {table.getFilteredRowModel().rows.length} row(s) selected.
-                            </div>
-                            <div className="space-x-2">
-                                <Button
-                                    type='primary'
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => table.previousPage()}
-                                    disabled={!table.getCanPreviousPage()}
-                                >
-                                    Previous
-                                </Button>
-                                <Button
-                                    type='primary'
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => table.nextPage()}
-                                    disabled={!table.getCanNextPage()}
-                                >
-                                    Next
-                                </Button>
-                            </div>
-                        </div>
 
                         <div className='flex gap-4'>
                             <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật khách hàng</Button>
@@ -534,6 +759,6 @@ export default function AddCustomer() {
             </div>
 
 
-        </div>
+        </div >
     )
 } 

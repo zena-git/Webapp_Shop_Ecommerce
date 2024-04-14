@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { nextUrl, baseUrl } from "../../lib/functional";
+import { baseUrl } from "../../lib/functional";
 import { Tag } from "antd";
 import ListDetailVoucher from '../../components/voucher/listDetailVoucher'
 

@@ -5,10 +5,9 @@ import { redirect, Link } from 'react-router-dom';
 import { useAppSelector } from '../../redux/storage';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { baseUrl, nextUrl } from '~/lib/functional'
+import { baseUrl } from '~/lib/functional'
 import ListDeleted from '~/components/promotion/listDeleted'
 import { Button, Modal } from 'antd';
-
 const PromotionPage = () => {
     return (
 
@@ -28,17 +27,17 @@ const PromotionPage = () => {
         </div>
 
     )
-} 
+}
 
 const Recover = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate()
     const showModal = () => {
         setIsModalOpen(true);
-    }; 
+    };
     const handleOk = () => {
         const promises = listPromotionDeleteSelected.map(slt => {
-            return axios.get(`${nextUrl}/promotion/recover?id=${slt.id}`)
+            return axios.get(`${baseUrl}/promotion/recover?id=${slt.id}`)
         })
         Promise.all(promises).then(() => {
             navigate(0);
@@ -66,8 +65,10 @@ const Recover = () => {
 
 const Layout = (props) => {
     return (
-        <ReduxProvider><PromotionPage></PromotionPage></ReduxProvider>
+        <ReduxProvider>
+                <PromotionPage></PromotionPage>
+        </ReduxProvider>
     )
-} 
+}
 
 export default Layout

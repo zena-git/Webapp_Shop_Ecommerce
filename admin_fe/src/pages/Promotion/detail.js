@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { baseUrl, nextUrl } from '~/lib/functional';
+import { baseUrl } from '~/lib/functional';
 import { useParams } from 'react-router-dom';
 import ListDetailPromotion from '../../components/promotion/listDetailPromotion'
 import ReduxProvider from '../../redux/provider'
@@ -12,7 +12,7 @@ function Detail() {
     const path = useParams()
     useEffect(() => {
         if (path && path.id) {
-            axios.get(`${nextUrl}/promotion/data?id=${path.id}`).then(res => {
+            axios.get(`${baseUrl}/promotion/data?id=${path.id}`).then(res => {
                 setTargetPromotion(res.data)
             });
         }

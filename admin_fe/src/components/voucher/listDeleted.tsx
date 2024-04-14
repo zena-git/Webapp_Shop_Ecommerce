@@ -40,7 +40,7 @@ import {
 } from "~/components/ui/table"
 import { VoucherResponse } from "~/lib/type"
 import axios from 'axios'
-import { baseUrl, nextUrl } from '~/lib/functional'
+import { baseUrl } from '~/lib/functional'
 import { Link, redirect } from 'react-router-dom'
 import { set, updateSelected } from '../../redux/features/voucher-deleted'
 import { useDispatch } from 'react-redux'
@@ -49,7 +49,7 @@ export default function ListTable() {
     const dispatch = useDispatch()
 
     const fillData = () => {
-        axios.get(`${nextUrl}/voucher/deleted`).then(res => {
+        axios.get(`${baseUrl}/voucher/deleted`).then(res => {
             setData(res.data);
         })
     }
@@ -119,7 +119,7 @@ export default function ListTable() {
             cell: ({ row }) => {
                 return <div className='text-center'>
                     {/* @ts-ignore */}
-                    {row.original.start_date.toString().split("T")[0] + " - " + row.original.start_date.toString().split("T")[1]}
+                    {row.original.startDate.toString().split("T")[0] + " - " + row.original.startDate.toString().split("T")[1]}
                 </div>
             },
         },
@@ -129,7 +129,7 @@ export default function ListTable() {
             cell: ({ row }) => {
                 return <div className='text-center'>
                     {/* @ts-ignore */}
-                    {row.original.end_date.toString().split("T")[0] + " - " + row.original.end_date.toString().split("T")[1]}
+                    {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
                 </div>
             },
         },

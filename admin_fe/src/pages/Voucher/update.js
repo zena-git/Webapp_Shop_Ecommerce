@@ -4,7 +4,7 @@ import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from 'axios';
-import { baseUrl, nextUrl } from '~/lib/functional';
+import { baseUrl } from '~/lib/functional';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
@@ -80,9 +80,9 @@ const VoucherPage = () => {
 
     useEffect(() => {
         if (path && path.id) {
-            axios.get(`${nextUrl}/voucher/data?id=${path.id}`).then(res => {
+            axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
                 setTargetVoucher(res.data);
-                setDate([dayjs(res.data.start_date), dayjs(res.data.end_date)])
+                setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
                 setDiscountType(res.data.discount_type == "0");
                 res.data.VoucherDetail.map(detail => {
                     dispatch(updateSelected({ id: Number.parseInt(detail.customer_id), selected: true }))
@@ -126,13 +126,12 @@ const VoucherPage = () => {
             return;
         }
         if (VoucherType == "0") {
-            axios.post(`${nextUrl}/voucher/update`, {
+            axios.post(`${baseUrl}/voucher/update`, {
                 id: path.id,
                 code: values.code,
                 name: values.name,
                 value: values.value,
-                target_type: values.target_type,
-                usage_limit: values.usage_limit,
+                quantity: values.usage_limit,
                 discount_type: discountType ? 0 : 1,
                 max_discount_value: targetVoucher.max_discount_value,
                 order_min_value: values.order_min_value,
@@ -146,17 +145,16 @@ const VoucherPage = () => {
             })
         } else {
             if (selectedCustomer.length > 0) {
-                axios.post(`${nextUrl}/voucher/update`, {
+                axios.post(`${baseUrl}/voucher/update`, {
                     id: path.id,
                     code: values.code,
                     name: values.name,
                     value: values.value,
-                    target_type: values.target_type,
-                    usage_limit: values.usage_limit,
-                    discount_type: discountType ? 0 : 1,
-                    max_discount_value: targetVoucher.max_discount_value,
+                    quantity: values.usage_limit,
+                    discountType: discountType ? 0 : 1,
+                    maxDiscountValue: targetVoucher.max_discount_value,
                     description: targetVoucher.description,
-                    order_min_value: values.order_min_value,
+                    orderMinValue: values.order_min_value,
                     startDate: date[0].toDate(),
                     endDate: date[1].toDate(),
                     lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
@@ -176,7 +174,7 @@ const VoucherPage = () => {
 
     const DisableVoucher = () => {
         if (targetVoucher) {
-            axios.get(`${nextUrl}/voucher/disable?voucherId=${targetVoucher?.id}`).then(res => {
+            axios.get(`${baseUrl}/voucher/disable?voucherId=${targetVoucher?.id}`).then(res => {
                 toast.success('thao tác thành công')
             })
         }

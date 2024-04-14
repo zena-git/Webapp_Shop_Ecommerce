@@ -4,7 +4,7 @@ import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from 'axios';
-import { baseUrl, makeid, nextUrl } from '~/lib/functional';
+import { baseUrl, makeid } from '~/lib/functional';
 import { redirect, useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
@@ -65,7 +65,7 @@ function EditPage() {
     }
 
     useEffect(() => {
-        axios.get(`${nextUrl}/product`).then(res => {
+        axios.get(`${baseUrl}/product`).then(res => {
             setListProduct(res.data);
         });
     }, [])
@@ -87,12 +87,14 @@ function EditPage() {
             toast.error('chưa chọn sản phẩm nào')
         } else if (value.toString().trim().length == 0) {
             toast.error('đặt mức giảm giá')
+        } else if (value > 100) {
+            toast.error('giá trị giảm không thể quá 100%')
         } else {
             let t = [];
             listProduct.map(pro => {
                 t.push(...pro.ProductDetail.map(detail => detail.id))
             })
-            axios.post(`${nextUrl}/promotion`, {
+            axios.post(`${baseUrl}/promotion`, {
                 status: 0,
                 value: value,
                 code: code,
@@ -140,8 +142,8 @@ function EditPage() {
                         <Input value={name} onChange={e => { setName(e.target.value) }} />
                     </label>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>
-                        <InputNumber min={0} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
+                        <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (%)</p>
+                        <InputNumber min={0} max={100} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
                     </label>
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Mô tả</p>

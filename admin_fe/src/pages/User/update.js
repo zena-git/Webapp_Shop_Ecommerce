@@ -236,12 +236,12 @@ export default function Add() {
                     district: addDistrict,
                     province: addProvince,
                     email: values.email,
-                    full_name: values.full_name,
+                    fullName: values.full_name,
                     gender: values.gender == '0',
                     phone: values.phone,
-                    image_url: res.data.url
+                    imageUrl: res.data.url
                 }
-                axios.post(`${nextUrl}/user/update`, body).then(res => {
+                axios.put(`${baseUrl}/user/update`, body).then(res => {
                     toast.success('Cập nhật thành công')
                 }).catch(err => {
                     toast.error(err);
@@ -256,11 +256,11 @@ export default function Add() {
                 district: addDistrict,
                 province: addProvince,
                 email: values.email,
-                full_name: values.full_name,
+                fullName: values.full_name,
                 gender: values.gender == '0',
                 phone: values.phone
             }
-            axios.post(`${nextUrl}/user/update`, body).then(res => {
+            axios.put(`${baseUrl}/user/update`, body).then(res => {
                 toast.success('Cập nhật thành công');
             }).catch(err => {
                 toast.error(err);

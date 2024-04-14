@@ -4,10 +4,11 @@ import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState, useRef, useCallback } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { baseUrl, nextUrl } from '~/lib/functional';
+import { baseUrl } from '~/lib/functional';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
+import { useNavigate } from 'react-router-dom';
 // import { Button } from '~/components/ui/button';
 import {
     Form,
@@ -25,7 +26,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "~/components/ui/dialog"
-
+import { IoArrowBackSharp } from "react-icons/io5";
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -102,7 +103,8 @@ const formSchema = z.object({
 
 export default function Add() {
 
-    const [previewImage, setPreviewImage] = useState();
+    const navigate = useNavigate();
+
     const [addProvince, setAddProvince] = useState("Thành phố Hà Nội");
     const [addDistrict, setAddDistrict] = useState("Quận Ba Đình");
     const [addWard, setAddWard] = useState("Phường Phúc Xá");
@@ -221,8 +223,20 @@ export default function Add() {
             formData.append("cloud_name", "db9i1b2yf")
             formData.append("upload_preset", "product")
             axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-                axios.get(`${nextUrl}/user/create?birthday=${new Date(dayjs(values.birthday).toDate()).toISOString()}&commune=${addWard}&detail=${values.detail}&district=${addDistrict}&province=${addProvince}&email=${values.email}&full_name=${values.full_name}&gender=${values.gender == '0'}&phone=${values.phone}&image_url=${res.data.url}`).then(resp => {
-                    console.log(resp.data);
+                const body = {
+                    birthday: new Date(dayjs(values.birthday).toDate()).toISOString(),
+                    commune: addWard,
+                    detail: values.detail,
+                    district: addDistrict,
+                    province: addProvince,
+                    email: values.email,
+                    fullName: values.full_name,
+                    gender: values.gender == '0',
+                    phone: values.phone,
+                    imageUrl: res.data.url
+                }
+
+                axios.post(`${baseUrl}/user/create`, body).then(() => {
                     toast.success("Thêm mới thành công")
                     form.reset();
                 }).catch(error => {
@@ -230,12 +244,20 @@ export default function Add() {
                 })
             })
         } else {
-            axios.get(`${nextUrl}/user/create?birthday=${new Date(dayjs(values.birthday).toDate()).toISOString()}&commune=${addWard}&detail=${values.detail}&district=${addDistrict}&province=${addProvince}&email=${values.email}&full_name=${values.full_name}&gender=${values.gender == '0'}&phone=${values.phone}`).then(resp => {
-                console.log(resp.data);
+            const body = {
+                birthday: new Date(dayjs(values.birthday).toDate()).toISOString(),
+                commune: addWard,
+                detail: values.detail,
+                district: addDistrict,
+                province: addProvince,
+                email: values.email,
+                fullName: values.full_name,
+                gender: values.gender == '0',
+                phone: values.phone,
+            }
+
+            axios.post(`${baseUrl}/user/create`, body).then(() => {
                 toast.success("Thêm mới thành công")
-                form.reset();
-            }).then(res => {
-                toast.success('Thêm mới thành công');
                 form.reset();
             }).catch(error => {
                 toast.error(error)
@@ -251,10 +273,6 @@ export default function Add() {
             console.info(error);
         }
     };
-
-    const handleModalOk = () => {
-        // 
-    }
 
     function ScanResult(result) {
         if (result) {
@@ -308,7 +326,10 @@ export default function Add() {
                 <Form {...form}>
                     <form onSubmit={e => { e.preventDefault() }} className="w-full flex gap-5 max-lg:flex-col">
                         <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
-                            <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                            <div className='flex gap-2 items-center'>
+                                <div className='text-lg cursor-pointer' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
+                                <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                            </div>
                             <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
                             <div className='w-full flex flex-col'>
                                 <div
