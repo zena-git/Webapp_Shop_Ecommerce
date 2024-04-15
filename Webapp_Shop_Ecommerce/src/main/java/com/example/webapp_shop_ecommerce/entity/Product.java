@@ -46,10 +46,10 @@ public class Product extends BaseEntity{
     @JoinColumn(name = "id_style")
     private Style style;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url" , length = 1000)
     private String imageUrl;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 1000)
     private String description;
 
     @Column(name = "status")

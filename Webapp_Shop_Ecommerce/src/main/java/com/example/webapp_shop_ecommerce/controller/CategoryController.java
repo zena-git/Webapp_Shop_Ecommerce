@@ -78,7 +78,7 @@ public class CategoryController {
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Category> otp = categoryService.findByName(categoryRequest.getName());
+        Optional<Category> otp = categoryService.findByName(categoryRequest.getName().trim());
         if (otp.isPresent()) {
             return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
@@ -93,7 +93,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest, @PathVariable("id") Long id , BindingResult result) {
+    public ResponseEntity<ResponseObject> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest, BindingResult result, @PathVariable("id") Long id ) {
 
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
@@ -111,8 +111,8 @@ public class CategoryController {
             return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (categoryService.findByName(categoryRequest.getName()).isPresent()) {
-            return new ResponseEntity<>(new ResponseObject("error", "Tên Thể Loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
+        if (categoryService.findByName(categoryRequest.getName().trim()).isPresent()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Tên loại đã tồn tại", 1, categoryRequest), HttpStatus.BAD_REQUEST);
         }
         Category category = otp.get();
         category.setName(categoryRequest.getName());

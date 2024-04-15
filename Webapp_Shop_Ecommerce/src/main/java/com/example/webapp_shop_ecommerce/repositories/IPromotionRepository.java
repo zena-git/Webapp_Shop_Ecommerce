@@ -32,4 +32,14 @@ public interface IPromotionRepository extends IBaseReporitory<Promotion, Long> {
     @Modifying
     @Query("UPDATE Promotion p SET p.status = :newStatus WHERE p.endDate <= :now AND p.status = :oldStatus and p.deleted = false ")
     void updateStatusToDaKetThuc(@Param("now") LocalDateTime now, @Param("oldStatus") String oldStatus, @Param("newStatus") String newStatus);
+
+    @Query("SELECT p FROM Promotion p WHERE  p.deleted = :type")
+    List<Promotion> findAllByDeleted(@Param("type") Boolean type);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Promotion p SET p.deleted = false where p.id = :id")
+    void updateRecover(@Param("id") Long id);
+
+
 }

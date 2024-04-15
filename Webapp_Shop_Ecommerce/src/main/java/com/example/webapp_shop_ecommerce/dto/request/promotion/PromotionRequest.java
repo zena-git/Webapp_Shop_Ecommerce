@@ -20,6 +20,8 @@ import java.util.List;
 @Setter
 
 public class PromotionRequest {
+
+    private Long id;
     @NotBlank(message = "Mã không được để trống")
     private String code;
     @NotBlank(message = "Tên không được để trống")

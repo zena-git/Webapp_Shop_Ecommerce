@@ -22,7 +22,10 @@ public class BillDetails extends BaseEntity{
     private Integer quantity;
     @Column(name = "unit_price")
     private BigDecimal unitPrice;
-
+    @Column(name = "original_price")
+    private BigDecimal originalPrice;
+    @Column(name = "discount")
+    private BigDecimal discount;
     @Column(name = "status")
     private String status;
     @Column(name = "description")

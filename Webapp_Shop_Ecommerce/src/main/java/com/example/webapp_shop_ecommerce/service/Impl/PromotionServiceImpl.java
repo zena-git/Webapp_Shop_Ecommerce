@@ -57,8 +57,6 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
 
         List<PromotionDetails> lstPromotionDetails = lstProductDetails.stream().map(
                 productDetails -> {
-
-
                     PromotionDetails promotionDetails = new PromotionDetails();
                     promotionDetails.setPromotion(promotion);
                     promotionDetails.setProductDetails(productDetails);

@@ -76,7 +76,7 @@ public class BrandController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, BrandRequest), HttpStatus.BAD_REQUEST);
         }
-        Optional<Brand> opt = brandService.findByName(BrandRequest.getName());
+        Optional<Brand> opt = brandService.findByName(BrandRequest.getName().trim());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("error", "Tên thuộc tính đã tồn tại", 1, BrandRequest), HttpStatus.BAD_REQUEST);
         }
@@ -86,7 +86,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@Valid @RequestBody BrandRequest BrandRequest, @PathVariable Long id, BindingResult result){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody BrandRequest BrandRequest, BindingResult result, @PathVariable Long id){
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();
@@ -101,7 +101,7 @@ public class BrandController {
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy ID", 1, BrandRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (brandService.findByName(BrandRequest.getName()).isPresent()){
+        if (brandService.findByName(BrandRequest.getName().trim()).isPresent()){
             return new ResponseEntity<>(new ResponseObject("error", "Tên thuộc tính đã tồn tại", 1, BrandRequest), HttpStatus.BAD_REQUEST);
         }
 

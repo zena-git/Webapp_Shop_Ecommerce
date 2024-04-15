@@ -68,7 +68,7 @@ public class ColorController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, colorRequest), HttpStatus.BAD_REQUEST);
         }
-        Optional<Color> opt = colorService.findByName(colorRequest.getName());
+        Optional<Color> opt = colorService.findByName(colorRequest.getName().trim());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, colorRequest), HttpStatus.BAD_REQUEST);
         }
@@ -78,7 +78,7 @@ public class ColorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@Valid @RequestBody ColorRequest ColorRequest, @PathVariable Long id, BindingResult result){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody ColorRequest ColorRequest, BindingResult result, @PathVariable Long id){
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();
@@ -94,7 +94,7 @@ public class ColorController {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, ColorRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (colorService.findByName(ColorRequest.getName()).isPresent()){
+        if (colorService.findByName(ColorRequest.getName().trim()).isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, ColorRequest), HttpStatus.BAD_REQUEST);
         }
 

@@ -153,7 +153,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@Valid @RequestBody ProductRequest productDto, @PathVariable("id") Long id, BindingResult result) {
+    public ResponseEntity<?> updateProduct(@Valid @RequestBody ProductRequest productDto, BindingResult result, @PathVariable("id") Long id) {
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();

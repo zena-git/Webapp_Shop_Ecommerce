@@ -42,6 +42,10 @@ public class Customer extends BaseEntity{
     @JsonIgnore
     private Set<Address> lstAddress;
 
+    @OneToMany(mappedBy = "customer")
+    @JsonIgnore
+    private Set<Bill> lstBill;
+
     @OneToOne
     @JoinColumn(name = "default_address_id")
     @JsonIgnore

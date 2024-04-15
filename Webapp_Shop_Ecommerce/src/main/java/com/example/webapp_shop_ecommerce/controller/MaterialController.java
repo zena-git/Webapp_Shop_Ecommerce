@@ -68,7 +68,7 @@ public class MaterialController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, MaterialRequest), HttpStatus.BAD_REQUEST);
         }
-        Optional<Material> opt = materialService.findByName(MaterialRequest.getName());
+        Optional<Material> opt = materialService.findByName(MaterialRequest.getName().trim());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, MaterialRequest), HttpStatus.BAD_REQUEST);
         }
@@ -78,7 +78,7 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@Valid @RequestBody MaterialRequest MaterialRequest, @PathVariable Long id, BindingResult result){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody MaterialRequest MaterialRequest, BindingResult result, @PathVariable Long id){
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();
@@ -94,7 +94,7 @@ public class MaterialController {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, MaterialRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (materialService.findByName(MaterialRequest.getName()).isPresent()){
+        if (materialService.findByName(MaterialRequest.getName().trim()).isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, MaterialRequest), HttpStatus.BAD_REQUEST);
         }
 

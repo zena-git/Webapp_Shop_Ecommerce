@@ -99,14 +99,15 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                 .map(
                         productDetailsDto -> {
                             ProductDetails entity = repository.findById(productDetailsDto.getId()).get();
-
+                            ProductDetails productDetails = entity;
                             entity = productDetailConverter.convertRequestToEntity(productDetailsDto);
 
                             if (entity != null) {
+                                entity.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
                                 entity.setLastModifiedDate(LocalDateTime.now());
                                 entity.setLastModifiedBy("Admin");
-                                entity.setDeleted(false);
-                                entity.setStatus("0");
+                                entity.setDeleted(productDetails.getDeleted());
+                                entity.setStatus(productDetails.getStatus());
                                 entity.setId(productDetailsDto.getId());
                             }
                             return entity;
@@ -115,21 +116,29 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                 .filter(entity -> entity != null)
                 .collect(Collectors.toList());
 
-        Long idProduct = lst.get(0).getProduct().getId();
+
+        Long idProduct = lstProductDetails.get(0).getProduct();
         System.out.println(idProduct+"update delete");
         // Tìm ra danh sách các ProductDetails cần giữ lại
-        List<Long> idProductDetailsToKeep = lst.stream()
-                .map(ProductDetails::getId)
+        List<Long> idProductDetailsToKeep = lstProductDetails.stream()
+                .map(ProductDetailsRequest::getId)
                 .collect(Collectors.toList());
+        System.out.println( idProductDetailsToKeep +"idProductDetailsToKeep");
+        if (idProductDetailsToKeep.get(0) == null) {
+            System.out.println("xóa all productdetails");
+            repository.deleteProductDetailsByProductId(idProduct);
 
-        // Cập nhật trạng thái deleted cho các ProductDetails không có trong lst
-        repository.updateDeletedFlagForNotInIds(idProductDetailsToKeep, idProduct);
-
+        }else {
+            // Cập nhật trạng thái deleted cho các ProductDetails không có trong lst
+            repository.updateDeletedFlagForNotInIds(idProductDetailsToKeep, idProduct);
+        }
 
 
         if (lst.size() == 0) {
             return new ResponseEntity<>(new ResponseObject("Success", "Không Thể Update Item", 1, lst), HttpStatus.BAD_REQUEST);
         }
+
+
         Integer lstSize = repository.saveAll(lst).size();
         return new ResponseEntity<>(new ResponseObject("Success", "Update Thành Công " + lstSize + " Item", 0, lst), HttpStatus.CREATED);
 

@@ -67,7 +67,7 @@ public class StyleController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, styleRequest), HttpStatus.BAD_REQUEST);
         }
-        Optional<Style> opt = styleService.findByName(styleRequest.getName());
+        Optional<Style> opt = styleService.findByName(styleRequest.getName().trim());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, styleRequest), HttpStatus.BAD_REQUEST);
         }
@@ -77,7 +77,7 @@ public class StyleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@Valid @RequestBody StyleRequest styleRequest, @PathVariable Long id, BindingResult result){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody StyleRequest styleRequest, BindingResult result, @PathVariable Long id){
 
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
@@ -93,7 +93,7 @@ public class StyleController {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, styleRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (styleService.findByName(styleRequest.getName()).isPresent()){
+        if (styleService.findByName(styleRequest.getName().trim()).isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, styleRequest), HttpStatus.BAD_REQUEST);
         }
 

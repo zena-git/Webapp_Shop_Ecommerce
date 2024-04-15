@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,4 +20,17 @@ public interface IPromotionDetailsRepository extends IBaseReporitory<PromotionDe
 
     @Query("select pd from PromotionDetails pd where pd.deleted = false and pd.promotion.deleted = false and pd.promotion.status = '1' and pd.productDetails.id = :idProductDetails ORDER BY pd.lastModifiedDate DESC")
     Optional<PromotionDetails> findPromotionDetailsActiveProductDetail(@Param("idProductDetails") Long idProductDetails);
+
+
+    @Query("select pd from PromotionDetails pd where pd.productDetails.id = :idProductDetails and pd.promotion.id = :idPromotion and pd.deleted = false")
+    List<PromotionDetails> findPromotionDetailsByProductDetailAAndPromotion(@Param("idProductDetails") Long idProductDetails,@Param("idPromotion") Long idPromotion);
+    @Modifying
+    @Transactional
+    @Query("UPDATE PromotionDetails p SET p.deleted = true WHERE p.id NOT IN :ids")
+    void updateDeletedFlagForNotInIds(@Param("ids") List<Long> ids);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE PromotionDetails p SET p.deleted = true WHERE p.id =:id")
+    void updateDeletedFalseById(@Param("id") Long id);
 }

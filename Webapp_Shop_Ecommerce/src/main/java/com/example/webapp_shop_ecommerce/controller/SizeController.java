@@ -68,7 +68,7 @@ public class SizeController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, sizeRequest), HttpStatus.BAD_REQUEST);
         }
-        Optional<Size> opt = SizeService.findByName(sizeRequest.getName());
+        Optional<Size> opt = SizeService.findByName(sizeRequest.getName().trim());
         if (opt.isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, sizeRequest), HttpStatus.BAD_REQUEST);
         }
@@ -78,7 +78,7 @@ public class SizeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> update(@Valid @RequestBody SizeRequest sizeRequest, @PathVariable("id") Long id, BindingResult result){
+    public ResponseEntity<ResponseObject> update(@Valid @RequestBody SizeRequest sizeRequest, BindingResult result, @PathVariable("id") Long id){
 
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
@@ -94,7 +94,7 @@ public class SizeController {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, sizeRequest), HttpStatus.BAD_REQUEST);
         }
 
-        if (SizeService.findByName(sizeRequest.getName()).isPresent()){
+        if (SizeService.findByName(sizeRequest.getName().trim()).isPresent()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Tên thuộc tính đã tồn tại", 1, sizeRequest), HttpStatus.BAD_REQUEST);
         }
 

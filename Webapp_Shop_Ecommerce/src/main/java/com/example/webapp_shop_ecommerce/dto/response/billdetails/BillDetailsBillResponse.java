@@ -17,6 +17,8 @@ public class BillDetailsBillResponse {
     private Long id;
     private Integer quantity;
     private BigDecimal unitPrice;
+    private BigDecimal originalPrice;
+    private BigDecimal discount;
     private String status;
     private String description;
     private PromotionDetailsCountersResponse promotionDetailsActive;

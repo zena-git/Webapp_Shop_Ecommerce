@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class PromotionDetailsCountersResponse {
     private Long id;
     private PromotionCountersResponse promotion;
-    private BigDecimal promotionPrice;
+    private Float promotionValue;
 
 //    private ProductDetailsResponse productDetails;
 }

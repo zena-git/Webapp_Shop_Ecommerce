@@ -1,8 +1,7 @@
 package com.example.webapp_shop_ecommerce.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.Roles;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.Setter;
 
 import java.util.Date;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -23,12 +21,23 @@ public class Users extends BaseEntity {
     private String codeUser;
     @Column(name = "full_name")
     private String fullName;
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
     @Column(name = "birthday")
     private Date birthday;
+    @Column(name = "users_role")
+    @Enumerated(EnumType.STRING)
+    private Roles usersRole;
     @Column(name = "gender")
     private Boolean gender;
-    @Column(name = "address")
-    private String address;
+    @Column(name = "detail")
+    private String detail;
+    @Column(name = "commune")
+    private String commune;
+    @Column(name = "district")
+    private String district;
+    @Column(name = "province")
+    private String province;
     @Column(name = "email")
     private String email;
     @Column(name = "phone")
@@ -38,5 +47,7 @@ public class Users extends BaseEntity {
     @Column(name = "password")
     private String password;
 
-
+    public Users() {
+        this.usersRole = Roles.STAFF;
+    }
 }

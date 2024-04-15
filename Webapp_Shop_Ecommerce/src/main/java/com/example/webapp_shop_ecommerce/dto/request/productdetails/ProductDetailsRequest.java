@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.dto.request.productdetails;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 public class ProductDetailsRequest {
     private Long id;
     private String code;
+    @NotBlank(message = "Hình ảnh sản phẩm không được để trống")
     private String imageUrl;
     @NotNull(message = "Giá không được để trống")
     @DecimalMin(value = "0.01", message = "Giá phải lớn hơn 0")

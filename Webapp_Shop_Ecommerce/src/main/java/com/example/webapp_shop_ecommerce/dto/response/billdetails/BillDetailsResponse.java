@@ -3,6 +3,7 @@ package com.example.webapp_shop_ecommerce.dto.response.billdetails;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotionDetails.PromotionDetailsCountersResponse;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,10 @@ public class BillDetailsResponse {
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
+    private BigDecimal originalPrice;
+    private BigDecimal discount;
     private String description;
+
     private PromotionDetailsCountersResponse promotionDetailsActive;
 
 //    private BillResponse bill;

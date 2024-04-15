@@ -24,7 +24,7 @@ public class PromotionDetails extends BaseEntity {
     private ProductDetails productDetails;
 
     @JoinColumn(name = "promotion_price")
-    private BigDecimal promotionPrice;
+    private Float promotionValue;
 
 
 }

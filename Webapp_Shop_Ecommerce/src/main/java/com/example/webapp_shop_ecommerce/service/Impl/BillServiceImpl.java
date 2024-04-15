@@ -7,6 +7,7 @@ import com.example.webapp_shop_ecommerce.dto.request.paymentHistory.PaymentHisto
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.PaymentMethod;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.*;
@@ -102,20 +103,30 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         Bill bill = billRepo.save(billDto);
         List<CartDetails> lstCartDetails = cartDetailsRepo.findAllById(lstIdCartDetails);
 
-        List<BillDetails> lstBillDetails = lstCartDetails.stream().map(cartDetails -> {
+        for (CartDetails cartDetails : lstCartDetails) {
+
             BillDetails billDetails = new BillDetails();
             ProductDetails productDetails = cartDetails.getProductDetails();
 
+            if (billDetails.getQuantity() > productDetails.getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm "+productDetails.getProduct().getName()+" trong kho không đủ", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+
+            // Cần xác định giá của sản phẩm từ đâu
             if (productDetails.getPromotionDetailsActive() != null) {
                 BigDecimal price = productDetails.getPrice().subtract(
                         productDetails.getPrice()
                                 .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
                                         .divide(BigDecimal.valueOf(100))));
                 billDetails.setUnitPrice(price);
+                billDetails.setDiscount(productDetails.getPrice()
+                        .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                .divide(BigDecimal.valueOf(100))));
                 billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
             }else {
                 billDetails.setUnitPrice(productDetails.getPrice());
-                billDetails.setPromotionDetailsActive(null);
+                billDetails.setDiscount(BigDecimal.ZERO);
+                billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
             }
 
             billDetails.setBill(bill);
@@ -131,19 +142,17 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
             productDetails.setQuantity(productDetails.getQuantity() - cartDetails.getQuantity());
             productDetailsRepo.save(productDetails);
-            return billDetailsRepo.save(billDetails);
-        }).collect(Collectors.toList());
+            billDetailsRepo.save(billDetails);
+        }
 
         historyBillService.addHistoryBill(bill,TrangThaiBill.TAO_DON_HANG.getLabel(),"");
         cartDetailsRepo.deleteAll(lstCartDetails);
 
-        if (bill.getPaymentMethod().equalsIgnoreCase("1")){
+        if (bill.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())){
             historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_THANH_TOAN.getLabel(),"");
             return vnpayService.createPayment(bill, billRequest.getReturnUrl());
         }
         historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_XAC_NHAN.getLabel(),"");
-
-
 
         return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, bill), HttpStatus.CREATED);
 
@@ -154,6 +163,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         if (billRequest.getLstCartDetails().size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
+
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
         billDto.setCodeBill(invoiceGenerator.generateInvoiceNumber());
@@ -167,34 +177,39 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         billDto.setLastModifiedBy("Admin");
         billDto.setCustomer(null);
         billDto.setStatus(TrangThaiBill.CHO_XAC_NHAN.getLabel());
-        //Thanh TOna tai khona
-        if (billDto.getPaymentMethod().equalsIgnoreCase("1")){
-            billDto.setStatus(TrangThaiBill.CHO_THANH_TOAN.getLabel());
-        }
+
 
         Bill bill = billRepo.save(billDto);
 
-        List<BillDetails> lstBillDetails = billRequest.getLstCartDetails().stream().map(cartDetails -> {
+        for (CartDetails cartDetails: billRequest.getLstCartDetails()){
             BillDetails billDetails = new BillDetails();
             Optional<ProductDetails> poductDetailsOpt = productDetailsRepo.findById(cartDetails.getProductDetails().getId());
             if (poductDetailsOpt.isEmpty()) {
-            return null;
+                return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm bạn chọn không có trong cửa hàng hoặc đã được bán hết", 001, cartDetails.getProductDetails().getId()), HttpStatus.BAD_REQUEST);
             }
             ProductDetails productDetails = poductDetailsOpt.get();
+            if (cartDetails.getQuantity() > productDetails.getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm "+productDetails.getProduct().getName()+" trong kho không đủ chỉ còn " + productDetails.getQuantity(), 001, billRequest), HttpStatus.BAD_REQUEST);
+            }
+
             billDetails.setBill(bill);
             billDetails.setProductDetails(productDetails);
+            // Cần xác định giá của sản phẩm từ đâu
             if (productDetails.getPromotionDetailsActive() != null) {
                 BigDecimal price = productDetails.getPrice().subtract(
                         productDetails.getPrice()
                                 .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
                                         .divide(BigDecimal.valueOf(100))));
                 billDetails.setUnitPrice(price);
+                billDetails.setDiscount(productDetails.getPrice()
+                        .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                .divide(BigDecimal.valueOf(100))));
                 billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
             }else {
                 billDetails.setUnitPrice(productDetails.getPrice());
-                billDetails.setPromotionDetailsActive(null);
+                billDetails.setDiscount(BigDecimal.ZERO);
+                billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
             }
-            billDetails.setQuantity(cartDetails.getQuantity());
             billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
 
             billDetails.setId(null);
@@ -203,15 +218,21 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             billDetails.setCreatedDate(LocalDateTime.now());
             billDetails.setLastModifiedDate(LocalDateTime.now());
             billDetails.setLastModifiedBy("Admin");
+            if (billDto.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())) {
+                billDetails.setQuantity(cartDetails.getQuantity());
+                productDetails.setQuantity(productDetails.getQuantity() - cartDetails.getQuantity());
+            }else {
+                billDetails.setQuantity(cartDetails.getQuantity());
+            }
 
-            productDetails.setQuantity(productDetails.getQuantity() - cartDetails.getQuantity());
             productDetailsRepo.save(productDetails);
-            return billDetailsRepo.save(billDetails);
-        }).collect(Collectors.toList());
+           billDetailsRepo.save(billDetails);
+        }
+
 
         historyBillService.addHistoryBill(bill,TrangThaiBill.TAO_DON_HANG.getLabel(),"");
 
-        if (bill.getPaymentMethod().equalsIgnoreCase("1")){
+        if (bill.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())){
             historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_THANH_TOAN.getLabel(),"");
            return vnpayService.createPayment(bill, billRequest.getReturnUrl());
         }
@@ -278,7 +299,9 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
             Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill, productDetails);
 
-
+            if (productDetails.getQuantity() == 0) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Là 0", 1, null), HttpStatus.BAD_REQUEST);
+            }
             if (productDetails.getQuantity() < billDetailsDto.getQuantity()) {
                 return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Không Đủ", 1, null), HttpStatus.BAD_REQUEST);
             }
@@ -292,11 +315,16 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
                                     .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
                                             .divide(BigDecimal.valueOf(100))));
                     billDetails.setUnitPrice(price);
+                    billDetails.setDiscount(productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
                     billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
                 }else {
                     billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setDiscount(BigDecimal.ZERO);
                     billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
                 }
+                billDetails.setOriginalPrice(productDetails.getPrice());
                 billDetails.setQuantity(billDetails.getQuantity() + billDetailsDto.getQuantity());
                 billDetailsService.update(billDetails);
                 productDetails.setQuantity(productDetails.getQuantity() - billDetailsDto.getQuantity());
@@ -311,13 +339,21 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
                                     .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
                                             .divide(BigDecimal.valueOf(100))));
                     billDetails.setUnitPrice(price);
+
+                    billDetails.setDiscount(productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
                     billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
                 }else {
                     billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setDiscount(BigDecimal.ZERO);
+
                     billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
                 }
+
                 billDetails.setId(null);
                 billDetails.setBill(bill);
+                billDetails.setOriginalPrice(productDetails.getPrice());
                 billDetails.setProductDetails(productDetails);
                 billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
                 billDetailsService.createNew(billDetails);
@@ -405,32 +441,44 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, idBillDetail), HttpStatus.BAD_REQUEST);
         }
 
+        if (billDto.getQuantity() == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "Vui lòng nhập số lượng", 1, null), HttpStatus.BAD_REQUEST);
+        }
         if (billDto.getQuantity() < 1) {
             return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Phải Lớn Hơn 0", 1, null), HttpStatus.BAD_REQUEST);
         }
 
         ProductDetails productDetails = optProductDetails.get();
+
+        productDetails.setQuantity(productDetails.getQuantity() + opt.get().getQuantity());
+
         if (productDetails.getQuantity() < billDto.getQuantity()) {
             return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Không Đủ", 1, null), HttpStatus.BAD_REQUEST);
         }
 
 
-        productDetails.setQuantity(productDetails.getQuantity() + opt.get().getQuantity() - billDto.getQuantity());
+        productDetails.setQuantity(productDetails.getQuantity() - billDto.getQuantity());
 
         BillDetails billDetails = opt.get();
         billDetails.setQuantity(billDto.getQuantity());
 
+        // Cần xác định giá của sản phẩm từ đâu
         if (productDetails.getPromotionDetailsActive() != null) {
             BigDecimal price = productDetails.getPrice().subtract(
                     productDetails.getPrice()
                             .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
                                     .divide(BigDecimal.valueOf(100))));
             billDetails.setUnitPrice(price);
+            billDetails.setDiscount(productDetails.getPrice()
+                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                            .divide(BigDecimal.valueOf(100))));
             billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
         }else {
             billDetails.setUnitPrice(productDetails.getPrice());
-            billDetails.setPromotionDetailsActive(null);
+            billDetails.setDiscount(BigDecimal.ZERO);
+            billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
         }
+
         billDetailsRepo.save(billDetails);
         productDetailsRepo.save(productDetails);
         return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDto), HttpStatus.CREATED);
@@ -483,7 +531,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
         }
 
-        if (billDto.getPaymentMethod().equalsIgnoreCase("1") && !billDto.getIsDelivery() ) {
+        if (billDto.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel()) && !billDto.getIsDelivery() ) {
             bill.setStatus(otp.get().getStatus());
             update(bill);
             return vnpayService.createPayment(bill, billDto.getReturnUrl());
@@ -495,9 +543,9 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             PaymentHistory paymentHistory = new PaymentHistory();
             paymentHistory.setBill(bill);
             paymentHistory.setDescription("");
-            paymentHistory.setPaymentMethod("0");
-            paymentHistory.setType("0");
-            paymentHistory.setStatus("0");
+            paymentHistory.setPaymentMethod(PaymentMethod.TIEN_MAT.getLabel());
+            paymentHistory.setType(PaymentMethod.TIEN_MAT.getLabel());
+            paymentHistory.setStatus("0"); // hoàn thành
             paymentHistory.setPaymentDate(LocalDateTime.now());
             paymentHistory.setPaymentAmount(bill.getIntoMoney());
             paymentHistory.setDeleted(false);

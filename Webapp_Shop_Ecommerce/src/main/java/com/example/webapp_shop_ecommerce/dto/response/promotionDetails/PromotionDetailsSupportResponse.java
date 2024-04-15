@@ -1,8 +1,7 @@
 package com.example.webapp_shop_ecommerce.dto.response.promotionDetails;
 
-import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
-import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionResponse;
-import com.example.webapp_shop_ecommerce.entity.Promotion;
+import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsSupportResponse;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +12,9 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class PromotionDetailsResponse {
+public class PromotionDetailsSupportResponse {
     private Long id;
 //    private PromotionResponse promotion;
     private Float promotionValue;
-
-//    private ProductDetailsResponse productDetails;
+    private ProductDetailsSupportResponse productDetails;
 }

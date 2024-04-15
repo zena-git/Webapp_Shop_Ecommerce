@@ -16,6 +16,8 @@ import lombok.Setter;
 @Setter
 
 public class AddressRequest {
+    private Long id;
+
     private String receiverName;
     private String receiverPhone;
     private String detail;
