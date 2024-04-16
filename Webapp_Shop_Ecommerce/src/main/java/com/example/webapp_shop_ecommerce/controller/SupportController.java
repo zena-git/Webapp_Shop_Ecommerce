@@ -67,19 +67,9 @@ public class SupportController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> findAllUser(
-                                         @RequestParam(value = "page", defaultValue = "-1") Integer page,
-                                         @RequestParam(value = "size", defaultValue = "-1") Integer size) {
-        Pageable pageable = Pageable.unpaged();
-        if (size < 0) {
-            size = 5;
-        }
-        if (page >= 0) {
-            pageable = PageRequest.of(page, size);
-        }
-        List<Users> lst = usersService.findAllDeletedFalse(pageable).getContent();
-        List<UserResponse> result = lst.stream().map(attr -> mapper.map(attr, UserResponse.class)).collect(Collectors.toList());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+    public ResponseEntity<?> findAllUser() {
+        List<Users> lst = usersService.findAllByDeletedAll();
+        return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @PostMapping("/user")
@@ -95,7 +85,7 @@ public class SupportController {
 
     @GetMapping("/user/deleted")
     public ResponseEntity<?> findUserByDelete(@RequestParam(value = "type", defaultValue = "true") Boolean type ) {
-        return supportSevice.findAllByDeleted(type);
+        return supportSevice.findAllByDeletedUsers(type);
     }
 
     @PostMapping("/user/recover")

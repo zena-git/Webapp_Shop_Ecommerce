@@ -101,4 +101,13 @@ public class VoucherController {
         }
         return voucherService.update(objDto, id);
     }
+
+
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<?> findAllVoucherByCustomer(@PathVariable("id") Long id) {
+
+//        List<Voucher> lstEty = voucherService.findVoucherByKeyWorkAndDeletedFalse(pageable, keyWork).getContent();
+//        List<VoucherResponse> lst  = lstEty.stream().map(entity -> mapper.map(entity, VoucherResponse.class)).collect(Collectors.toList());
+        return null;
+    }
 }

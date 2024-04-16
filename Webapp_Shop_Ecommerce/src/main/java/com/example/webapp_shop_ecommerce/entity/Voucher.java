@@ -41,14 +41,15 @@ public class Voucher extends BaseEntity {
     @Column(name = "discount_type")
     private Integer discountType;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "target_type")
     private String targetType;
 
     @Column(name = "usage_limit")
     private String usageLimit;
+
+    @Column(name = "description")
+    private String description;
+
 
     @Column(name = "start_date")
     private LocalDateTime startDate;

@@ -29,4 +29,5 @@ public class UserResponse {
     private String district;
     private String province;
     private String username;
+
 }

@@ -28,7 +28,7 @@ public class VoucherDetails extends BaseEntity {
     private Bill bill;
 
     @Column(name = "status")
-    private String status;
+    private Boolean status;
 
     @Column(name = "used_date")
     private LocalDateTime usedDate;

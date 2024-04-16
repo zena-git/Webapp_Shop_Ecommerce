@@ -75,7 +75,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
                     voucherDetails.setCreatedDate(LocalDateTime.now());
                     voucherDetails.setLastModifiedDate(LocalDateTime.now());
                     voucherDetails.setLastModifiedBy("Admin");
-//                    voucherDetails.setStatus(false);
+                    voucherDetails.setStatus(false);
                     return voucherDetails;
                 }
         ).collect(Collectors.toList());
@@ -129,7 +129,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
                     voucherDetails.setCreatedDate(LocalDateTime.now());
                     voucherDetails.setLastModifiedDate(LocalDateTime.now());
                     voucherDetails.setLastModifiedBy("Admin");
-//                    voucherDetails.setStatus(false);
+                    voucherDetails.setStatus(false);
                     return voucherDetails;
                 }
         ).collect(Collectors.toList());

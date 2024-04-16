@@ -20,4 +20,7 @@ public interface IUsersRepository extends IBaseReporitory<Users, Long> {
     @Modifying
     @Query("UPDATE Users p SET p.deleted = false where p.id = :id")
     void updateRecover(@Param("id") Long id);
+
+    @Query("SELECT p FROM Users p")
+    List<Users> findAllByDeletedAll();
 }
