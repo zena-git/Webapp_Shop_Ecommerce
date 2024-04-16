@@ -87,4 +87,13 @@ public class VoucherDetailsController {
 
 
     }
+
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<?> findAllVoucherByCustomer(@PathVariable("id") Long id) {
+
+        List<VoucherDetails> lstEty = voucherDetailsService.findAllByIdCustomer(id);
+        List<VoucherDetailsResponse> lst  = lstEty.stream().map(entity -> mapper.map(entity, VoucherDetailsResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+
+    }
 }

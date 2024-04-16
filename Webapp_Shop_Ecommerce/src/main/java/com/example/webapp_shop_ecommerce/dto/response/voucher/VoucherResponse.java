@@ -21,9 +21,13 @@ public class VoucherResponse {
     private String code;
     private String name;
     private Float value;
+    private Float maxDiscountValue;
+    private Float orderMinValue;
+    private Integer discountType;
     private Integer quantity;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    Set<VoucherDetails> lstVoucherDetails;
+    private String status;
+    private String description;
 
 }
