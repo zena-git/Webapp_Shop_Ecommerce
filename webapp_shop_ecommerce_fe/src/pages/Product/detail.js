@@ -7,7 +7,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import hexToColorName from "~/ultils/HexToColorName";
 import { useDebounce } from '~/hooks';
 
-
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 const EditableCell = ({
     editing,
@@ -19,7 +21,7 @@ const EditableCell = ({
     children,
     ...restProps
 }) => {
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+    const inputNode = inputType === 'number' ? <InputNumber min={1} /> : inputType === 'numberPrice' ? <InputNumber min={1000} className='w-full min-w-16	' /> : <Input />;
     return (
         <td {...restProps}>
             {editing ? (
@@ -31,8 +33,9 @@ const EditableCell = ({
                     rules={[
                         {
                             required: true,
-                            message: `Please Input ${title}!`,
+                            message: `Vui Lòng Nhập ${title}!`,
                         },
+
                     ]}
                 >
                     {inputNode}
@@ -81,53 +84,57 @@ function ProductDetail() {
     const lstInfoProduct = [
         {
             key: '1',
-            label: 'Mã Sản Phẩm',
+            label: <>
+                <span className='text-black'>Mã Sản Phẩm</span>
+            </>,
             children: product?.code || 'empty',
         },
         {
             key: '2',
-            label: 'Tên Sản Phẩm',
+            label: <>
+                <span className='text-black'>Tên Sản Phẩm</span>
+            </>,
             children: product?.name || 'empty',
         },
         {
             key: '3',
-            label: 'Mô Tả Sản Phẩm',
-            children: product?.description || 'empty',
+            label: <span className='text-black'>Mô Tả Sản Phẩm</span>,
+            children: product?.description.length > 80 ? product?.description.substring(0, 80) + '...' : product?.description || 'empty',
         },
         {
             key: '4',
-            label: 'Trạng Thái',
+            label: <span className='text-black'>Trạng Thái</span>,
             children: product?.status == "0" ? "Đang Bán" : product?.status == "1" ? "Ngừng Bán" : "Khác" || 'empty',
         },
         {
             key: '5',
-            label: 'Loại',
+            label: <span className='text-black'>Loại</span>,
             children: product?.category?.name || 'empty',
         },
         {
             key: '6',
-            label: 'Chất Liệu',
+            label: <span className='text-black'>Chất Liệu</span>,
             children: product?.material?.name || 'empty',
         },
         {
             key: '7',
-            label: 'Phong Cách',
+            label: <span className='text-black'>Phong Cách</span>,
             children: product?.style?.name || 'empty',
         },
         {
             key: '8',
-            label: 'Thương Hiệu',
+            label: <span className='text-black'>Thương Hiệu</span>,
             children: product?.brand?.name || 'empty',
         },
         {
             key: '9',
-            label: 'Tạo bởi',
+            label: <span className='text-black'>Tạo bởi</span>,
             children: product?.createdBy || 'empty',
         },
         {
             key: '10',
-            label: 'Ngày Tạo',
-            children: product?.createdDate || 'empty',
+            label: <span className='text-black'>Ngày Tạo</span>,
+            children: dayjs(product?.createdDate).format('YYYY-MM-DD HH:mm:ss') || 'empty',
         },
 
     ];
@@ -195,6 +202,7 @@ function ProductDetail() {
             title: 'Kích Thước',
             dataIndex: 'size',
             key: 'size',
+
             render: (size) => (
                 <>{size.name}</>
             ),
@@ -204,6 +212,8 @@ function ProductDetail() {
             dataIndex: 'price',
             key: 'price',
             editable: true,
+            width: 200,
+
         },
         {
             title: 'Số Lượng',
@@ -232,15 +242,15 @@ function ProductDetail() {
                                 marginRight: 8,
                             }}
                         >
-                            Save
+                            Xác Nhận
                         </Typography.Link>
-                        <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                            <a>Cancel</a>
+                        <Popconfirm title="Chắc chắn sẽ hủy?" onConfirm={cancel}>
+                            <a>Hủy Bỏ</a>
                         </Popconfirm>
                     </span>
                 ) : (
                     <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-                        Edit
+                        Chỉnh Sửa
                     </Typography.Link>
                 );
             },
@@ -257,10 +267,11 @@ function ProductDetail() {
             ...col,
             onCell: (record) => ({
                 record,
-                inputType: col.dataIndex === 'price' ? 'number' : col.dataIndex === 'quantity' ? 'number' : col.dataIndex === 'weight' ? 'number' : 'text',
+                inputType: col.dataIndex === 'price' ? 'numberPrice' : col.dataIndex === 'quantity' ? 'number' : col.dataIndex === 'weight' ? 'number' : 'text',
                 dataIndex: col.dataIndex,
                 title: col.title,
                 editing: isEditing(record),
+                min: 1,
             }),
         };
     });
@@ -373,6 +384,7 @@ function ProductDetail() {
         form.setFieldsValue({
             quantity: '',
             price: '',
+            weight: '',
             ...record,
         });
         setEditingKey(record.key);
@@ -502,56 +514,60 @@ function ProductDetail() {
                         column={4}
                     />
                 </div>
-                <div >
-                    <div className='grid grid-cols-4 gap-4 my-4'>
-                        <div>
-                            <label>Loại</label>
-                            <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
+               
+            </div>
+
+            <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                <div>
+                    <h4>Bộ lọc</h4>
+                </div>
+
+                <div className='grid grid-cols-4 gap-4 my-4'>
+                    <div>
+                        <label>Loại</label>
+                        <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
 
 
-                                dropdownRender={(menu) => (
-                                    <>
-                                        {menu}
+                            dropdownRender={(menu) => (
+                                <>
+                                    {menu}
 
-                                    </>
-                                )}
-                                optionRender={(option) => (
-                                    <Space>
-                                        <span role="img" aria-label={option.data.label}>
+                                </>
+                            )}
+                            optionRender={(option) => (
+                                <Space>
+                                    <span role="img" aria-label={option.data.label}>
 
-                                            <ColorPicker defaultValue={option.data.emoji} disabled size="small" />
-                                        </span>
-                                        {option.data.label + "-" + hexToColorName(option.data.emoji)}
-                                    </Space>
-                                )}
-                                onChange={handleChangeColor}
+                                        <ColorPicker defaultValue={option.data.emoji} disabled size="small" />
+                                    </span>
+                                    {option.data.label + "-" + hexToColorName(option.data.emoji)}
+                                </Space>
+                            )}
+                            onChange={handleChangeColor}
 
-                                options={optionColor}
-                                value={valueColor}
-                            />
-                        </div>
-
-                        <div>
-                            <label>Kích Thước</label>
-                            <Select className="w-full mt-4"
-                                defaultValue=""
-                                onChange={handleChangeSize}
-                                options={optionSize}
-                            />
-                        </div>
-                        <div>
-                            <label>Khoảng Giá</label>
-                            <Slider
-                                className="w-full mt-4"
-                                range
-                                max={inputValueMax}
-                                defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
-                                onChange={onChangeSlider}
-                            />
-                        </div>
+                            options={optionColor}
+                            value={valueColor}
+                        />
                     </div>
 
-
+                    <div>
+                        <label>Kích Thước</label>
+                        <Select className="w-full mt-4"
+                            defaultValue=""
+                            onChange={handleChangeSize}
+                            options={optionSize}
+                        />
+                    </div>
+                    <div>
+                        <label>Khoảng Giá</label>
+                        <Slider
+                            className="w-full mt-4"
+                            range
+                            max={inputValueMax}
+                            defaultValue={[inputValueMin, inputValueMax]} // Đặt giá trị mặc định
+                            onChange={onChangeSlider}
+                        />
+                    </div>
                 </div>
             </div>
 

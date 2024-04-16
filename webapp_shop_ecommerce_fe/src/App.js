@@ -4,11 +4,12 @@ import React from 'react';
 import { privateRouter, publicRouter } from '~/routes';
 
 import DefaultLayout from './components/Layout/DefaultLayout';
-
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <Router>
+    <ScrollToTop></ScrollToTop>
       <div className="App ">
         {/* <DefaultLayout> */}
         <Routes>

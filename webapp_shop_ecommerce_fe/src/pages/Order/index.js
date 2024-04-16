@@ -50,8 +50,13 @@ function Order() {
     if (lst.length > 0) {
       setActiveKeyBill(lst[0].key);
       setDataIdBill(lst[0].key)
+    }else{
+      setDataIdBill(null)
+      setActiveKeyBill(null);
     }
+   
   }, [lstBill]);
+
 
 
   const onChange = (key, label) => {

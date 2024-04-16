@@ -569,7 +569,7 @@ function ProductAdd() {
             });
 
 
-        setValueInputStyle('');
+        setValueInputSize("")
         setTimeout(() => {
             inputRefStyle.current?.focus();
         }, 0);
@@ -1040,7 +1040,7 @@ function ProductAdd() {
 
 
                 <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
-                    <div className='mb-10 mt-2 '>
+                    <div className='mb-6 mt-2 '>
                         <div className='text-[16px] font-semibold	'>Thông Tin Chi Tiết</div>
                     </div>
 
@@ -1158,6 +1158,15 @@ function ProductAdd() {
 
                     </div>
 
+                   
+                </div>
+
+                <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                    <div className='mb-6 mt-2 '>
+                        <div className='text-[16px] font-semibold	'>Thuộc Tính Sản Phẩm</div>
+                    </div>
+
+              
                     <div className='grid grid-cols-2 gap-2 my-4'>
 
                         <div>
@@ -1230,8 +1239,6 @@ function ProductAdd() {
                         </div>
                     </div>
                 </div>
-
-
 
                 <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
                     <div className='mb-6 mt-2 '>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Button, Table, Spin, Select, Input, Space, Modal, Divider, Tag, ColorPicker, InputNumber, Upload, Tooltip, Popconfirm } from 'antd';
 import axios from 'axios';
 import Compressor from 'compressorjs';
@@ -7,7 +8,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
 const { TextArea } = Input;
 
 const tagRender = (props) => {
@@ -56,7 +56,7 @@ const calculateRowSpan = (data, dataIndex, rowIndex) => {
 function ProductUpdate() {
     const { id } = useParams();
     const [product, setProduct] = useState();
-
+    const navigate = useNavigate();
     const [dataRowProductDetail, setDataRowProductDetail] = useState([]);
     const [dataProductDetailOld, setDataProductDetailOld] = useState([]);
     const [dataProductDetailNew, setDataProductDetailNew] = useState([]);
@@ -831,6 +831,7 @@ function ProductUpdate() {
 
                 return {
                     id: product.id,
+                    product: id,
                     barcode: product.barcode,
                     status: product.status,
                     imageUrl: imageProduct.join("|"),
@@ -859,10 +860,15 @@ function ProductUpdate() {
             const { status, message, errCode } = response.data;
             toast.success("Cập nhật thành công");
             console.log(response.data);
+            setTimeout(() => {
+                navigate('/product/'+id)
+            },1000);
+           
         } catch (error) {
             const { status, message, errCode } = error.response.data;
             toast.error(message);
             console.log(error.response.data);
+
         } finally {
             setTimeout(() => {
                 setLoading(false);
