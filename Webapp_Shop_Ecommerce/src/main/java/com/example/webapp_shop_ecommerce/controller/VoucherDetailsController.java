@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.voucherDetails.VoucherDetailsRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsResponse;
 import com.example.webapp_shop_ecommerce.entity.Voucher;
 import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
@@ -90,9 +91,8 @@ public class VoucherDetailsController {
 
     @GetMapping("/customer/{id}")
     public ResponseEntity<?> findAllVoucherByCustomer(@PathVariable("id") Long id) {
-
         List<VoucherDetails> lstEty = voucherDetailsService.findAllByIdCustomer(id);
-        List<VoucherDetailsResponse> lst  = lstEty.stream().map(entity -> mapper.map(entity, VoucherDetailsResponse.class)).collect(Collectors.toList());
+        List<VoucherDetailsCountersResponse> lst  = lstEty.stream().map(entity -> mapper.map(entity, VoucherDetailsCountersResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(lst, HttpStatus.OK);
 
     }
