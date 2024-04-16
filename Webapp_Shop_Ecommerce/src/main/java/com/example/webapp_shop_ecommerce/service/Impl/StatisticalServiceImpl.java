@@ -10,6 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -17,14 +22,14 @@ public class StatisticalServiceImpl implements IStatisticalService {
     @Autowired
     IStatisticalRepository statisticalRepo;
     @Override
-    public ResponseEntity<?> findTopSale() {
-        List<TopSaleReponse> lst = statisticalRepo.getAllTopSale();
+    public ResponseEntity<?> findTopSale(LocalDateTime  startDate, LocalDateTime endDate) {
+        List<TopSaleReponse> lst = statisticalRepo.getAllTopSale(startDate,endDate);
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> getAllStatistical() {
-        List<StatisticalReponse> lst = statisticalRepo.getAllStatistical();
+    public ResponseEntity<?> getAllStatistical(LocalDateTime startDate, LocalDateTime endDate) {
+        List<StatisticalReponse> lst = statisticalRepo.getAllStatistical(startDate,endDate);
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 }

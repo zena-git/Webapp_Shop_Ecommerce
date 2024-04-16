@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class StatisticalController {
             endDateTime = LocalDateTime.parse(endDate.trim() + " 23:59:59", formatter);
         }
 
-        return statisticalService.findTopSale();
+        return statisticalService.findTopSale(startDateTime,endDateTime);
     }
 
 
@@ -51,13 +52,17 @@ public class StatisticalController {
             @RequestParam(value = "startDate", defaultValue = "-1") String startDate ) {
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
+        Long days = null;
         if (!Objects.equals(startDate, "-1") && !Objects.equals(endDate, "-1")) {
             System.out.println("có data");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             startDateTime = LocalDateTime.parse(startDate.trim() + " 00:00:00", formatter);
             endDateTime = LocalDateTime.parse(endDate.trim() + " 23:59:59", formatter);
+            Duration duration = Duration.between(startDateTime, endDateTime);
+            days = duration.toDays();
+            System.out.println("So ngay" + days);
         }
 
-        return statisticalService.getAllStatistical();
+        return statisticalService.getAllStatistical(startDateTime, endDateTime);
     }
 }

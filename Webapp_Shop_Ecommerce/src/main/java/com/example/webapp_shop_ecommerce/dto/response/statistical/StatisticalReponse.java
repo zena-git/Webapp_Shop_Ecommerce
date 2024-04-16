@@ -7,5 +7,6 @@ public interface StatisticalReponse {
     Integer getCompletedOrders();
     BigDecimal getRevenue();
 
-    Date getTime();
+    String getTime();
+
 }

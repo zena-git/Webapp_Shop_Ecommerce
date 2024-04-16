@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class StatisticalTopSaleResponse {
-    private Date time;
+    private String time;
     private List<TopSaleReponse> product;
 
     public StatisticalTopSaleResponse(Date time, List<TopSaleReponse> product) {

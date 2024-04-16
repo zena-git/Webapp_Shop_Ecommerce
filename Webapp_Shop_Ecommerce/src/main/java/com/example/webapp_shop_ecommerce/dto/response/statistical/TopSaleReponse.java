@@ -6,5 +6,5 @@ public interface TopSaleReponse {
     String getName();
     Integer getQuantity();
 
-    Date getTime();
+    String getTime();
 }
