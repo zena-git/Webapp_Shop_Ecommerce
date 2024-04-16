@@ -154,7 +154,7 @@ public class SupportSevice {
     }
 
     public ResponseEntity<?> recoverUser(Long id ){
-        Optional<Users> otp = usersService.findById(id);
+        Optional<Users> otp = usersRepo.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
