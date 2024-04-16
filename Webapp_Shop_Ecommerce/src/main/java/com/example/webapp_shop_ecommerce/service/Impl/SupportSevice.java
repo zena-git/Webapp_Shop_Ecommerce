@@ -64,15 +64,23 @@ public class SupportSevice {
     }
 
     public ResponseEntity<ResponseObject> saveOrUpdate(AddressRequest request){
+
         Optional<Address> addressOtp = addressService.findById(request.getId());
         Address address = addressOtp.orElse(null);
         address = mapper.map(request, Address.class);
+
+        Optional<Customer> optCustomer = customerRepo.findById(request.getCustomer());
+
         if (addressOtp.isPresent()){
             address.setLastModifiedDate(LocalDateTime.now());
             address.setLastModifiedBy("Admin");
             address.setDeleted(addressOtp.get().getDeleted());
             address.setCustomer(addressOtp.get().getCustomer());
         }else {
+            if (optCustomer.isEmpty()){
+                return new ResponseEntity<>(new ResponseObject("error","Không tìm thấy customer",0, request), HttpStatus.BAD_REQUEST);
+            }
+            address.setCustomer(optCustomer.orElseGet(null));
             address.setCreatedBy("Admin");
             address.setLastModifiedDate(LocalDateTime.now());
             address.setLastModifiedBy("Admin");
