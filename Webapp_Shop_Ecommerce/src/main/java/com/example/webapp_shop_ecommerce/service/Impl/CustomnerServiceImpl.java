@@ -18,4 +18,9 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
     public List<Customer> findByNameAndPhone(String keyWord) {
         return repository.findByNameAndPhone(keyWord);
     }
+
+    @Override
+    public Optional<Customer> findCustomerByIdAndAddressNotDeleted(Long id) {
+        return repository.findCustomerByIdAndAddressNotDeleted(id);
+    }
 }

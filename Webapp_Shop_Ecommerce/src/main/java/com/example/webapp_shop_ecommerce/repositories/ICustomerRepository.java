@@ -20,4 +20,7 @@ public interface ICustomerRepository extends IBaseReporitory<Customer, Long> {
     @Query("select c from Customer c join fetch  c.lstBill bill where month(bill.lastModifiedDate) = :month and bill.status like %:status% and c.deleted = false order by c.createdDate desc ")
     List<Customer> findAllCustomersWithInvoiceCreated (@Param("month") Integer month, @Param("status") String status);
 
+    @Query("select c from Customer c join fetch c.lstAddress ad where c.id = :id and c.deleted = false and ad.deleted = false")
+    Optional<Customer> findCustomerByIdAndAddressNotDeleted (@Param("id") Long id);
+
 }
