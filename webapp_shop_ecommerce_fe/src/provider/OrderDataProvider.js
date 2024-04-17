@@ -1,3 +1,4 @@
+import { editableInputTypes } from '@testing-library/user-event/dist/utils';
 import axios from 'axios';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
@@ -30,6 +31,7 @@ const OrderDataProvider = ({ children }) => {
     const [customer, setCustomer] = useState(null);
 
     const [isDelivery, setIsDelivery] = useState(false);
+    const [voucher, setVoucher] = useState(null);
 
     const [lstProductDetails, setLstProductDetails] = useState([]);
     const [lstProductDetailsCart, setLstProductDetailsCart] = useState([]);
@@ -39,13 +41,39 @@ const OrderDataProvider = ({ children }) => {
     //set tổng tiền
     useEffect(() => {
         const money = totalPrice - voucherMoney + shipMoney;
-        setIntoMoney(money);
+
+
+        if (money <= 0) {
+            setIntoMoney(0);
+
+        } else {
+            setIntoMoney(money);
+        }
     }, [totalPrice, voucherMoney, shipMoney])
+
+
+    useEffect(() => {
+        if (totalPrice <= 0 || voucher == null) {
+            setVoucerMoney(0);
+            return;
+        }
+        //%
+        if (voucher.voucher.discountType == '0') {
+            const discount = totalPrice * voucher.voucher.value / 100;
+            setVoucerMoney(discount);
+        } else {
+            setVoucerMoney(voucher.voucher.value);
+        }
+
+    }, [voucher, totalPrice])
 
     //Tiền trả kháhc
     useEffect(() => {
         setMoneyPaid(paymentCustomer - intoMoney);
     }, [paymentCustomer])
+    const setDataVoucher = (data) => {
+        setVoucher(data);
+    };
     const setDataIdBill = (data) => {
         setIdBill(data);
     };
@@ -196,7 +224,7 @@ const OrderDataProvider = ({ children }) => {
         let returnUrl = window.location.origin;
 
 
-        
+
         //Validate tạm số tiền
         if (idBill == null) {
             return;
@@ -220,20 +248,22 @@ const OrderDataProvider = ({ children }) => {
             description: addressBill?.description,
             isDelivery: isDelivery,
             status: status,
+            //Id này là của voucherdetails
+            voucherDetail: voucher.id,
             returnUrl: returnUrl
         }
         console.log(dataBill);
         axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)
             .then((response) => {
-                if (response.data.status =="redirect") {
+                if (response.data.status == "redirect") {
                     window.location.href = response.data.data;
-                }else{
+                } else {
                     console.log(response.data);
                     toast.success(response.data.message);
                     updateDataLstBill();
                     resetData();
                 }
-               
+
             })
             .catch((error) => {
                 toast.error(error.response.data.message);
@@ -265,7 +295,7 @@ const OrderDataProvider = ({ children }) => {
         paymentMethods,
         customer,
         addressBill,
-
+        voucher,
         idCustomer,
         isDelivery,
 
@@ -280,6 +310,7 @@ const OrderDataProvider = ({ children }) => {
         setDataPaymentMethods,
         setDataIdBill,
         setDataShipMoney,
+        setDataVoucher,
 
         updateDataLstBill,
         updateDataProductDetails,

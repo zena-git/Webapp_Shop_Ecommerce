@@ -529,6 +529,20 @@ function OrderProducts() {
 
     }
 
+    const handleDeleteAllProductCart = () => {
+        axios.delete(`http://localhost:8080/api/v1/counters/${idBill}/billDetails/deleteAll`)
+            .then(response => {
+                toast.success(response.data.message);
+                updateDataProductDetails();
+                updateDataDataCart();
+            })
+            .catch(err => {
+                toast.error(err.response.data.message);
+
+            });
+
+    }
+
     const handleAddProductDetailsConfig = () => {
         setOpenAddProductConfig(false);
         setSelectedRowKeys([]);
@@ -581,6 +595,23 @@ function OrderProducts() {
             cancelText: 'No',
             onOk() {
                 handleDeleteProductCart(id)
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
+    const showDeleteAllConfirmCart = (id) => {
+        confirm({
+            title: 'Xác Nhận?',
+            icon: <ExclamationCircleFilled />,
+            content: 'Bạn có chắc muốn xóa toàn bộ sản phẩm đang có?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDeleteAllProductCart()
             },
             onCancel() {
                 console.log('Cancel');
@@ -714,7 +745,9 @@ function OrderProducts() {
                             </div>
                             <div>
                                 <div>
-                                    <Button onClick={() => {
+                                    <Button danger onClick={showDeleteAllConfirmCart} >Làm Mới</Button>
+
+                                    <Button className='ml-4' onClick={() => {
                                         setIsOpenModalQrcode(true);
                                     }}>QR Code</Button>
                                     <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>

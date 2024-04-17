@@ -130,7 +130,7 @@ function OrderCustomer() {
                             value={customer?.id}
                             filterOption={false}
                             onChange={handleChangeOption}
-                            placeholder="Search to Select"
+                            placeholder="Nhập tên hoặc sdt khách hàng"
                             style={{
                                 width: '300px',
                             }}
@@ -143,7 +143,7 @@ function OrderCustomer() {
                                     <span role="img" aria-label={option.data.label}>
                                         {option.data.label}
                                     </span>
-                                    {option.data.desc}
+                                    | {option.data.desc}
                                 </Space>
                             )}
                         />

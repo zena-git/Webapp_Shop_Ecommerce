@@ -40,7 +40,7 @@ const contentStyle = {
   marginTop: '84px',
   margin: '24px 16px 0',
   position: 'relative',
-  minHeight: '100vh',
+  minHeight: '80vh',
   maxWidth: 'calc(100vw-220px)'
 }
 const footerStyle = {
@@ -98,12 +98,13 @@ function DefaultLayout({ children }) {
           </Header>
           <Content style={contentStyle}>
             {children}
-            <Footer style={footerStyle}>
-              <div className='font-medium	'>
-                Alice Shop <span>{new Date().getFullYear()}</span> V0.1
-              </div>
-            </Footer>
+
           </Content>
+          <Footer style={footerStyle}>
+            <div className='font-medium	'>
+              Alice Shop <span>{new Date().getFullYear()}</span> V0.1
+            </div>
+          </Footer>
         </Layout>
       </Layout>
     </div>

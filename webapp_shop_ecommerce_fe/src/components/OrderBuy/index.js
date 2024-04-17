@@ -1,18 +1,135 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Modal, Radio, Space, Input, Select, Switch } from 'antd';
+import { Button, Modal, Radio, Table, Input, Alert, Switch } from 'antd';
 import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoneyBill1, faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBill1, faCreditCard, faTicket } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 const { confirm } = Modal
 function OrderBuy() {
     //provider
-    const { handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useOrderData();
+    const { voucher, setDataVoucher, handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useOrderData();
 
+    const [isModalOpenVoucher, setIsModalOpenVoucher] = useState(false);
+    const [lstDataVoucherDetail, setLstDataVoucherDetail] = useState([]);
+    const [lstDataTableVoucher, setLstataTableVoucher] = useState([]);
 
+    const columnsVoucher = [
+        {
+            title: '#',
+            dataIndex: 'index',
+            key: 'index',
+        },
+        {
+            title: 'Mã',
+            dataIndex: 'code',
+            key: 'code',
+        },
+        {
+            title: 'Tên',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Giá Trị Giảm',
+            dataIndex: 'value',
+            key: 'value',
+        },
+        {
+            title: 'Giá Trị Giảm Tối Đa',
+            dataIndex: 'maxDiscountValue',
+            key: 'maxDiscountValue',
+        },
+        {
+            title: 'Đơn Tối Thiểu',
+            dataIndex: 'orderMinValue',
+            key: 'orderMinValue',
+        },
+        {
+            title: 'Ngày Kết Thúc',
+            dataIndex: 'endDate',
+            key: 'endDate',
+        },
+
+        {
+            title: 'Action',
+            dataIndex: 'action',
+            key: 'action',
+        },
+
+    ];
+
+    const fetchDataVoucher = async () => {
+        if (customer == null) {
+            setDataVoucher(null);
+            setLstDataVoucherDetail([])
+            return;
+        }
+        try {
+            const response = await axios.get('http://localhost:8080/api/v1/voucherDetails/customer/' + customer.id)
+            console.log(response.data);
+            setLstDataVoucherDetail(response.data)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchDataVoucher();
+    }, [customer])
+
+    useEffect(() => {
+        fillDateTableVoucher()
+    }, [lstDataVoucherDetail])
+
+    const fillDateTableVoucher = () => {
+        const dataTable = lstDataVoucherDetail.map((item, index) => {
+            return {
+                key: index,
+                //idVoucher Detail
+                id: item.id,
+                index: index + 1,
+                code: item.voucher.code,
+                name: item.voucher.name,
+                value: item.voucher.value,
+                maxDiscountValue: item.voucher.maxDiscountValue,
+                orderMinValue: item.voucher.orderMinValue,
+                endDate: dayjs(item.voucher.endDate).format('YYYY-MM-DD HH:mm:ss'),
+                action: <Button key={index} danger onClick={() => {
+                    handleUseVoucher(item)
+                }}>Chọn</Button>
+            }
+        })
+        setLstataTableVoucher(dataTable)
+    }
+
+    const handleUseVoucher = (voucher) => {
+        setIsModalOpenVoucher(false);
+
+        setDataVoucher(voucher)
+        const id = voucher.id
+        console.log(voucher.voucher.code);
+    }
+
+    const handleQuitUseVoucher = () => {
+        setIsModalOpenVoucher(false);
+        setDataVoucher(null)
+        console.log("Bỏ sử dụng");
+    }
+    const showModalVoucher = () => {
+        setIsModalOpenVoucher(true);
+    };
+    const handleOkVoucher = () => {
+        setIsModalOpenVoucher(false);
+    };
+    const handleCancelVoucher = () => {
+        setIsModalOpenVoucher(false);
+    };
     useEffect(() => {
         if (!isDelivery) {
             setDataShipMoney(0)
@@ -47,30 +164,60 @@ function OrderBuy() {
                     <h4>Thanh Toán</h4>
                 </div>
                 <div className=''>
-                    <div className='mb-4'>
-                        <div className='mb-4'>Phiếu Giảm Giá</div>
-                        <Space.Compact
-                            style={{
-                                width: '100%',
-                            }}>
-                            <Input placeholder='Nhập Mã Giảm Giá' />
-                            <Button type="primary">Áp Dụng</Button>
-                        </Space.Compact>
-                        {/* <div>
-                            <Radio.Group>
-                                <Radio value={1}>A</Radio>
-                                <Radio value={2}>B</Radio>
-                                <Radio value={3}>C</Radio>
-                                <Radio value={4}>D</Radio>
-                            </Radio.Group>
-                        </div> */}
+                    <div className='pb-4 mb-4' style={{
+                        borderBottom: '1px solid rgb(232, 232, 232)'
+                    }}>
+                        <div className='mb-4'>Phiếu giảm giá</div>
+
+                        <div className='flex justify-between items-center	'>
+                            <div className='flex'>
+                                <div>Mã: </div>
+                                <div>{voucher?.voucher?.code}</div>
+                            </div>
+                            <Button onClick={showModalVoucher} className='flex items-center'><FontAwesomeIcon icon={faTicket}></FontAwesomeIcon> <span className='ml-2'>Chọn phiếu giảm giá</span></Button>
+                        </div>
+                        {
+                            voucher && <>
+                                <Alert className='mt-4' message={
+                                    <>
+                                        <div className='flex justify-between flex-col'>
+                                            <h4>{voucher?.voucher?.name}</h4>
+                                            <span className='text-xl	'>
+                                                Giảm Giá {voucher?.voucher?.discountType == 0?
+                                                    voucher?.voucher?.value+ "%": 
+                                                    fixMoney(voucher?.voucher?.value)
+                                                } Cho Đơn Hàng
+                                            </span>
+                                        </div>
+                                    </>
+                                } type="warning" />
+                            </>
+                        }
+
+                        <Modal footer={null} width={1000} title="Chọn phiếu giảm giá" open={isModalOpenVoucher} onOk={handleOkVoucher} onCancel={handleCancelVoucher}>
+                            <div>
+                                <Table dataSource={lstDataTableVoucher} columns={columnsVoucher} />;
+                            </div>
+                            <div className='flex justify-end'>
+                                <Button type='primary' onClick={handleQuitUseVoucher}>Bỏ Áp Dụng</Button>
+                                <Button className='ml-4' onClick={fetchDataVoucher}>Làm Mới</Button>
+                                <Button className='ml-4' onClick={handleCancelVoucher}>Thoát</Button>
+                            </div>
+                        </Modal>
+
                     </div>
 
                     <div className='mb-4'
                         style={{ display: customer === null ? 'none' : 'block' }}
                     >
-                        <Switch value={isDelivery} onChange={() => setDataIsDelivery()} />
-                        <span className='ml-2'>Giao Hàng</span>
+                        <div className='mb-2'>
+                            Hình Thức
+                        </div>
+
+                        <Switch
+                            checkedChildren="Giao Hàng"
+                            unCheckedChildren="Tại Quầy"
+                            value={isDelivery} onChange={() => setDataIsDelivery()} />
                     </div>
 
                     <div className='mb-4'>
