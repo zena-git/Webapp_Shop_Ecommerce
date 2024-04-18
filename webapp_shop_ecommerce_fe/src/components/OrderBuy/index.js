@@ -11,14 +11,17 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 const { confirm } = Modal
-function OrderBuy() {
+function OrderBuy({fetchAddBillNew}) {
     //provider
-    const { voucher, setDataVoucher, handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer } = useOrderData();
+    const { voucher, setDataVoucher, handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer,lstBill } = useOrderData();
 
     const [isModalOpenVoucher, setIsModalOpenVoucher] = useState(false);
-    const [lstDataVoucherDetail, setLstDataVoucherDetail] = useState([]);
-    const [lstDataTableVoucher, setLstataTableVoucher] = useState([]);
-
+    const [lstDataVoucher, setLstDataVoucher] = useState([]);
+    const [lstDataTableVoucher, setLsDtataTableVoucher] = useState([]);
+    const DiscountType = {
+        GIAM_TRUC_TIEP: '0',
+        GIAM_PHAN_TRAM: "1",
+    }
     const columnsVoucher = [
         {
             title: '#',
@@ -67,13 +70,13 @@ function OrderBuy() {
     const fetchDataVoucher = async () => {
         if (customer == null) {
             setDataVoucher(null);
-            setLstDataVoucherDetail([])
+            setLstDataVoucher([])
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/voucherDetails/customer/' + customer.id)
+            const response = await axios.get('http://localhost:8080/api/v1/voucher/customer/' + customer.id)
             console.log(response.data);
-            setLstDataVoucherDetail(response.data)
+            setLstDataVoucher(response.data)
         } catch (error) {
             console.error(error);
         }
@@ -85,35 +88,35 @@ function OrderBuy() {
 
     useEffect(() => {
         fillDateTableVoucher()
-    }, [lstDataVoucherDetail])
+    }, [lstDataVoucher])
 
     const fillDateTableVoucher = () => {
-        const dataTable = lstDataVoucherDetail.map((item, index) => {
+        const dataTable = lstDataVoucher.map((item, index) => {
             return {
                 key: index,
                 //idVoucher Detail
                 id: item.id,
                 index: index + 1,
-                code: item.voucher.code,
-                name: item.voucher.name,
-                value: item.voucher.value,
-                maxDiscountValue: item.voucher.maxDiscountValue,
-                orderMinValue: item.voucher.orderMinValue,
-                endDate: dayjs(item.voucher.endDate).format('YYYY-MM-DD HH:mm:ss'),
+                code: item.code,
+                name: item.name,
+                value: <>
+                    {item.discountType == DiscountType.GIAM_TRUC_TIEP ? fixMoney(item.value) : item.value + " %"}
+                </>,
+                maxDiscountValue: fixMoney(item.maxDiscountValue),
+                orderMinValue: fixMoney(item.orderMinValue),
+                endDate: dayjs(item.endDate).format('YYYY-MM-DD HH:mm:ss'),
                 action: <Button key={index} danger onClick={() => {
                     handleUseVoucher(item)
                 }}>Chọn</Button>
             }
         })
-        setLstataTableVoucher(dataTable)
+        setLsDtataTableVoucher(dataTable)
     }
 
     const handleUseVoucher = (voucher) => {
         setIsModalOpenVoucher(false);
-
         setDataVoucher(voucher)
-        const id = voucher.id
-        console.log(voucher.voucher.code);
+       
     }
 
     const handleQuitUseVoucher = () => {
@@ -146,7 +149,10 @@ function OrderBuy() {
             icon: <ExclamationCircleFilled />,
             content: 'Xác Nhận Thanh Toán ?',
             onOk() {
-                handlePaymentBill()
+
+                handlePaymentBill();
+                window.scrollTo(0, 0);
+                
             },
             okText: 'Đồng ý',
             cancelText: 'Thoát',
@@ -172,7 +178,7 @@ function OrderBuy() {
                         <div className='flex justify-between items-center	'>
                             <div className='flex'>
                                 <div>Mã: </div>
-                                <div>{voucher?.voucher?.code}</div>
+                                <div>{voucher?.code}</div>
                             </div>
                             <Button onClick={showModalVoucher} className='flex items-center'><FontAwesomeIcon icon={faTicket}></FontAwesomeIcon> <span className='ml-2'>Chọn phiếu giảm giá</span></Button>
                         </div>
@@ -181,11 +187,11 @@ function OrderBuy() {
                                 <Alert className='mt-4' message={
                                     <>
                                         <div className='flex justify-between flex-col'>
-                                            <h4>{voucher?.voucher?.name}</h4>
+                                            <h4>{voucher?.name}</h4>
                                             <span className='text-xl	'>
-                                                Giảm Giá {voucher?.voucher?.discountType == 0?
-                                                    voucher?.voucher?.value+ "%": 
-                                                    fixMoney(voucher?.voucher?.value)
+                                                Giảm Giá {voucher?.discountType == 1 ?
+                                                   voucher?.value + "%" :
+                                                    fixMoney(voucher?.value)
                                                 } Cho Đơn Hàng
                                             </span>
                                         </div>

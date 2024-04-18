@@ -15,6 +15,7 @@ import { faCheckCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
 function Order() {
   const [activeKey, setActiveKeyBill] = useState();
   const [billNews, setBillNews] = useState();
+  const [checkBill, setCheckBill] = useState(false);
   const newTabIndex = useRef(0);
   //provider
   const { isDelivery, setDataIdBill, lstBill, updateDataLstBill, updateDataProductDetails, customer, updateDataDataCart } = useOrderData();
@@ -36,7 +37,14 @@ function Order() {
     updateDataProductDetails()
   }, [])
 
-
+  useEffect(() => {
+      if (lstBill.length == 0 && checkBill) {
+          fetchAddBillNew()
+          setCheckBill(false)
+      }else{
+        setCheckBill(true)
+      }
+  }, [lstBill])
   useEffect(() => {
 
     const lst = lstBill.map((billNews, index) => {
@@ -46,18 +54,17 @@ function Order() {
         label: `Hóa Đơn ${index + 1}`,
       }
     })
-    setBillNews(lst);
     if (lst.length > 0) {
       setActiveKeyBill(lst[0].key);
       setDataIdBill(lst[0].key)
     }else{
       setDataIdBill(null)
       setActiveKeyBill(null);
+      
     }
+    setBillNews(lst);
    
   }, [lstBill]);
-
-
 
   const onChange = (key, label) => {
     console.log(label);
@@ -146,7 +153,7 @@ function Order() {
             <AddressGress></AddressGress>
           </div>
           <div className='w-2/5'>
-            <OrderBuy></OrderBuy>
+            <OrderBuy fetchAddBillNew={fetchAddBillNew}></OrderBuy>
           </div>
         </div>
       </div>

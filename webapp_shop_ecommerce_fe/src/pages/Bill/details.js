@@ -37,17 +37,10 @@ function BillDetail() {
         TRA_HANG: "6",
         DANG_BAN: "7",
         CHO_THANH_TOAN: "8",
+        HOAN_TIEN: "9",
         NEW: "New",
     }
-    const [paymentHistory, setPaymentHistory] = useState({
-        type: "0",
-        tradingCode: "",
-        paymentAmount: "0",
-        paymentMethod: "0",
-        description: "",
-        status: "0",
-        refundsMoney: "0"
-    });
+
     const fetchDataBill = async () => {
         try {
             const response = await axios.get('http://localhost:8080/api/v1/bill/show/' + id);
@@ -99,7 +92,6 @@ function BillDetail() {
     const [isModalOpenConfirmAcceptOrder, setIsModalOpenConfirmAcceptOrder] = useState(false);
     const [isModalOpenConfirmDelivery, setIsModalOpenConfirmDelivery] = useState(false);
     const [isModalOpenConfirmCompletion, setIsModalOpenConfirmCompletion] = useState(false);
-    const [isModalOpenPayment, setIsModalOpenPayment] = useState(false);
     const [isModalOpenTimelineDetails, setIsModalOpenTimelineDetails] = useState(false);
     const [isModalOpenCancelling, setIsModalOpenCancelling] = useState(false);
     const [confirmAcceptOrderDes, setConfirmAcceptOrderDes] = useState("")
@@ -112,30 +104,7 @@ function BillDetail() {
         setIsModalOpenAddress(false);
     };
 
-    const handleConfigPaymentHistory = () => {
-        const data = {
-            ...paymentHistory,
-            paymentAmount: bill?.intoMoney,
-        }
-        axios.post(` http://localhost:8080/api/v1/bill/${bill?.id}/payment`, data)
-            .then(response => {
-                toast.success(response.data.message)
-                fetchDataBill();
-                setIsModalOpenPayment(false)
-                setPaymentHistory({
-                    type: "0",
-                    tradingCode: "",
-                    paymentAmount: "0",
-                    paymentMethod: "0",
-                    description: "",
-                    status: "0",
-                    refundsMoney: "0"
-                })
-            })
-            .catch(error => {
-                toast.error(error.response.data.message)
-            })
-    }
+
 
     return (
         <>
@@ -151,6 +120,7 @@ function BillDetail() {
                     </div>
                     <div className='max-w-[calc(100vw-300px)] w-fit'>
                         <Timeline minEvents={5} placeholder height="230">
+
                             <div className='w-[calc(100vw-280px)] overflow-x-auto flex'>
                                 {bill?.lstHistoryBill.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map((historyBill, index) => {
                                     return (
@@ -166,7 +136,8 @@ function BillDetail() {
                                                                 historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
                                                                     historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                         historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                            historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                                            historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
+                                                                                historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
                                             }</h4>
 
                                             subtitle=<span className='text-xl font-medium	'>
@@ -213,7 +184,7 @@ function BillDetail() {
                             <div>
                                 <Modal title="Xác Nhận Đơn Hàng" width={500} open={isModalOpenConfirmAcceptOrder} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} placeholder='Ghi Chú' />
+                                    <Input.TextArea  placeholder='Ghi chú'  className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} placeholder='Ghi Chú' />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
@@ -241,7 +212,7 @@ function BillDetail() {
                             <div>
                                 <Modal title="Xác Nhận Giao Hàng" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <Input.TextArea  placeholder='Ghi chú'  className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
@@ -270,10 +241,14 @@ function BillDetail() {
                             <div>
                                 <Modal title="Xác Nhận Hoàn Thành" width={500} open={isModalOpenConfirmCompletion} footer={null} onCancel={() => { setIsModalOpenConfirmCompletion(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <Input.TextArea  placeholder='Ghi chú'  className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
-                                            if (bill?.lstPaymentHistory.length == "0") {
+                                            const filterPayment = bill?.lstPaymentHistory?.filter(data => data?.type == "0");
+                                            var totalPayment = filterPayment?.reduce(function (acc, cur) {
+                                                return acc + cur.paymentAmount;
+                                            }, 0);
+                                            if (bill?.intoMoney != totalPayment) {
                                                 toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán !");
                                                 setIsModalOpenConfirmCompletion(false)
                                                 return;
@@ -305,12 +280,16 @@ function BillDetail() {
                             <div>
                                 <Modal title="Xác Nhận Hủy" width={500} open={isModalOpenCancelling} footer={null} onCancel={() => { setIsModalOpenCancelling(false) }} >
                                     <label>Bạn Có Chắc Muốn Hủy Hóa Đơn Này ?</label>
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
-                                            axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`)
+                                            axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`, {
+                                                description: confirmAcceptOrderDes
+                                            })
                                                 .then(res => {
                                                     fetchDataBill();
                                                     toast.success(res.data.message);
+                                                    setConfirmAcceptOrderDes("")
                                                     setIsModalOpenCancelling(false)
                                                 }).catch(err => {
                                                     toast.error(err.response.data.message);
@@ -448,103 +427,7 @@ function BillDetail() {
 
 
                 <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
-                    <div className='flex justify-between pb-4' style={{ borderBottom: '1px solid #cccccc' }}>
-                        <h4>Lịch Sử Thanh Toán</h4>
-                        <div>
-                            <Modal title="Xác Nhận Thanh Toán" width={600} open={isModalOpenPayment} footer={null} onCancel={() => { setIsModalOpenPayment(false) }} >
-                                <div className='mt-4 mb-4'>
-                                    <div className='flex justify-between mt-4'>
-                                        <p>Số Tiền Cần Thanh Toán</p>
-                                        <span className='text-rose-600	font-medium	'>{fixMoney(bill?.intoMoney)}</span>
-                                    </div>
-                                    <div className='mt-4'>
-                                        <label>Tiền Khách Đưa</label>
-                                        <Input
-                                            min={0}
-                                            formatter={(value) => `${value}VNĐ`}
-                                            parser={(value) => value.replace('VNĐ', '')}
-                                            className='mt-2' placeholder="Nhập Tiền Khách Đưa" value={paymentHistory?.customMoney}
-                                            onChange={(event) => {
-                                                setPaymentHistory({
-                                                    ...paymentHistory,
-                                                    customMoney: event.target.value,
-                                                    refundsMoney: event.target.value - bill?.intoMoney
-                                                })
 
-                                            }}
-                                        />
-                                    </div>
-                                    <div className='mt-4'>
-                                        <label>Tiền Thừa</label>
-                                        <Input
-                                            min={0}
-                                            formatter={(value) => `${value}VNĐ`}
-                                            parser={(value) => value.replace('VNĐ', '')}
-                                            className='mt-2' disabled placeholder="Nhập Tiền Khách Đưa" value={paymentHistory?.refundsMoney} />
-                                    </div>
-                                    <div className='mt-4'>
-                                        <label>Ghi Chú</label>
-                                        <Input.TextArea className='mt-2' rows={5} placeholder='Ghi Chú' value={paymentHistory?.description}
-                                            onChange={(event) => {
-                                                setPaymentHistory({
-                                                    ...paymentHistory,
-                                                    description: event.target.value
-                                                })
-                                            }}
-                                        />
-                                    </div>
-                                    <div className='mt-4'>
-                                        <div>
-                                            <div className='mb-4'>Phương Thức Thanh Toán</div>
-                                            <Radio.Group value={paymentHistory?.paymentMethod} size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none"
-                                                onChange={(e) => {
-                                                    setPaymentHistory(
-                                                        {
-                                                            ...paymentHistory,
-                                                            paymentMethod: e.target.value
-                                                        }
-                                                    )
-
-                                                }}>
-                                                <div className='flex justify-between'>
-                                                    <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2'>Tiền Mặt</span> </Radio.Button>
-                                                    <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2'>Chuyển khoản</span> </Radio.Button>
-                                                </div>
-                                                {/* <Radio.Button className='text-center mt-4' style={{ width: '100%' }} value="2">Tiền Mặt & Chuyển khoản</Radio.Button> */}
-                                            </Radio.Group>
-                                        </div>
-                                        <div className='mt-4' style={{ visibility: paymentHistory && paymentHistory?.paymentMethod == "1" ? 'visible' : 'hidden' }}>
-                                            <Input
-                                                className='mt-2'
-                                                placeholder="Nhập Mã Giao Dịch"
-                                                value={paymentHistory.tradingCode}
-                                                onChange={(e) => {
-                                                    setPaymentHistory({
-                                                        ...paymentHistory,
-                                                        tradingCode: e.target.value
-                                                    });
-                                                }}
-                                            />
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div className='mt-14'>
-                                    <div className='flex justify-end mt-4 gap-3'>
-                                        <Button type='primary' onClick={handleConfigPaymentHistory} >Xác nhận</Button>
-                                        <Button type='default' onClick={() => { setIsModalOpenPayment(false) }}>Hủy</Button>
-                                    </div>
-                                </div>
-                            </Modal>
-
-                            {
-                                bill?.status != TrangThaiBill.HUY && bill?.lstPaymentHistory.length == "0" && <Button danger onClick={() => {
-                                    setIsModalOpenPayment(true)
-                                }}>Xác Nhận Thanh Toán</Button>
-
-                            }
-                        </div>
-                    </div>
                     <div>
                         <BillPaymentHistory bill={bill} fetchDataBill={fetchDataBill} lstPaymentHistory={bill?.lstPaymentHistory} ></BillPaymentHistory>
                     </div>
@@ -572,13 +455,13 @@ function BillDetail() {
                             <div className='flex justify-between'>
                                 <div>
 
-                                    <div>Mã Giảm Giá:</div>
-                                    <div>Phiếu Giảm Giá:</div>
+                                    {/* <div>Mã Giảm Giá:</div>
+                                    <div>Phiếu Giảm Giá:</div> */}
 
                                 </div>
                                 <div className='font-medium text-end'>
-                                    <div>abc</div>
-                                    <div>abc</div>
+                                    {/* <div>abc</div>
+                                    <div>abc</div> */}
                                 </div>
                             </div>
                         </div>

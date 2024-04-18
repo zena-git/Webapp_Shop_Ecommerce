@@ -11,8 +11,23 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { fixMoney } from '~/ultils/fixMoney';
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
+const TrangThaiBill = {
+  TAT_CA: '',
+  TAO_DON_HANG: "-1",
+  CHO_XAC_NHAN: "0",
+  CHO_GIAO: "1",
+  DANG_GIAO: "2",
+  DA_THANH_TOAN: "3",
+  HOAN_THANH: "4",
+  HUY: "5",
+  TRA_HANG: "6",
+  DANG_BAN: "7",
+  CHO_THANH_TOAN: "8",
+  NEW: "New",
+}
 
 const tabItems = [
   {
@@ -20,15 +35,15 @@ const tabItems = [
     label: 'Tất Cả',
   },
   {
-    key: '0',
+    key: TrangThaiBill.CHO_XAC_NHAN,
     label: 'Chờ Xác Nhận',
   },
   {
-    key: '1',
+    key: TrangThaiBill.CHO_GIAO,
     label: 'Chờ Giao Hàng',
   },
   {
-    key: '2',
+    key: TrangThaiBill.DANG_GIAO,
     label: 'Đang Giao',
   },
   // {
@@ -36,13 +51,18 @@ const tabItems = [
   //   label: 'Đã Thanh Toán',
   // },
   {
-    key: '4',
+    key: TrangThaiBill.HOAN_THANH,
     label: 'Hoàn Thành',
   },
   {
-    key: '5',
+    key: TrangThaiBill.HUY,
     label: 'Hủy',
   },
+  {
+    key: TrangThaiBill.CHO_THANH_TOAN,
+    label: 'Chờ Thanh Toán',
+  },
+
 
 ];
 
@@ -141,7 +161,7 @@ function Bill() {
         codeBill: data.codeBill,
         customer: data.customer == null ? "Khách Lẻ" : data.customer.fullName,
         receiverPhone: data.receiverPhone,
-        intoMoney: data.intoMoney,
+        intoMoney: fixMoney(data.intoMoney),
         billType: <>
           {data.billType =="0"?<Tag color="#2db7f5">Online</Tag>: <Tag color="#108ee9">Offline</Tag>}
         </>,

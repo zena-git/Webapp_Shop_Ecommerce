@@ -36,7 +36,10 @@ const OrderDataProvider = ({ children }) => {
     const [lstProductDetails, setLstProductDetails] = useState([]);
     const [lstProductDetailsCart, setLstProductDetailsCart] = useState([]);
 
-
+    const DiscountType = {
+        GIAM_TRUC_TIEP: '0',
+        GIAM_PHAN_TRAM: "1",
+    }
 
     //set tổng tiền
     useEffect(() => {
@@ -58,11 +61,11 @@ const OrderDataProvider = ({ children }) => {
             return;
         }
         //%
-        if (voucher.voucher.discountType == '0') {
-            const discount = totalPrice * voucher.voucher.value / 100;
+        if (voucher.discountType == DiscountType.GIAM_PHAN_TRAM) {
+            const discount = totalPrice * voucher.value / 100;
             setVoucerMoney(discount);
         } else {
-            setVoucerMoney(voucher.voucher.value);
+            setVoucerMoney(voucher.value);
         }
 
     }, [voucher, totalPrice])
@@ -249,7 +252,7 @@ const OrderDataProvider = ({ children }) => {
             isDelivery: isDelivery,
             status: status,
             //Id này là của voucherdetails
-            voucherDetail: voucher.id,
+            voucher: voucher?.id,
             returnUrl: returnUrl
         }
         console.log(dataBill);

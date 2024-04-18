@@ -195,7 +195,7 @@ function ProductAdd() {
         }
         ,
         {
-            title: 'Khối Nượng',
+            title: 'Khối Lượng',
             dataIndex: 'weight',
             key: 'weight',
             render: (text, record) => (

@@ -227,8 +227,7 @@ function OrderProducts() {
 
 
     const fillDataProductDetails = (data) => {
-        const sortedDataTable = data.sort((a, b) => a.id - b.id);
-        const dataTable = sortedDataTable.map((data, index) => {
+        const dataTable = data.map((data, index) => {
             let product = {
                 key: data.id,
                 id: data.id,

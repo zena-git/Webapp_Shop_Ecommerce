@@ -246,7 +246,7 @@ function ProductUpdate() {
             ),
         },
         {
-            title: 'Cân Nặng',
+            title: 'Khối Lượng',
             dataIndex: 'weight',
             key: 'weight',
             render: (text, record) => (
@@ -861,9 +861,9 @@ function ProductUpdate() {
             toast.success("Cập nhật thành công");
             console.log(response.data);
             setTimeout(() => {
-                navigate('/product/'+id)
-            },1000);
-           
+                navigate('/product/' + id)
+            }, 1000);
+
         } catch (error) {
             const { status, message, errCode } = error.response.data;
             toast.error(message);

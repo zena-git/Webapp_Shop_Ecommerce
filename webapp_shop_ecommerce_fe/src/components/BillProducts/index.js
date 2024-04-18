@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
-import { PlusOutlined, DeleteOutlined, RollbackOutlined, LoadingOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, RollbackOutlined, LoadingOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -227,8 +227,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
 
     const fillDataProductDetails = (data) => {
         console.log(data);
-        const sortedDataTable = data.sort((a, b) => a.id - b.id);
-        const dataTable = sortedDataTable.map((data, index) => {
+        const dataTable = data.map((data, index) => {
             let product = {
                 key: data.id,
                 id: data.id,
@@ -384,6 +383,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const onChangeQuantityProductConfig = (value, id) => {
+        
         const updatedProductDetails = lstBillDetailsConfig.map(productDetail => {
             if (productDetail.id === id) {
                 return {
@@ -441,6 +441,10 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const handleChangeQuantity = (value, id) => {
+        if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
+            toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
+            return;
+        }
         if (value == null) {
             return;
         }
@@ -472,6 +476,10 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     };
 
     const handleDeleteProduct = (id) => {
+        if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
+            toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
+            return;
+        }
         const idBill = bill?.id;
         if (idBill == null) {
             toast.error("Invalid or missing bill ID.");
@@ -500,6 +508,23 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             })
 
     }
+
+    const showDeleteAllProduct = (id) => {
+        confirm({
+            title: 'Xác Nhận?',
+            icon: <ExclamationCircleFilled />,
+            content: 'Bạn có chắc muốn xóa sản phẩm này?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDeleteProduct(id)
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -637,7 +662,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                                         data?.promotionDetailsActive &&
                                         <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
 
-                                            <span className='text-red-600 text-[12px]'>{data?.promotionDetailsActive?.promotionValue ==null ? "Giảm giá":"- "+ data?.promotionDetailsActive?.promotionValue + " %"}</span>
+                                            <span className='text-red-600 text-[12px]'>{data?.promotionDetailsActive?.promotionValue == null ? "Giảm giá" : "- " + data?.promotionDetailsActive?.promotionValue + " %"}</span>
                                         </div>
                                     }
                                 </div>
@@ -692,7 +717,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 </>,
                 action: <>
                     {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
-                        <Button onClick={() => { handleDeleteProduct(data.id) }}>
+                        <Button onClick={() => { showDeleteAllProduct(data.id) }}>
                             <DeleteOutlined />
                         </Button>
                     ) : (
@@ -751,7 +776,14 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 <h4>Danh Sách Sản Phẩm</h4>
                 <div>
                     {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
-                        <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
+                        <Button type='primary' className='ml-4' onClick={() => {
+                            if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
+                                toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
+                            } else {
+                                setOpenAddProduct(true)
+                            }
+                        }}
+                        ><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
                     }
                 </div>
                 <>
