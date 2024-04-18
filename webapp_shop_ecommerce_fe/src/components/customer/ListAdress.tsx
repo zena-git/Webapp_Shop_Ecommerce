@@ -1,4 +1,4 @@
-import { Tag } from 'antd/lib'
+import { Tag, Checkbox } from 'antd/lib'
 import { useState, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -17,9 +17,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
 import { Button } from "~/components/ui/button"
-import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -39,9 +37,6 @@ import {
     TableRow,
 } from "~/components/ui/table"
 import { AdressResponse } from "~/lib/type"
-import axios from 'axios'
-import { baseUrl } from '~/lib/functional'
-import { Link, redirect } from 'react-router-dom'
 export default function ListTable({ data }: { data: AdressResponse[] }) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -59,6 +54,15 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             ),
         },
         {
+            accessorKey: "defaultAddress",
+            header: ({ column }) => {
+                return (
+                    <div className="text-center">Địa chỉ mặc định</div>
+                )
+            },
+            cell: ({ row }) => <div className='flex justify-center'><Checkbox checked={row.original.defaultAddress} /></div>
+        },
+        {
             accessorKey: "receiverName",
             header: ({ column }) => {
                 return (
@@ -66,7 +70,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên người nhận
+                        Tên người nhận
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
@@ -74,8 +78,17 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             cell: ({ row }) => <div className="lowercase">{row.original.receiverName}</div>,
         },
         {
+            accessorKey: "receiverPhone",
+            header: () => <div className="text-center">Số điện thoại</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    {row.original.receiverPhone}
+                </div>
+            },
+        },
+        {
             accessorKey: "commune",
-            header: () => <div className="text-center">xã/phường</div>,
+            header: () => <div className="text-center">Xã/phường</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
                     {row.original.commune}
@@ -84,7 +97,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
         },
         {
             accessorKey: "province",
-            header: () => <div className="text-center">quận/huyện</div>,
+            header: () => <div className="text-center">Quận/huyện</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original.province}
@@ -93,22 +106,14 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
         },
         {
             accessorKey: "district",
-            header: () => <div className="text-center">tỉnh/thành phố</div>,
+            header: () => <div className="text-center">Tỉnh/thành phố</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original.district}
                 </div>
             },
         },
-        {
-            accessorKey: "receiverPhone",
-            header: () => <div className="text-center">sdt</div>,
-            cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
-                    {row.original.receiverPhone}
-                </div>
-            },
-        },
+
     ], []);
 
     const table = useReactTable({

@@ -11,23 +11,19 @@ import { useNavigate } from "react-router-dom";
 
 const VoucherPage = () => {
 
+    const navigate = useNavigate();
+
     return (
-        <div className="py-6 p-6 bg-white rounded-md shadow-lg flex flex-col gap-1">
+        <div className="w-full rounded-md bg-white p-6 flex flex-col gap-3">
             <div className='flex justify-between items-center'>
                 <p className='text-xl font-bold'>Phiếu giảm giá</p>
                 <div className='flex gap-5 items-center'>
-                    <Link to={'/discount/voucher/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>
-                        Thêm phiếu giảm giá mới
-                    </Link>
+                    <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" className="bg-blue-500 text-white hover:bg-blue-300 hover:text-white">Thêm nhân viên</Button>
                     <Recover />
                 </div>
             </div>
-            <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
-            <div>
-                <div className='mt-3 rounded-lg'>
-                    <ListTable />
-                </div>
-            </div>
+            <div className='relative after:w-full after:h-[3px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+            <ListTable />
         </div>
 
     )

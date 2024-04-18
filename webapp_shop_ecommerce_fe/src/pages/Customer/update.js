@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
-// import { Button } from '~/components/ui/button';
 import {
     Form,
     FormControl,
@@ -126,7 +125,7 @@ export default function AddCustomer() {
                         id: null,
                         name: add.commune
                     },
-                    receivername: add.receiverName,
+                    receiverName: add.receiverName,
                     phone: add.receiverPhone
                 }
             }))
@@ -239,7 +238,7 @@ export default function AddCustomer() {
         setListAddress(prev => {
             return prev.map(address => {
                 if ((key && address.key == key) || (id && address.id == id)) {
-                    return { ...address, receivername: newValue };
+                    return { ...address, receiverName: newValue };
                 }
                 return address;
             });
@@ -303,7 +302,7 @@ export default function AddCustomer() {
             ),
         },
         {
-            accessorKey: "receivername",
+            accessorKey: "receiverName",
             header: ({ column }) => {
                 return (
                     <Button
@@ -317,7 +316,7 @@ export default function AddCustomer() {
                 )
             },
             cell: ({ row }) => <div className="lowercase">
-                {row.original && <p>{row.original.receivername}</p>}
+                {row.original && <p>{row.original.receiverName}</p>}
             </div>,
         },
         {
@@ -438,12 +437,12 @@ export default function AddCustomer() {
         axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
             const promises = listAddress.map(add => {
                 const body = {
-                    receiverName: add.receivername,
+                    receiverName: add.receiverName,
                     receiverPhone: add.phone,
                     commune: add.commune.name,
                     district: add.district.name,
                     province: add.province.name,
-                    defaultAddress: defaultAddress == add.id,
+                    defaultAddress: add.id ? defaultAddress == add.id : defaultAddress == add.key,
                     detail: add.detail,
                     customer: path.id,
                     id: add.id
@@ -460,24 +459,6 @@ export default function AddCustomer() {
         })
     }
 
-    const handleAddAddress = () => {
-        let newObject = {
-            key: listAddress.length + 1,
-            receivername: "",
-            phone: "",
-            province: { id: '269', name: 'Lào Cai' },
-            district: { id: '2264', name: 'Huyện Si Ma Cai' },
-            commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
-        }
-        setEditAddress(newObject);
-        setListAddress(prev => [...prev, newObject])
-        // setIsModalOpen(true);
-    }
-
-    useEffect(() => {
-        console.log(listAddress)
-    }, [listAddress])
-
     const [editAddress, setEditAddress] = useState({});
 
     const modalForm = useForm(
@@ -493,6 +474,22 @@ export default function AddCustomer() {
             }
         }
     )
+
+    const handleAddAddress = () => {
+        let newObject = {
+            key: listAddress.length + 1,
+            receiverName: "",
+            phone: "",
+            province: { id: '269', name: 'Lào Cai' },
+            district: { id: '2264', name: 'Huyện Si Ma Cai' },
+            commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
+        }
+        modalForm.reset();
+        // modalForm.resetField()
+        setEditAddress(newObject);
+        setListAddress(prev => [...prev, newObject])
+        setIsModalOpen(true);
+    }
 
     return (
         <div className='flex xl:flex-col'>
@@ -627,70 +624,71 @@ export default function AddCustomer() {
                                             </FormItem>
                                         )}
                                     />
-
-                                    <FormField
-                                        control={modalForm.control}
-                                        name="phone"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Tỉnh thành phố</FormLabel>
-                                                <FormControl>
-                                                    <Select className='min-w-[110px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
-                                                        {
-                                                            listProvince.map((province, key) => {
-                                                                return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
-                                                            })
-                                                        }
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={modalForm.control}
-                                        name="district"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Quận huyện</FormLabel>
-                                                <FormControl>
-                                                    <Select className='min-w-[110px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
-                                                        {
-                                                            listDistricts.map((district, key) => {
-                                                                return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
-                                                            })
-                                                        }
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={modalForm.control}
-                                        name="phone"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Xã phường</FormLabel>
-                                                <FormControl>
-                                                    <Select {...field} className='min-w-[110px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
-                                                        {
-                                                            listWards.map((ward, key) => {
-                                                                return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
-                                                            })
-                                                        }
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    <div className='grid grid-cols-2 gap-3'>
+                                        <p>Tỉnh thành phố</p>
+                                        <FormField
+                                            control={modalForm.control}
+                                            name="phone"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
+                                                            {
+                                                                listProvince.map((province, key) => {
+                                                                    return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
+                                                                })
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <p>Quận huyện</p>
+                                        <FormField
+                                            control={modalForm.control}
+                                            name="district"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Select className='min-w-[180px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
+                                                            {
+                                                                listDistricts.map((district, key) => {
+                                                                    return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
+                                                                })
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <p>Xã phường</p>
+                                        <FormField
+                                            control={modalForm.control}
+                                            name="phone"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Select {...field} className='min-w-[180px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
+                                                            {
+                                                                listWards.map((ward, key) => {
+                                                                    return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
+                                                                })
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                     <div>
                                         <p>Địa chỉ chi tiết</p>
                                         <Textarea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
                                     </div>
 
-                                    <div className='flex items-center'>
+                                    <div className='flex items-center gap-3'>
                                         <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.id || editAddress.key) }} />
                                         <p>Đặt làm địa chỉ mặc định</p>
                                     </div>

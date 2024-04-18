@@ -19,7 +19,6 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "~/components/ui/button"
-// import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -29,7 +28,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-// import { Input } from "~/components/ui/input"
 import {
     Table,
     TableBody,
@@ -41,7 +39,7 @@ import {
 import { VoucherResponse } from "~/lib/type"
 import axios from 'axios'
 import { baseUrl } from '~/lib/functional'
-import { Link, redirect, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 const dayjs = require('dayjs');
 const { RangePicker } = DatePicker;
 
@@ -111,37 +109,31 @@ export default function ListTable() {
             accessorKey: "name",
             header: ({ column }) => {
                 return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        tên
+                    <div className="text-center flex justify-center items-center" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                        Tên phiếu
                         <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </Button>
+                    </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-center">{row.getValue("name")}</div>,
         },
         {
             accessorKey: "code",
             header: ({ column }) => {
                 return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        mã
+                    <div className="text-center flex justify-center items-center" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                        Mã phiếu
                         <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </Button>
+                    </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.code}</div>,
+            cell: ({ row }) => <div className="lowercase text-center">{row.original.code}</div>,
         },
 
         {
             id: "value",
             accessorKey: "value",
-            header: () => <div className="text-center">giá trị giảm</div>,
+            header: () => <div className="text-center">Giá trị giảm</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original.discountType == "0" ? numberToPrice(row.original.value) : `${row.original.value}%`}
@@ -150,7 +142,7 @@ export default function ListTable() {
         },
         {
             accessorKey: "orderMinValue",
-            header: () => <div className="text-center">đơn tối thiểu</div>,
+            header: () => <div className="text-center">Giá trị đơn tối thiểu</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {numberToPrice(row.original.orderMinValue)}
@@ -159,16 +151,16 @@ export default function ListTable() {
         },
         {
             accessorKey: "orderMinValue",
-            header: () => <div className="text-center">đơn tối thiểu</div>,
+            header: () => <div className="text-center">Mức giảm tối đa</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
-                    {numberToPrice(row.original.orderMinValue)}
+                    {numberToPrice(row.original.maxDiscountValue)}
                 </div>
             },
         },
         {
             accessorKey: "startDate",
-            header: () => <div className="text-center">ngày bắt đầu</div>,
+            header: () => <div className="text-center">Ngày bắt đầu</div>,
             filterFn: customStartDateFilter,
             cell: ({ row }) => {
                 return <div className='text-center'>
@@ -179,7 +171,7 @@ export default function ListTable() {
         {
             accessorKey: "endDate",
             filterFn: customEndDateFilter,
-            header: () => <div className="text-center">ngày kết thúc</div>,
+            header: () => <div className="text-center">Ngày kết thúc</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
                     {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
@@ -188,7 +180,7 @@ export default function ListTable() {
         },
         {
             accessorKey: "status",
-            header: () => <div className="text-center">trạng thái</div>,
+            header: () => <div className="text-center">Trạng thái</div>,
             cell: ({ row }) => {
                 return <div className='flex justify-center'>{<Tag color={"blue"}>
                     {row.original.status == "0" ? "Sắp diễn ra" : row.original.status == "1" ? "Đang diễn ra" : row.original.status == "2" ? "Đã kết thúc" : "Đã hủy"}
@@ -207,7 +199,7 @@ export default function ListTable() {
         {
             id: "hành động",
             enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
+            header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
                 return (
                     <div className="flex justify-center">
@@ -260,163 +252,134 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full">
-                <div className='grid grid-cols-2 items-center my-3 bg-white rounded-md p-3 shadow-lg gap-5'>
-                    <div className='w-full flex flex-col'>
-                        <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
+            <div className='grid grid-cols-2 items-center my-3 bg-white rounded-md p-3 shadow-lg gap-5'>
+                <div className='w-full flex flex-col'>
+                    <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
 
-                        <Select
-                            className='min-w-sm w-2/3'
-                            defaultValue={0}
-                            defaultActiveFirstOption
-                            onChange={(value) => {
-                                let filterValue = null;
-                                if (value !== 0) {
-                                    filterValue = (value - 1).toString();
-                                }
-                                table.getColumn("status").setFilterValue(filterValue);
-                            }}
-                        >
-                            <option value={0}>Tất cả</option>
-                            <option value={1}>Sắp diễn ra</option>
-                            <option value={2}>Đang diễn ra</option>
-                            <option value={3}>Đã kết thúc</option>
-                            <option value={4}>Đã hủy</option>
-                        </Select>
-                    </div>
-                    <div className='w-full flex flex-col'>
-                        <p className='mb-1 font-semibold text-sm'>Hình thức giảm</p>
-                        <Select className='min-w-sm w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
+                    <Select
+                        className='min-w-sm w-2/3'
+                        defaultValue={0}
+                        defaultActiveFirstOption
+                        onChange={(value) => {
                             let filterValue = null;
-                            if (value != 0) {
+                            if (value !== 0) {
                                 filterValue = (value - 1).toString();
                             }
-                            table.getColumn("discount_type").setFilterValue(filterValue);
-                        }}>
-                            <option value={0}>Tất cả</option>
-                            <option value={1}>Giảm trực tiếp</option>
-                            <option value={2}>Giảm phần trăm</option>
-                        </Select>
-                    </div>
-                    <div>
-                        <p className='mb-1 font-semibold text-sm'>Tìm kiếm</p>
-                        <Input
-                            placeholder="tên..."
-                            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                            onChange={(event) =>
-                                table.getColumn("name")?.setFilterValue(event.target.value)
-                            }
-                            className="max-w-sm"
-                        />
-                    </div>
-                    <div>
-                        <p className='mb-1 font-semibold text-sm'>Khoảng ngày</p>
-                        <RangePicker onChange={value => {
-                            table.getColumn("startDate").setFilterValue(value[0]);
-                            table.getColumn("endDate").setFilterValue(value[1])
-                        }} />
-                    </div>
+                            table.getColumn("status").setFilterValue(filterValue);
+                        }}
+                    >
+                        <option value={0}>Tất cả</option>
+                        <option value={1}>Sắp diễn ra</option>
+                        <option value={2}>Đang diễn ra</option>
+                        <option value={3}>Đã kết thúc</option>
+                        <option value={4}>Đã hủy</option>
+                    </Select>
                 </div>
-                <div className="rounded-md border p-3 bg-white">
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Cột <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
+                <div className='w-full flex flex-col'>
+                    <p className='mb-1 font-semibold text-sm'>Hình thức giảm</p>
+                    <Select className='min-w-sm w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
+                        let filterValue = null;
+                        if (value != 0) {
+                            filterValue = (value - 1).toString();
+                        }
+                        table.getColumn("discount_type").setFilterValue(filterValue);
+                    }}>
+                        <option value={0}>Tất cả</option>
+                        <option value={1}>Giảm trực tiếp</option>
+                        <option value={2}>Giảm phần trăm</option>
+                    </Select>
+                </div>
+                <div>
+                    <p className='mb-1 font-semibold text-sm'>Tìm kiếm</p>
+                    <Input
+                        placeholder="tên..."
+                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                        onChange={(event) =>
+                            table.getColumn("name")?.setFilterValue(event.target.value)
+                        }
+                        className="max-w-sm"
+                    />
+                </div>
+                <div>
+                    <p className='mb-1 font-semibold text-sm'>Khoảng ngày</p>
+                    <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
+                        table.getColumn("startDate").setFilterValue(value[0]);
+                        table.getColumn("endDate").setFilterValue(value[1])
+                    }} />
+                </div>
+            </div>
+            <div className="rounded-md border p-3 bg-white shadow-md">
+                <Table>
+                    <TableHeader>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
                                     return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
+                                        <TableHead key={header.id}>
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
                                     )
                                 })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Table>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
+                            </TableRow>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </TableCell>
+                                    ))}
                                 </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                >
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex-1 text-sm text-muted-foreground">
+                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                    {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
-                    <div className="space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            Next
-                        </Button>
-                    </div>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
         </>

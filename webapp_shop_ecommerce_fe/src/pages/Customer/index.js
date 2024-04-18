@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { baseUrl } from '~/lib/functional'
 import ListTable from '../../components/customer/listTable'
-import ReduxProvider from '../../redux/provider'
-import { Link } from 'react-router-dom';
+import ReduxProvider from '../../redux/provider';
 const VoucherPage = () => {
     const [data, setData] = useState([]);
 
@@ -14,7 +13,7 @@ const VoucherPage = () => {
     }, [])
 
     return (
-        <div className="py-6 flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
             <ListTable data={data} />
         </div>
 

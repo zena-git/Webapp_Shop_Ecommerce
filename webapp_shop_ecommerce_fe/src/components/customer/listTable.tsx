@@ -1,8 +1,7 @@
-import { Tag, Select, Checkbox } from 'antd/lib'
+import { Select } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
-    ChevronDownIcon,
     DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
@@ -17,9 +16,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
 import { Button } from "~/components/ui/button"
-// import { Checkbox } from "~/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -40,11 +37,10 @@ import {
 } from "~/components/ui/table"
 import { CustomerResponse } from "~/lib/type"
 import { useAppSelector } from '~/redux/storage'
-import { set, updateSelected } from '~/redux/features/voucher-selected-item'
 import { useDispatch } from "react-redux";
 import axios from 'axios'
 import { baseUrl } from '~/lib/functional'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function ListTable() {
     const [sorting, setSorting] = useState<SortingState>([])
@@ -55,6 +51,8 @@ export default function ListTable() {
     const [listCustomer, setListCustomer] = useState<CustomerResponse[]>([]);
 
     const dispatch = useDispatch();
+
+    const navigate = useNavigate();
 
     const selectedCustomer = useAppSelector((state) => state.voucherReducer.value.selected)
 
@@ -89,19 +87,12 @@ export default function ListTable() {
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên
+                        Họ và Tên
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
             },
             cell: ({ row }) => <div className="lowercase">{row.getValue("fullName")}</div>,
-        },
-        {
-            accessorKey: "email",
-            header: () => <div className="text-center">email</div>,
-            cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.email}</div>
-            },
         },
         {
             accessorKey: "phone",
@@ -111,8 +102,15 @@ export default function ListTable() {
             },
         },
         {
+            accessorKey: "email",
+            header: () => <div className="text-center">Email</div>,
+            cell: ({ row }) => {
+                return <div className='flex justify-center'>{row.original.email}</div>
+            },
+        },
+        {
             accessorKey: "birthday",
-            header: () => <div className="text-center">sinh nhật</div>,
+            header: () => <div className="text-center">Sinh nhật</div>,
             cell: ({ row }) => {
                 return <div className='flex justify-center'>{row.original.birthday ? row.original.birthday.toString().split("T")[0] : ''}</div>
             },
@@ -120,7 +118,7 @@ export default function ListTable() {
         {
             id: "hành động",
             enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
+            header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
                 return (
                     <div className="flex justify-center">
@@ -174,14 +172,16 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full flex flex-col gap-5">
-                <div className=' p-6 bg-white rounded-md shadow-lg'>
-                    <div className='flex justify-between items-center'>
-                        <p className='text-xl font-bold'>Khách hàng</p>
-                        <div>
-                            <Link to={'/user/customer/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-lg my-3'>Thêm khách hàng mới</Link>
-                        </div>
+            <div className="w-full rounded-md bg-white p-6 flex flex-col gap-3">
+                <div className='flex justify-between items-center'>
+                    <p className='text-xl font-bold'>Khách hàng</p>
+                    <div>
+
+                        <Button onClick={() => { navigate('/user/customer/add') }} variant="outline" className="bg-blue-500 text-white hover:bg-blue-300 hover:text-white">Thêm khách hàng mới</Button>
                     </div>
+                </div>
+                <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                <div className='bg-white rounded-md mb-3 p-3 shadow-md'>
                     <div className='grid grid-cols-2 gap-3 my-3'>
                         <div>
                             <p className='text-sm font-semibold mb-1'>Tùy chọn tìm kiếm nhanh</p>
@@ -235,7 +235,7 @@ export default function ListTable() {
                         </div>
                     </div>
                 </div>
-                <div className="rounded-md border border-slate-900 bg-white p-3 ">
+                <div className="rounded-md border border-slate-900 bg-white p-3">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (

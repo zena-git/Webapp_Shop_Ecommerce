@@ -67,8 +67,6 @@ export default function ListTable() {
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({});
 
-    const [filterType, setFilterType] = useState('0');
-
     const customFilterType = (
         row,
         columnId,
@@ -101,12 +99,21 @@ export default function ListTable() {
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Tên
+                        Họ và Tên
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
             },
             cell: ({ row }) => <div className="">{row.original.fullName}</div>,
+        },
+        {
+            accessorKey: "phone",
+            header: () => <div className="text-center">Số điện thoại</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16">
+                    {row.original.phone}
+                </div>
+            },
         },
         {
             accessorKey: "email",
@@ -127,15 +134,6 @@ export default function ListTable() {
             },
         },
         {
-            accessorKey: "phone",
-            header: () => <div className="text-center">Số điện thoại</div>,
-            cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
-                    {row.original.phone}
-                </div>
-            },
-        },
-        {
             accessorKey: "deleted",
             header: () => <div className="text-center">Trạng thái</div>,
             filterFn: customFilterType,
@@ -148,7 +146,7 @@ export default function ListTable() {
         {
             id: "hành động",
             enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
+            header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
                 return (
                     <div className="flex justify-center">
@@ -202,15 +200,16 @@ export default function ListTable() {
 
     return (
         <>
-            <div className="w-full rounded-md">
-                <div className='bg-white rounded-md mb-3 p-6 shadow-md'>
-                    <div className='flex justify-between'>
-                        <p className='text-xl font-bold mb-3'>Nhân viên</p>
-                        <div className='flex gap-5'>
-                            <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white">Thêm nhân viên</Button>
-                            <Recover />
-                        </div>
+            <div className="w-full rounded-md bg-white p-6 flex flex-col gap-3">
+                <div className='flex justify-between items-center'>
+                    <p className='text-xl font-bold'>Nhân viên</p>
+                    <div className='flex gap-5 items-center'>
+                        <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white hover:bg-blue-300 hover:text-white">Thêm nhân viên</Button>
+                        <Recover />
                     </div>
+                </div>
+                <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                <div className='bg-white rounded-md mb-3 p-3 shadow-md'>
 
                     <div className="grid grid-cols-2 gap-3 my-3">
                         <div>
@@ -269,7 +268,7 @@ export default function ListTable() {
                 </div>
                 <div className="rounded-md border p-3 bg-white shadow-md">
                     <Table>
-                        <TableHeader>
+                        <TableHeader className={"bg-purple-300"}>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header) => {
@@ -351,7 +350,7 @@ const Recover = () => {
 
     return (
         <>
-            <button onClick={showModal} style={{ backgroundColor: "red" }} className="bg-opacity-55 px-3 text-white font-semibold rounded-md">Khôi phục nhân viên</button>
+            <Button onClick={showModal} style={{ backgroundColor: "red" }} className="text-white hover:text-white">Khôi phục nhân viên</Button>
             <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} className='min-w-[60vw]'>
                 <ListDeleted />
             </Modal>

@@ -1,4 +1,4 @@
-import { Button, Space, Table, Tag, Form, Checkbox, DatePicker, InputNumber, Input } from 'antd/lib';
+import { Button, DatePicker, InputNumber, Input } from 'antd/lib';
 import ReduxProvider from '~/redux/provider'
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
@@ -6,12 +6,13 @@ import { useParams, redirect, useNavigate } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAppSelector } from '~/redux/storage';
 import axios from 'axios';
-import { baseUrl, nextUrl } from '~/lib/functional';
+import { baseUrl, baseUrlV3 } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { set, updateSelected, toggleChildren } from '~/redux/features/promotion-selected-item'
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
 import { ToastContainer, toast } from 'react-toastify';
+import { IoArrowBackSharp } from "react-icons/io5";
 const { TextArea } = Input
 
 const { RangePicker } = DatePicker
@@ -54,25 +55,23 @@ function EditPage() {
                 )
             });
             dispatch(set({ value: { selected: temp } }));
-            axios.get(`${baseUrl}/promotion/${path.id}`).then(resp => {
+            axios.get(`${baseUrlV3}/promotion/data?id=${path.id}`).then(resp => {
                 setTargetPromotion(resp.data);
                 setName(resp.data.name);
                 setValue(resp.data.value);
                 setDescription(resp.data.description);
-                setDate([dayjs(resp.data.start_date), dayjs(resp.data.end_date)])
-                setCode(resp.data.code_promotion)
+                setDate([dayjs(resp.data.startDate), dayjs(resp.data.endDate)])
+                setCode(resp.data.code)
 
-                resp.data.PromotionDetails.forEach((detail) => {
-                    dispatch(toggleChildren({ id: detail.ProductDetail.id, parentId: detail.ProductDetail.product_id, value: true }))
+                resp.data.lstPromotionDetails.forEach((detail) => {
+                    const t = res.data.find(product => {
+                        return product.lstProductDetails.find(productDetail => productDetail.id == detail.productDetails.id)
+                    })
+                    dispatch(toggleChildren({ id: detail.productDetails.id, parentId: t.id, value: !detail.deleted }))
                 })
-
             });
         });
     }, [dispatch, path.id]);
-
-    useEffect(() => {
-        console.log(listSelectedProduct)
-    }, [listSelectedProduct])
 
     const handleSubmitForm = () => {
 
@@ -107,58 +106,70 @@ function EditPage() {
                 lstProductDetails: PromotionType == "0" ? allPro : lst
             }
 
-            axios.post(`${baseUrl}/promotion/update`, t).then(res => {
+            axios.put(`${baseUrl}/promotion/${path.id}`, t).then(res => {
                 toast.success("cập nhật thành công");
                 navigate(`/discount/promotion/detail/${targetPromotion.id}`)
             }).catch(err => {
-                toast.error(err)
+                toast.error(err.response.data.message)
             })
         }
     }
 
     return (
         <div>
-            <p className='my-1 ml-5 text-lg font-bold'>Cập nhật đợt giảm giá</p>
-            <div className='w-full flex max-lg:flex-col p-5 gap-5'>
-                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 pb-3 rounded-lg pt-5'>
-                    <label>
-                        <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
-                        <Input value={code} onChange={e => setCode(e)} />
-                    </label>
-                    <label>
-                        <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
-                        <Input value={name} onChange={e => { setName(e.target.value) }} />
-                    </label>
-                    <label>
-                        <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (d)</p>
-                        <InputNumber min={0} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
-                    </label>
-                    <label>
-                        <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
-                        <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
-                    </label>
-                    <label>
-                        <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
-                        <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="0" id="option-one" />
-                                <Label htmlFor="option-one">Tất cả sản phẩm</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="1" id="option-two" />
-                                <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
-                            </div>
-                        </RadioGroup>
-                    </label>
-                    <label>
-                        <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
-                        <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
-                    </label>
-                    <Button onClick={() => { handleSubmitForm() }} type='primary' className='bg-blue-500'>
-                        {'Cập nhật'}
-                    </Button>
+
+            <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
+                <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
+                    <div className='flex gap-2 items-center'>
+                        <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
+                        <p className='ml-3 text-lg font-semibold'>Cập nhật đợt giảm giá</p>
+                    </div>
+                    <div className='relative after:w-full after:h-[3px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                    <div className='flex flex-col gap-3  bg-slate-50 px-3 pb-3 rounded-lg pt-5'>
+                        <label>
+                            <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
+                            <Input value={code} onChange={e => setCode(e)} />
+                        </label>
+                        <label>
+                            <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
+                            <Input value={name} onChange={e => { setName(e.target.value) }} />
+                        </label>
+                        <label>
+                            <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (%)</p>
+                            <InputNumber min={0} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
+                        </label>
+                        <label>
+                            <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
+                            <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
+                        </label>
+                        <label>
+                            <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
+                            <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
+                                <div className='flex items-center gap-3'>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="0" id="option-one" />
+                                        <Label htmlFor="option-one">Tất cả sản phẩm</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="1" id="option-two" />
+                                        <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
+                                    </div>
+                                </div>
+                            </RadioGroup>
+                        </label>
+                        <label>
+                            <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                            <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
+                        </label>
+                        <Button onClick={() => { handleSubmitForm() }} type='primary' className='bg-blue-500'>
+                            {'Cập nhật'}
+                        </Button>
+                    </div>
                 </div>
-                <div className='flex-grow bg-slate-50 px-3 rounded-lg h-fit'>
+
+                <div className='flex-grow bg-slate-50 p-3 rounded-lg h-fit flex flex-col gap-2 border'>
+                    <p className='text-lg font-semibold'>Danh sách sản phẩm</p>
+                    <div className='relative after:w-full after:h-[3px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
                     <ListDetailProduct data={listProduct} />
                 </div>
                 <ToastContainer />

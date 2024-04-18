@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Label } from "~/components/ui/label"
-// import { Button } from '~/components/ui/button';
 import {
     Form,
     FormControl,
@@ -25,7 +24,6 @@ import axios from 'axios';
 import { baseUrl } from '../../lib/functional'
 import {
     CaretSortIcon,
-    ChevronDownIcon,
     DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
@@ -39,7 +37,6 @@ import {
 
 import {
     DropdownMenu,
-    DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
@@ -80,7 +77,7 @@ const formSchema = z.object({
 })
 const modalFormSchema = z.object({
     receiverName: z.string(),
-    receiverPhone: z.string(),
+    phone: z.string(),
 })
 const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function AddCustomer() {
@@ -95,7 +92,7 @@ export default function AddCustomer() {
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
 
-    const [defaultAddress, setDefaultAddress] = useState(0);
+    const [defaultAddress, setDefaultAddress] = useState(1);
 
     useEffect(() => {
         axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/province`, {
@@ -206,7 +203,7 @@ export default function AddCustomer() {
         setListAddress(prev => {
             return prev.map(address => {
                 if ((key && address.key == key) || (id && address.id == id)) {
-                    return { ...address, receivername: newValue };
+                    return { ...address, receiverName: newValue };
                 }
                 return address;
             });
@@ -268,7 +265,7 @@ export default function AddCustomer() {
             ),
         },
         {
-            accessorKey: "receivername",
+            accessorKey: "receiverName",
             header: ({ column }) => {
                 return (
                     <Button
@@ -282,7 +279,7 @@ export default function AddCustomer() {
                 )
             },
             cell: ({ row }) => <div className="lowercase">
-                {row.original && <p>{row.original.receivername}</p>}
+                {row.original && <p>{row.original.receiverName}</p>}
             </div>,
         },
         {
@@ -408,7 +405,7 @@ export default function AddCustomer() {
         axios.post(`${baseUrl}/customer`, data).then(res => {
             const promises = listAddress.map(add => {
                 const body = {
-                    receiverName: add.receivername,
+                    receiverName: add.receiverName,
                     receiverPhone: add.phone,
                     commune: add.commune.name,
                     district: add.district.name,
@@ -416,13 +413,13 @@ export default function AddCustomer() {
                     communeID: add.commune.id,
                     districtID: add.district.id,
                     provinceID: add.province.id,
-                    defaultAddress: defaultAddress == add.id,
+                    defaultAddress: defaultAddress == add.key,
                     detail: add.detail,
                     customer: res.data.data.id,
                     id: add.id
                 }
                 return axios.post(`${baseUrl}/address`, body)
-            }) 
+            })
             Promise.all(promises).then(() => {
                 toast.success('thêm khách hàng thành công');
                 form.reset();
@@ -434,23 +431,7 @@ export default function AddCustomer() {
         })
     }
 
-    const handleAddAddress = () => {
-        let newObject = {
-            key: listAddress.length + 1,
-            receivername: "",
-            phone: "",
-            province: { id: '269', name: 'Lào Cai' },
-            district: { id: '2264', name: 'Huyện Si Ma Cai' },
-            commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
-        }
-        setEditAddress(newObject);
-        setListAddress(prev => [...prev, newObject])
-        // setIsModalOpen(true);
-    }
 
-    useEffect(() => {
-        console.log(listAddress)
-    }, [listAddress])
 
     const [editAddress, setEditAddress] = useState({});
 
@@ -459,7 +440,7 @@ export default function AddCustomer() {
             resolver: zodResolver(modalFormSchema),
             mode: 'all',
             values: {
-                receiverName: editAddress.receiverName || '',
+                receiverName: '',
                 phone: "",
                 province: { id: '269', name: 'Lào Cai' },
                 district: { id: '2264', name: 'Huyện Si Ma Cai' },
@@ -467,6 +448,22 @@ export default function AddCustomer() {
             }
         }
     )
+
+
+    const handleAddAddress = () => {
+        let newObject = {
+            key: listAddress.length + 1,
+            receiverName: "",
+            phone: "",
+            province: { id: '269', name: 'Lào Cai' },
+            district: { id: '2264', name: 'Huyện Si Ma Cai' },
+            commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
+        }
+        modalForm.reset();
+        setEditAddress(newObject);
+        setListAddress(prev => [...prev, newObject])
+        setIsModalOpen(true);
+    }
 
     return (
         <div className='flex flex-col gap-5 pb-8'>
@@ -581,7 +578,7 @@ export default function AddCustomer() {
                         Thêm địa chỉ mới
                     </Button>
                 </div>
-                <Modal title="Basic Modal" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
+                <Modal title="Điền thông tin" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
                     <Form {...modalForm}>
                         <form onSubmit={() => { }} className="space-y-8">
                             <FormField
@@ -610,70 +607,72 @@ export default function AddCustomer() {
                                     </FormItem>
                                 )}
                             />
-
-                            <FormField
-                                control={modalForm.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tỉnh thành phố</FormLabel>
-                                        <FormControl>
-                                            <Select className='min-w-[110px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
-                                                {
-                                                    listProvince.map((province, key) => {
-                                                        return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
-                                                    })
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={modalForm.control}
-                                name="district"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Quận huyện</FormLabel>
-                                        <FormControl>
-                                            <Select className='min-w-[110px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
-                                                {
-                                                    listDistricts.map((district, key) => {
-                                                        return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
-                                                    })
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={modalForm.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Xã phường</FormLabel>
-                                        <FormControl>
-                                            <Select {...field} className='min-w-[110px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
-                                                {
-                                                    listWards.map((ward, key) => {
-                                                        return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
-                                                    })
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className='grid grid-cols-2 gap-3'>
+                                <p>Tỉnh thành phố</p>
+                                <FormField
+                                    control={modalForm.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Select className='min-w-[180px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
+                                                    {
+                                                        listProvince.map((province, key) => {
+                                                            return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
+                                                        })
+                                                    }
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <p>Quận huyện</p>
+                                <FormField
+                                    control={modalForm.control}
+                                    name="district"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel></FormLabel>
+                                            <FormControl>
+                                                <Select className='min-w-[180px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
+                                                    {
+                                                        listDistricts.map((district, key) => {
+                                                            return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
+                                                        })
+                                                    }
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <p>Xã phường</p>
+                                <FormField
+                                    control={modalForm.control}
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Select {...field} className='min-w-[180px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
+                                                    {
+                                                        listWards.map((ward, key) => {
+                                                            return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
+                                                        })
+                                                    }
+                                                </Select>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <div>
                                 <p>Địa chỉ chi tiết</p>
                                 <Textarea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
                             </div>
 
-                            <div className='flex items-center'>
+                            <div className='flex items-center gap-3'>
                                 <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.id || editAddress.key) }} />
                                 <p>Đặt làm địa chỉ mặc định</p>
                             </div>

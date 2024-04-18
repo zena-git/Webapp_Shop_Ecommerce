@@ -12,7 +12,7 @@ const PromotionPage = () => {
     return (
 
         <div className="px-6 py-3 bg-white rounded-md shadow-lg flex flex-col gap-3">
-            <div className='flex justify-between items-center'>
+            <div className='flex justify-between items-center bg-slate-50'>
                 <p className='text-xl font-bold'>Sự kiện giảm giá</p>
                 <div className='flex gap-5 items-center'>
                     <Link to={'/discount/promotion/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-sm my-3'>
@@ -22,11 +22,7 @@ const PromotionPage = () => {
                 </div>
             </div>
             <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
-            <div>
-                <div className='mt-5 rounded-lg'>
-                    <ListTable />
-                </div>
-            </div>
+            <ListTable />
         </div>
 
     )

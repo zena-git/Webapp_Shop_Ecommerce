@@ -39,9 +39,8 @@ import {
     TableRow,
 } from "~/components/ui/table"
 import { PromotionDetailResponse } from "~/lib/type"
-import { Link, redirect } from 'react-router-dom'
 
-export default function ListTable({ data }: { data: PromotionDetailResponse[] }) {
+export default function ListTable({ data, value }: { data: PromotionDetailResponse[], value: number }) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -63,28 +62,46 @@ export default function ListTable({ data }: { data: PromotionDetailResponse[] })
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        mã sp
+                        Mã sản phẩm
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.ProductDetail.code}</div>,
+            cell: ({ row }) => <div className="lowercase">{row.original.productDetails.code}</div>,
         },
         {
             id: "type",
-            header: () => <div className="text-center">phân loại</div>,
+            header: () => <div className="text-center">Giá bán gốc</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {"[ " + row.original.ProductDetail.Color.name + " - " + row.original.ProductDetail.Size.name + " ]"}
+                    {numberToPrice(row.original.productDetails.price)}
+                </div>
+            },
+        },
+        {
+            id: "type",
+            header: () => <div className="text-center">Giá bán sau giảm</div>,
+            cell: ({ row }) => {
+                return <div className='text-center'>
+                    {numberToPrice(row.original.productDetails.price - row.original.productDetails.price * value / 100)}
+                </div>
+            },
+        },
+        {
+            id: "price",
+            header: () => <div className="text-center">Phân loại</div>,
+            cell: ({ row }) => {
+                return <div className='text-center'>
+                    {"[ " + row.original.productDetails.color.name + " - " + row.original.productDetails.size.name + " ]"}
                 </div>
             },
         },
         {
             id: "quantity",
-            header: () => <div className="text-center">số lượng</div>,
+            header: () => <div className="text-center">Số lượng</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.ProductDetail.quantity}
+                    {row.original.productDetails.quantity}
                 </div>
             },
         },
@@ -225,4 +242,9 @@ export default function ListTable({ data }: { data: PromotionDetailResponse[] })
             </div>
         </>
     )
+}
+
+const numberToPrice = (value) => {
+    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return formattedAmount;
 }

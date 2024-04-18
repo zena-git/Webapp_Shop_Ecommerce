@@ -1,14 +1,11 @@
-import { DatePicker, InputNumber, Button, Upload, Select } from 'antd/lib';
+import { DatePicker, InputNumber, Button, Select } from 'antd/lib';
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl, baseUrlV3 } from '~/lib/functional';
-import { makeid } from '~/lib/functional';
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
-import { Label } from "~/components/ui/label"
-// import { Button } from '~/components/ui/button';
 import {
     Form,
     FormControl,
@@ -21,60 +18,9 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ToastContainer, toast } from 'react-toastify';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { vnData } from '../../lib/extra'
 import { useDropzone } from 'react-dropzone'
-import { useParams } from 'react-router-dom'
-import {
-    // editor
-    locale_en_gb,
-    createDefaultImageReader,
-    createDefaultImageWriter,
-    createDefaultShapePreprocessor,
-
-    // plugins
-    setPlugins,
-    plugin_crop,
-    plugin_crop_locale_en_gb,
-    plugin_finetune,
-    plugin_finetune_locale_en_gb,
-    plugin_finetune_defaults,
-    plugin_filter,
-    plugin_filter_locale_en_gb,
-    plugin_filter_defaults,
-    plugin_annotate,
-    plugin_annotate_locale_en_gb,
-    markup_editor_defaults,
-    markup_editor_locale_en_gb,
-} from "@pqina/pintura";
-
-
-import { PinturaEditorModal } from "@pqina/react-pintura";
-
-const editorDefaults = {
-    utils: [
-        "crop",
-        // "finetune",
-        // "filter",
-        // "annotate"
-    ],
-    imageReader: createDefaultImageReader(),
-    imageWriter: createDefaultImageWriter(),
-    shapePreprocessor: createDefaultShapePreprocessor(),
-    ...plugin_finetune_defaults,
-    ...plugin_filter_defaults,
-    ...markup_editor_defaults,
-    locale: {
-        ...locale_en_gb,
-        ...plugin_crop_locale_en_gb,
-        ...plugin_finetune_locale_en_gb,
-        ...plugin_filter_locale_en_gb,
-        ...plugin_annotate_locale_en_gb,
-        ...markup_editor_locale_en_gb,
-    },
-};
-
-setPlugins(plugin_crop, plugin_finetune, plugin_filter, plugin_annotate);
+import { useParams, useNavigate } from 'react-router-dom'
+import { IoArrowBackSharp } from "react-icons/io5";
 
 const formSchema = z.object({
     fullName: z.string().min(2, {
@@ -86,58 +32,104 @@ const formSchema = z.object({
     province: z.string(),
     detail: z.string(),
     birthday: z.any(),
+    phone: z.string(),
     email: z.string({ required_error: 'email là bắt buộc' }).email({ message: 'phải là định dạng email' }),
 
 })
-
+const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function Add() {
     const path = useParams()
-    const [addProvince, setAddProvince] = useState("Thành phố Hà Nội");
-    const [addDistrict, setAddDistrict] = useState("Quận Ba Đình");
-    const [addWard, setAddWard] = useState("Phường Phúc Xá");
+    const [addProvince, setAddProvince] = useState();
+    const [addDistrict, setAddDistrict] = useState();
+    const [addWard, setAddWard] = useState();
 
+    const [listProvince, setListProvince] = useState([]);
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
+    const [gender, setGender] = useState('0');
 
-    const PinturaRef = useRef(null);
-    const [visible, setVisible] = useState(false);
     const [originalThumbnail, setOriginalThumbnail] = useState(null);
 
     const [targetUser, setTargetUser] = useState();
+
+    const [enableChecking, setEnableChecking] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (path.id) {
             axios.get(`${baseUrl}/user/${path.id}`).then(res => {
                 setTargetUser(res.data);
+
+                axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/province`, {
+                    headers: {
+                        token: token
+                    }
+                }).then(resp => {
+                    setListProvince(resp.data.data);
+                    const foundProvince = resp.data.data.find(targetProvince => targetProvince.ProvinceName == res.data.province)
+                    setAddProvince(foundProvince);
+                    axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${foundProvince.ProvinceID}`, {
+                        headers: {
+                            token: token
+                        }
+                    }).then(respo => {
+                        setListDistricts(respo.data.data)
+                        const foundDistrict = respo.data.data.find(targetDistrict => targetDistrict.DistrictName == res.data.district)
+                        setAddDistrict(foundDistrict);
+                        axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${foundDistrict.DistrictID}`, {
+                            headers: {
+                                token: token
+                            }
+                        }).then(respon => {
+                            setListWards(respon.data.data);
+                            const foundWard = respon.data.data.find(targetWard => targetWard.WardName == res.data.commune)
+                            setAddWard(foundWard.WardName);
+                            setEnableChecking(true);
+                        })
+                    })
+                })
             })
         }
     }, [path.id])
 
     useEffect(() => {
-        if (targetUser) {
-            setAddDistrict(targetUser.district);
-            setAddProvince(targetUser.province);
-            setAddWard(targetUser.commune);
+        if (addProvince && enableChecking) {
+            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${addProvince.ProvinceID}`, {
+                headers: {
+                    token: token
+                }
+            }).then(res => {
+                let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451)
+                if (listFilteredDistrict[0].DistrictName != listDistricts[0].DistrictName) {
+                    setListDistricts(listFilteredDistrict);
+                    axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0].DistrictID}`, {
+                        headers: {
+                            token: token
+                        }
+                    }).then(resp => {
+                        setListWards(resp.data.data);
+                        setAddWard(resp.data.data[0]);
+                    })
+                }
+            })
         }
-    }, [targetUser])
+    }, [addProvince, enableChecking])
 
     useEffect(() => {
-        const province = vnData.find(target => { return target.name == addProvince });
-        if (!province) return;
-        const t = province.districts;
-        setListDistricts(t);
-        setAddDistrict(t[0].name)
-    }, [addProvince])
-
-    useEffect(() => {
-        if (listDistricts) {
-            const t = listDistricts.find(target => { return target.name == addDistrict })?.wards;
-            if (t) {
-                setListWards(t);
-                setAddWard(t[0].name)
-            }
+        if (addDistrict && enableChecking) {
+            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${addDistrict.DistrictID}`, {
+                headers: {
+                    token: token
+                }
+            }).then(res => {
+                if (listWards[0].WardName != res.data.data[0].WardName) {
+                    setListWards(res.data.data);
+                    setAddWard(res.data.data[0].WardName)
+                }
+            })
         }
-    }, [addDistrict])
+    }, [addDistrict, enableChecking])
 
     const form = useForm(
         {
@@ -162,21 +154,6 @@ export default function Add() {
         }
     )
 
-    const handleEditImage = ({ file }) => {
-        setVisible(true);
-        setTimeout(() => {
-            console.log(PinturaRef.current)
-            if (PinturaRef && PinturaRef.current) {
-                PinturaRef.current.editor
-                    .loadImage(file, { imageCropAspectRatio: 1 / 1 })
-                    .then((imageReaderResult) => {
-                        // Logs loaded image data
-                        // console.log(imageReaderResult);
-                    });
-            }
-        }, 1000);
-    };
-
     const onThumbnailDrop = useCallback((acceptedFiles) => {
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -188,18 +165,6 @@ export default function Add() {
                     width: image.width,
                     height: image.height,
                 });
-                // if (image.width / image.height !== 1 / 1) {
-                //     console.log('wtf')
-                //     handleEditImage({
-                //         file: acceptedFiles[0],
-                //     });
-                // } else {
-                //     setOriginalThumbnail({
-                //         file: acceptedFiles[0],
-                //         width: image.width,
-                //         height: image.height,
-                //     });
-                // }
             };
         };
         reader.readAsDataURL(acceptedFiles[0]);
@@ -220,7 +185,6 @@ export default function Add() {
 
 
     const handleSubmitForm = (values) => {
-        console.log(values.gender);
         if (originalThumbnail) {
             const formData = new FormData();
             formData.append("file", originalThumbnail.file);
@@ -232,11 +196,11 @@ export default function Add() {
                     birthday: new Date(dayjs(values.birthday).toDate()),
                     commune: addWard,
                     detail: values.detail,
-                    district: addDistrict,
-                    province: addProvince,
+                    district: addDistrict.DistrictName,
+                    province: addProvince.ProvinceName,
                     email: values.email,
                     fullName: values.fullName,
-                    gender: values.gender == '0',
+                    gender: gender == '0',
                     phone: values.phone,
                     imageUrl: res.data.url
                 }
@@ -252,11 +216,11 @@ export default function Add() {
                 birthday: new Date(dayjs(values.birthday).toDate()),
                 commune: addWard,
                 detail: values.detail,
-                district: addDistrict,
-                province: addProvince,
+                district: addDistrict.DistrictName,
+                province: addProvince.ProvinceName,
                 email: values.email,
                 fullName: values.fullName,
-                gender: values.gender == '0',
+                gender: gender == '0',
                 phone: values.phone
             }
             axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
@@ -269,31 +233,15 @@ export default function Add() {
 
     return (
         <div className="mb-9">
-            {visible && (
-                <PinturaEditorModal
-                    ref={PinturaRef}
-                    className='z-50'
-                    {...editorDefaults}
-                    onHide={() => setVisible(false)}
-                    onProcess={(com) => {
-                        setOriginalThumbnail({
-                            file: com.dest,
-                            //@ts-ignore
-                            width: com.imageState.crop?.width,
-                            //@ts-ignore
-                            height: com.imageState.crop?.height,
-                        })
-                    }}
-                />
-            )}
-            <div>
-
-            </div>
+            <ToastContainer />
             <div className="flex">
                 <Form {...form}>
                     <form onSubmit={e => { e.preventDefault() }} className="w-full flex max-lg:flex-col gap-5">
                         <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
-                            <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                            <div className='flex gap-2 items-center'>
+                                <div className='text-lg cursor-pointer' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
+                                <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                            </div>
                             <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
                             <div className='w-full flex flex-col'>
                                 <div
@@ -359,10 +307,10 @@ export default function Add() {
                                             <FormItem>
                                                 <FormLabel>Giới tính</FormLabel>
                                                 <FormControl>
-                                                    <RadioGroup className="flex gap-3 items-center" onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <RadioGroup className="flex gap-3 items-center" onValueChange={(value) => { setGender(value) }} defaultValue="0">
                                                         <FormItem className="flex items-center space-x-3 space-y-0">
                                                             <FormControl>
-                                                                <RadioGroupItem value="0" />
+                                                                <RadioGroupItem value="0" defaultSelected />
                                                             </FormControl>
                                                             <FormLabel className="font-normal">
                                                                 Nam
@@ -422,12 +370,16 @@ export default function Add() {
                                         (
                                             <FormItem>
                                                 <FormLabel>Tỉnh/thành phố</FormLabel>
-                                                <FormControl defaultValue='1'>
+                                                <FormControl>
                                                     <div>
-                                                        <Select placeholder='Tỉnh/Thành phố' value={addProvince} onChange={value => { setAddProvince(value) }}>
-                                                            {vnData.map((province) => {
-                                                                return <option key={province.code} value={province.name}>{province.name}</option>
-                                                            })}
+                                                        <Select className='min-w-[120px]' placeholder='Tỉnh/Thành phố' defaultValue={targetUser?.province} value={addProvince?.ProvinceID} onChange={value => { setAddProvince(listProvince.find(target => target.ProvinceID == value)) }}>
+                                                            {
+                                                                listProvince.map((province, key) => {
+                                                                    return <option key={key} value={province.ProvinceID}>
+                                                                        {province.ProvinceName}
+                                                                    </option>
+                                                                })
+                                                            }
                                                         </Select>
                                                     </div>
                                                 </FormControl>
@@ -442,12 +394,12 @@ export default function Add() {
                                         (
                                             <FormItem>
                                                 <FormLabel>Quận/huyện</FormLabel>
-                                                <FormControl defaultValue='1'>
+                                                <FormControl>
                                                     <div className='w-full'>
-                                                        <Select className='' placeholder='Quận/huyện' value={addDistrict} onChange={value => { setAddDistrict(value) }}>
+                                                        <Select className='min-w-[120px]' placeholder='Quận/huyện' defaultValue={targetUser?.district} value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target.DistrictID == value)) }}>
                                                             {
-                                                                listDistricts.map(district => {
-                                                                    return <option key={district.code} value={district.name}>{district.name}</option>
+                                                                listDistricts.map((district, key) => {
+                                                                    return <option key={key} value={district.DistrictID}>{district.DistrictName}</option>
                                                                 })
                                                             }
                                                         </Select>
@@ -464,12 +416,12 @@ export default function Add() {
                                         (
                                             <FormItem>
                                                 <FormLabel>Xã/thị trấn</FormLabel>
-                                                <FormControl defaultValue='1'>
+                                                <FormControl>
                                                     <div>
-                                                        <Select placeholder='Xã/thị trấn' value={addWard} onChange={value => { setAddWard(value) }}>
+                                                        <Select className='min-w-[120px]' defaultValue={targetUser?.commune} value={addWard} placeholder='Xã/thị trấn' onChange={value => { setAddWard(value) }}>
                                                             {
-                                                                listWards.map(ward => {
-                                                                    return <option key={ward.code} value={ward.name}>{ward.name}</option>
+                                                                listWards.map((ward, key) => {
+                                                                    return <option key={key} value={ward.WardName}>{ward.WardName}</option>
                                                                 })
                                                             }
                                                         </Select>

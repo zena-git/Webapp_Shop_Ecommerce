@@ -2,19 +2,17 @@ import { DatePicker, InputNumber, Button } from 'antd/lib';
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useEffect, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl, makeid } from '~/lib/functional';
-import { redirect, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
 import ReduxProvider from '~/redux/provider'
 import { useDispatch } from 'react-redux';
-import { set, updateSelected, disableChildren } from '~/redux/features/promotion-selected-item'
-import { setDateRange } from '../../redux/features/promotion-date-selected'
+import { set } from '~/redux/features/promotion-selected-item'
 import { Label } from "~/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
-// import { Button } from '../../components/ui/button'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
 const { RangePicker } = DatePicker
@@ -98,21 +96,21 @@ function EditPage() {
                 setDescription("");
                 // navigate(`/discount/promotion`)
             }).catch(err => {
-                toast.error(err)
+                toast.error(err.response.data.message)
             })
         }
     }
 
     return (
         <div>
-            <div className='w-full flex max-lg:flex-col p-5 gap-5'>
-                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg'>
+            <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
+                <ToastContainer />
+                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg border'>
                     <div className='flex gap-2 items-center'>
                         <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='ml-3 text-lg font-semibold'>Thêm mới đợt giảm giá</p>
                     </div>
                     <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
-                    <ToastContainer />
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
                         <Input value={code} onChange={e => { setCode(e.target.value) }} />
@@ -152,8 +150,8 @@ function EditPage() {
                         {'Thêm mới đợt giảm giá'}
                     </Button>
                 </div>
-                <div className='flex-grow bg-slate-50 px-3 py-3 rounded-lg h-fit flex flex-col gap-3'>
-                    <p className='text-lg font-semibold'>Thêm mới đợt giảm giá</p>
+                <div className='flex-grow bg-slate-50 px-3 py-3 rounded-lg h-fit flex flex-col gap-3 border'>
+                    <p className='text-lg font-semibold'>Danh sách sản phẩm</p>
                     <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
                     <ListDetailProduct data={listProduct} />
                 </div>
