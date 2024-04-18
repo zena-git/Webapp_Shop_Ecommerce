@@ -10,13 +10,15 @@ import com.example.webapp_shop_ecommerce.service.IVoucherService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VoucherDetailsServiceImpl extends BaseServiceImpl<VoucherDetails, Long, IVoucherDetailsRepository> implements IVoucherDetailsService {
 
-    @Override
-    public List<VoucherDetails> findAllByIdCustomer(Long idCustomer) {
 
-        return repository.findAllByIdCustomer(idCustomer, TrangThaiGiamGia.DANG_DIEN_RA.getLabel());
+
+    @Override
+    public Optional<VoucherDetails> findVoucherDetailsByCustomerAndVoucher(Long idCustomer, Long idVoucher) {
+        return repository.findVoucherDetailsByCustomerAndVoucher(idCustomer, idVoucher);
     }
 }

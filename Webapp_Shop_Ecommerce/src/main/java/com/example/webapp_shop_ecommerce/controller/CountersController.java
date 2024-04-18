@@ -117,7 +117,10 @@ public class CountersController {
     public ResponseEntity<?> deleteBillDetails(@PathVariable("idBilldetails") Long id) {
         return billService.billDeleteBillDetail(id);
     }
-
+    @DeleteMapping("/{idBill}/billDetails/deleteAll")
+    public ResponseEntity<?> deleteBillDetailsAll(@PathVariable("idBill")Long id) {
+        return billService.billDeleteAllBillDetail(id);
+    }
 
     @GetMapping("/{idBill}/product/barcode/{data}")
     public ResponseEntity<?> billAddProductBarcode(@PathVariable("idBill") Long id,@PathVariable("data") String data) {

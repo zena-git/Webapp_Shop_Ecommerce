@@ -21,8 +21,9 @@ public interface IVoucherDetailsRepository extends IBaseReporitory<VoucherDetail
 
 
     @Query("select vd from VoucherDetails vd where vd.bill.id = :idBill")
-    List<VoucherDetails> findByIdBill(@Param("idBill") Long idBill);
+    Optional<VoucherDetails> findByIdBill(@Param("idBill") Long idBill);
 
-    @Query("select vd from VoucherDetails vd join vd.voucher v where v.deleted = false and vd.deleted = false and vd.status = false and v.status = :status and vd.customer.id = :idCustomer")
-    List<VoucherDetails> findAllByIdCustomer(@Param("idCustomer") Long idCustomer,@Param("status") String status);
+
+    @Query("select vd from VoucherDetails vd where vd.deleted =false and vd.voucher.deleted = false and vd.status = false and vd.voucher.id = :idVoucher and  vd.customer.id =:idCustomer")
+    Optional<VoucherDetails> findVoucherDetailsByCustomerAndVoucher(@Param("idCustomer") Long idCustomer, @Param("idVoucher") Long idVoucher);
 }

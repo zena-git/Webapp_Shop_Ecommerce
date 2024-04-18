@@ -38,6 +38,7 @@ public class BillRequest {
     private String receiverDistrict;
     private String receiverProvince;
     private Long customer;
+    private Long voucher;
     private String description;
     private Boolean isDelivery;
     private String returnUrl;

@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.dto.response.voucherDetails;
 
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
+import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 
 public class VoucherDetailsCountersResponse {
     private Long id;
-    private VoucherResponse voucher;
+    private VoucherCountersResponse voucher;
     private Boolean status;
     private LocalDateTime usedDate;
 }

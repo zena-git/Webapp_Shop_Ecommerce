@@ -1,6 +1,7 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
 import com.example.webapp_shop_ecommerce.entity.Voucher;
+import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,6 +22,8 @@ public interface IVoucherRepository extends IBaseReporitory<Voucher, Long> {
 
     @Query("SELECT vc FROM Voucher vc WHERE vc.name like %:#{#keyWork['search']}% and vc.status like %:#{#keyWork['status']}% and vc.deleted = false")
     Page<Voucher> findVoucherByKeyWorkAndDeletedFalse(Pageable pageable, Map<String,String> keyWork);
+    @Query("select v from Voucher v join v.lstVoucherDetails vd where v.deleted = false and vd.deleted = false and vd.status = false and v.status = :status and vd.customer.id = :idCustomer")
+    List<Voucher> findAllByIdCustomer(@Param("idCustomer") Long idCustomer, @Param("status") String status);
 
 
     @Transactional

@@ -40,6 +40,11 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
     }
 
     @Override
+    public List<Voucher> findAllByIdCustomer(Long idCustomer) {
+        return repository.findAllByIdCustomer(idCustomer, TrangThaiGiamGia.DANG_DIEN_RA.getLabel());
+    }
+
+    @Override
     public ResponseEntity<ResponseObject> save(VoucherRequest voucherRequest) {
         Voucher entity = mapper.map(voucherRequest, Voucher.class);
         entity.setId(null);

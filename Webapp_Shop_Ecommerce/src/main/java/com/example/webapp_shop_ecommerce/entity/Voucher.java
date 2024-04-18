@@ -33,13 +33,13 @@ public class Voucher extends BaseEntity {
     private Integer quantity;
 
     @Column(name = "max_discount_value")
-    private Float maxDiscountValue;
+    private BigDecimal maxDiscountValue;
 
     @Column(name = "order_min_value")
-    private Float orderMinValue;
+    private BigDecimal orderMinValue;
 
     @Column(name = "discount_type")
-    private Integer discountType;
+    private String discountType;
 
     @Column(name = "description")
     private String description;

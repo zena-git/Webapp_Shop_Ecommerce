@@ -2,8 +2,11 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherCountersResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
+import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsCountersResponse;
 import com.example.webapp_shop_ecommerce.entity.Voucher;
+import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
 import com.example.webapp_shop_ecommerce.service.IVoucherService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -103,5 +106,11 @@ public class VoucherController {
     }
 
 
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<?> findAllVoucherByCustomer(@PathVariable("id") Long id) {
+        List<Voucher> lstEty = voucherService.findAllByIdCustomer(id);
+        List<VoucherCountersResponse> lst  = lstEty.stream().map(entity -> mapper.map(entity, VoucherCountersResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(lst, HttpStatus.OK);
 
+    }
 }

@@ -17,12 +17,15 @@ import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.service.IBillDetailsService;
 import com.example.webapp_shop_ecommerce.service.IBillService;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -212,7 +215,18 @@ public class BillController {
 
 
     @PostMapping("/{idBill}/historyBill")
-    public ResponseEntity<?> addHistorybill(@RequestBody HistoryBillRequest historyBillRequest, @PathVariable("idBill") Long idBill) {
+    public ResponseEntity<?> addHistorybill(@Valid @RequestBody HistoryBillRequest historyBillRequest, BindingResult result, @PathVariable("idBill") Long idBill) {
+
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, historyBillRequest), HttpStatus.BAD_REQUEST);
+        }
+        
         return billService.addHistorybill(historyBillRequest, idBill);
     }
     @PostMapping("/{idBill}/payment")
@@ -221,8 +235,18 @@ public class BillController {
     }
 
     @PutMapping("/{idBill}/cancelling")
-    public ResponseEntity<?> cancellingBill(@PathVariable("idBill") Long idBill) {
-        return billService.cancellingBill(idBill);
+    public ResponseEntity<?> cancellingBill(@Valid @RequestBody HistoryBillRequest historyBillRequest, BindingResult result,@PathVariable("idBill") Long idBill) {
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, historyBillRequest), HttpStatus.BAD_REQUEST);
+        }
+
+        return billService.cancellingBill(idBill,historyBillRequest);
     }
 
 }
