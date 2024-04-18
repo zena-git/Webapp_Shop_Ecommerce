@@ -147,7 +147,7 @@ function ProductDetail() {
             console.log(filteredProductDetails);
             if (filteredProductDetails === undefined) {
                 //lua 
-                setQuantityStock("Sản Phẩm Hết Hàng")
+                setQuantityStock(0)
                 setProductDetails(null)
                 return;
             }
@@ -159,7 +159,7 @@ function ProductDetail() {
                 setPriceProduct(fixMoney(filteredProductDetails.price))
             }
             if (filteredProductDetails.quantity == 0) {
-                setQuantityStock("Sản Phẩm Hết Hàng")
+                setQuantityStock(0)
             } else {
                 setQuantityStock(filteredProductDetails.quantity)
             }
@@ -175,6 +175,12 @@ function ProductDetail() {
             toast.error("Vui lòng chọn sản phẩm")
             return;
         }
+
+        if(productDetails?.quantity == 0) {
+            toast.error("Sản phẩm đã hết hàng")
+            return;
+        }
+
 
         const productCart = data.find(product => {
             return product.productDetails.id === productDetails.id
@@ -203,6 +209,10 @@ function ProductDetail() {
             toast.error("Vui lòng chọn sản phẩm")
             return;
         }
+        if(productDetails?.quantity == 0) {
+            toast.error("Sản phẩm đã hết hàng")
+            return;
+        }
         const productCart = data.find(product => {
             return product.productDetails.id === productDetails.id
         })
@@ -224,11 +234,14 @@ function ProductDetail() {
     }
 
     const handleIncrease = () => {
+        if (quantityProduct == productDetails?.quantity) {
+            return;
+        }
         onChangeQuanTity(quantityProduct + 1); // Tăng giá trị và gọi hàm onChange của parent component
     };
 
     const handleDecrease = () => {
-        if (quantityProduct == 1) {
+        if (quantityProduct <= 1) {
             return;
         }
         onChangeQuanTity(quantityProduct - 1); // Giảm giá trị và gọi hàm onChange của parent component
@@ -240,7 +253,10 @@ function ProductDetail() {
             return;
         }
 
-
+        if(productDetails?.quantity == 0) {
+            toast.error("Sản phẩm đã hết hàng")
+            return;
+        }
         const productCart = data.find(product => {
             return product.productDetails.id === productDetails.id
         })
@@ -439,7 +455,11 @@ function ProductDetail() {
                                         </div>
 
 
-                                        <span className="ml-8">{quantityStock} sản phẩm có sẵn</span>
+                                        {
+                                            quantityStock > 0 ?
+                                            <span className="ml-8">{quantityStock} sản phẩm có sẵn</span>:
+                                            <span className="ml-8">Sản phẩm hết hàng</span>
+                                        }
                                     </div>
 
                                 </div>

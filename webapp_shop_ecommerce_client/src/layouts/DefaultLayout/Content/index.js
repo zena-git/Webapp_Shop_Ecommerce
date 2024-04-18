@@ -22,14 +22,20 @@ function Content({ children }) {
                             left: '0',
                             bottom: '0',
                             right: '0',
-                            backgroundColor: 'rgba(146, 146, 146, 0.22)',
+                            backgroundColor: 'rgba(146, 146, 146, 0.33)',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
                             zIndex: 1,
                         }}
                     >
-                        <LoadingOutlined className='text-6xl text-rose-500	'/>
+                        <img style={{
+                            width: "80px",
+                            height: "80px",
+                        }} src='../LoadingCat.gif' alt='loading'></img>
+                        
+                        {/* <LoadingOutlined className='text-6xl text-rose-500	'/> */}
+                       
                     </div>
                 )}
             </div>

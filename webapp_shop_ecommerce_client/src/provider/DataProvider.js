@@ -6,7 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 const DataProvider = ({ children }) => {
     const navigate = useNavigate();
-    const [isAccount, setIsAccount] = useState(true);
+    const [isAccount, setIsAccount] = useState(false);
     const [customer, setCustomer] = useState()
 
     const [data, setData] = useState([]);
@@ -17,7 +17,12 @@ const DataProvider = ({ children }) => {
     const [voucherMoney, setVoucherMoney] = useState(0);
     const [paymentMethods, setPaymentMethods] = useState(0);
     const [addressBill, setAddressBill] = useState('');
+    const [voucher, setVoucher] = useState(null);
 
+    const DiscountType = {
+        GIAM_TRUC_TIEP: '0',
+        GIAM_PHAN_TRAM: "1",
+    }
 
     const [loading, setLoading] = useState(false);
 
@@ -35,11 +40,33 @@ const DataProvider = ({ children }) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (totalPrice <= 0 || voucher == null) {
+            setVoucherMoney(0);
+            return;
+        }
+        //%
+        if (voucher.discountType == DiscountType.GIAM_PHAN_TRAM) {
+            const discount = totalPrice * voucher.value / 100;
+            setVoucherMoney(discount);
+        } else {
+            setVoucherMoney(voucher.value);
+        }
+
+    }, [voucher, totalPrice])
 
 
     useEffect(() => {
+       
         const money = totalPrice - voucherMoney + shipMoney;
-        setIntoMoney(money);
+
+
+        if (money <= 0) {
+            setIntoMoney(0);
+
+        } else {
+            setIntoMoney(money);
+        }
     }, [totalPrice, voucherMoney, shipMoney])
 
     useEffect(() => {
@@ -89,6 +116,9 @@ const DataProvider = ({ children }) => {
     };
     const setDataPaymentMethods = (newData) => {
         setPaymentMethods(newData)
+    };
+    const setDataVoucher = (newData) => {
+        setVoucher(newData)
     };
     const setDataShipMoney = (newData) => {
         setShipMoney(newData)
@@ -228,16 +258,16 @@ const DataProvider = ({ children }) => {
             paymentMethod: paymentMethods,
             voucherMoney: voucherMoney,
             intoMoney: intoMoney,
-            email: addressBill.email,
-            receiverName: addressBill.receiverName,
+            email: addressBill?.email,
+            receiverName: addressBill?.receiverName,
             receiverPhone: addressBill.receiverPhone,
-            receiverDetails: addressBill.detail,
-            receiverCommune: addressBill.commune,
-            receiverDistrict: addressBill.district,
-            receiverProvince: addressBill.province,
+            receiverDetails: addressBill?.detail,
+            receiverCommune: addressBill?.commune,
+            receiverDistrict: addressBill?.district,
+            receiverProvince: addressBill?.province,
             description: addressBill?.description,
             lstCartDetails: dataCheckout,
-            voucher: voucherMoney,
+            voucher: voucher?.id,
             returnUrl: returnUrl
         }
         console.log(dataBill);
@@ -258,7 +288,8 @@ const DataProvider = ({ children }) => {
 
                 })
                 .catch(err => {
-                    console.log(err);
+                    toast.error(err.response.data.message)
+
                 })
                 .finally(() => {
                     setTimeout(() => {
@@ -275,13 +306,15 @@ const DataProvider = ({ children }) => {
                     if (res.data.status == "redirect") {
                         window.location.href = res.data.data;
                     } else {
-                        navigate('/notificationOrder?bill=' + res.data.codeBill + '&&status=' + res.data.errCode);
+                        navigate('/notificationOrder?bill=' +  res.data.data.codeBill + '&&status=' + res.data.errCode);
                         toast.success('Đặt Hàng Thành Công')
                     }
                     setDataCheckout([]);
 
                 })
                 .catch(err => {
+                    toast.error(err.response.data.message)
+
                     console.log(err);
                 })
                 .finally(() => {
@@ -291,7 +324,7 @@ const DataProvider = ({ children }) => {
                 })
         }
 
-    }, [addressBill, paymentMethods]);
+    }, [addressBill, paymentMethods, voucher,dataCheckout]);
 
 
     // thêm giỏ hàng
@@ -446,6 +479,7 @@ const DataProvider = ({ children }) => {
         totalPrice,
         addressBill,
         loading,
+        voucher,
 
         updateData, // Include the updateData function in the context
         deleteData,
@@ -458,6 +492,7 @@ const DataProvider = ({ children }) => {
         setDataPaymentMethods,
         setDataCart,
         setDataLoading,
+        setDataVoucher,
         setAddressBillClient,
 
         //productDetail
