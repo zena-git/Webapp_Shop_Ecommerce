@@ -1,9 +1,9 @@
 package com.example.webapp_shop_ecommerce.infrastructure.cronjob;
 
 import com.example.webapp_shop_ecommerce.entity.Voucher;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
-import com.example.webapp_shop_ecommerce.repositories.IPromotionRepository;
-import com.example.webapp_shop_ecommerce.repositories.IVoucherRepository;
+import com.example.webapp_shop_ecommerce.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,6 +20,14 @@ public class CronJob {
     IVoucherRepository voucherRepo;
     @Autowired
     IPromotionRepository promotionRepo;
+
+    @Autowired
+    IProductDetailsRepository productDetailsRepo;
+
+    @Autowired
+   IPromotionDetailsRepository promotionDetailsRepo;
+
+
 //    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void VoucherCronJob() {
 
@@ -33,7 +41,7 @@ public class CronJob {
 
     }
 
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void PromotionCronJob() {
         LocalDateTime now = LocalDateTime.now();
         //set Dang dien ra
@@ -41,5 +49,10 @@ public class CronJob {
         //set ket thuc
         promotionRepo.updateStatusToDaKetThuc(now,TrangThaiGiamGia.DANG_DIEN_RA.getLabel(), TrangThaiGiamGia.DA_KET_THUC.getLabel());
 
+        //Bo active  product detail
+        productDetailsRepo.updateProductDetailsPromotionActiveToNull(TrangThaiGiamGia.DANG_DIEN_RA.getLabel());
+
+        //active giam gia product detail
+        productDetailsRepo.updateProductDetailsToPromotionDetailsWherePromotionToDangDienRa(TrangThaiGiamGia.DANG_DIEN_RA.getLabel());
     }
 }

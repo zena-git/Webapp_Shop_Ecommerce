@@ -33,4 +33,7 @@ public interface IPromotionDetailsRepository extends IBaseReporitory<PromotionDe
     @Transactional
     @Query("UPDATE PromotionDetails p SET p.deleted = true WHERE p.id =:id")
     void updateDeletedFalseById(@Param("id") Long id);
+
+
+
 }
