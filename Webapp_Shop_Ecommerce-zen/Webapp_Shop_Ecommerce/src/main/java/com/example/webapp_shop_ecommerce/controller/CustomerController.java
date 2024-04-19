@@ -70,7 +70,7 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findObjById(@PathVariable("id") Long id) {
-        Optional<Customer> otp = customerService.findCustomerByIdAndAddressNotDeleted(id);
+        Optional<Customer> otp = customerService.findById(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }

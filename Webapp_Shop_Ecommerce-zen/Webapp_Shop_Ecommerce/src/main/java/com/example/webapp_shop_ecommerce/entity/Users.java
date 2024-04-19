@@ -47,6 +47,9 @@ public class Users extends BaseEntity {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "status")
+    private Integer status;
+
     public Users() {
         this.usersRole = Roles.STAFF;
     }

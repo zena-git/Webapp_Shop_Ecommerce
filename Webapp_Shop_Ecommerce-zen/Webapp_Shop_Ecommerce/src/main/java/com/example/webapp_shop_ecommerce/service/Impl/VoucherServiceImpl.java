@@ -2,10 +2,7 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.entity.Customer;
-import com.example.webapp_shop_ecommerce.entity.Promotion;
-import com.example.webapp_shop_ecommerce.entity.Voucher;
-import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
+import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.ICustomerRepository;
 import com.example.webapp_shop_ecommerce.repositories.IVoucherDetailsRepository;
@@ -20,10 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,40 +97,50 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
             entity.setStatus("0");
         }
 
-        Voucher voucher = repository.save(entity);
-        if (voucher == null){
-            return new ResponseEntity<>(new ResponseObject("error", "Thất Bại", 1, voucherRequest), HttpStatus.BAD_REQUEST);
-        }
-        //xoa tat ca voucherDetail tyle updated vi customer da su dung voucher r
-        voucherDetailsRepo.deleteByVoucherTyleUpdate(voucher);
-
+        List<VoucherDetails> listVoucherDetails = voucherDetailsRepo.findByVoucherId(id);
         List<Long> lstIdCustomer = voucherRequest.getLstCustomer();
-        List<Customer> lstCustomer = new ArrayList<Customer>();
-        if (lstIdCustomer.size()>0){
-            lstCustomer = customerRepo.findAllById(lstIdCustomer);
-        }else {
-            lstCustomer = customerRepo.findAll();
+        List<Customer> lstCustomer = customerRepo.findAll();
+
+        List<Long> needDelete = listVoucherDetails.stream()
+                .filter(voucherDetails -> !lstIdCustomer.contains(voucherDetails.getCustomer().getId()))
+                .map(voucherDetails -> voucherDetails.getId()).collect(Collectors.toList());
+
+        List<Long> needCreate = lstIdCustomer.stream()
+                .filter(customer -> listVoucherDetails.stream().noneMatch(voucherDetails -> {
+                    return voucherDetails.getCustomer().getId() == customer;
+                }))
+                .collect(Collectors.toList());
+
+
+        List<VoucherDetails> needReUpdate = listVoucherDetails.stream()
+                .filter(voucherDetails -> lstIdCustomer.contains(voucherDetails.getCustomer().getId()))
+                .collect(Collectors.toList());
+
+        for(Long idp : needDelete ){
+            voucherDetailsRepo.softDelete(idp);
         }
 
-        List<VoucherDetails> lstVoucherDetails = lstCustomer.stream().map(
-                customer -> {
-                    VoucherDetails voucherDetails = new VoucherDetails();
-                    voucherDetails.setVoucher(voucher);
-                    voucherDetails.setCustomer(customer);
-                    voucherDetails.setId(null);
-                    voucherDetails.setDeleted(false);
-                    voucherDetails.setCreatedBy("Admin");
-                    voucherDetails.setCreatedDate(LocalDateTime.now());
-                    voucherDetails.setLastModifiedDate(LocalDateTime.now());
-                    voucherDetails.setLastModifiedBy("Admin");
-                    voucherDetails.setStatus(false);
-                    return voucherDetails;
-                }
-        ).collect(Collectors.toList());
+        for (Long idq : needCreate){
+            Customer found = lstCustomer.stream()
+                    .filter(customer -> customer.getId() == idq)
+                    .findFirst()
+                    .orElse(null);
+            if(found != null) {
+                VoucherDetails create = new VoucherDetails();
+                create.setStatus(false);
+                create.setCustomer(found);
+                create.setVoucher(entity);
+                create.setDeleted(false);
+                voucherDetailsRepo.save(create);
+            }
+        }
 
-        voucherDetailsRepo.saveAll(lstVoucherDetails);
+        for (VoucherDetails idx: needReUpdate){
+            idx.setDeleted(false);
+            voucherDetailsRepo.save(idx);
+        }
+
+        Voucher voucher = repository.save(entity);
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, voucherRequest), HttpStatus.OK);
-
-
     }
 }

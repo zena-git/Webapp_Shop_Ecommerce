@@ -150,7 +150,7 @@ public class SupportSevice {
     }
 
     public ResponseEntity<?> recoverPromotion(Long id ){
-        Optional<Promotion> otp = promotionService.findById(id);
+        Optional<Promotion> otp = promotionRepo.findByIdDeleted(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
