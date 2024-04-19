@@ -29,8 +29,8 @@ function BillDetail() {
         TAT_CA: '',
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
-        CHO_GIAO: "1",
-        DANG_GIAO: "2",
+        DA_XAC_NHAN: "1",
+        VAN_CHUYEN: "2",
         DA_THANH_TOAN: "3",
         HOAN_THANH: "4",
         HUY: "5",
@@ -131,8 +131,8 @@ function BillDetail() {
                                             title=<h4 className='text-2xl	'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
                                                 historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                     historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                        historyBill?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                            historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                        historyBill?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                            historyBill?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
                                                                 historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
                                                                     historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                         historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
@@ -150,7 +150,7 @@ function BillDetail() {
 
                         </Timeline>
                     </div>
-                    <div className='flex justify-end'>
+                    <div className='flex justify-end mt-2'>
                         <Modal title="Quay Lại Trạng Thái Đơn Hàng" width={500} open={isModalOpenConfirmRollback} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                             <label>Nội Dung</label>
                             <Input.TextArea rows={5} minLength={50} placeholder='Ghi Chú' value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
@@ -171,7 +171,7 @@ function BillDetail() {
                                 <Button type='default' onClick={() => { setIsModalOpenConfirmRollback(false) }}>Hủy</Button>
                             </div>
                         </Modal>
-                        {bill && bill.status == TrangThaiBill.CHO_GIAO && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
+                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.VAN_CHUYEN) && bill?.lstPaymentHistory == 0 && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
                     </div>
 
                 </div>
@@ -184,11 +184,11 @@ function BillDetail() {
                             <div>
                                 <Modal title="Xác Nhận Đơn Hàng" width={500} open={isModalOpenConfirmAcceptOrder} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea  placeholder='Ghi chú'  className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} placeholder='Ghi Chú' />
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.CHO_GIAO,
+                                                type: TrangThaiBill.DA_XAC_NHAN,
                                                 description: confirmAcceptOrderDes
                                             }).then(response => {
                                                 setConfirmAcceptOrderDes("")
@@ -203,20 +203,20 @@ function BillDetail() {
                                     </div>
                                 </Modal>
                                 {
-                                    bill && bill.status == TrangThaiBill.CHO_XAC_NHAN && <Button danger onClick={() => {
+                                    bill && (bill.status == TrangThaiBill.CHO_XAC_NHAN || bill.status == TrangThaiBill.CHO_THANH_TOAN)&& <Button danger onClick={() => {
                                         setIsModalOpenConfirmAcceptOrder(true);
                                     }}  >Xác Nhận Đơn Hàng</Button>
                                 }
                             </div>
 
                             <div>
-                                <Modal title="Xác Nhận Giao Hàng" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
+                                <Modal title="Xác Nhận Vận Chuyển" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea  placeholder='Ghi chú'  className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.DANG_GIAO,
+                                                type: TrangThaiBill.VAN_CHUYEN,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
                                                 setConfirmAcceptOrderDes("")
@@ -232,24 +232,32 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.CHO_GIAO && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.DA_XAC_NHAN && <Button danger onClick={() => {
                                         setIsModalOpenConfirmDelivery(true)
-                                    }}  >Giao Hàng</Button>
+                                    }}  >Vận Chuyển</Button>
                                 }
                             </div>
 
                             <div>
                                 <Modal title="Xác Nhận Hoàn Thành" width={500} open={isModalOpenConfirmCompletion} footer={null} onCancel={() => { setIsModalOpenConfirmCompletion(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea  placeholder='Ghi chú'  className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             const filterPayment = bill?.lstPaymentHistory?.filter(data => data?.type == "0");
+                                            const filterPaymentReturn =  bill?.lstPaymentHistory?.filter(data => data?.type == "1") || [];
+                                           
                                             var totalPayment = filterPayment?.reduce(function (acc, cur) {
                                                 return acc + cur.paymentAmount;
                                             }, 0);
-                                            if (bill?.intoMoney != totalPayment) {
-                                                toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán !");
+
+
+                                            var totalPaymentReturn = filterPaymentReturn?.reduce(function (acc, cur) {
+                                                return acc + cur.paymentAmount;
+                                            }, 0);
+
+                                            if (bill?.intoMoney !=  (totalPayment - totalPaymentReturn)) {
+                                                toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán Đủ!");
                                                 setIsModalOpenConfirmCompletion(false)
                                                 return;
                                             }
@@ -271,7 +279,7 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.VAN_CHUYEN && <Button danger onClick={() => {
                                         setIsModalOpenConfirmCompletion(true)
                                     }}  >Hoàn Thành</Button>
                                 }
@@ -300,7 +308,7 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && (bill.status == TrangThaiBill.CHO_GIAO || bill.status == TrangThaiBill.CHO_XAC_NHAN) && <Button onClick={() => {
+                                    bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_THANH_TOAN) && <Button onClick={() => {
                                         setIsModalOpenCancelling(true)
                                     }} type="primary" danger className='ml-4'>
                                         Hủy Đơn
@@ -338,8 +346,8 @@ function BillDetail() {
                                                     history?.type == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
                                                         history?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                             history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                                history?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                                    history?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                                history?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                                    history?.type == TrangThaiBill.VAN_CHUYEN ? "Vận Chuyển" :
                                                                         history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
                                                                             history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                                 history?.type == TrangThaiBill.HUY ? "Hủy" :
@@ -388,7 +396,7 @@ function BillDetail() {
                         </div>
                         <div>
                             {
-                                (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
+                                (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.DA_XAC_NHAN) &&
                                 <Button danger onClick={showModalAddress}>Cập Nhật</Button>
                             }
                             <Modal title="Cập Nhật Thông Tin" width={800} open={isModalOpenAddress} footer={null} onCancel={handleCancelAddress} >
@@ -409,8 +417,8 @@ function BillDetail() {
                                         bill?.status == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
                                             bill?.status == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                 bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                    bill?.status == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                        bill?.status == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                    bill?.status == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                        bill?.status == TrangThaiBill.VAN_CHUYEN ? "Vận Chuyển" :
                                                             bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                 bill?.status == TrangThaiBill.HUY ? "Hủy" :
                                                                     bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""

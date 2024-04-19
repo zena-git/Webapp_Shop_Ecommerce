@@ -18,8 +18,8 @@ const TrangThaiBill = {
   TAT_CA: '',
   TAO_DON_HANG: "-1",
   CHO_XAC_NHAN: "0",
-  CHO_GIAO: "1",
-  DANG_GIAO: "2",
+  DA_XAC_NHAN: "1",
+  VAN_CHUYEN: "2",
   DA_THANH_TOAN: "3",
   HOAN_THANH: "4",
   HUY: "5",
@@ -39,12 +39,12 @@ const tabItems = [
     label: 'Chờ Xác Nhận',
   },
   {
-    key: TrangThaiBill.CHO_GIAO,
-    label: 'Chờ Giao Hàng',
+    key: TrangThaiBill.DA_XAC_NHAN,
+    label: 'Đã Xác Nhận',
   },
   {
-    key: TrangThaiBill.DANG_GIAO,
-    label: 'Đang Giao',
+    key: TrangThaiBill.VAN_CHUYEN,
+    label: 'Vận Chuyển',
   },
   // {
   //   key: '3',

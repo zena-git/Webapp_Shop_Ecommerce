@@ -60,8 +60,8 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
     TAT_CA: '',
     TAO_DON_HANG: "-1",
     CHO_XAC_NHAN: "0",
-    CHO_GIAO: "1",
-    DANG_GIAO: "2",
+    DA_XAC_NHAN: "1",
+    VAN_CHUYEN: "2",
     DA_THANH_TOAN: "3",
     HOAN_THANH: "4",
     HUY: "5",
@@ -89,19 +89,30 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
   useEffect(() => {
     fillDataColumTable(lstPaymentHistory)
     const filterPayment = lstPaymentHistory?.filter(data => data?.type == "0");
-    const filterPaymentReturn = lstPaymentHistory?.filter(data => data?.type == "1")||[];
+    const filterPaymentReturn = lstPaymentHistory?.filter(data => data?.type == "1") || [];
 
-    setCheckMoneyReturn(filterPaymentReturn?.length||0)
+    setCheckMoneyReturn(filterPaymentReturn?.length || 0)
+
+    var totalPaymentReturn = filterPaymentReturn?.reduce(function (acc, cur) {
+      return acc + cur.paymentAmount;
+    }, 0);
+
     var totalPayment = filterPayment?.reduce(function (acc, cur) {
       return acc + cur.paymentAmount;
     }, 0);
 
-    setAmountPaid(totalPayment)
+    setAmountPaid(totalPayment - totalPaymentReturn)
   }, [lstPaymentHistory])
 
   useEffect(() => {
-    setMoneyReturn(amountPaid);
-  }, [amountPaid])
+    if (bill?.status == TrangThaiBill.HUY) {
+      setMoneyReturn(bill?.intoMoney);
+
+    } else {
+      setMoneyReturn(amountPaid - bill?.intoMoney);
+
+    }
+  }, [amountPaid, lstPaymentHistory])
   const fillDataColumTable = (data) => {
     const dataTable = data?.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map(data => {
       return {
@@ -117,7 +128,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
         </>,
         paymentDate: dayjs(data?.paymentDate).format('YYYY-MM-DD HH:mm:ss'),
         type: <>
-           {data.type == "0" ?<Tag color="#da7493">Thanh Toán</Tag>:<Tag color="#c71010">Hoàn Tiền</Tag>}
+          {data.type == "0" ? <Tag color="#da7493">Thanh Toán</Tag> : <Tag color="#c71010">Hoàn Tiền</Tag>}
 
         </>,
         description: data.description,
@@ -274,99 +285,104 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
           </Modal>
 
           {
-            bill?.status != TrangThaiBill.HUY && amountPaid != bill?.intoMoney && <Button danger onClick={() => {
+            bill?.status != TrangThaiBill.HUY && amountPaid < bill?.intoMoney && <Button danger onClick={() => {
               setIsModalOpenPayment(true)
             }}>Xác Nhận Thanh Toán</Button>
 
           }
           <div>
-          <Modal title="Xác Nhận Hoàn Tiền" width={600} open={isModalOpenPaymentReturn} footer={null} onCancel={() => { setIsModalOpenPaymentReturn(false) }} >
-            <div className='mt-4 mb-4'>
+            <Modal title="Xác Nhận Hoàn Tiền" width={600} open={isModalOpenPaymentReturn} footer={null} onCancel={() => { setIsModalOpenPaymentReturn(false) }} >
+              <div className='mt-4 mb-4'>
 
-              <div className='mt-4'>
-                <label>Số Tiền Hoàn</label>
-                <div>
-                  <InputNumber
-                    className='mt-2 w-full'
-                    min={1}
-                    addonAfter="Vnđ"
-                    controls={false}
-                    max={amountPaid}
-                    placeholder="Nhập số tiền hoàn" value={moneyReturn}
-                    onChange={(value) => {
-                      setMoneyReturn(value);
-                    }}
-                  />
+                <div className='mt-4'>
+                  <label>Số Tiền Hoàn</label>
+                  <div>
+                    <InputNumber
+                      className='mt-2 w-full'
+                      min={1}
+                      addonAfter="Vnđ"
+                      controls={false}
+                      max={amountPaid}
+                      placeholder="Nhập số tiền hoàn" value={moneyReturn}
+                      onChange={(value) => {
+                        setMoneyReturn(value);
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className='mt-4'>
-                <label>Ghi Chú</label>
-                <Input.TextArea className='mt-2' rows={5} placeholder='Ghi Chú' value={paymentHistory?.description}
-                  onChange={(event) => {
-                    setPaymentHistory({
-                      ...paymentHistory,
-                      description: event.target.value
-                    })
-                  }}
-                />
-              </div>
-              <div className='mt-4'>
-                <div>
-                  <div className='mb-4'>Phương Thức Thanh Toán</div>
-                  <Radio.Group value={paymentHistory?.paymentMethod} size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none"
-                    onChange={(e) => {
-                      setPaymentHistory(
-                        {
-                          ...paymentHistory,
-                          paymentMethod: e.target.value
-                        }
-                      )
-
-                    }}>
-                    <div className='flex justify-between'>
-                      <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2'>Tiền Mặt</span> </Radio.Button>
-                      <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2'>Chuyển khoản</span> </Radio.Button>
-                    </div>
-                    {/* <Radio.Button className='text-center mt-4' style={{ width: '100%' }} value="2">Tiền Mặt & Chuyển khoản</Radio.Button> */}
-                  </Radio.Group>
-                </div>
-                <div className='mt-4' style={{ visibility: paymentHistory && paymentHistory?.paymentMethod == "1" ? 'visible' : 'hidden' }}>
-                  <Input
-                    className='mt-2'
-                    placeholder="Nhập Mã Giao Dịch"
-                    value={paymentHistory.tradingCode}
-                    onChange={(e) => {
+                <div className='mt-4'>
+                  <label>Ghi Chú</label>
+                  <Input.TextArea className='mt-2' rows={5} placeholder='Ghi Chú' value={paymentHistory?.description}
+                    onChange={(event) => {
                       setPaymentHistory({
                         ...paymentHistory,
-                        tradingCode: e.target.value
-                      });
+                        description: event.target.value
+                      })
                     }}
                   />
                 </div>
+                <div className='mt-4'>
+                  <div>
+                    <div className='mb-4'>Phương Thức Thanh Toán</div>
+                    <Radio.Group value={paymentHistory?.paymentMethod} size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none"
+                      onChange={(e) => {
+                        setPaymentHistory(
+                          {
+                            ...paymentHistory,
+                            paymentMethod: e.target.value
+                          }
+                        )
 
+                      }}>
+                      <div className='flex justify-between'>
+                        <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2'>Tiền Mặt</span> </Radio.Button>
+                        <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2'>Chuyển khoản</span> </Radio.Button>
+                      </div>
+                      {/* <Radio.Button className='text-center mt-4' style={{ width: '100%' }} value="2">Tiền Mặt & Chuyển khoản</Radio.Button> */}
+                    </Radio.Group>
+                  </div>
+                  <div className='mt-4' style={{ visibility: paymentHistory && paymentHistory?.paymentMethod == "1" ? 'visible' : 'hidden' }}>
+                    <Input
+                      className='mt-2'
+                      placeholder="Nhập Mã Giao Dịch"
+                      value={paymentHistory.tradingCode}
+                      onChange={(e) => {
+                        setPaymentHistory({
+                          ...paymentHistory,
+                          tradingCode: e.target.value
+                        });
+                      }}
+                    />
+                  </div>
+
+                </div>
               </div>
-            </div>
-            <div className='mt-14'>
-              <div className='flex justify-end mt-4 gap-3'>
-                <Button type='primary' onClick={handleConfigPaymentHistoryReturn} >Xác nhận</Button>
-                <Button type='default' onClick={() => { setIsModalOpenPaymentReturn(false) }}>Hủy</Button>
+              <div className='mt-14'>
+                <div className='flex justify-end mt-4 gap-3'>
+                  <Button type='primary' onClick={handleConfigPaymentHistoryReturn} >Xác nhận</Button>
+                  <Button type='default' onClick={() => { setIsModalOpenPaymentReturn(false) }}>Hủy</Button>
+                </div>
               </div>
-            </div>
-          </Modal>
+            </Modal>
 
-          {
-            bill?.status == TrangThaiBill.HUY && amountPaid != 0 && checkMoneyReturn ==0 && <Button danger onClick={() => {
-              setIsModalOpenPaymentReturn(true)
-            }}>Hoàn Tiền</Button>
+            {
+              bill?.status == TrangThaiBill.HUY && amountPaid >= bill?.intoMoney && <Button danger onClick={() => {
+                setIsModalOpenPaymentReturn(true)
+              }}>Hoàn Tiền</Button>
+            }
 
-          }
+            {
+              bill?.status != TrangThaiBill.HUY && amountPaid > bill?.intoMoney && <Button danger onClick={() => {
+                setIsModalOpenPaymentReturn(true)
+              }}>Hoàn Tiền</Button>
+            }
+          </div>
+
+
+
         </div>
 
 
-
-        </div>
-
-      
 
       </div>
       <div>
