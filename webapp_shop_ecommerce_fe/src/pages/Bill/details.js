@@ -105,7 +105,6 @@ function BillDetail() {
     };
 
 
-
     return (
         <>
             <div className='max-w-full'>
@@ -120,7 +119,6 @@ function BillDetail() {
                     </div>
                     <div className='max-w-[calc(100vw-300px)] w-fit'>
                         <Timeline minEvents={5} placeholder height="230">
-
                             <div className='w-[calc(100vw-280px)] overflow-x-auto flex'>
                                 {bill?.lstHistoryBill.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map((historyBill, index) => {
                                     return (
@@ -435,7 +433,6 @@ function BillDetail() {
 
 
                 <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
-
                     <div>
                         <BillPaymentHistory bill={bill} fetchDataBill={fetchDataBill} lstPaymentHistory={bill?.lstPaymentHistory} ></BillPaymentHistory>
                     </div>

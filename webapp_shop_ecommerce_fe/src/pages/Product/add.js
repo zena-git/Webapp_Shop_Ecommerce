@@ -305,7 +305,6 @@ function ProductAdd() {
     const [valueCodeProduct, setValueCodeProduct] = useState("");
     const [valueDecProduct, setValueDecProduct] = useState("");
 
-
     const [valueCategory, setValueCategory] = useState(null);
     const [valueMaterial, setValueMaterial] = useState(null);
     const [valueBrand, setValueBrand] = useState(null);

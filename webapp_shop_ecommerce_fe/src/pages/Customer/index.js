@@ -1,7 +1,18 @@
-function Customer() {
+import ListTable from '../../components/customer/listTable'
+import ReduxProvider from '../../redux/provider';
+const VoucherPage = () => {
+
     return (
-        <h1>Customer</h1>
-    );
+        <div className="flex flex-col gap-3">
+            <ListTable />
+        </div>
+    )
 }
 
-export default Customer;
+const Layout = (props) => {
+    return (
+        <ReduxProvider><VoucherPage></VoucherPage></ReduxProvider>
+    )
+}
+
+export default Layout

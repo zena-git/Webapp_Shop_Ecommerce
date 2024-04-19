@@ -108,7 +108,6 @@ function Category() {
                 fetchData();
                 console.log('Delete data with id:', id);
                 setOpen(false);
-
             })
             .catch(err => {
                 toast.error(err.response.data.message);

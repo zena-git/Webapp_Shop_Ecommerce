@@ -868,7 +868,6 @@ function ProductUpdate() {
             const { status, message, errCode } = error.response.data;
             toast.error(message);
             console.log(error.response.data);
-
         } finally {
             setTimeout(() => {
                 setLoading(false);

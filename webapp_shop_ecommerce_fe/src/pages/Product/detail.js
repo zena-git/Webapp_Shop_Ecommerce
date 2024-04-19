@@ -301,7 +301,6 @@ function ProductDetail() {
                         <>
                             <div className='flex'>
                                 <div className='mr-4 '>{response.data.name}</div>
-
                             </div>
                         </>
                     ),
@@ -334,7 +333,6 @@ function ProductDetail() {
     useEffect(() => {
         fetchData();
     }, [id, historyProductDetails, valueSize, valueColor, debounceMin, debounceMax]);
-
 
 
 
@@ -435,7 +433,6 @@ function ProductDetail() {
             console.log('Validate Failed:', errInfo);
         }
     };
-
 
     const handleChangeColor = (value) => {
         setValueColor(value)

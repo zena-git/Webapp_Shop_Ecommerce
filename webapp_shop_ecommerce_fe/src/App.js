@@ -2,9 +2,10 @@ import { Fragment } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import React from 'react';
 import { privateRouter, publicRouter } from '~/routes';
-
 import DefaultLayout from './components/Layout/DefaultLayout';
 import ScrollToTop from './components/ScrollToTop';
+import './global.css'
+
 
 function App() {
   return (

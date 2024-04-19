@@ -1,7 +1,14 @@
+import ListUser from '../../components/user/ListTable';
+import ReduxProvider from '../../redux/provider'
 function User() {
     return (
-        <h1>User</h1>
+        <ListUser />
     );
 }
+const Layout = (props) => {
+    return (
+        <ReduxProvider><User></User></ReduxProvider>
+    )
+}
 
-export default User;
+export default Layout
