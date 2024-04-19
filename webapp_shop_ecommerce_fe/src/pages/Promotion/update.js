@@ -1,16 +1,14 @@
-import { Button, DatePicker, InputNumber, Input } from 'antd/lib';
+import { Button, DatePicker, InputNumber, Input, Radio } from 'antd/lib';
 import ReduxProvider from '~/redux/provider'
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams, redirect, useNavigate } from 'react-router-dom';
-import dayjs, { Dayjs } from 'dayjs';
+import { useParams, useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 import { useAppSelector } from '~/redux/storage';
 import axios from 'axios';
 import { baseUrl, baseUrlV3 } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
-import { set, updateSelected, toggleChildren } from '~/redux/features/promotion-selected-item'
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
-import { Label } from "~/components/ui/label"
+import { set, toggleChildren } from '~/redux/features/promotion-selected-item'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
 const { TextArea } = Input
@@ -25,7 +23,7 @@ function EditPage() {
     const [targetPromotion, setTargetPromotion] = useState();
 
     const navigate = useNavigate();
-
+    const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState("");
     const [value, setValue] = useState(0);
@@ -74,44 +72,49 @@ function EditPage() {
     }, [dispatch, path.id]);
 
     const handleSubmitForm = () => {
-
-        let lst = []
-        listSelectedProduct.map(value => {
-            value.children.map(child => {
-                if (child.selected) { lst.push(child.id) }
+        if (!pending) {
+            let lst = []
+            listSelectedProduct.map(value => {
+                value.children.map(child => {
+                    if (child.selected) { lst.push(child.id) }
+                })
             })
-        })
-        if (!date[0] || !date[1] || dayjs(date[0]).toDate().getTime() < new Date().getTime() || dayjs(date[1]).toDate().getTime() < new Date().getTime()) {
-            toast.error("ngày bắt đầu hoặc kết thúc phải là tương lai")
-        } else if (name.trim().length == 0) {
-            toast.error('chưa nhập tên chương trình')
-        } else if (PromotionType == "1" && lst.length == 0) {
-            toast.error('chưa chọn sản phẩm nào')
-        } else if (value.toString().trim().length == 0) {
-            toast.error('đặt mức giảm giá')
-        } else {
-            let allPro = [];
-            listProduct.map(pro => {
-                allPro.push(...pro.lstProductDetails.map(detail => detail.id))
-            })
-            const t = {
-                id: path.id,
-                name: name,
-                code: code,
-                status: 0,
-                value: value,
-                description: description,
-                startDate: dayjs(date[0]).toDate(),
-                endDate: dayjs(date[1]).toDate(),
-                lstProductDetails: PromotionType == "0" ? allPro : lst
+            if (!date[0] || !date[1] || dayjs(date[0]).toDate().getTime() < new Date().getTime() || dayjs(date[1]).toDate().getTime() < new Date().getTime()) {
+                toast.error("ngày bắt đầu hoặc kết thúc phải là tương lai")
+            } else if (name.trim().length == 0) {
+                toast.error('chưa nhập tên chương trình')
+            } else if (PromotionType == "1" && lst.length == 0) {
+                toast.error('chưa chọn sản phẩm nào')
+            } else if (value.toString().trim().length == 0) {
+                toast.error('đặt mức giảm giá')
+            } else {
+                let allPro = [];
+                listProduct.map(pro => {
+                    allPro.push(...pro.lstProductDetails.map(detail => detail.id))
+                })
+                const t = {
+                    id: path.id,
+                    name: name,
+                    code: code,
+                    status: 0,
+                    value: value,
+                    description: description,
+                    startDate: dayjs(date[0]).toDate(),
+                    endDate: dayjs(date[1]).toDate(),
+                    lstProductDetails: PromotionType == "0" ? allPro : lst
+                }
+                setPending(true);
+                axios.put(`${baseUrl}/promotion/${path.id}`, t).then(res => {
+                    toast.success("cập nhật thành công");
+                    setPending(false);
+                    setTimeout(() => {
+                        navigate(`/discount/promotion/detail/${targetPromotion.id}`)
+                    }, 200)
+                }).catch(err => {
+                    setPending(false);
+                    toast.error(err.response.data.message)
+                })
             }
-
-            axios.put(`${baseUrl}/promotion/${path.id}`, t).then(res => {
-                toast.success("cập nhật thành công");
-                navigate(`/discount/promotion/detail/${targetPromotion.id}`)
-            }).catch(err => {
-                toast.error(err.response.data.message)
-            })
         }
     }
 
@@ -121,10 +124,10 @@ function EditPage() {
             <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
                 <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
                     <div className='flex gap-2 items-center'>
-                        <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
+                        <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='ml-3 text-lg font-semibold'>Cập nhật đợt giảm giá</p>
                     </div>
-                    <div className='relative after:w-full after:h-[3px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                    <div className='h-[2px] bg-slate-600'></div>
                     <div className='flex flex-col gap-3  bg-slate-50 px-3 pb-3 rounded-lg pt-5'>
                         <label>
                             <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
@@ -144,18 +147,10 @@ function EditPage() {
                         </label>
                         <label>
                             <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
-                            <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
-                                <div className='flex items-center gap-3'>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="0" id="option-one" />
-                                        <Label htmlFor="option-one">Tất cả sản phẩm</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="1" id="option-two" />
-                                        <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
-                                    </div>
-                                </div>
-                            </RadioGroup>
+                            <Radio.Group name="radiogroup" defaultValue={"0"} value={PromotionType} onChange={e => setPromotionType(e.target.value)}>
+                                <Radio value={"0"}>Tất cả sản phẩm</Radio>
+                                <Radio value={"1"}>Sản phẩm chỉ định</Radio>
+                            </Radio.Group>
                         </label>
                         <label>
                             <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
@@ -169,7 +164,7 @@ function EditPage() {
 
                 <div className='flex-grow bg-slate-50 p-3 rounded-lg h-fit flex flex-col gap-2 border'>
                     <p className='text-lg font-semibold'>Danh sách sản phẩm</p>
-                    <div className='relative after:w-full after:h-[3px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                    <div className='h-[2px] bg-slate-600'></div>
                     <ListDetailProduct data={listProduct} />
                 </div>
                 <ToastContainer />

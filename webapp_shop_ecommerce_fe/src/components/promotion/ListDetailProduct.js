@@ -1,9 +1,7 @@
-import { Tag, Checkbox } from 'antd/lib'
+import { Tag, Checkbox, Button } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
-    ChevronDownIcon,
-    DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
     flexRender,
@@ -13,33 +11,11 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
-import { Button } from "~/components/ui/button"
-// import { Checkbox } from "~/components/ui/checkbox"
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
-import { Input } from "~/components/ui/input"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "~/components/ui/table"
-import axios from "axios"
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { useAppSelector } from '../../redux/storage'
 import { set, updateSelected, toggleChildren } from '../../redux/features/promotion-selected-item'
 import { useDispatch } from "react-redux";
-
+import Table from '../../components/ui/table'
 export default function ListTable({ data }) {
     const [sorting, setSorting] = useState([])
     const [columnFilters, setColumnFilters] = useState([])
@@ -57,10 +33,6 @@ export default function ListTable({ data }) {
             [id]: !prevOpen[id] // Nếu đã mở thì đóng, và ngược lại
         }));
     };
-
-    useEffect(() => {
-        console.log(selectedProduct)
-    }, [selectedProduct])
 
     const columns = useMemo(() => [
         {
@@ -115,13 +87,13 @@ export default function ListTable({ data }) {
             accessorKey: "name",
             header: ({ column }) => {
                 return (
-                    <Button
-                        variant="ghost"
+                    <div
+                        className='flex items-center justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên
+                        Tên sản phẩm
                         <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </Button>
+                    </div>
                 )
             },
             cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
@@ -168,96 +140,73 @@ export default function ListTable({ data }) {
     return (
         <>
             <div className="w-full">
-                <div className="flex items-center py-4">
-                    <Input
-                        placeholder="Filter name..."
-                        value={(table.getColumn("name")?.getFilterValue()) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onChange={(value) =>
-                                                column.toggleVisibility(!!value.target.value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+
                 <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
+                    <table className="min-w-full">
+                        <thead className='bg-purple-400'>
                             {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
+                                <tr key={headerGroup.id} className='border-b border-gray-300'>
                                     {headerGroup.headers.map((header) => {
                                         return (
-                                            <TableHead key={header.id}>
+                                            <th key={header.id}>
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
                                                         header.column.columnDef.header,
                                                         header.getContext()
                                                     )}
-                                            </TableHead>
+                                            </th>
                                         )
                                     })}
-                                </TableRow>
+                                </tr>
                             ))}
-                        </TableHeader>
-                        <TableBody>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <>
-                                        <TableRow data-state={row.getIsSelected() && "selected"}>
+                                        <tr
+                                            key={row.id}
+                                            className={row.getIsSelected() ? "bg-blue-100" : ""}
+                                        >
                                             {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
+                                                <td
+                                                    key={cell.id}
+                                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                                >
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()
                                                     )}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                        <TableRow data-state={row.getIsSelected() && "selected"}>
-                                            {open[row.original.id] && <TableCell colSpan={columns.length}>
-                                                <ProductDetailTable targetDataId={row.original.id} selected={row.getIsSelected()} belowData={row.original.lstProductDetails}></ProductDetailTable>
-                                                {/* {ProductDetailTable({belowData: row.original.lstProductDetails,selected:row.getIsSelected() , targetDataId:row.original.id })} */}
-                                            </TableCell>}
-                                        </TableRow>
+                                                </td>
+                                            ))
+                                            }
+                                        </tr>
+                                        {open[row.original.id] && (
+                                            <tr key={`${row.id}-details`}>
+                                                <td colSpan={columns.length} className="px-6 py-4">
+                                                    <ProductDetailTable
+                                                        targetDataId={row.original.id}
+                                                        selected={row.getIsSelected()}
+                                                        belowData={row.original.lstProductDetails}
+                                                    />
+                                                </td>
+                                            </tr>
+                                        )}
                                     </>
                                 ))
                             ) : (
-                                <TableRow>
-                                    <TableCell
+                                <tr>
+                                    <td
                                         colSpan={columns.length}
-                                        className="h-24 text-center"
+                                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
                                     >
                                         No results.
-                                    </TableCell>
-                                </TableRow>
+                                    </td>
+                                </tr>
                             )}
-                        </TableBody>
-                    </Table>
+                        </tbody>
+                    </table>
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
                     <div className="flex-1 text-sm text-muted-foreground">
@@ -328,11 +277,11 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
         },
         {
-            accessorKey: "image_url",
-            header: () => <div className="text-center">ảnh</div>,
+            accessorKey: "imageUrl",
+            header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return <div className="text-center flex justify-center font-medium max-h-16">
-                    {row.original.image_url ? <img className="w-16 aspect-square" src={row.original.image_url.split(" | ")[0]}></img> : "không có"}
+                    {row.original.image_url ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
                 </div>
             },
         },
@@ -340,7 +289,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             accessorKey: "size",
             header: ({ column }) => {
                 return (
-                    <div className='text-center'>Kích cỡ</div>
+                    <div className='text-center min-h-8 flex items-center justify-center'>Kích cỡ</div>
                 )
             },
             cell: ({ row }) => <div className="text-center">{row.original.size.name}</div>,
@@ -361,15 +310,6 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
                 return <div className="text-center font-medium">{numberToPrice(row.original.price)}</div>
             },
         },
-        {
-            accessorKey: "status",
-            header: () => <div className="text-center">status</div>,
-            cell: ({ row }) => {
-                return <div className="text-center flex justify-center font-medium max-h-16">
-                    <Tag color='cyan'>{row.original.status == 0 ? "Đang bán" : "Đã ngừng"}</Tag>
-                </div>
-            },
-        }
     ], [dispatch, selectedProduct, targetDataId]);
 
     const belowTable = useReactTable({
@@ -408,78 +348,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
         <>
             <div className="mr-4">
                 <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            {belowTable.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {belowTable.getRowModel().rows?.length ? (
-                                belowTable.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={belowColumns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        {belowTable.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {belowTable.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
-                    <div className="space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => belowTable.previousPage()}
-                            disabled={!belowTable.getCanPreviousPage()}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => belowTable.nextPage()}
-                            disabled={!belowTable.getCanNextPage()}
-                        >
-                            Next
-                        </Button>
-                    </div>
+                    {Table(belowTable, flexRender, belowColumns)}
                 </div>
             </div>
         </>

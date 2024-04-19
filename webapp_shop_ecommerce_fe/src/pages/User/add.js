@@ -1,11 +1,8 @@
-import { DatePicker, InputNumber, Button, Upload, Select, Modal } from 'antd/lib';
-import { Input } from "~/components/ui/input"
-import { Textarea } from "~/components/ui/textarea"
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { DatePicker, InputNumber, Button, Upload, Select, Modal, Input, Radio } from 'antd/lib';
+import { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl } from '~/lib/functional';
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { useNavigate } from 'react-router-dom';
 import {
     Form,
@@ -15,11 +12,6 @@ import {
     FormLabel,
     FormMessage,
 } from "~/components/ui/form"
-import {
-    Dialog,
-    DialogContent,
-    DialogTrigger,
-} from "~/components/ui/dialog"
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -28,6 +20,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone'
 import QRScanner from 'qr-scanner'
 import { QrReader } from "react-qr-reader";
+
+const { TextArea } = Input
 
 const formSchema = z.object({
     fullName: z.string().min(2, {
@@ -47,7 +41,7 @@ const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function Add() {
 
     const navigate = useNavigate();
-
+    const [pending, setPending] = useState(false);
     const [addProvince, setAddProvince] = useState();
     const [addDistrict, setAddDistrict] = useState();
     const [addWard, setAddWard] = useState();
@@ -77,7 +71,8 @@ export default function Add() {
                     token: token
                 }
             }).then(res => {
-                let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451)
+                let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451);
+                setAddDistrict(listFilteredDistrict[0])
                 setListDistricts(listFilteredDistrict);
                 axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0].DistrictID}`, {
                     headers: {
@@ -85,7 +80,7 @@ export default function Add() {
                     }
                 }).then(resp => {
                     setListWards(resp.data.data);
-                    setAddWard(resp.data.data[0]);
+                    setAddWard(resp.data.data[0].WardName);
                 })
             })
         }
@@ -99,7 +94,7 @@ export default function Add() {
                 }
             }).then(res => {
                 setListWards(res.data.data);
-                setAddWard(res.data.data[0].name)
+                setAddWard(res.data.data[0].WardName)
             })
         }
     }, [addDistrict])
@@ -152,69 +147,66 @@ export default function Add() {
         multiple: false,
     });
 
-    const [result, setResult] = useState()
-
-    const scanImage = (e) => {
-        const file = e.target.file;
-        if (!file) return;
-        QRScanner.scanImage(file, { returnDetailedScanResult: true }).then(QRResult => {
-            console.log(QRResult);
-            setResult(QRResult);
-        })
-    }
-
-
     const handleSubmitForm = (values) => {
-        if (originalThumbnail) {
-            const formData = new FormData();
-            formData.append("file", originalThumbnail.file);
-            formData.append("cloud_name", "db9i1b2yf")
-            formData.append("upload_preset", "product")
-            axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+        if (!pending) {
+            if (originalThumbnail) {
+                const formData = new FormData();
+                formData.append("file", originalThumbnail.file);
+                formData.append("cloud_name", "db9i1b2yf");
+                formData.append("upload_preset", "product");
+                setPending(true);
+                console.log(values.birthday)
+                axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+                    const body = {
+                        birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()).toISOString() : null,
+                        commune: addWard,
+                        detail: values.detail,
+                        district: addDistrict.DistrictName,
+                        province: addProvince.ProvinceName,
+                        email: values.email,
+                        status: 0,
+                        fullName: values.fullName,
+                        gender: gender == '0',
+                        phone: values.phone,
+                        imageUrl: res.data.url
+                    }
+
+                    axios.post(`${baseUrl}/user`, body).then(() => {
+                        toast.success("Thêm mới thành công");
+                        setPending(false);
+                        form.reset();
+                        setOriginalThumbnail(null);
+                    }).catch(err => {
+                        setPending(false);
+                        toast.error(err.response.data.message)
+                    })
+                })
+            } else {
                 const body = {
-                    birthday: new Date(dayjs(values.birthday).toDate()).toISOString(),
+                    birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()).toISOString() : null,
                     commune: addWard,
                     detail: values.detail,
                     district: addDistrict.DistrictName,
                     province: addProvince.ProvinceName,
                     email: values.email,
+                    status: 0,
                     fullName: values.fullName,
                     gender: gender == '0',
                     phone: values.phone,
-                    imageUrl: res.data.url
                 }
-
+                setPending(true);
                 axios.post(`${baseUrl}/user`, body).then(() => {
                     toast.success("Thêm mới thành công")
                     form.reset();
+                    setPending(false);
+                    setAddDistrict(null);
+                    setAddWard(null);
                     setOriginalThumbnail(null);
-                }).catch(error => {
-                    toast.error(error)
+                }).catch(err => {
+                    setPending(false);
+                    toast.error(err.response.data.message)
                 })
-            })
-        } else {
-            const body = {
-                birthday: new Date(dayjs(values.birthday).toDate()).toISOString(),
-                commune: addWard,
-                detail: values.detail,
-                district: addDistrict,
-                province: addProvince,
-                email: values.email,
-                fullName: values.fullName,
-                gender: gender == '0',
-                phone: values.phone,
             }
-
-            axios.post(`${baseUrl}/user/create`, body).then(() => {
-                toast.success("Thêm mới thành công")
-                form.reset();
-                form.setValue("")
-                setAddDistrict(null);
-                setAddWard(null);
-                setOriginalThumbnail(null);
-            }).catch(error => {
-                toast.error(error)
-            })
         }
     }
 
@@ -251,10 +243,7 @@ export default function Add() {
         }
     }
 
-    useEffect(() => {
-        console.log(webScan);
-    }, [webScan])
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <div className="mb-9">
@@ -264,10 +253,10 @@ export default function Add() {
                     <form onSubmit={e => { e.preventDefault() }} className="w-full flex gap-5 max-lg:flex-col">
                         <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
+                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
                                 <p className='text-lg font-bold'>Thông tin nhân viên</p>
                             </div>
-                            <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
+                            <div className='bg-slate-700 h-[2px]'></div>
                             <div className='w-full flex flex-col'>
                                 <div
                                     {...getThumbnailRootProps()}
@@ -307,29 +296,26 @@ export default function Add() {
                                 />
                             </div>
                         </div>
-                        <div className="flex-grow flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
+                        <div className="flex-grow flex flex-col gap-2 bg-white shadow-lg rounded-md p-5">
                             <div className='flex justify-between items-center'>
                                 <p className='text-lg font-bold'>Thông tin chi tiết</p>
-                                <Dialog>
-                                    <DialogTrigger>
-                                        <Button type='primary'>Quét mã</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        {/* <Select onChange={val => setSelectedCamera(val)} options={devices.map(t => { return { label: t.label, value: t.deviceId } })}></Select> */}
-                                        <QrReader
-                                            delay={600}
-                                            facingMode="user"
-                                            onError={camError}
-                                            chooseDeviceId={"2"}
-                                            onResult={ScanResult}
-                                            style={{ width: "100%" }}
-                                            legacyMode={false}
-                                        />
-                                        <p>{webScan && webScan.text}</p>
-                                    </DialogContent>
-                                </Dialog>
+                                <Button type="primary" onClick={() => setIsModalOpen(true)}>
+                                    Quét mã QR
+                                </Button>
+                                <Modal title="Quét mã QR" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { }}>
+                                    <QrReader
+                                        delay={600}
+                                        facingMode="user"
+                                        onError={camError}
+                                        chooseDeviceId={"2"}
+                                        onResult={ScanResult}
+                                        style={{ width: "100%" }}
+                                        legacyMode={false}
+                                    />
+                                    <p>{webScan && webScan.text}</p>
+                                </Modal>
                             </div>
-                            <div className='relative after:w-full after:h-[2px] after:absolute after:bg-slate-500 after:bottom-0 after:left-0'></div>
+                            <div className='bg-slate-600 h-[2px]'></div>
                             <div className='flex flex-col gap-3'>
                                 <div className='grid grid-cols-2 gap-3 items-center'>
                                     <FormField
@@ -350,26 +336,14 @@ export default function Add() {
                                         name="gender"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Giới tính</FormLabel>
                                                 <FormControl>
-                                                    <RadioGroup className="flex gap-3 items-center" onValueChange={(value) => { setGender(value) }} defaultValue="0">
-                                                        <FormItem className="flex items-center space-x-3 space-y-0">
-                                                            <FormControl>
-                                                                <RadioGroupItem value="0" defaultSelected />
-                                                            </FormControl>
-                                                            <FormLabel className="font-normal">
-                                                                Nam
-                                                            </FormLabel>
-                                                        </FormItem>
-                                                        <FormItem className="flex items-center space-x-3 space-y-0">
-                                                            <FormControl>
-                                                                <RadioGroupItem value="1" />
-                                                            </FormControl>
-                                                            <FormLabel className="font-normal">
-                                                                Nữ
-                                                            </FormLabel>
-                                                        </FormItem>
-                                                    </RadioGroup>
+                                                    <div>
+                                                        <p>Giới tính</p>
+                                                        <Radio.Group name="radiogroup" defaultValue={"0"} onValueChange={(e) => { setGender(e.target.value) }}>
+                                                            <Radio value={"0"}>Nam</Radio>
+                                                            <Radio value={"1"}>Nữ</Radio>
+                                                        </Radio.Group>
+                                                    </div>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -417,7 +391,7 @@ export default function Add() {
                                                 <FormLabel>Tỉnh/thành phố</FormLabel>
                                                 <FormControl>
                                                     <div>
-                                                        <Select className='min-w-[120px]' placeholder='Tỉnh/Thành phố' value={addProvince?.ProvinceID} onChange={value => { setAddProvince(listProvince.find(target => target.ProvinceID == value)) }}>
+                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/Thành phố' value={addProvince?.ProvinceID} onChange={value => { setAddProvince(listProvince.find(target => target.ProvinceID == value)) }}>
                                                             {
                                                                 listProvince.map((province, key) => {
                                                                     return <option key={key} value={province.ProvinceID}>
@@ -441,7 +415,7 @@ export default function Add() {
                                                 <FormLabel>Quận/huyện</FormLabel>
                                                 <FormControl>
                                                     <div className='w-full'>
-                                                        <Select className='min-w-[120px]' placeholder='Quận/huyện' value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target.DistrictID == value)) }}>
+                                                        <Select className='min-w-[180px]' placeholder='Quận/huyện' value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target.DistrictID == value)) }}>
                                                             {
                                                                 listDistricts.map((district, key) => {
                                                                     return <option key={key} value={district.DistrictID}>{district.DistrictName}</option>
@@ -463,7 +437,7 @@ export default function Add() {
                                                 <FormLabel>Xã/thị trấn</FormLabel>
                                                 <FormControl>
                                                     <div>
-                                                        <Select className='min-w-[120px]' placeholder='Xã/thị trấn' value={addWard} onChange={value => { setAddWard(value) }}>
+                                                        <Select className='min-w-[180px]' placeholder='Xã/thị trấn' value={addWard} onChange={value => { setAddWard(value) }}>
                                                             {
                                                                 listWards.map((ward, key) => {
                                                                     return <option key={key} value={ward.WardName}>{ward.WardName}</option>
@@ -485,7 +459,7 @@ export default function Add() {
                                         <FormItem>
                                             <FormLabel>Địa chỉ chi tiết</FormLabel>
                                             <FormControl>
-                                                <Textarea placeholder="địa chỉ chi tiết" {...field} />
+                                                <TextArea placeholder="địa chỉ chi tiết" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

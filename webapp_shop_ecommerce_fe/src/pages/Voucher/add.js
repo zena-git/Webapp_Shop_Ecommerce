@@ -1,14 +1,9 @@
-import { DatePicker, InputNumber, Button } from 'antd/lib';
-import { Input } from "~/components/ui/input"
-import { Textarea } from "~/components/ui/textarea"
+import { DatePicker, InputNumber, Button, Radio, Input } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl } from '~/lib/functional';
 import { makeid } from '~/lib/functional';
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
-import { Label } from "~/components/ui/label"
-// import { Button } from '~/components/ui/button';
 import {
     Form,
     FormControl,
@@ -29,6 +24,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
 const { RangePicker } = DatePicker
+const { TextArea } = Input
 
 const formSchema = z.object({
     code: z.string().min(2, {
@@ -43,7 +39,7 @@ const formSchema = z.object({
     target_type: z.number({
         required_error: "cần lựa chọn 1 loại hình thức",
     }),
-    discount_type: z.number({
+    discountType: z.number({
         required_error: "cần lựa chọn 1 loại hình thức",
     }),
     description: z.string(),
@@ -66,15 +62,13 @@ const VoucherPage = () => {
     const [discountType, setDiscountType] = useState(false);
     const [listCustomer, setListCustomer] = useState([]);
 
+    const [pending, setPending] = useState(false);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(set({ value: { selected: [] } }))
     }, [])
-
-    useEffect(() => {
-        console.log(selectedCustomer)
-    }, [selectedCustomer])
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
@@ -89,7 +83,7 @@ const VoucherPage = () => {
                 code: makeid(),
                 name: "",
                 description: "",
-                discount_type: 0,
+                discountType: 0,
                 max_discount_value: 0,
                 order_min_value: 0,
                 target_type: 0,
@@ -105,35 +99,17 @@ const VoucherPage = () => {
     }, [])
 
     const handleSubmitForm = (values) => {
-        if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-            toast.error('cần nhập giá trị ngày trong tương lai')
-            return;
-        }
-        if (!discountType && values.value > 100) {
-            toast.error('mức giảm không quá 100% được');
-            return;
-        }
-        if (VoucherType == "0") {
-            axios.post(`${baseUrl}/voucher`, {
-                code: values.code,
-                name: values.name,
-                value: values.value,
-                status: "0",
-                target_type: values.target_type,
-                quantity: values.usage_limit,
-                discountType: discountType ? 0 : 1,
-                maxDiscountValue: values.max_discount_value,
-                orderMinValue: values.order_min_value,
-                description: values.description,
-                startDate: date[0].toDate(),
-                endDate: date[1].toDate(),
-                lstCustomer: listCustomer.map(val => { return val.id })
-            }).then(res => {
-                toast.success("Đã tạo voucher thành công")
-                form.reset();
-            }).catch(err => { toast.error(err) });
-        } else {
-            if (selectedCustomer.length > 0) {
+        if (!pending) {
+            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
+                toast.error('cần nhập giá trị ngày trong tương lai')
+                return;
+            }
+            if (!discountType && values.value > 100) {
+                toast.error('mức giảm không quá 100% được');
+                return;
+            }
+            if (VoucherType == "0") {
+                setPending(true);
                 axios.post(`${baseUrl}/voucher`, {
                     code: values.code,
                     name: values.name,
@@ -147,16 +123,47 @@ const VoucherPage = () => {
                     description: values.description,
                     startDate: date[0].toDate(),
                     endDate: date[1].toDate(),
-                    lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
+                    lstCustomer: listCustomer.map(val => { return val.id })
                 }).then(res => {
+                    setPending(false);
                     toast.success("Đã tạo voucher thành công")
                     form.reset();
+                    dispatch(set({ value: { selected: [] } }))
                 }).catch(err => {
-                    toast.error(err)
-                })
+                    setPending(false);
+                    toast.error(err.response.data.message)
+                });
             } else {
-                toast.error("chưa chọn khách hàng nào")
+                if (selectedCustomer.length > 0) {
+                    setPending(true);
+                    axios.post(`${baseUrl}/voucher`, {
+                        code: values.code,
+                        name: values.name,
+                        value: values.value,
+                        status: "0",
+                        target_type: values.target_type,
+                        quantity: values.usage_limit,
+                        discountType: discountType ? 0 : 1,
+                        maxDiscountValue: values.max_discount_value,
+                        orderMinValue: values.order_min_value,
+                        description: values.description,
+                        startDate: date[0].toDate(),
+                        endDate: date[1].toDate(),
+                        lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
+                    }).then(res => {
+                        setPending(false);
+                        toast.success("Đã tạo voucher thành công")
+                        dispatch(set({ value: { selected: [] } }))
+                        form.reset();
+                    }).catch(err => {
+                        setPending(false);
+                        toast.error(err.response.data.message)
+                    })
+                } else {
+                    toast.error("chưa chọn khách hàng nào")
+                }
             }
+
         }
     }
 
@@ -164,21 +171,21 @@ const VoucherPage = () => {
         <>
             <div className="">
                 <div className=''>
-                    <div className='w-full h-fit flex max-xl:flex-col justify-center gap-5'>
-                        <div className='p-5 h-fit bg-white shadow-lg flex flex-col gap-3 w-5/12 max-xl:w-full'>
+                    <div className='w-full h-fit flex max-xl:flex-col justify-center gap-3'>
+                        <div className='px-3 py-5 h-fit bg-white shadow-lg gap-2 flex flex-col w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
+                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
                                 <p className='ml-3 text-lg font-semibold'>Thêm phiếu giảm giá</p>
                             </div>
-                            <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                            <div className='h-[2px] bg-slate-600 mt-1'></div>
                             <Form {...form}>
-                                <form onSubmit={e => { e.preventDefault() }} className="space-y-8">
+                                <form onSubmit={e => { e.preventDefault() }} className="space-y-6">
                                     <FormField
                                         control={form.control}
                                         name="code"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>mã voucher</FormLabel>
+                                                <FormLabel>Mã phiếu giảm giá</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="code" {...field} />
                                                 </FormControl>
@@ -191,7 +198,7 @@ const VoucherPage = () => {
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>tên voucher</FormLabel>
+                                                <FormLabel>Tên phiếu giảm giá</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="name" {...field} />
                                                 </FormControl>
@@ -199,24 +206,48 @@ const VoucherPage = () => {
                                             </FormItem>
                                         )}
                                     />
+                                    <div className='grid grid-cols-2 gap-5'>
+                                        <FormField
+                                            control={form.control}
+                                            name="value"
+                                            render={({ field }) =>
+                                            (
+                                                <FormItem>
+                                                    <FormLabel>Gía trị giảm</FormLabel>
+                                                    <FormControl>
+                                                        <InputNumber min={0} max={!discountType ? 100 : null} addonAfter={discountType ? "đ" : "%"} className='w-full' {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="usage_limit"
+                                            render={({ field }) =>
+                                            (
+                                                <FormItem>
+                                                    <FormLabel>Giới hạn số lượng</FormLabel>
+                                                    <FormControl>
+                                                        <InputNumber min={0} className='w-full' {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                     <div className='grid grid-cols-2'>
                                         <FormField
                                             control={form.control}
-                                            name="discount_type"
+                                            name="discountType"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Hình thức giảm giá</FormLabel>
                                                     <FormControl>
-                                                        <RadioGroup className="flex gap-3 items-center" defaultValue="1" onValueChange={e => { setDiscountType(e == '0') }}>
-                                                            <div className="flex items-center space-x-2">
-                                                                <RadioGroupItem value="0" id="option-one" />
-                                                                <Label htmlFor="option-one">giảm trực tiếp</Label>
-                                                            </div>
-                                                            <div className="flex items-center space-x-2">
-                                                                <RadioGroupItem value="1" id="option-two" />
-                                                                <Label htmlFor="option-two">giảm theo %</Label>
-                                                            </div>
-                                                        </RadioGroup>
+                                                        <Radio.Group name="radiogroup" defaultValue={"1"} onChange={e => setDiscountType(e.target.value == '0')}>
+                                                            <Radio value={"0"}>Giảm giá trực tiếp</Radio>
+                                                            <Radio value={"1"}>Giảm giá %</Radio>
+                                                        </Radio.Group>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -231,7 +262,7 @@ const VoucherPage = () => {
                                                     <FormItem>
                                                         <FormLabel>Mức giảm tối đa</FormLabel>
                                                         <FormControl>
-                                                            <InputNumber className='w-full' {...field} />
+                                                            <InputNumber min={0} addonAfter="đ" className='w-full' {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -239,36 +270,7 @@ const VoucherPage = () => {
                                             />
                                         }
                                     </div>
-                                    <div className='grid grid-cols-2 gap-5'>
-                                        <FormField
-                                            control={form.control}
-                                            name="usage_limit"
-                                            render={({ field }) =>
-                                            (
-                                                <FormItem>
-                                                    <FormLabel>Giới hạn số lượng</FormLabel>
-                                                    <FormControl>
-                                                        <InputNumber className='w-full' {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="value"
-                                            render={({ field }) =>
-                                            (
-                                                <FormItem>
-                                                    <FormLabel>Gía trị giảm</FormLabel>
-                                                    <FormControl>
-                                                        <InputNumber className='w-full' {...field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
+
                                     <FormField
                                         control={form.control}
                                         name="order_min_value"
@@ -277,7 +279,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Gía trị đơn tối thiểu</FormLabel>
                                                 <FormControl>
-                                                    <InputNumber className='w-full' {...field} />
+                                                    <InputNumber min={0} addonAfter="đ" className='w-full' {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -291,30 +293,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Mô tả</FormLabel>
                                                 <FormControl>
-                                                    <Textarea placeholder="mô tả" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="target_type"
-                                        render={({ field }) =>
-                                        (
-                                            <FormItem>
-                                                <FormLabel></FormLabel>
-                                                <FormControl defaultValue='1'>
-                                                    <RadioGroup className=" gap-3 items-center hidden">
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="0" id="option-one" />
-                                                            <Label htmlFor="option-one">vận chuyển</Label>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <RadioGroupItem value="1" id="option-two" />
-                                                            <Label htmlFor="option-two">đơn hàng</Label>
-                                                        </div>
-                                                    </RadioGroup>
+                                                    <TextArea placeholder="mô tả" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -322,21 +301,13 @@ const VoucherPage = () => {
                                     />
                                     <div className=''>
                                         <p className='mt-1 text-sm font-semibold mb-2'>Đối tượng áp dụng</p>
-                                        <RadioGroup value={VoucherType} onValueChange={e => { setVoucherType(e) }}>
-                                            <div className='flex gap-4'>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={"0"} id="option-one" />
-                                                    <Label htmlFor="option-one">Tất cả khách hàng</Label>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={"1"} id="option-two" />
-                                                    <Label htmlFor="option-two">Khách hàng chỉ định</Label>
-                                                </div>
-                                            </div>
-                                        </RadioGroup>
+                                        <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
+                                            <Radio value={"0"}>Tất cả khách hàng</Radio>
+                                            <Radio value={"1"}>Khách hàng chỉ định</Radio>
+                                        </Radio.Group>
                                     </div>
 
-                                    <div className='mt-3'>
+                                    <div className='mt-1'>
                                         <label>
                                             <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                                             <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
@@ -348,10 +319,10 @@ const VoucherPage = () => {
                                 </form>
                             </Form>
                         </div>
-                        <div className='flex-grow bg-white p-5 shadow-lg flex flex-col gap-2'>
+                        <div className='flex-grow bg-white p-5 shadow-lg flex flex-col gap-3'>
                             <p className='text-lg font-semibold'>Danh sách khách hàng</p>
-                            <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
-                            <ListCustomer data={listCustomer} />
+                            <div className='h-[2px] bg-slate-600'></div>
+                            <ListCustomer listCustomer={listCustomer} />
                         </div>
                         <ToastContainer />
                     </div>
@@ -359,7 +330,7 @@ const VoucherPage = () => {
             </div>
         </>
     )
-} 
+}
 
 const Layout = (props) => {
     return (

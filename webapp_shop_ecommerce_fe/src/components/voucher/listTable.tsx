@@ -1,9 +1,7 @@
-import { Tag, Checkbox, Select, Input, DatePicker } from 'antd/lib'
+import { Tag, Checkbox, Select, Input, DatePicker, Button, Modal } from 'antd/lib'
 import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
-    ChevronDownIcon,
-    DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
     ColumnDef,
@@ -17,35 +15,26 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
-import { Button } from "~/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "~/components/ui/table"
 import { VoucherResponse } from "~/lib/type"
 import axios from 'axios'
-import { baseUrl } from '~/lib/functional'
+import { baseUrl, baseUrlV3 } from '~/lib/functional'
 import { Link, useNavigate } from 'react-router-dom'
+import Table from '../../components/ui/table'
+import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { useAppSelector } from '../../redux/storage';
+import ListDeleted from '~/components/voucher/listDeleted'
+import { ToastContainer, toast } from 'react-toastify'
+
 const dayjs = require('dayjs');
 const { RangePicker } = DatePicker;
 
 
 export default function ListTable() {
     const [data, setData] = useState<VoucherResponse[]>([]);
+    const [deletedData, setDeletedData] = useState([]);
+
+    const [openModal, setOpenModal] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const navigate = useNavigate();
 
@@ -54,8 +43,15 @@ export default function ListTable() {
             setData(res.data);
         })
     }
+
+    const fillDeletedData = () => {
+        axios.get(`${baseUrlV3}/voucher/deleted`).then(res => {
+            setDeletedData(res.data);
+        })
+    }
     useEffect(() => {
-        fillData()
+        fillData();
+        fillDeletedData();
     }, [])
 
     const [sorting, setSorting] = useState<SortingState>([])
@@ -98,14 +94,6 @@ export default function ListTable() {
 
     const columns: ColumnDef<VoucherResponse>[] = useMemo(() => [
         {
-            id: "id",
-            accessorKey: "id",
-            header: "#",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
-            ),
-        },
-        {
             accessorKey: "name",
             header: ({ column }) => {
                 return (
@@ -121,7 +109,7 @@ export default function ListTable() {
             accessorKey: "code",
             header: ({ column }) => {
                 return (
-                    <div className="text-center flex justify-center items-center" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    <div className="text-center flex justify-center items-center min-h-10" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
                         Mã phiếu
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </div>
@@ -150,7 +138,7 @@ export default function ListTable() {
             },
         },
         {
-            accessorKey: "orderMinValue",
+            accessorKey: "maxDiscountValue",
             header: () => <div className="text-center">Mức giảm tối đa</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
@@ -164,7 +152,8 @@ export default function ListTable() {
             filterFn: customStartDateFilter,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.startDate.toString().split("T")[0] + " - " + row.original.startDate.toString().split("T")[1]}
+                    {/* + " - " + row.original.startDate.toString().split("T")[1] */}
+                    {row.original.startDate.toString().split("T")[0]}
                 </div>
             },
         },
@@ -174,7 +163,8 @@ export default function ListTable() {
             header: () => <div className="text-center">Ngày kết thúc</div>,
             cell: ({ row }) => {
                 return <div className='text-center'>
-                    {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
+                    {/* + " - " + row.original.endDate.toString().split("T")[1] */}
+                    {row.original.endDate.toString().split("T")[0]}
                 </div>
             },
         },
@@ -188,48 +178,39 @@ export default function ListTable() {
             },
         },
         {
-            id: "discount_type",
-            accessorKey: "discount_type",
-            header: () => <></>,
-            filterFn: customDiscountTypeFilter,
-            cell: ({ row }) => {
-                return <></>
-            },
-        },
-        {
             id: "hành động",
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
                 return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {
-                                    // eslint-disable-next-line no-restricted-globals
-                                    let t = confirm('xác nhận xóa');
-                                    if (t) {
-                                        axios.delete(`${baseUrl}/voucher/${row.getValue("id")}`).then(res => {
-                                            navigate(0)
-                                        })
-                                    }
-                                }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/voucher/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/voucher/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    <div className="flex justify-center gap-2">
+                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}><FaEdit /></Button>
+                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/voucher/detail/${row.original.id}`) }}><FaEye /></Button>
+                        <Button type="primary" className="flex items-center" onClick={() => { setOpenModal(true) }}>
+                            <FaTrash />
+                        </Button>
+                        <Modal
+                            title="Xác nhận"
+                            open={openModal}
+                            onOk={() => {
+                                setOpenModal(false)
+                                axios.delete(`${baseUrl}/voucher/${row.original.id}`).then(res => {
+                                    toast.success("Xóa thành công")
+                                    fillData();
+                                    fillDeletedData();
+                                })
+                            }}
+                            onCancel={() => { setOpenModal(false) }}
+                            okText="xác nhận"
+                            cancelText="hủy"
+                        >
+                            Xác nhận xóa
+                        </Modal>
                     </div>
                 )
             },
         },
-    ], []);
+    ], [openModal, setOpenModal]);
 
     const table = useReactTable({
         data,
@@ -250,8 +231,46 @@ export default function ListTable() {
         },
     })
 
+    const Recover = () => {
+        const showModal = () => {
+            setIsModalOpen(true);
+        };
+        const handleOk = () => {
+            const promises = listVoucherDeleteSelected.map(slt => {
+                return axios.put(`${baseUrlV3}/voucher/recover?id=${slt.id}`)
+            })
+            Promise.all(promises).then(() => {
+                setIsModalOpen(false);
+                fillData();
+                fillDeletedData();
+            })
+
+        };
+        const handleCancel = () => {
+            setIsModalOpen(false);
+        };
+
+        const listVoucherDeleteSelected = useAppSelector(state => state.voucherDeletedReducer.value.selected)
+
+        return (
+            <>
+                <Button variant="outline" type="primary" onClick={showModal}>
+                    Phiếu giảm giá đã xóa
+                </Button>
+                <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    {ListDeleted({ data: deletedData })}
+                </Modal>
+            </>
+        );
+    }
+
     return (
         <>
+            <div className='flex gap-5 items-center'>
+                <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" className="bg-blue-500 py-1 text-white hover:bg-blue-300 hover:text-white">Thêm phiếu giảm giá</Button>
+                {Recover()}
+            </div>
+            <ToastContainer />
             <div className='grid grid-cols-2 items-center my-3 bg-white rounded-md p-3 shadow-lg gap-5'>
                 <div className='w-full flex flex-col'>
                     <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
@@ -309,54 +328,7 @@ export default function ListTable() {
                 </div>
             </div>
             <div className="rounded-md border p-3 bg-white shadow-md">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                {Table(table, flexRender, columns)}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">

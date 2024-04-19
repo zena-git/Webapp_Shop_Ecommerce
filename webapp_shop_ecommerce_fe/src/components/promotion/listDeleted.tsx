@@ -1,9 +1,7 @@
-import { Tag, Checkbox } from 'antd/lib'
+import { Checkbox, Button } from 'antd/lib'
 import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
-    ChevronDownIcon,
-    DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
     ColumnDef,
@@ -17,45 +15,16 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
-import { Button } from "~/components/ui/button"
-// import { Checkbox } from "~/components/ui/checkbox"
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
-import { Input } from "~/components/ui/input"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "~/components/ui/table"
-import { PromotionResponse, VoucherResponse } from "~/lib/type"
+import { PromotionResponse } from "~/lib/type"
 import axios from 'axios'
-import { baseUrl, baseUrlV3 } from '~/lib/functional'
-import { Link, redirect } from 'react-router-dom'
-import { set, updateSelected } from '../../redux/features/promotion-deleted'
+import { baseUrlV3 } from '~/lib/functional'
+import { set } from '../../redux/features/promotion-deleted'
 import { useDispatch } from 'react-redux'
-export default function ListTable() {
-    const [data, setData] = useState<PromotionResponse[]>([]);
-    const dispatch = useDispatch()
+import Table from '../../components/ui/table'
+import { ToastContainer, toast } from 'react-toastify'
+export default function ListTable({data}: {data: PromotionResponse[]}) {
 
-    const fillData = () => {
-        axios.get(`${baseUrlV3}/promotion/deleted`).then(res => {
-            setData(res.data);
-        })
-    }
-    useEffect(() => {
-        fillData();
-    }, [])
+    const dispatch = useDispatch()
 
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -64,7 +33,7 @@ export default function ListTable() {
 
     useEffect(() => {
         const keysArray = Object.keys(rowSelection).map(Number);
-        if(keysArray.length > 0){
+        if (keysArray.length > 0) {
             dispatch(set({ value: { selected: keysArray.map(key => { return { id: table.getRow(key.toString()).original.id, selected: true } }) } }))
         }
     }, [rowSelection])
@@ -102,13 +71,10 @@ export default function ListTable() {
             accessorKey: "name",
             header: ({ column }) => {
                 return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        tên
+                    <div onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className='flex items-center justify-center min-h-10'>
+                        <p>Họ và tên</p>
                         <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </Button>
+                    </div>
                 )
             },
             cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
@@ -139,42 +105,10 @@ export default function ListTable() {
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {/* eslint-disable-next-line eqeqeq */}
-                    {row.original.value +"%"}
+                    {row.original.value + "%"}
                 </div>
             },
-        },
-        {
-            id: "hành động",
-            enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {
-                                    // eslint-disable-next-line no-restricted-globals
-                                    let t = confirm('xác nhận xóa');
-                                    if (t) {
-                                        axios.delete(`${baseUrl}/promotion/${row.getValue("id")}`).then(res => {
-                                            alert("xóa thành công");
-                                            fillData();
-                                        })
-                                    }
-                                }}>khôi phục</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                )
-            },
-        },
+        }
     ], []);
 
     const table = useReactTable({
@@ -199,91 +133,9 @@ export default function ListTable() {
     return (
         <>
             <div className="w-full">
-                <div className="flex items-center py-4">
-                    <Input
-                        placeholder="Filter name..."
-                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+                <ToastContainer />
                 <div className="rounded-md border p-3 bg-white">
-                    <Table>
-                        <TableHeader>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                    {Table(table, flexRender, columns)}
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
                     <div className="flex-1 text-sm text-muted-foreground">

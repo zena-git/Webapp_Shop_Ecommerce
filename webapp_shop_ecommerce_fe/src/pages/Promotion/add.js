@@ -1,23 +1,22 @@
-import { DatePicker, InputNumber, Button } from 'antd/lib';
-import { Input } from "~/components/ui/input"
-import { Textarea } from "~/components/ui/textarea"
+import { DatePicker, InputNumber, Button, Input, Radio } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl, makeid } from '~/lib/functional';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
 import ReduxProvider from '~/redux/provider'
 import { useDispatch } from 'react-redux';
 import { set } from '~/redux/features/promotion-selected-item'
-import { Label } from "~/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
-const { RangePicker } = DatePicker
-function EditPage() {
 
+const { TextArea } = Input
+const { RangePicker } = DatePicker
+
+function EditPage() {
+    const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState(makeid());
     const [value, setValue] = useState(0);
@@ -34,7 +33,6 @@ function EditPage() {
     useEffect(() => {
         axios.get(`${baseUrl}/product`).then(res => {
             setListProduct(res.data);
-
             dispatch(set({
                 value: {
                     selected: res.data.map(product => {
@@ -58,57 +56,61 @@ function EditPage() {
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
     const handleSubmitForm = () => {
-        let lst = []
-        listSelectedProduct.map(value => {
-            value.children.map(child => {
-                if (child.selected) { lst.push(child.id) }
+        if (!pending) {
+            let lst = []
+            listSelectedProduct.map(value => {
+                value.children.map(child => {
+                    if (child.selected) { lst.push(child.id) }
+                })
             })
-        })
-        if (!date) {
+            if (!date) {
 
-        } else if (name.trim().length == 0) {
-            toast.error('chưa nhập tên chương trình')
-        } else if (PromotionType == "1" && lst.length == 0) {
-            toast.error('chưa chọn sản phẩm nào')
-        } else if (value.toString().trim().length == 0) {
-            toast.error('đặt mức giảm giá')
-        } else if (value > 100) {
-            toast.error('giá trị giảm không thể quá 100%')
-        } else {
-            let t = [];
-            listProduct.map(pro => {
-                t.push(...pro.lstProductDetails.map(detail => detail.id))
-            })
-            axios.post(`${baseUrl}/promotion`, {
-                status: 0,
-                value: value,
-                code: code,
-                name: name,
-                description: description,
-                startDate: dayjs(date[0]).toDate(),
-                endDate: dayjs(date[1]).toDate(),
-                lstProductDetails: PromotionType == "0" ? t : lst
-            }).then(res => {
-                toast.success('Thêm thành công')
-                setValue("");
-                setCode(makeid());
-                setName("");
-                setDescription("");
-                // navigate(`/discount/promotion`)
-            }).catch(err => {
-                toast.error(err.response.data.message)
-            })
+            } else if (name.trim().length == 0) {
+                toast.error('chưa nhập tên chương trình')
+            } else if (PromotionType == "1" && lst.length == 0) {
+                toast.error('chưa chọn sản phẩm nào')
+            } else if (value.toString().trim().length == 0) {
+                toast.error('đặt mức giảm giá')
+            } else if (value > 100) {
+                toast.error('giá trị giảm không thể quá 100%')
+            } else {
+                setPending(true);
+                let t = [];
+                listProduct.map(pro => {
+                    t.push(...pro.lstProductDetails.map(detail => detail.id))
+                })
+                axios.post(`${baseUrl}/promotion`, {
+                    status: 0,
+                    value: value,
+                    code: code,
+                    name: name,
+                    description: description,
+                    startDate: dayjs(date[0]).toDate(),
+                    endDate: dayjs(date[1]).toDate(),
+                    lstProductDetails: PromotionType == "0" ? t : lst
+                }).then(res => {
+                    toast.success('Thêm thành công');
+                    setPending(false);
+                    setValue("");
+                    setCode(makeid());
+                    setName("");
+                    setDescription("");
+                }).catch(err => {
+                    setPending(false);
+                    toast.error(err.response.data.message)
+                })
+            }
         }
     }
 
     return (
         <div>
-            <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
+            <div className='w-full flex max-lg:flex-col py-5 gap-5 bg-white'>
                 <ToastContainer />
                 <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg border'>
                     <div className='flex gap-2 items-center'>
                         <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
-                        <p className='ml-3 text-lg font-semibold'>Thêm mới đợt giảm giá</p>
+                        <p className='ml-3 text-lg font-semibold'>Thêm mới sự kiện giảm giá</p>
                     </div>
                     <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
                     <label>
@@ -125,22 +127,14 @@ function EditPage() {
                     </label>
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
-                        <Textarea value={description} onChange={e => { setDescription(e.target.value) }} />
+                        <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
                     </label>
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
-                        <RadioGroup value={PromotionType} onValueChange={e => setPromotionType(e)}>
-                            <div className='flex gap-3'>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="0" id="option-one" />
-                                    <Label htmlFor="option-one">Tất cả sản phẩm</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="1" id="option-two" />
-                                    <Label htmlFor="option-two">Sản phẩm chỉ định</Label>
-                                </div>
-                            </div>
-                        </RadioGroup>
+                        <Radio.Group name="radiogroup" defaultValue={"0"} value={PromotionType} onChange={e => setPromotionType(e.target.value)}>
+                            <Radio value={"0"}>Tất cả sản phẩm</Radio>
+                            <Radio value={"1"}>Sản phẩm chỉ định</Radio>
+                        </Radio.Group>
                     </label>
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>

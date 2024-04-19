@@ -3,7 +3,6 @@ import { Slot } from "@radix-ui/react-slot"
 import { Controller, FormProvider, useFormContext } from "react-hook-form";
 
 import { cn } from "src/lib/utils"
-import { Label } from "./label"
 
 const Form = FormProvider
 
@@ -61,7 +60,7 @@ const FormLabel = React.forwardRef(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField()
 
   return (
-    (<Label
+    (<label
       ref={ref}
       className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}

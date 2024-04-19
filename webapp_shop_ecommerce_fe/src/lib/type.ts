@@ -226,6 +226,7 @@ export type User = {
     "password": string,
     "phone": string,
     "username": string,
+    status: number,
     imageUrl: string,
     "district": string,
     "commune": string,

@@ -22,7 +22,11 @@ export const selectedData = createSlice({
             const { id, selected } = action.payload;
             const selectedItem = state.value.selected.find(item => item.id === id);
             if (selectedItem) {
-                selectedItem.selected = selected;
+                if (selectedItem.disable) {
+
+                } else {
+                    selectedItem.selected = selected;
+                }
             } else {
                 state.value.selected.push({ id: id, selected: true });
             }

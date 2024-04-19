@@ -25,7 +25,7 @@ export default function CustomerDetail() {
             <div className="p-6 bg-white rounded-md shadow-lg flex flex-col gap-3">
                 <div className='flex gap-2 items-center'>
                     <div className='text-lg cursor-pointer' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
-                    <p className='ml-3 text-lg font-semibold'>Thông tin khách hàng</p>
+                    <p className='ml-3 text-lg font-bold'>Thông tin khách hàng</p>
                 </div>
                 <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
                 <div className="grid grid-cols-2 gap-3">

@@ -1,11 +1,7 @@
-import { DatePicker, InputNumber, Select, Button, Checkbox, Modal } from 'antd/lib';
-import { Input } from "../../components/ui/input"
-import { Textarea } from "~/components/ui/textarea"
+import { DatePicker, InputNumber, Select, Button, Checkbox, Modal, Input, Radio } from 'antd/lib';
 import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
-import { Label } from "~/components/ui/label"
 import {
     Form,
     FormControl,
@@ -24,7 +20,6 @@ import axios from 'axios';
 import { baseUrl, baseUrlV3 } from '../../lib/functional'
 import {
     CaretSortIcon,
-    ChevronDownIcon,
     DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
@@ -35,25 +30,10 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "~/components/ui/table"
 import { IoArrowBackSharp } from "react-icons/io5";
+import { FaEdit, FaTrash } from 'react-icons/fa'
+
+const { TextArea } = Input;
 
 dayjs.extend(customParseFormat);
 
@@ -84,7 +64,9 @@ const modalFormSchema = z.object({
 
 const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function AddCustomer() {
+    const [gender, setGender] = useState('0');
 
+    const [pending, setPending] = useState(false);
     const [sorting, setSorting] = useState([])
     const [columnFilters, setColumnFilters] = useState([])
     const [columnVisibility, setColumnVisibility] = useState({})
@@ -99,7 +81,7 @@ export default function AddCustomer() {
     const [listAddress, setListAddress] = useState([])
 
     const path = useParams();
-    const [defaultAddress, setDefaultAddress] = useState(0);
+    const [defaultAddress, setDefaultAddress] = useState(1);
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
@@ -285,6 +267,7 @@ export default function AddCustomer() {
         } else if (id) {
             axios.delete(`${baseUrl}/address/${id}`)
             let x = listAddress.filter(target => id != target.id)
+            setDefaultAddress(x ? x[0].key || x[0].id : 0);
             setListAddress(x);
         }
     }
@@ -297,7 +280,7 @@ export default function AddCustomer() {
             header: "Mặc định",
             cell: ({ row }) => (<>
                 {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
-                <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} />
+                <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.id || row.original.key) }} />
             </>
             ),
         },
@@ -305,14 +288,13 @@ export default function AddCustomer() {
             accessorKey: "receiverName",
             header: ({ column }) => {
                 return (
-                    <Button
-                        variant="ghost"
-                        className='flex items-center border-none'
+                    <div
+                        className='flex items-center border-none justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên người nhận
+                        Tên người nhận
                         <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </Button>
+                    </div>
                 )
             },
             cell: ({ row }) => <div className="lowercase">
@@ -321,7 +303,7 @@ export default function AddCustomer() {
         },
         {
             accessorKey: "phone",
-            header: () => <div className="text-center">số điện thoại</div>,
+            header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {row.original && <p>{row.original.phone}</p>}
@@ -372,23 +354,12 @@ export default function AddCustomer() {
         {
             id: "hành động",
             enableHiding: false,
-            header: () => <div className="text-center">hành động</div>,
+            header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
                 return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button type='primary' variant="ghost" className="h-8 w-8 p-0 flex justify-center items-center">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>Cập nhật</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => { Remove(row.original.key, row.original.id) }}>Xóa</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    <div className="flex justify-center gap-2 items-center">
+                        <Button className='flex items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}><FaEdit /></Button>
+                        <Button className='flex items-center' onClick={() => { Remove(row.original.key, row.original.id) }}><FaTrash /></Button>
                     </div>
                 )
             },
@@ -421,7 +392,6 @@ export default function AddCustomer() {
             values: {
                 codeCustomer: targetCustomer ? targetCustomer.codeCustomer : makeid(),
                 fullName: targetCustomer ? targetCustomer.fullName : "",
-                birthDay: targetCustomer ? targetCustomer.birthDay : birthDay,
                 gender: targetCustomer ? targetCustomer.gender : "",
                 address: targetCustomer ? targetCustomer.address : "",
                 phone: targetCustomer ? targetCustomer.phone : "",
@@ -433,30 +403,41 @@ export default function AddCustomer() {
     )
 
     const handleSubmitForm = (values) => {
-        const data = { ...values, birthDay: birthDay }
-        axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
-            const promises = listAddress.map(add => {
-                const body = {
-                    receiverName: add.receiverName,
-                    receiverPhone: add.phone,
-                    commune: add.commune.name,
-                    district: add.district.name,
-                    province: add.province.name,
-                    defaultAddress: add.id ? defaultAddress == add.id : defaultAddress == add.key,
-                    detail: add.detail,
-                    customer: path.id,
-                    id: add.id
-                }
-                return axios.post(`${baseUrlV3}/address`, body)
-            })
-            return Promise.all(promises)
-                .then(() => {
-                    toast.success('cập nhật khách hàng thành công');
-                    setTimeout(() => {
-                        navigate(`/user/customer/detail/${res.data.data.id}`)
-                    }, 2000);
-                });
-        })
+        if (!pending) {
+            if (listAddress.length == 0) {
+                toast.error('Hãy thêm ít nhất 1 địa chỉ');
+            } else {
+                const data = { ...values, birthDay: birthDay, gender: gender == '1' }
+                setPending(true);
+                axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
+                    const promises = listAddress.map(add => {
+                        const body = {
+                            receiverName: add.receiverName,
+                            receiverPhone: add.phone,
+                            commune: add.commune.name,
+                            district: add.district.name,
+                            province: add.province.name,
+                            defaultAddress: add.id ? defaultAddress == add.id : defaultAddress == add.key,
+                            detail: add.detail,
+                            customer: path.id,
+                            id: add.id
+                        }
+                        return axios.post(`${baseUrlV3}/address`, body)
+                    })
+                    return Promise.all(promises)
+                        .then(() => {
+                            toast.success('cập nhật khách hàng thành công');
+                            setPending(false);
+                            setTimeout(() => {
+                                navigate(`/user/customer/detail/${res.data.data.id}`)
+                            }, 2000);
+                        });
+                }).catch(err => {
+                    setPending(false);
+                    toast.error(err.response.data.message)
+                })
+            }
+        }
     }
 
     const [editAddress, setEditAddress] = useState({});
@@ -492,14 +473,14 @@ export default function AddCustomer() {
     }
 
     return (
-        <div className='flex xl:flex-col'>
+        <div className='flex xl:flex-col bg-white'>
             <ToastContainer />
-            <div className='flex flex-col gap-3 w-full bg-white shadow-lg rounded-md p-5'>
+            <div className='flex flex-col gap-3 w-full bg-slate-50 shadow-lg rounded-md p-5'>
                 <div className='flex gap-2 items-center'>
-                    <div className='text-lg cursor-pointer' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
+                    <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
                     <p className='ml-3 text-lg font-semibold'>Thông tin khách hàng</p>
                 </div>
-                <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                <div className='bg-slate-600 h-[2px]'></div>
                 <Form {...form}>
                     <form onSubmit={e => { e.preventDefault() }} className="space-y-8">
                         <div className='grid grid-cols-2 max-lg:grid-cols-1 p-3 gap-x-6'>
@@ -556,8 +537,8 @@ export default function AddCustomer() {
                                             <FormLabel></FormLabel>
                                             <FormControl>
                                                 <>
-                                                    <p>Sinh nhật</p>
-                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay || new Date()} onChange={birthDay => setBirthday(birthDay)} />
+                                                    <p>Ngày sinh</p>
+                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => setBirthday(birthDay)} />
                                                 </>
                                             </FormControl>
                                             <FormMessage />
@@ -565,33 +546,19 @@ export default function AddCustomer() {
                                     )}
                                 />
 
-                                <FormField
-                                    control={form.control}
-                                    name="gender"
-                                    render={({ field }) =>
-                                    (
-                                        <FormItem>
-                                            <FormLabel>Giới tính</FormLabel>
-                                            <FormControl defaultValue='1'>
-                                                <RadioGroup className="flex gap-3 items-center">
-                                                    <div className="flex items-center space-x-2">
-                                                        <RadioGroupItem value="0" id="option-one" />
-                                                        <Label htmlFor="option-one">Nam</Label>
-                                                    </div>
-                                                    <div className="flex items-center space-x-2">
-                                                        <RadioGroupItem value="1" id="option-two" />
-                                                        <Label htmlFor="option-two">Nữ</Label>
-                                                    </div>
-                                                </RadioGroup>
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                <div>
+                                    <p className='mb-3 font-semibold'>Giới tính</p>
+                                    <Radio.Group onChange={(e) => { setGender(e.target.value) }} value={gender}>
+                                        <Radio value={'0'}>Nam</Radio>
+                                        <Radio value={'1'}>Nữ</Radio>
+                                    </Radio.Group>
+                                </div>
                             </div>
                         </div>
-                        <p className='ml-3 text-lg font-semibold'>Danh sách địa chỉ</p>
-                        <div className='mb-3 relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                        <div>
+                            <p className='text-lg font-semibold mt-0 mb-3'>Danh sách địa chỉ</p>
+                            <div className='bg-slate-600 h-[2px]'></div>
+                        </div>
                         <Button type="primary" onClick={() => { handleAddAddress(); }}>
                             Thêm địa chỉ mới
                         </Button>
@@ -685,7 +652,7 @@ export default function AddCustomer() {
                                     </div>
                                     <div>
                                         <p>Địa chỉ chi tiết</p>
-                                        <Textarea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
+                                        <TextArea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
                                     </div>
 
                                     <div className='flex items-center gap-3'>
@@ -695,55 +662,59 @@ export default function AddCustomer() {
                                 </form>
                             </Form>
                         </Modal>
-                        <div className="rounded-md border bg-white p-3">
-                            <Table>
-                                <TableHeader>
+                        <div className="rounded-md border bg-slate-50 p-3 shadow-lg">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className='bg-purple-500 py-2'>
                                     {table.getHeaderGroups().map((headerGroup) => (
-                                        <TableRow key={headerGroup.id}>
+                                        <tr key={headerGroup.id} className='border-b border-gray-300'>
                                             {headerGroup.headers.map((header) => {
                                                 return (
-                                                    <TableHead key={header.id}>
+                                                    <th key={header.id}>
                                                         {header.isPlaceholder
                                                             ? null
                                                             : flexRender(
                                                                 header.column.columnDef.header,
                                                                 header.getContext()
                                                             )}
-                                                    </TableHead>
+                                                    </th>
                                                 )
                                             })}
-                                        </TableRow>
+                                        </tr>
                                     ))}
-                                </TableHeader>
-                                <TableBody>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
                                     {table.getRowModel().rows?.length ? (
                                         table.getRowModel().rows.map((row) => (
-                                            <TableRow
+                                            <tr
                                                 key={row.id}
-                                                data-state={row.getIsSelected() && "selected"}
+                                                className={row.getIsSelected() ? "bg-blue-100" : ""}
                                             >
                                                 {row.getVisibleCells().map((cell) => (
-                                                    <TableCell key={cell.id}>
+                                                    <td
+                                                        key={cell.id}
+                                                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                                    >
                                                         {flexRender(
                                                             cell.column.columnDef.cell,
                                                             cell.getContext()
                                                         )}
-                                                    </TableCell>
-                                                ))}
-                                            </TableRow>
+                                                    </td>
+                                                ))
+                                                }
+                                            </tr>
                                         ))
                                     ) : (
-                                        <TableRow>
-                                            <TableCell
+                                        <tr>
+                                            <td
                                                 colSpan={columns.length}
-                                                className="h-24 text-center"
+                                                className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
                                             >
                                                 No results.
-                                            </TableCell>
-                                        </TableRow>
+                                            </td>
+                                        </tr>
                                     )}
-                                </TableBody>
-                            </Table>
+                                </tbody>
+                            </table>
                         </div>
 
                         <div className='flex gap-4'>

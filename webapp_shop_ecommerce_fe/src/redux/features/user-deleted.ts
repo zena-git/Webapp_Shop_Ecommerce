@@ -28,8 +28,12 @@ export const selectedData = createSlice({
                 state.value.selected.push({ id: id, selected: true });
             }
         },
+        reset: (state, action: PayloadAction<Init>) => {
+            console.log('reset')
+            state.value.selected = []
+        }
     },
 });
 
 export default selectedData.reducer;
-export const { set, updateSelected } = selectedData.actions;
+export const { set, reset, updateSelected } = selectedData.actions;

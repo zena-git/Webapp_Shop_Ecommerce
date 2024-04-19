@@ -1,9 +1,7 @@
-import { Tag, Checkbox, DatePicker, Select } from 'antd/lib'
+import { Tag, Checkbox, DatePicker, Select, Button, Input, Modal } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
-    ChevronDownIcon,
-    DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
     ColumnDef,
@@ -17,36 +15,24 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-
-import { Button } from "~/components/ui/button"
-// import { Checkbox } from "~/components/ui/checkbox"
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
-import { Input } from "~/components/ui/input"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "~/components/ui/table"
-import { ProductResponse, PromotionResponse } from "~/lib/type"
-import { Link, redirect, useNavigate } from 'react-router-dom'
+import { PromotionResponse } from "~/lib/type"
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
+import { baseUrl, baseUrlV3 } from '~/lib/functional';
+import Table from '../../components/ui/table'
+import { toast, ToastContainer } from 'react-toastify'
+import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import ListDeleted from '~/components/promotion/listDeleted'
+import { useAppSelector } from '../../redux/storage';
+
 const dayjs = require('dayjs');
 const { RangePicker } = DatePicker;
 export default function ListTable() {
 
+    const [openModal, setOpenModal] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [data, setData] = useState([]);
+    const [deletedData, setDeletedData] = useState([]);
 
     const navigate = useNavigate();
 
@@ -55,8 +41,14 @@ export default function ListTable() {
             setData(res.data);
         })
     }
+    const fillDeletedData = () => {
+        axios.get(`${baseUrlV3}/promotion/deleted`).then(res => {
+            setDeletedData(res.data);
+        })
+    }
     useEffect(() => {
-        fillData()
+        fillData();
+        fillDeletedData();
     }, [])
 
 
@@ -102,13 +94,13 @@ export default function ListTable() {
             accessorKey: "name",
             header: ({ column }) => {
                 return (
-                    <Button
-                        variant="ghost"
+                    <div
+                        className='flex items-center justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên chương trình
                         <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </Button>
+                    </div>
                 )
             },
             cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
@@ -155,30 +147,70 @@ export default function ListTable() {
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
                 return (
-                    <div className="flex justify-center">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                    <DotsHorizontalIcon className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => {
-                                    // eslint-disable-next-line no-restricted-globals
-                                    let t = confirm('xác nhận xóa');
-                                    if (t) axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => { navigate(0) })
-                                }}>Xóa</DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/update/${row.getValue('id')}`}>Cập nhật</Link></DropdownMenuItem>
-                                <DropdownMenuItem><Link to={`/discount/promotion/detail/${row.getValue('id')}`}>Chi tiết</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                    <div className="flex justify-center gap-2 items-center">
+                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/promotion/update/${row.getValue('id')}`) }}><FaEdit /></Button>
+                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/promotion/detail/${row.getValue('id')}`) }}><FaEye /></Button>
+                        <Button type="primary" className="flex items-center" onClick={() => { setOpenModal(true) }}>
+                            <FaTrash />
+                        </Button>
+                        <Modal
+                            title="Xác nhận"
+                            open={openModal}
+                            onOk={() => {
+                                setOpenModal(false)
+                                axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => {
+                                    toast.success('xóa thành công');
+                                    fillData();
+                                    fillDeletedData();
+                                })
+                            }}
+                            onCancel={() => { setOpenModal(false) }}
+                            okText="xác nhận"
+                            cancelText="hủy"
+                        >
+                            Xác nhận xóa
+                        </Modal>
                     </div>
                 )
             },
         },
-    ], []);
+    ], [openModal, setOpenModal, fillData, fillDeletedData]);
+
+
+    const Recover = () => {
+
+        const showModal = () => {
+            setIsModalOpen(true);
+        };
+
+        const handleOk = () => {
+            const promises = listPromotionDeleteSelected.map(slt => {
+                return axios.put(`${baseUrlV3}/promotion/recover?id=${slt.id}`)
+            })
+            Promise.all(promises).then(() => {
+                setIsModalOpen(false);
+                fillData();
+                fillDeletedData()
+            })
+
+        };
+        const handleCancel = () => {
+            setIsModalOpen(false);
+        };
+
+        const listPromotionDeleteSelected = useAppSelector(state => state.promotionDeletedReducer.value.selected)
+
+        return (
+            <>
+                <Button type="primary" onClick={showModal}>
+                    Sự kiện giảm giá đã xóa
+                </Button>
+                <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    {ListDeleted({ data: deletedData })}
+                </Modal>
+            </>
+        );
+    }
 
     const table = useReactTable({
         data,
@@ -201,6 +233,13 @@ export default function ListTable() {
 
     return (
         <>
+            <div className='flex gap-5 items-center'>
+                <Link to={'/discount/promotion/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-sm my-3'>
+                    Thêm sự kiện giảm giá mới
+                </Link>
+                {Recover()}
+            </div>
+            <ToastContainer />
             <div className='grid grid-cols-3 items-center my-3 bg-slate-50 rounded-md p-3 shadow-lg gap-5 border'>
                 <div className='flex flex-col w-full'>
                     <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
@@ -239,84 +278,18 @@ export default function ListTable() {
                 <div>
                     <p className='mb-1 font-semibold text-sm'>Khoảng ngày</p>
                     <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
-                        table.getColumn("startDate").setFilterValue(value[0]);
-                        table.getColumn("endDate").setFilterValue(value[1])
+                        if (value && value[0] && value[1]) {
+                            table.getColumn("startDate").setFilterValue(value[0]);
+                            table.getColumn("endDate").setFilterValue(value[1])
+                        } else {
+                            table.getColumn("startDate").setFilterValue(null);
+                            table.getColumn("endDate").setFilterValue(null)
+                        }
                     }} />
                 </div>
             </div>
             <div className="rounded-md border bg-slate-50 p-3 shadow-lg">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
-                </div>
+                {Table(table, flexRender, columns)}
             </div>
         </>
     )
