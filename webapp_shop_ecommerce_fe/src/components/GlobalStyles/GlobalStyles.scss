@@ -1,0 +1,128 @@
+@tailwind components;
+@tailwind utilities;
+@import 'normalize.css';
+
+:root {
+    --primary: #da7493;
+    --black: #000;
+    --white: #fff;
+    --text-color: #161823;
+    --color-primary: #da7493;
+    --color-primary-bold: #dc4975;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+html {
+    font-size: 62.5%;
+}
+body {
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+//Bỏ thẻ canvas trong quét barcode
+.drawingBuffer{
+    display: none !important;;
+}
+
+
+.ant-btn {
+
+    font-size: 1.3rem;
+}
+.ant-btn-primary {
+    background-color: var(--color-primary);
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.ant-menu-item-icon svg {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+    color: var(--color-primary-bold);
+    border-color: var(--color-primary-bold);
+    background: #ffffff;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+    background: var(--color-primary-bold);
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-item-selected {
+    background-color: #ffbadb8b;
+    color: var(--color-primary-bold) !important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-item-selected {
+    font-weight: 500;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu
+    .ant-menu-submenu-selected
+    > .ant-menu-submenu-title {
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-item,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-submenu-title {
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected):hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected):hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected)
+    > .ant-menu-submenu-title:hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected)
+    > .ant-menu-submenu-title:hover {
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light:not(.ant-menu-horizontal)
+    .ant-menu-item:not(.ant-menu-item-selected):hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu:not(.ant-menu-horizontal)
+    .ant-menu-item:not(.ant-menu-item-selected):hover {
+    background-color: rgba(248, 41, 151, 0.089);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--color-primary);
+}
+.ant-radio-group-solid
+    :where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(
+        .ant-radio-button-wrapper-disabled
+    ) {
+    border: 1px solid #da7493 !important;
+    background-color: #fff !important;
+    color: var(--color-primary) !important;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper:hover {
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab:hover {
+    color: var(--color-primary);
+}
+
+.ant-table-thead th {
+    background-color: #da749392 !important;
+}
+.ant-form-item-label{
+    padding-bottom: 0px !important;
+}
