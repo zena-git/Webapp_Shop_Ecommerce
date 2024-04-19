@@ -683,8 +683,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         if (billDto.getIsDelivery()) {
             bill.setBillFormat(BillType.DELIVERY.getLabel());
-            bill.setStatus(TrangThaiBill.CHO_GIAO.getLabel());
-            historyBillService.addHistoryBill(bill, TrangThaiBill.CHO_GIAO.getLabel(), "");
+            bill.setStatus(TrangThaiBill.DA_XAC_NHAN.getLabel());
+            historyBillService.addHistoryBill(bill, TrangThaiBill.DA_XAC_NHAN.getLabel(), "");
         } else {
             historyBillService.addHistoryBill(bill, TrangThaiBill.HOAN_THANH.getLabel(), "");
             bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
@@ -1032,7 +1032,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         //phuong thuc thanh toan tin Tien mat
         if (bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())
                 && bill.getPaymentMethod().equalsIgnoreCase("0")
-                && historyBillRequest.getType().equalsIgnoreCase(TrangThaiBill.CHO_GIAO.getLabel())
+                && historyBillRequest.getType().equalsIgnoreCase(TrangThaiBill.DA_XAC_NHAN.getLabel())
         ){
             Set<BillDetails> lstBillDetails = bill.getLstBillDetails();
             lstBillDetails.stream().map(entity -> {

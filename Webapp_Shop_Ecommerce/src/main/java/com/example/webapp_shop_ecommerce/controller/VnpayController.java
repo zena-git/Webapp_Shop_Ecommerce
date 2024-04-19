@@ -313,14 +313,14 @@ public class VnpayController {
             if (bill.getBillType().equalsIgnoreCase(BillType.OFFLINE.getLabel())){
                 bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
             }else {
-                bill.setStatus(TrangThaiBill.CHO_XAC_NHAN.getLabel());
+                bill.setStatus(TrangThaiBill.DA_XAC_NHAN.getLabel());
             }
             billService.update(bill);
             paymentHistoryService.createNew(paymentHistory);
 
             historyBillService.addHistoryBill(bill,TrangThaiBill.DA_THANH_TOAN.getLabel(), "");
             if (bill.getBillType().equalsIgnoreCase(BillType.ONLINE.getLabel())){
-                historyBillService.addHistoryBill(bill,TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
+                historyBillService.addHistoryBill(bill,TrangThaiBill.DA_XAC_NHAN.getLabel(), "");
             }
             System.out.println("Thanh Toans Ok");
             return new ResponseEntity<>(new ResponseObject("success", vnp_Message, Integer.parseInt(vnp_ResponseCode), jsonResponse.toString()), HttpStatus.OK);
