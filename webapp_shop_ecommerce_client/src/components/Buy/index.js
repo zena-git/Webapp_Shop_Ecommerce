@@ -13,7 +13,7 @@ dayjs.extend(customParseFormat);
 const { confirm } = Modal
 
 function Buy() {
-    const { dataCheckout,handlePaymentBill,shipMoney, voucherMoney,setDataPaymentMethods,intoMoney,totalPrice, customer,voucher, setDataVoucher } = useContext(DataContext);
+    const { dataCheckout, handlePaymentBill, shipMoney, voucherMoney, setDataPaymentMethods, intoMoney, totalPrice, customer, voucher, setDataVoucher } = useContext(DataContext);
     const [isModalOpenVoucher, setIsModalOpenVoucher] = useState(false);
     const [lstDataVoucher, setLstDataVoucher] = useState([]);
     const [lstDataTableVoucher, setLstDataTableVoucher] = useState([]);
@@ -87,6 +87,7 @@ function Buy() {
     }, [customer])
     useEffect(() => {
         fillDateTableVoucher()
+        setDataVoucher(null)
     }, [lstDataVoucher])
 
     const fillDateTableVoucher = () => {
@@ -115,7 +116,7 @@ function Buy() {
     const handleUseVoucher = (voucher) => {
         setIsModalOpenVoucher(false);
         setDataVoucher(voucher)
-       
+
     }
 
     const handleQuitUseVoucher = () => {
@@ -137,9 +138,9 @@ function Buy() {
         console.log(e.target.value);
         setDataPaymentMethods(e.target.value);
     };
-    useEffect(()=>{
+    useEffect(() => {
         console.log(dataCheckout);
-    },[dataCheckout])
+    }, [dataCheckout])
     const showConfirm = () => {
         confirm({
             title: 'Xác Nhận?',
@@ -164,7 +165,7 @@ function Buy() {
                     <h4>Thanh Toán</h4>
                 </div>
                 <div className=''>
-                <div className='pb-4 mb-4' style={{
+                    <div className='pb-4 mb-4' style={{
                         borderBottom: '1px solid rgb(232, 232, 232)'
                     }}>
                         <div className='mb-4'>Phiếu giảm giá</div>
@@ -184,7 +185,7 @@ function Buy() {
                                             <h4>{voucher?.name}</h4>
                                             <span className='text-xl	'>
                                                 Giảm Giá {voucher?.discountType == 1 ?
-                                                   voucher?.value + "%" :
+                                                    voucher?.value + "%" :
                                                     fixMoney(voucher?.value)
                                                 } Cho Đơn Hàng
                                             </span>

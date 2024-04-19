@@ -6,7 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 const DataProvider = ({ children }) => {
     const navigate = useNavigate();
-    const [isAccount, setIsAccount] = useState(false);
+    const [isAccount, setIsAccount] = useState(true);
     const [customer, setCustomer] = useState()
 
     const [data, setData] = useState([]);

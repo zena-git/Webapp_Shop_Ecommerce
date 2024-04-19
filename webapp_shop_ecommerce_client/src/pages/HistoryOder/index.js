@@ -17,8 +17,8 @@ function HistoryOder() {
         TAT_CA: '',
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
-        CHO_GIAO: "1",
-        DANG_GIAO: "2",
+        DA_XAC_NHAN: "1",
+        VAN_CHUYEN: "2",
         DA_THANH_TOAN: "3",
         HOAN_THANH: "4",
         HUY: "5",
@@ -39,12 +39,12 @@ function HistoryOder() {
             label: 'Chờ Xác Nhận',
         },
         {
-            key: TrangThaiBill.CHO_GIAO,
-            label: 'Chờ Giao',
+            key: TrangThaiBill.DA_XAC_NHAN,
+            label: 'Đã Xác Nhận',
         },
         {
-            key: TrangThaiBill.DANG_GIAO,
-            label: 'Đang Giao',
+            key: TrangThaiBill.VAN_CHUYEN,
+            label: 'Vận Chuyển',
         },
         {
             key: TrangThaiBill.HOAN_THANH,
@@ -129,8 +129,8 @@ function HistoryOder() {
                                             bill?.status == TrangThaiBill.TAO_DON_HANG ? <Tag color="#108ee9">Tạo Đơn Hàng"</Tag> :
                                                 bill?.status == TrangThaiBill.CHO_THANH_TOAN ? <Tag color="#108ee9">Chờ Thanh Toán</Tag> :
                                                     bill?.status == TrangThaiBill.CHO_XAC_NHAN ? <Tag color="#108ee9">Chờ Xác Nhận</Tag> :
-                                                        bill?.status == TrangThaiBill.CHO_GIAO ? <Tag color="#108ee9">Chờ Giao</Tag> :
-                                                            bill?.status == TrangThaiBill.DANG_GIAO ? <Tag color="#108ee9">Đang Giao</Tag> :
+                                                        bill?.status == TrangThaiBill.DA_XAC_NHAN ? <Tag color="#108ee9">Đã Xác Nhận</Tag> :
+                                                            bill?.status == TrangThaiBill.VAN_CHUYEN ? <Tag color="#108ee9">Đang Vận Chuyển</Tag> :
                                                                 bill?.status == TrangThaiBill.HOAN_THANH ? <Tag color="#87d068">Hoàn Thành</Tag> :
                                                                     bill?.status == TrangThaiBill.HUY ? <Tag color="#eb2727">Hủy</Tag> :
                                                                         bill?.status == TrangThaiBill.TRA_HANG ? <Tag color="#108ee9">Trả Hàng</Tag> : <Tag color="#108ee9">Khác</Tag>

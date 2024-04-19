@@ -14,14 +14,15 @@ function OrderDetail({ bill }) {
         TAT_CA: '',
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
-        CHO_GIAO: "1",
-        DANG_GIAO: "2",
+        DA_XAC_NHAN: "1",
+        VAN_CHUYEN: "2",
         DA_THANH_TOAN: "3",
         HOAN_THANH: "4",
         HUY: "5",
         TRA_HANG: "6",
         DANG_BAN: "7",
         CHO_THANH_TOAN: "8",
+        HOAN_TIEN: "9",
         NEW: "New",
     }
 
@@ -50,12 +51,13 @@ function OrderDetail({ bill }) {
                                                 title=<h4 className='text-2xl'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
                                                     historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                         historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                            historyBill?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                                historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                            historyBill?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                                historyBill?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
                                                                     historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
                                                                         historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                            historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
                                                                             historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                                historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                                                historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                                 }</h4>
 
                                                 subtitle=<span className='text-xl font-medium	'>
@@ -92,11 +94,12 @@ function OrderDetail({ bill }) {
                                                 history?.type == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
                                                     history?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                         history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                            history?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                                history?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                            history?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                                history?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
                                                                     history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
                                                                         history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                             history?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                            history?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
                                                                                 history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                             }</Tag>,
                                             createdDate: dayjs(history?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
@@ -151,11 +154,12 @@ function OrderDetail({ bill }) {
                                         bill?.status == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
                                             bill?.status == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                 bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                    bill?.status == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                        bill?.status == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                    bill?.status == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                        bill?.status == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
                                                             bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
                                                                 bill?.status == TrangThaiBill.HUY ? "Hủy" :
-                                                                    bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                                bill?.status == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
+                                                                    bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                     }
                                 </Tag>
                             </Descriptions.Item>

@@ -14,8 +14,8 @@ function HistoryOrderDetail() {
         TAT_CA: '',
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
-        CHO_GIAO: "1",
-        DANG_GIAO: "2",
+        DA_XAC_NHAN: "1",
+        VAN_CHUYEN: "2",
         DA_THANH_TOAN: "3",
         HOAN_THANH: "4",
         HUY: "5",
@@ -108,7 +108,7 @@ function HistoryOrderDetail() {
                     {
                         (bill?.status == TrangThaiBill.CHO_THANH_TOAN ||
                             bill?.status == TrangThaiBill.CHO_XAC_NHAN ||
-                            bill?.status == TrangThaiBill.CHO_GIAO) &&
+                            bill?.status == TrangThaiBill.DA_XAC_NHAN) &&
                         <Button className="ml-4" type="primary" onClick={showModal}> Hủy</Button>
                     }
 
