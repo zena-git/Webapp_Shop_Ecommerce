@@ -2,6 +2,8 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.User.UserRequest;
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportRequest;
 import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.request.message.ResetPasswordRequest;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
@@ -23,6 +25,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,7 +48,8 @@ public class SupportController {
 
     @Autowired
     private ICustomerService customerService;
-
+    @Autowired
+    private IClientService mailClientService;
     @DeleteMapping("/address/delete/{id}")
     public ResponseEntity<ResponseObject> deleteAddress(@PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
@@ -139,5 +144,41 @@ public class SupportController {
     public ResponseEntity<?> recoverPassword(@RequestBody ResetPasswordRequest request){
 
         return new ResponseEntity<>(messageService.sendNewPassword(request), HttpStatus.OK);
+    }
+
+    @PostMapping("/customer")
+    public ResponseEntity<?> customerSave(@RequestBody CustomerSupportRequest CustomerDto, BindingResult result){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, CustomerDto), HttpStatus.BAD_REQUEST);
+        }
+        MailInputDTO mailInput = new MailInputDTO();
+        if(CustomerDto.getEmail() != null) {
+            mailInput.setEmail(CustomerDto.getEmail());
+            mailInput.setUsername("test");
+            mailInput.setMailxName("qqq");
+            mailClientService.create(mailInput);
+        }
+        return supportSevice.saveOrUpdateCustomer(CustomerDto);
+    }
+
+    @PutMapping("/customer/{id}")
+    public ResponseEntity<?> customerUpadte(@RequestBody CustomerSupportRequest CustomerDto, BindingResult result, @PathVariable("id") Long id){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, CustomerDto), HttpStatus.BAD_REQUEST);
+        }
+
+        return supportSevice.saveOrUpdateCustomer(CustomerDto,id);
     }
 }

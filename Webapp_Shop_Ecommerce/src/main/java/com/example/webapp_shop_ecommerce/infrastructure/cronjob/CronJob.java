@@ -41,7 +41,7 @@ public class CronJob {
 
     }
 
-    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void PromotionCronJob() {
         LocalDateTime now = LocalDateTime.now();
         //set Dang dien ra

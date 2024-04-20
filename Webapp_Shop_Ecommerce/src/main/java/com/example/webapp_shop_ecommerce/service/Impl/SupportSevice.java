@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.request.User.UserRequest;
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportRequest;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
@@ -16,6 +17,7 @@ import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
 import org.apache.catalina.User;
+import org.apache.commons.math3.analysis.function.Add;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,6 +65,8 @@ public class SupportSevice {
     @Autowired
     IPromotionDetailsRepository promotionDetailsRepo;
 
+    @Autowired
+    ICustomerService customerService;
     @Autowired
     private ModelMapper mapper;
 
@@ -256,6 +260,75 @@ public class SupportSevice {
     }
     public ResponseEntity<?> abc(AddressRequest request){
         return null;
+    }
+
+    public ResponseEntity<?> saveOrUpdateCustomer( CustomerSupportRequest customerDto, Long ...idCustomer){
+        if (idCustomer.length <= 0){
+            Customer customer = new Customer();
+            customer = mapper.map(customerDto, Customer.class);
+            customer.setDeleted(false);
+            customer.setCreatedDate(LocalDateTime.now());
+            customer.setLastModifiedDate(LocalDateTime.now());
+            customer.setCreatedBy("Admin");
+            customer.setLastModifiedBy("Admin");
+            Customer customerReturn =  customerRepo.save(customer);
+            Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
+            lstAddressRequest.stream().map(addressRequest -> {
+                Address address = mapper.map(addressRequest, Address.class);
+                address.setId(null);
+                address.setCustomer(customerReturn);
+                addressService.createNew(address);
+                return addressRequest;
+            }).collect(Collectors.toList());
+            return new ResponseEntity<>(new ResponseObject("success","Thêm Mới Thành công",0, customerDto), HttpStatus.OK);
+        }else {
+            Optional<Customer> customerOtp = customerRepo.findById(idCustomer[0]);
+            if (customerOtp.isEmpty()){
+                return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy khách hàng " + idCustomer[0], 1, null), HttpStatus.BAD_REQUEST);
+            }
+            Customer customer = customerOtp.get();
+            Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
+            Set<Address> lstAddress =  customer.getLstAddress();
+
+            //Lst càn giữ
+            List<Long> lstAddressId = lstAddressRequest.stream()
+                    .filter(addressRequest -> addressRequest.getId() != null)
+                    .map(AddressRequest::getId)
+                    .collect(Collectors.toList());
+            List<Long> lstAddressDelete = lstAddress.stream()
+                    .filter(address -> !lstAddressId.contains(address.getId()))
+                    .map(address -> {
+                        return address.getId();
+                    }).collect(Collectors.toList());
+             addressRepo.deleteAllById(lstAddressDelete);
+
+            lstAddressRequest.stream().map(address ->{
+
+                if (address.getId() != null){
+                    Optional<Address> otpAddress = addressRepo.findById(address.getId());
+                    if (otpAddress.isEmpty()){
+                        return null;
+                    }
+                    Address entity = mapper.map(address, Address.class);
+                    entity.setId(address.getId());
+                    entity.setCustomer(customerOtp.get());
+                    addressService.update(entity);
+                    return entity;
+                }
+                Address entity = mapper.map(address, Address.class);
+                entity.setId(null);
+                entity.setCustomer(customerOtp.get());
+                addressService.createNew(entity);
+                return entity;
+            }).collect(Collectors.toList());
+
+            customer = mapper.map(customerDto, Customer.class);
+            customer.setId(customerOtp.get().getId());
+            customerService.update(customer);
+            return new ResponseEntity<>(new ResponseObject("success","Cập Nhật Thành công",0, customerDto), HttpStatus.OK);
+
+        }
+
     }
 
 }
