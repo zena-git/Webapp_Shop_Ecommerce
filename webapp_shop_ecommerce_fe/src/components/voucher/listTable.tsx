@@ -130,7 +130,7 @@ export default function ListTable() {
         },
         {
             accessorKey: "orderMinValue",
-            header: () => <div className="text-center">Giá trị đơn tối thiểu</div>,
+            header: () => <div className="text-center">Đơn tối thiểu</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {numberToPrice(row.original.orderMinValue)}
@@ -139,7 +139,7 @@ export default function ListTable() {
         },
         {
             accessorKey: "maxDiscountValue",
-            header: () => <div className="text-center">Mức giảm tối đa</div>,
+            header: () => <div className="text-center">Giảm tối đa</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16">
                     {numberToPrice(row.original.maxDiscountValue)}
@@ -327,7 +327,7 @@ export default function ListTable() {
                     }} />
                 </div>
             </div>
-            <div className="rounded-md border p-3 bg-white shadow-md">
+            <div className="rounded-md border border-slate-800 shadow-md">
                 {Table(table, flexRender, columns)}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">

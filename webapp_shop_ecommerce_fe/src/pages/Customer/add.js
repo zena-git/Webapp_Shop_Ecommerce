@@ -32,6 +32,7 @@ import {
 } from "@tanstack/react-table"
 import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
+import Table from '../../components/ui/table';
 
 const { TextArea } = Input;
 dayjs.extend(customParseFormat);
@@ -226,15 +227,21 @@ export default function AddCustomer() {
         } catch (error) {
             console.log(error)
         }
-    }
+    } 
 
     const Remove = ({ key, id }) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
+            if (defaultAddress == key && q.length > 0) {
+                setDefaultAddress(q[0].id || q[0].key);
+            }
             setListAddress(q);
         } else if (id) {
             axios.delete(`${baseUrl}/address/${id}`)
             let x = listAddress.filter(target => id != target.id)
+            if (defaultAddress == id && x.length > 0) {
+                setDefaultAddress(x[0].id || x[0].key);
+            }
             setListAddress(x);
         }
     }
@@ -421,8 +428,6 @@ export default function AddCustomer() {
         }
     }
 
-
-
     const [editAddress, setEditAddress] = useState({});
 
     const modalForm = useForm(
@@ -442,13 +447,16 @@ export default function AddCustomer() {
 
     const handleAddAddress = () => {
         let newObject = {
-            key: listAddress.length + 1,
+            key: listAddress.length > 0 ? listAddress[listAddress.length - 1].key + 1 : 1,
             receiverName: "",
             phone: "",
             detail: "",
             province: { id: '269', name: 'Lào Cai' },
             district: { id: '2264', name: 'Huyện Si Ma Cai' },
             commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
+        }
+        if (listAddress == 0) {
+            setDefaultAddress(1);
         }
         setDetail("");
         modalForm.reset();
@@ -654,58 +662,7 @@ export default function AddCustomer() {
                         </form>
                     </Form>
                 </Modal>
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className='bg-purple-500 py-2'>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <tr key={headerGroup.id} className='border-b border-gray-300'>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <th key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        ))}
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <tr
-                                    key={row.id}
-                                    className={row.getIsSelected() ? "bg-blue-100" : ""}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td
-                                            key={cell.id}
-                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </td>
-                                    ))
-                                    }
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td
-                                    colSpan={columns.length}
-                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
-                                >
-                                    No results.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                {Table(table, flexRender, columns)}
             </div>
 
         </div>

@@ -32,6 +32,7 @@ import {
 } from "@tanstack/react-table"
 import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
+import Table from '../../components/ui/table';
 
 const { TextArea } = Input;
 
@@ -95,6 +96,7 @@ export default function AddCustomer() {
                 }
                 return {
                     ...add,
+                    key: index + 1,
                     province: {
                         id: null,
                         name: add.province
@@ -123,8 +125,8 @@ export default function AddCustomer() {
         })
     }, [path.id])
 
-    const setAddProvinceP = (value, key, id) => {
-        if (!key && !id) return;
+    const setAddProvinceP = (value, key) => {
+        if (!key) return;
         axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${value}`, {
             headers: {
                 token: token
@@ -140,7 +142,7 @@ export default function AddCustomer() {
                 setListWards(resp.data.data);
                 setListAddress(prev => {
                     return prev.map(target => {
-                        if ((key && target.key == key) || (id && target.id == id)) {
+                        if (target.key == key) {
                             let prov = listProvince.find(province => province.ProvinceID == value);
                             setEditAddress({
                                 ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
@@ -163,8 +165,8 @@ export default function AddCustomer() {
         })
     }
 
-    const setAddDistrictP = (value, key, id) => {
-        if (!key && !id) return;
+    const setAddDistrictP = (value, key) => {
+        if (!key) return;
         axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${value}`, {
             headers: {
                 token: token
@@ -173,7 +175,7 @@ export default function AddCustomer() {
             setListWards(res.data.data);
             setListAddress(prev => {
                 return prev.map(target => {
-                    if ((key && target.key == key) || (id && target.id == id)) {
+                    if (key && target.key == key) {
                         let dist = listDistricts.find(district => district.DistrictID == value)
                         setEditAddress({
                             ...editAddress,
@@ -194,13 +196,13 @@ export default function AddCustomer() {
         })
     }
 
-    const setAddCommuneP = (value, key, id) => {
-        if (!key && !id) return;
+    const setAddCommuneP = (value, key) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 let ward = listWards.find(target => target.WardCode == value);
                 return prev.map(target => {
-                    if ((key && target.key == key) || (id && target.id == id)) {
+                    if (key && target.key == key) {
                         return { ...target, commune: { id: ward.WardCode, name: ward.WardName } }
                     } else {
                         return target
@@ -214,12 +216,12 @@ export default function AddCustomer() {
 
     const navigate = useNavigate();
 
-    const handleChangeReceiverName = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverName = (key, newValue) => {
+        if (!key) return;
         setEditAddress({ ...editAddress, receiverName: newValue })
         setListAddress(prev => {
             return prev.map(address => {
-                if ((key && address.key == key) || (id && address.id == id)) {
+                if (key && address.key == key) {
                     return { ...address, receiverName: newValue };
                 }
                 return address;
@@ -227,13 +229,13 @@ export default function AddCustomer() {
         });
     };
 
-    const handleChangeReceiverPhone = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverPhone = (key, newValue) => {
+        if (!key) return;
         try {
             setEditAddress({ ...editAddress, phone: newValue })
             setListAddress(prev => {
                 return prev.map(address => {
-                    if ((key && address.key == key) || (id && address.id == id)) {
+                    if (key && address.key == key) {
                         return { ...address, phone: newValue };
                     }
                     return address;
@@ -244,12 +246,12 @@ export default function AddCustomer() {
         }
     }
 
-    const handleChangeReceiverDetail = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverDetail = (key, newValue) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 return prev.map(address => {
-                    if ((key && address.key == key) || (id && address.id == id)) {
+                    if (key && address.key == key) {
                         return { ...address, detail: newValue };
                     }
                     return address;
@@ -260,15 +262,13 @@ export default function AddCustomer() {
         }
     }
 
-    const Remove = (key, id) => {
+    const Remove = (key) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
+            if (defaultAddress == key && q.length > 0) {
+                setDefaultAddress(q[0].key);
+            }
             setListAddress(q);
-        } else if (id) {
-            axios.delete(`${baseUrl}/address/${id}`)
-            let x = listAddress.filter(target => id != target.id)
-            setDefaultAddress(x ? x[0].key || x[0].id : 0);
-            setListAddress(x);
         }
     }
 
@@ -417,7 +417,7 @@ export default function AddCustomer() {
                             commune: add.commune.name,
                             district: add.district.name,
                             province: add.province.name,
-                            defaultAddress: add.id ? defaultAddress == add.id : defaultAddress == add.key,
+                            defaultAddress: defaultAddress == add.key,
                             detail: add.detail,
                             customer: path.id,
                             id: add.id
@@ -458,7 +458,7 @@ export default function AddCustomer() {
 
     const handleAddAddress = () => {
         let newObject = {
-            key: listAddress.length + 1,
+            key: listAddress.length > 0 ? listAddress[listAddress.length - 1].key + 1 : 1,
             receiverName: "",
             phone: "",
             province: { id: '269', name: 'Lào Cai' },
@@ -466,7 +466,6 @@ export default function AddCustomer() {
             commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
         }
         modalForm.reset();
-        // modalForm.resetField()
         setEditAddress(newObject);
         setListAddress(prev => [...prev, newObject])
         setIsModalOpen(true);
@@ -562,7 +561,7 @@ export default function AddCustomer() {
                         <Button type="primary" onClick={() => { handleAddAddress(); }}>
                             Thêm địa chỉ mới
                         </Button>
-                        <Modal title="Basic Modal" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
+                        <Modal title="Điền thông tin" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
                             <Form {...modalForm}>
                                 <form onSubmit={() => { }} className="space-y-8">
                                     <FormField
@@ -572,7 +571,7 @@ export default function AddCustomer() {
                                             <FormItem>
                                                 <FormLabel>Họ và tên</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value, editAddress.id); }} />
+                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value); }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -585,7 +584,7 @@ export default function AddCustomer() {
                                             <FormItem>
                                                 <FormLabel>Số điện thoại</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value, editAddress.id); }} />
+                                                    <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value); }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -599,7 +598,7 @@ export default function AddCustomer() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
+                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key); }}>
                                                             {
                                                                 listProvince.map((province, key) => {
                                                                     return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
@@ -618,7 +617,7 @@ export default function AddCustomer() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Select className='min-w-[180px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
+                                                        <Select className='min-w-[180px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key); }}>
                                                             {
                                                                 listDistricts.map((district, key) => {
                                                                     return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
@@ -637,7 +636,7 @@ export default function AddCustomer() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Select {...field} className='min-w-[180px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
+                                                        <Select {...field} className='min-w-[180px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key); }}>
                                                             {
                                                                 listWards.map((ward, key) => {
                                                                     return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
@@ -652,69 +651,18 @@ export default function AddCustomer() {
                                     </div>
                                     <div>
                                         <p>Địa chỉ chi tiết</p>
-                                        <TextArea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
+                                        <TextArea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value) }} />
                                     </div>
 
                                     <div className='flex items-center gap-3'>
-                                        <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.id || editAddress.key) }} />
+                                        <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.key) }} />
                                         <p>Đặt làm địa chỉ mặc định</p>
                                     </div>
                                 </form>
                             </Form>
                         </Modal>
                         <div className="rounded-md border bg-slate-50 p-3 shadow-lg">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className='bg-purple-500 py-2'>
-                                    {table.getHeaderGroups().map((headerGroup) => (
-                                        <tr key={headerGroup.id} className='border-b border-gray-300'>
-                                            {headerGroup.headers.map((header) => {
-                                                return (
-                                                    <th key={header.id}>
-                                                        {header.isPlaceholder
-                                                            ? null
-                                                            : flexRender(
-                                                                header.column.columnDef.header,
-                                                                header.getContext()
-                                                            )}
-                                                    </th>
-                                                )
-                                            })}
-                                        </tr>
-                                    ))}
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map((row) => (
-                                            <tr
-                                                key={row.id}
-                                                className={row.getIsSelected() ? "bg-blue-100" : ""}
-                                            >
-                                                {row.getVisibleCells().map((cell) => (
-                                                    <td
-                                                        key={cell.id}
-                                                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                                    >
-                                                        {flexRender(
-                                                            cell.column.columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </td>
-                                                ))
-                                                }
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td
-                                                colSpan={columns.length}
-                                                className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
-                                            >
-                                                No results.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                            {Table(table, flexRender, columns)}
                         </div>
 
                         <div className='flex gap-4'>

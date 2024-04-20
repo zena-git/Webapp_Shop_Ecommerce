@@ -107,12 +107,12 @@ function EditPage() {
         <div>
             <div className='w-full flex max-lg:flex-col py-5 gap-5 bg-white'>
                 <ToastContainer />
-                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg border'>
+                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg border border-slate-600'>
                     <div className='flex gap-2 items-center'>
                         <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='ml-3 text-lg font-semibold'>Thêm mới sự kiện giảm giá</p>
                     </div>
-                    <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                    <div className='h-[2px] bg-slate-600'></div>
                     <label>
                         <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
                         <Input value={code} onChange={e => { setCode(e.target.value) }} />
@@ -144,9 +144,9 @@ function EditPage() {
                         {'Thêm mới đợt giảm giá'}
                     </Button>
                 </div>
-                <div className='flex-grow bg-slate-50 px-3 py-3 rounded-lg h-fit flex flex-col gap-3 border'>
+                <div className='flex-grow bg-slate-50 px-3 py-3 rounded-lg h-fit flex flex-col gap-3 border border-slate-600'>
                     <p className='text-lg font-semibold'>Danh sách sản phẩm</p>
-                    <div className='relative after:w-full after:h-[2px] after:absolute after:bottom-0 after:left-0 after:bg-slate-600'></div>
+                    <div className='h-[2px] bg-slate-600'></div>
                     <ListDetailProduct data={listProduct} />
                 </div>
             </div>

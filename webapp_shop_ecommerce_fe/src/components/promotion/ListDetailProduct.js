@@ -36,40 +36,37 @@ export default function ListTable({ data }) {
 
     const columns = useMemo(() => [
         {
-            id: "#",
-            header: () => <div className="text-center">#</div>,
-            cell: ({ row }) => {
-                return (<div className='flex justify-center'>{row.index + 1}</div>)
-            },
-        },
-        {
             id: "select",
             header: ({ table }) => (
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected()
-                    }
-                    onChange={(value) => dispatch(set({
-                        value: {
-                            selected: data.map(product => {
-                                return {
-                                    id: product.id, selected: !!value.target.checked, children: product.lstProductDetails.map(detail => {
-                                        return { id: detail.id, selected: !!value.target.checked }
-                                    })
-                                }
-                            })
+                <div className='flex justify-center'>
+                    <Checkbox
+                        checked={
+                            table.getIsAllPageRowsSelected()
                         }
-                    }))}
-                    aria-label="Select all"
-                />
+                        onChange={(value) => dispatch(set({
+                            value: {
+                                selected: data.map(product => {
+                                    return {
+                                        id: product.id, selected: !!value.target.checked, children: product.lstProductDetails.map(detail => {
+                                            return { id: detail.id, selected: !!value.target.checked }
+                                        })
+                                    }
+                                })
+                            }
+                        }))}
+                        aria-label="Select all"
+                    />
+                </div>
             ),
             cell: ({ row }) => (
-                <Checkbox
-                    disabled={!!selectedProduct.find(pro => pro.id == row.original.id)?.disable}
-                    defaultChecked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
-                    onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.checked })) }}
-                    aria-label="Select row"
-                />
+                <div className='flex justify-center'>
+                    <Checkbox
+                        disabled={!!selectedProduct.find(pro => pro.id == row.original.id)?.disable}
+                        defaultChecked={(selectedProduct.find(value => value.id == row.original.id)?.selected || false)}
+                        onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.checked })) }}
+                        aria-label="Select row"
+                    />
+                </div>
             ),
             enableSorting: false,
             enableHiding: false,
@@ -140,10 +137,9 @@ export default function ListTable({ data }) {
     return (
         <>
             <div className="w-full">
-
                 <div className="rounded-md border">
-                    <table className="min-w-full">
-                        <thead className='bg-purple-400'>
+                    <table className="min-w-full border border-collapse border-spacing-0">
+                        <thead className='bg-purple-600 text-slate-100'>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <tr key={headerGroup.id} className='border-b border-gray-300'>
                                     {headerGroup.headers.map((header) => {
@@ -161,7 +157,7 @@ export default function ListTable({ data }) {
                                 </tr>
                             ))}
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-slate-50 divide-y divide-gray-200">
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <>
@@ -184,7 +180,7 @@ export default function ListTable({ data }) {
                                         </tr>
                                         {open[row.original.id] && (
                                             <tr key={`${row.id}-details`}>
-                                                <td colSpan={columns.length} className="px-6 py-4">
+                                                <td colSpan={columns.length} className="py-4">
                                                     <ProductDetailTable
                                                         targetDataId={row.original.id}
                                                         selected={row.getIsSelected()}
@@ -268,13 +264,6 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             ),
             enableSorting: false,
             enableHiding: false,
-        },
-        {
-            accessorKey: "id",
-            header: "#",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
-            ),
         },
         {
             accessorKey: "imageUrl",

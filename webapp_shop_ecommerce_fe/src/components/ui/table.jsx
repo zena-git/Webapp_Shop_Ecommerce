@@ -1,9 +1,9 @@
 export default function Table(table, flexRender, columns) {
     return (
         <table className="min-w-full border border-slate-500">
-            <thead className='bg-slate-300'>
+            <thead className='bg-purple-500 text-white'>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className='border-none'>
+                    <tr key={headerGroup.id} className=''>
                         {headerGroup.headers.map((header) => {
                             return (
                                 <th key={header.id} className="">
@@ -19,7 +19,7 @@ export default function Table(table, flexRender, columns) {
                     </tr>
                 ))}
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-slate-50">
                 {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => (
                         <tr

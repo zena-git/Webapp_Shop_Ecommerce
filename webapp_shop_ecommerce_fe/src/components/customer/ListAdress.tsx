@@ -49,7 +49,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center justify-center'
+                        className='flex items-center justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên người nhận

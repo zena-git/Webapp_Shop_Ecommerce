@@ -26,6 +26,7 @@ import { useDispatch } from 'react-redux';
 import Table from '../../components/ui/table'
 import { toast, ToastContainer } from 'react-toastify'
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { set } from '../../redux/features/voucher-deleted'
 
 export default function ListTable() {
 
@@ -162,7 +163,7 @@ export default function ListTable() {
                 )
             },
         },
-    ], []);
+    ], [openModal, setOpenModal]);
 
     const table = useReactTable({
         data,
@@ -183,10 +184,6 @@ export default function ListTable() {
         },
     });
     const listUserDeletedSelect = useAppSelector(state => state.voucherDeletedReducer.value.selected);
-
-    useEffect(() => {
-        console.log(listUserDeletedSelect)
-    }, [listUserDeletedSelect])
 
     const fillDeltedData = () => {
         axios.get(`${baseUrlV3}/user/deleted`).then(res => {
