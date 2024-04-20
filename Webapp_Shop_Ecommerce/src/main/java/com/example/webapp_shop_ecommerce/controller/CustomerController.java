@@ -1,12 +1,14 @@
 package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
+import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerAddressResponse;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillResponse;
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
+import com.example.webapp_shop_ecommerce.service.IClientService;
 import com.example.webapp_shop_ecommerce.service.ICustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class CustomerController {
 
     @Autowired
     private ICustomerService customerService;
+
+    @Autowired
+    private IClientService mailClientService;
 
     @GetMapping
     public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
@@ -74,6 +79,13 @@ public class CustomerController {
     }
     @PostMapping()
     public ResponseEntity<?> saveProduct(@RequestBody CustomerRequest CustomerDto){
+        MailInputDTO mailInput = new MailInputDTO();
+        if(CustomerDto.getEmail() != null) {
+            mailInput.setEmail(CustomerDto.getEmail());
+            mailInput.setUsername("test");
+            mailInput.setMailxName("qqq");
+            mailClientService.create(mailInput);
+        }
         return customerService.createNew(mapper.map(CustomerDto, Customer.class));
     }
 

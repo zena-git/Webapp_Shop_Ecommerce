@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsResponse;
+import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsVoucherResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,5 +34,4 @@ public class VoucherResponse {
     private String status;
     private String description;
     private Set<VoucherDetailsVoucherResponse> lstVoucherDetails;
-
 }

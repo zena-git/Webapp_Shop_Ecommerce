@@ -15,6 +15,8 @@ import java.util.Date;
 public class UserRequest {
     private Long id;
     private String codeUser;
+
+    private Integer status;
     private String fullName;
     private String imageUrl;
     private Date birthday;

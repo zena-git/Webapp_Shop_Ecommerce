@@ -17,6 +17,9 @@ import java.util.Optional;
 
 @Repository
 public interface IPromotionRepository extends IBaseReporitory<Promotion, Long> {
+    @Query("SELECT b FROM Promotion b WHERE b.id = :id and b.deleted = true")
+    Optional<Promotion> findByIdDeleted(@Param("id") Long id);
+
     @Query("SELECT b FROM Promotion b WHERE b.name = ?1 and b.deleted = false")
     Optional<Promotion> findByName(String name);
 

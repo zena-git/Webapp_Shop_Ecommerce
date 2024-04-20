@@ -34,7 +34,6 @@ public class ProductResponse {
     private String createdBy;
     private LocalDateTime createdDate;
 
-
     private Set<ProductDetailsResponse> lstProductDetails;
 
 

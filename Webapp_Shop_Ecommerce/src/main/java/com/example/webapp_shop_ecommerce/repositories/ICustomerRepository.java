@@ -23,4 +23,9 @@ public interface ICustomerRepository extends IBaseReporitory<Customer, Long> {
     @Query("select c from Customer c join fetch c.lstAddress ad where c.id = :id and c.deleted = false and ad.deleted = false")
     Optional<Customer> findCustomerByIdAndAddressNotDeleted (@Param("id") Long id);
 
+    @Query("select c from Customer c join fetch c.lstAddress ad where c.phone = :phone and c.deleted = false and ad.deleted = false")
+    Optional<Customer> findCustomerByPhone (@Param("phone") String phone);
+
+    @Query("update Customer c SET c.password = :newPassword where c.id = :id")
+    void updateCustomerPassword(@Param("id") Long id, @Param("newPassword") String newPassword);
 }

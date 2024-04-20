@@ -1,6 +1,5 @@
 package com.example.webapp_shop_ecommerce.dto.request.voucher;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

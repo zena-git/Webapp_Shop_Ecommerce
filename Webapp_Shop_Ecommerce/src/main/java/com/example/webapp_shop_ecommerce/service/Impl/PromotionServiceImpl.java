@@ -8,6 +8,7 @@ import com.example.webapp_shop_ecommerce.entity.PromotionDetails;
 import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.repositories.IPromotionDetailsRepository;
 import com.example.webapp_shop_ecommerce.repositories.IPromotionRepository;
+import com.example.webapp_shop_ecommerce.service.IPromotionDetailsService;
 import com.example.webapp_shop_ecommerce.service.IPromotionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ import java.util.stream.Collectors;
 public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IPromotionRepository> implements IPromotionService {
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private IPromotionDetailsService promotionDetailService;
     @Autowired
     private IProductDetailsRepository productDetailsRepo;
     @Autowired
@@ -99,16 +103,29 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
 
 
         //delete all PromotionDetails by promotion
-        promotionDetailsRepo.deleteByPromotion(promotion);
+// <<<<<<< HEAD
+//         promotionDetailsRepo.deleteByPromotion(promotion);
 
-        List<ProductDetails> lstProductDetails = productDetailsRepo.findAllById(promotionRequest.getLstProductDetails());
+//         List<ProductDetails> lstProductDetails = productDetailsRepo.findAllById(promotionRequest.getLstProductDetails());
 
-        List<PromotionDetails> lstPromotionDetails = lstProductDetails.stream().map(
-                productDetails -> {
+//         List<PromotionDetails> lstPromotionDetails = lstProductDetails.stream().map(
+//                 productDetails -> {
 
+//                     PromotionDetails promotionDetails = new PromotionDetails();
+//                     promotionDetails.setPromotion(promotion);
+//                     promotionDetails.setProductDetails(productDetails);
+// =======
+//        promotionDetailsRepo.deleteByPromotion(promotion);
+
+        promotionDetailsRepo.updateDeletedFlagForNotInIds(promotionRequest.getLstProductDetails());
+        promotionDetailsRepo.updateDeletedFalseInIds(promotionRequest.getLstProductDetails());
+        List<Long> listId = promotionRequest.getLstProductDetails();
+        listId.stream().map(productId -> {
                     PromotionDetails promotionDetails = new PromotionDetails();
+
                     promotionDetails.setPromotion(promotion);
-                    promotionDetails.setProductDetails(productDetails);
+                    promotionDetails.setProductDetails(productDetailsRepo.findById(productId).get());
+// >>>>>>> origin/be_b
 
                     promotionDetails.setId(null);
                     promotionDetails.setDeleted(false);
@@ -116,12 +133,38 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
                     promotionDetails.setCreatedDate(LocalDateTime.now());
                     promotionDetails.setLastModifiedDate(LocalDateTime.now());
                     promotionDetails.setLastModifiedBy("Admin");
+// <<<<<<< HEAD
 
-                    PromotionDetails promotionDetailsActive = promotionDetailsRepo.save(promotionDetails);
-                    productDetails.setPromotionDetailsActive(promotionDetailsActive);
-                    productDetailsRepo.save(productDetails);
-                    return promotionDetails;
-                }).collect(Collectors.toList());
+//                     PromotionDetails promotionDetailsActive = promotionDetailsRepo.save(promotionDetails);
+//                     productDetails.setPromotionDetailsActive(promotionDetailsActive);
+//                     productDetailsRepo.save(productDetails);
+//                     return promotionDetails;
+//                 }).collect(Collectors.toList());
+// =======
+                    return promotionDetailService.createNew(promotionDetails);
+        });
+//        promotionDetailsRepo.createnotInIds(promotionRequest.getLstProductDetails(), id);
+
+//        List<ProductDetails> lstProductDetails = productDetailsRepo.findAllById(promotionRequest.getLstProductDetails());
+//        List<PromotionDetails> lstPromotionDetails = lstProductDetails.stream().map(
+//                productDetails -> {
+//                    PromotionDetails promotionDetails = new PromotionDetails();
+//                    promotionDetails.setPromotion(promotion);
+//                    promotionDetails.setProductDetails(productDetails);
+//
+//                    promotionDetails.setId(null);
+//                    promotionDetails.setDeleted(false);
+//                    promotionDetails.setCreatedBy("Admin");
+//                    promotionDetails.setCreatedDate(LocalDateTime.now());
+//                    promotionDetails.setLastModifiedDate(LocalDateTime.now());
+//                    promotionDetails.setLastModifiedBy("Admin");
+//
+//                    PromotionDetails promotionDetailsActive = promotionDetailsRepo.save(promotionDetails);
+//                    productDetails.setPromotionDetailsActive(promotionDetailsActive);
+//                    productDetailsRepo.save(productDetails);
+//                    return promotionDetails;
+//                }).collect(Collectors.toList());
+// >>>>>>> origin/be_b
         //save all list PromotionDetails
 //        promotionDetailsRepo.saveAll(lstPromotionDetails);
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, promotionRequest), HttpStatus.OK);

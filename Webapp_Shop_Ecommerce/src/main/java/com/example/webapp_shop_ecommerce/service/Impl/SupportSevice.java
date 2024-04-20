@@ -10,6 +10,7 @@ import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDeta
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionSupportResponse;
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
+import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.repositories.*;
@@ -39,6 +40,9 @@ public class SupportSevice {
     IPromotionService promotionService;
 
     @Autowired
+    IVoucherService voucherService;
+
+    @Autowired
     IPromotionDetailsService promotionDetailsService;
 
     @Autowired
@@ -54,6 +58,9 @@ public class SupportSevice {
     IPromotionRepository promotionRepo;
 
     @Autowired
+    IVoucherRepository voucherRepo;
+
+    @Autowired
     IPromotionDetailsRepository promotionDetailsRepo;
 
     @Autowired
@@ -62,6 +69,11 @@ public class SupportSevice {
     public ResponseEntity<ResponseObject> deleteAddress(Long id){
         return addressService.physicalDelete(id);
     }
+
+    public ResponseEntity<ResponseObject> deleteUser(Long id){
+        return usersService.delete(id);
+    }
+
 
     public ResponseEntity<ResponseObject> saveOrUpdate(AddressRequest request){
 
@@ -131,14 +143,32 @@ public class SupportSevice {
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> findAllVoucherByDeleted(Boolean tyle){
+        List<Voucher> lstPromotion = voucherRepo.findAllByDeleted(tyle);
+        List<VoucherResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, VoucherResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
     public ResponseEntity<?> recoverPromotion(Long id ){
-        Optional<Promotion> otp = promotionService.findById(id);
+        Optional<Promotion> otp = promotionRepo.findByIdDeleted(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
         promotionRepo.updateRecover(id);
         return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
     }
+
+    public ResponseEntity<?> recoverVoucher(Long id ){
+        Voucher otp = voucherRepo.findDeletedId(id);
+        System.out.println(otp.toString());
+        if (otp == null) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        voucherRepo.updateRecover(id);
+        return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
+    }
+
+
     public ResponseEntity<?> saveOrUpdateUser(UserRequest request){
         Optional<Users> userOtp = usersService.findById(request.getId());
         Users user = userOtp.orElse(new Users());

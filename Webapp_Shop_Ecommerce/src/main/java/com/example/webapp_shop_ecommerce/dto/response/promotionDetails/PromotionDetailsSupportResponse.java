@@ -17,4 +17,5 @@ public class PromotionDetailsSupportResponse {
 //    private PromotionResponse promotion;
     private Float promotionValue;
     private ProductDetailsSupportResponse productDetails;
+    private Boolean deleted;
 }
