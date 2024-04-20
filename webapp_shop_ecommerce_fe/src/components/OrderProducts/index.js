@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import BarcodeScanner from '../BarcodeScanner';
+import { useDebounce } from '~/hooks';
 const { confirm } = Modal;
 const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
@@ -360,7 +361,7 @@ function OrderProducts() {
                 quantity: <InputNumber
 
                     min={1}
-                    max={data.productDetails.quantity}
+                    max={data.productDetails.quantity+data.quantity}
                     value={data.quantity} // Sử dụng giá trị quantity như mặc định
                     onChange={(value) => onChangeQuantityProductCart(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
@@ -489,7 +490,7 @@ function OrderProducts() {
 
     const onChangeQuantityProductCart = (value, id) => {
         console.log(value + " " + id);
-
+        
         axios.put('http://localhost:8080/api/v1/counters/billDetails/' + id, {
             quantity: value
         })

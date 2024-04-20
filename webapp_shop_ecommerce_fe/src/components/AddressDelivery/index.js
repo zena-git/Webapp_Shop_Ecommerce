@@ -68,11 +68,17 @@ function AddressDelivery() {
 
     useEffect(() => {
         if (customer !== null && isDelivery) {
-            setAddress(customer?.defaultAddress)
+            console.log(lstAddress);
+            lstAddress.map(address =>{
+                if(address?.defaultAddress){
+                    setAddress(address)
+                    setCheckValueAddress(address.id);
+                }
+            })
         } else {
             setAddress(null)
         }
-    }, [customer, isDelivery])
+    }, [customer, isDelivery, lstAddress])
 
 
 
@@ -132,11 +138,7 @@ function AddressDelivery() {
             console.log(response.data);
             setLstAddress(response.data.lstAddress);
             // Kiểm tra và thiết lập giá trị kiểm tra
-            response.data.lstAddress.forEach(address => {
-                if (address.defaultAddress) {
-                    setCheckValueAddress(address.id);
-                }
-            });
+           
         } catch (error) {
             console.error(error);
         }

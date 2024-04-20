@@ -98,9 +98,9 @@ function Order() {
         updateDataProductDetails();
         // updateDataDataCart();
 
-        if (lstBill.length == 1) {
-          fetchAddBillNew();
-        }
+        // if (lstBill.length == 1) {
+        //   fetchAddBillNew();
+        // }
       })
       .catch(error => {
         toast.error(error.response.data.message);
