@@ -138,8 +138,8 @@ const VoucherPage = () => {
                     maxDiscountValue: values.max_discount_value,
                     orderMinValue: values.order_min_value,
                     description: values.description,
-                    startDate: date[0].toDate(),
-                    endDate: date[1].toDate(),
+                    startDate: date[0].add(7, 'hour').toDate(),
+                    endDate: date[1].add(7, 'hour').toDate(),
                     lstCustomer: listCustomer.map(val => { return val.id })
                 }).then(r => {
                     toast.success("Đã cập nhật voucher thành công");
@@ -165,8 +165,8 @@ const VoucherPage = () => {
                         maxDiscountValue: values.max_discount_value,
                         description: values.description,
                         orderMinValue: values.order_min_value,
-                        startDate: date[0].toDate(),
-                        endDate: date[1].toDate(),
+                        startDate: date[0].add(7, 'hour').toDate(),
+                        endDate: date[1].add(7, 'hour').toDate(),
                         lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
                     }).then(res => {
                         setPending(false);
@@ -339,7 +339,6 @@ const VoucherPage = () => {
                                     </div>
                                     <div className='flex gap-4'>
                                         <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật</Button>
-                                        {/* {targetVoucher && <Button type='primary' onClick={() => { let t = confirm("xác nhận"); if (t) DisableVoucher() }}>{targetVoucher.status == "0" ? "Tạm dừng Voucher" : "Tiếp tục Voucher"}</Button>} */}
                                     </div>
                                 </form>
                             </Form>

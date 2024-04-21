@@ -23,6 +23,8 @@ import { set } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
+import moment from 'moment'
+
 const { RangePicker } = DatePicker
 const { TextArea } = Input
 
@@ -108,6 +110,7 @@ const VoucherPage = () => {
                 toast.error('mức giảm không quá 100% được');
                 return;
             }
+            console.log(date[0].toDate());
             if (VoucherType == "0") {
                 setPending(true);
                 axios.post(`${baseUrl}/voucher`, {
@@ -121,8 +124,8 @@ const VoucherPage = () => {
                     maxDiscountValue: values.max_discount_value,
                     orderMinValue: values.order_min_value,
                     description: values.description,
-                    startDate: date[0].toDate(),
-                    endDate: date[1].toDate(),
+                    startDate: date[0].add(7, 'hour').toDate(),
+                    endDate: date[1].add(7, 'hour').toDate(),
                     lstCustomer: listCustomer.map(val => { return val.id })
                 }).then(res => {
                     setPending(false);
@@ -147,8 +150,8 @@ const VoucherPage = () => {
                         maxDiscountValue: values.max_discount_value,
                         orderMinValue: values.order_min_value,
                         description: values.description,
-                        startDate: date[0].toDate(),
-                        endDate: date[1].toDate(),
+                        startDate: date[0].add(7, 'hour').toDate(),
+                        endDate: date[1].add(7, 'hour').toDate(),
                         lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
                     }).then(res => {
                         setPending(false);
@@ -163,7 +166,6 @@ const VoucherPage = () => {
                     toast.error("chưa chọn khách hàng nào")
                 }
             }
-
         }
     }
 

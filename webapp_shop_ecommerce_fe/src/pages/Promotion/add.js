@@ -85,8 +85,8 @@ function EditPage() {
                     code: code,
                     name: name,
                     description: description,
-                    startDate: dayjs(date[0]).toDate(),
-                    endDate: dayjs(date[1]).toDate(),
+                    startDate: dayjs(date[0]).add(7, 'hour').toDate(),
+                    endDate: dayjs(date[1]).add(7, 'hour').toDate(),
                     lstProductDetails: PromotionType == "0" ? t : lst
                 }).then(res => {
                     toast.success('Thêm thành công');
