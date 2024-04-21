@@ -16,8 +16,6 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { VoucherResponse } from "~/lib/type"
-import axios from 'axios'
-import { baseUrl, baseUrlV3 } from '~/lib/functional'
 import { set, updateSelected } from '../../redux/features/voucher-deleted'
 import { useDispatch } from 'react-redux'
 import Table from '../../components/ui/table'
@@ -55,20 +53,22 @@ export default function ListTable({ data }: { data: any }) {
                 />
             ),
             cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onChange={(value) => row.toggleSelected(!!value.target.checked)}
-                    aria-label="Select row"
-                />
+                <div className='flex justify-center'>
+                    <Checkbox
+                        checked={row.getIsSelected()}
+                        onChange={(value) => row.toggleSelected(!!value.target.checked)}
+                        aria-label="Select row"
+                    />
+                </div>
             ),
             enableSorting: false,
             enableHiding: false,
         },
         {
             accessorKey: "id",
-            header: "id",
+            header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
+                <div className="capitalize text-xl text-center">{row.index + 1}</div>
             ),
         },
         {
@@ -84,13 +84,13 @@ export default function ListTable({ data }: { data: any }) {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.name}</div>,
         },
         {
             accessorKey: "startDate",
             header: () => <div className="text-center">ngày bắt đầu</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.startDate.toString().split("T")[0] + " - " + row.original.startDate.toString().split("T")[1]}
                 </div>
             },
@@ -99,7 +99,7 @@ export default function ListTable({ data }: { data: any }) {
             accessorKey: "endDate",
             header: () => <div className="text-center">ngày kết thúc</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
                 </div>
             },
@@ -108,7 +108,7 @@ export default function ListTable({ data }: { data: any }) {
             accessorKey: "value",
             header: () => <div className="text-center">giá trị giảm</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.value + `${row.original.discountType == "0" ? "đ" : "%"}`}
                 </div>
             },

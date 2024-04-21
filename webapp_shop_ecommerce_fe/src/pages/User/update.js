@@ -198,14 +198,46 @@ export default function Add() {
 
 
     const handleSubmitForm = (values) => {
-        if (!pending) {
-            if (originalThumbnail) {
-                const formData = new FormData();
-                formData.append("file", originalThumbnail.file);
-                formData.append("cloud_name", "db9i1b2yf")
-                formData.append("upload_preset", "product")
-                setPending(true);
-                axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+        if (!addProvince) {
+            toast.error('chưa chọn Tỉnh/thành phố')
+        } else if (!addDistrict) {
+            toast.error('chưa chọn Quận/huyện')
+        } else if (!addWard) {
+            toast.error('chưa chọn Xã/phường')
+        } else if (values.fullName.trim().length == 0) {
+            toast.error('chưa điền tên')
+        } else {
+            if (!pending) {
+                if (originalThumbnail) {
+                    const formData = new FormData();
+                    formData.append("file", originalThumbnail.file);
+                    formData.append("cloud_name", "db9i1b2yf")
+                    formData.append("upload_preset", "product")
+                    setPending(true);
+                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+                        const body = {
+                            id: targetUser.id,
+                            birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()) : null,
+                            commune: addWard,
+                            detail: values.detail,
+                            district: addDistrict.DistrictName,
+                            province: addProvince.ProvinceName,
+                            email: values.email,
+                            status: status,
+                            fullName: values.fullName,
+                            gender: gender == '0',
+                            phone: values.phone,
+                            imageUrl: res.data.url
+                        }
+                        axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
+                            toast.success('Cập nhật thành công')
+                            setPending(false);
+                        }).catch(err => {
+                            setPending(false);
+                            toast.error(err.response.data.message);
+                        })
+                    })
+                } else {
                     const body = {
                         id: targetUser.id,
                         birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()) : null,
@@ -217,39 +249,17 @@ export default function Add() {
                         status: status,
                         fullName: values.fullName,
                         gender: gender == '0',
-                        phone: values.phone,
-                        imageUrl: res.data.url
+                        phone: values.phone
                     }
+                    setPending(true);
                     axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
-                        toast.success('Cập nhật thành công')
+                        toast.success('Cập nhật thành công');
                         setPending(false);
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message);
                     })
-                })
-            } else {
-                const body = {
-                    id: targetUser.id,
-                    birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()) : null,
-                    commune: addWard,
-                    detail: values.detail,
-                    district: addDistrict.DistrictName,
-                    province: addProvince.ProvinceName,
-                    email: values.email,
-                    status: status,
-                    fullName: values.fullName,
-                    gender: gender == '0',
-                    phone: values.phone
                 }
-                setPending(true);
-                axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
-                    toast.success('Cập nhật thành công');
-                    setPending(false);
-                }).catch(err => {
-                    setPending(false);
-                    toast.error(err.response.data.message);
-                })
             }
         }
     }
@@ -262,8 +272,8 @@ export default function Add() {
                     <form onSubmit={e => { e.preventDefault() }} className="w-full flex max-lg:flex-col gap-5">
                         <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
-                                <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
+                                <p className='text-2xl font-bold'>Thông tin nhân viên</p>
                             </div>
                             <div className='bg-slate-600 h-[2px]'></div>
                             <div className='w-full flex flex-col'>
@@ -319,7 +329,7 @@ export default function Add() {
                             </div>
                         </div>
                         <div className="flex-grow flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
-                            <p className='text-lg font-bold'>Thông tin chi tiết</p>
+                            <p className='text-2xl font-bold'>Thông tin chi tiết</p>
                             <div className='bg-slate-600 h-[2px]'></div>
                             <div className='flex flex-col gap-3'>
                                 <div className='grid grid-cols-2 gap-3 items-center'>

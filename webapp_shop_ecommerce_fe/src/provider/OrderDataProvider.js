@@ -1,3 +1,4 @@
+import { editableInputTypes } from '@testing-library/user-event/dist/utils';
 import axios from 'axios';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
@@ -30,22 +31,52 @@ const OrderDataProvider = ({ children }) => {
     const [customer, setCustomer] = useState(null);
 
     const [isDelivery, setIsDelivery] = useState(false);
+    const [voucher, setVoucher] = useState(null);
 
     const [lstProductDetails, setLstProductDetails] = useState([]);
     const [lstProductDetailsCart, setLstProductDetailsCart] = useState([]);
 
-
+    const DiscountType = {
+        GIAM_TRUC_TIEP: '0',
+        GIAM_PHAN_TRAM: "1",
+    }
 
     //set tổng tiền
     useEffect(() => {
-        const money = totalPrice - voucherMoney - shipMoney;
-        setIntoMoney(money);
+        const money = totalPrice - voucherMoney + shipMoney;
+
+
+        if (money <= 0) {
+            setIntoMoney(0);
+
+        } else {
+            setIntoMoney(money);
+        }
     }, [totalPrice, voucherMoney, shipMoney])
+
+
+    useEffect(() => {
+        if (totalPrice <= 0 || voucher == null) {
+            setVoucerMoney(0);
+            return;
+        }
+        //%
+        if (voucher.discountType == DiscountType.GIAM_PHAN_TRAM) {
+            const discount = totalPrice * voucher.value / 100;
+            setVoucerMoney(discount);
+        } else {
+            setVoucerMoney(voucher.value);
+        }
+
+    }, [voucher, totalPrice])
 
     //Tiền trả kháhc
     useEffect(() => {
         setMoneyPaid(paymentCustomer - intoMoney);
     }, [paymentCustomer])
+    const setDataVoucher = (data) => {
+        setVoucher(data);
+    };
     const setDataIdBill = (data) => {
         setIdBill(data);
     };
@@ -186,21 +217,25 @@ const OrderDataProvider = ({ children }) => {
     }, [idBill]);
 
     const handlePaymentBill = () => {
-        //5 - Hoàn Thành
-        //2- Chờ Giao
-        let status = '5';
-        if (isDelivery) {
-            status = '2';
-        }
+        //4 - Hoàn Thành
+        //1- Chờ Giao
+        let status = '4';
+        // if (isDelivery) {
+        //     status = '1';
+        // }
+
+        let returnUrl = window.location.origin;
+
+
 
         //Validate tạm số tiền
         if (idBill == null) {
             return;
         }
-        if (paymentCustomer < intoMoney) {
-            toast.error('Số Tiền Khách Nhập Chưa Đủ')
-            return;
-        }
+        // if (paymentCustomer < intoMoney) {
+        //     toast.error('Số Tiền Khách Nhập Chưa Đủ')
+        //     return;
+        // }
         const dataBill = {
             paymentMethod: paymentMethods,
             totalMoney: totalPrice,
@@ -213,14 +248,25 @@ const OrderDataProvider = ({ children }) => {
             receiverCommune: addressBill?.commune,
             receiverDistrict: addressBill?.district,
             receiverProvince: addressBill?.province,
-            status: status
+            description: addressBill?.description,
+            isDelivery: isDelivery,
+            status: status,
+            //Id này là của voucherdetails
+            voucher: voucher?.id,
+            returnUrl: returnUrl
         }
-
+        console.log(dataBill);
         axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)
             .then((response) => {
-                toast.success(response.data.message);
-                updateDataLstBill();
-                resetData();
+                if (response.data.status == "redirect") {
+                    window.location.href = response.data.data;
+                } else {
+                    console.log(response.data);
+                    toast.success(response.data.message);
+                    updateDataLstBill();
+                    resetData();
+                }
+
             })
             .catch((error) => {
                 toast.error(error.response.data.message);
@@ -252,7 +298,7 @@ const OrderDataProvider = ({ children }) => {
         paymentMethods,
         customer,
         addressBill,
-
+        voucher,
         idCustomer,
         isDelivery,
 
@@ -267,6 +313,7 @@ const OrderDataProvider = ({ children }) => {
         setDataPaymentMethods,
         setDataIdBill,
         setDataShipMoney,
+        setDataVoucher,
 
         updateDataLstBill,
         updateDataProductDetails,

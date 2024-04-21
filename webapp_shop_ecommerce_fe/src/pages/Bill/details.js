@@ -29,24 +29,18 @@ function BillDetail() {
         TAT_CA: '',
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
-        CHO_GIAO: "1",
-        DANG_GIAO: "2",
+        DA_XAC_NHAN: "1",
+        VAN_CHUYEN: "2",
         DA_THANH_TOAN: "3",
         HOAN_THANH: "4",
         HUY: "5",
         TRA_HANG: "6",
         DANG_BAN: "7",
+        CHO_THANH_TOAN: "8",
+        HOAN_TIEN: "9",
         NEW: "New",
     }
-    const [paymentHistory, setPaymentHistory] = useState({
-        type: "0",
-        tradingCode: "",
-        paymentAmount: "0",
-        paymentMethod: "0",
-        description: "",
-        status: "0",
-        refundsMoney: "0"
-    });
+
     const fetchDataBill = async () => {
         try {
             const response = await axios.get('http://localhost:8080/api/v1/bill/show/' + id);
@@ -98,8 +92,8 @@ function BillDetail() {
     const [isModalOpenConfirmAcceptOrder, setIsModalOpenConfirmAcceptOrder] = useState(false);
     const [isModalOpenConfirmDelivery, setIsModalOpenConfirmDelivery] = useState(false);
     const [isModalOpenConfirmCompletion, setIsModalOpenConfirmCompletion] = useState(false);
-    const [isModalOpenPayment, setIsModalOpenPayment] = useState(false);
     const [isModalOpenTimelineDetails, setIsModalOpenTimelineDetails] = useState(false);
+    const [isModalOpenCancelling, setIsModalOpenCancelling] = useState(false);
     const [confirmAcceptOrderDes, setConfirmAcceptOrderDes] = useState("")
 
 
@@ -110,30 +104,6 @@ function BillDetail() {
         setIsModalOpenAddress(false);
     };
 
-    const handleConfigPaymentHistory = () => {
-        const data = {
-            ...paymentHistory,
-            paymentAmount: bill?.intoMoney,
-        }
-        axios.post(` http://localhost:8080/api/v1/bill/${bill?.id}/payment`, data)
-            .then(response => {
-                toast.success(response.data.message)
-                fetchDataBill();
-                setIsModalOpenPayment(false)
-                setPaymentHistory({
-                    type: "0",
-                    tradingCode: "",
-                    paymentAmount: "0",
-                    paymentMethod: "0",
-                    description: "",
-                    status: "0",
-                    refundsMoney: "0"
-                })
-            })
-            .catch(error => {
-                toast.error(error.response.data.message)
-            })
-    }
 
     return (
         <>
@@ -157,13 +127,15 @@ function BillDetail() {
                                             color='#87a2c7'
                                             icon={FaRegFileAlt}
                                             title=<h4 className='text-2xl	'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
-                                                historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                    historyBill?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                        historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
-                                                            historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                    historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                        historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                    historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                        historyBill?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                            historyBill?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
+                                                                historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
+                                                                    historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                        historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                            historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
+                                                                                historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
                                             }</h4>
 
                                             subtitle=<span className='text-xl font-medium	'>
@@ -176,7 +148,7 @@ function BillDetail() {
 
                         </Timeline>
                     </div>
-                    <div className='flex justify-end'>
+                    <div className='flex justify-end mt-2'>
                         <Modal title="Quay Lại Trạng Thái Đơn Hàng" width={500} open={isModalOpenConfirmRollback} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                             <label>Nội Dung</label>
                             <Input.TextArea rows={5} minLength={50} placeholder='Ghi Chú' value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
@@ -197,7 +169,7 @@ function BillDetail() {
                                 <Button type='default' onClick={() => { setIsModalOpenConfirmRollback(false) }}>Hủy</Button>
                             </div>
                         </Modal>
-                        {bill && bill.status == TrangThaiBill.CHO_GIAO && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
+                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.VAN_CHUYEN) && bill?.lstPaymentHistory == 0 && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
                     </div>
 
                 </div>
@@ -210,11 +182,11 @@ function BillDetail() {
                             <div>
                                 <Modal title="Xác Nhận Đơn Hàng" width={500} open={isModalOpenConfirmAcceptOrder} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} placeholder='Ghi Chú' />
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.CHO_GIAO,
+                                                type: TrangThaiBill.DA_XAC_NHAN,
                                                 description: confirmAcceptOrderDes
                                             }).then(response => {
                                                 setConfirmAcceptOrderDes("")
@@ -229,20 +201,20 @@ function BillDetail() {
                                     </div>
                                 </Modal>
                                 {
-                                    bill && bill.status == TrangThaiBill.CHO_XAC_NHAN && <Button danger onClick={() => {
+                                    bill && (bill.status == TrangThaiBill.CHO_XAC_NHAN || bill.status == TrangThaiBill.CHO_THANH_TOAN)&& <Button danger onClick={() => {
                                         setIsModalOpenConfirmAcceptOrder(true);
                                     }}  >Xác Nhận Đơn Hàng</Button>
                                 }
                             </div>
 
                             <div>
-                                <Modal title="Xác Nhận Giao Hàng" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
+                                <Modal title="Xác Nhận Vận Chuyển" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.DANG_GIAO,
+                                                type: TrangThaiBill.VAN_CHUYEN,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
                                                 setConfirmAcceptOrderDes("")
@@ -258,18 +230,36 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.CHO_GIAO && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.DA_XAC_NHAN && <Button danger onClick={() => {
                                         setIsModalOpenConfirmDelivery(true)
-                                    }}  >Giao Hàng</Button>
+                                    }}  >Vận Chuyển</Button>
                                 }
                             </div>
 
                             <div>
-                                <Modal title="Xác Nhận Hoàn Thành" width={500} open={isModalOpenConfirmCompletion} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
+                                <Modal title="Xác Nhận Hoàn Thành" width={500} open={isModalOpenConfirmCompletion} footer={null} onCancel={() => { setIsModalOpenConfirmCompletion(false) }} >
                                     <label>Ghi Chú</label>
-                                    <Input.TextArea className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
+                                            const filterPayment = bill?.lstPaymentHistory?.filter(data => data?.type == "0");
+                                            const filterPaymentReturn =  bill?.lstPaymentHistory?.filter(data => data?.type == "1") || [];
+                                           
+                                            var totalPayment = filterPayment?.reduce(function (acc, cur) {
+                                                return acc + cur.paymentAmount;
+                                            }, 0);
+
+
+                                            var totalPaymentReturn = filterPaymentReturn?.reduce(function (acc, cur) {
+                                                return acc + cur.paymentAmount;
+                                            }, 0);
+
+                                            if (bill?.intoMoney !=  (totalPayment - totalPaymentReturn)) {
+                                                toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán Đủ!");
+                                                setIsModalOpenConfirmCompletion(false)
+                                                return;
+                                            }
+
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.HOAN_THANH,
                                                 description: confirmAcceptOrderDes
@@ -287,16 +277,37 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.VAN_CHUYEN && <Button danger onClick={() => {
                                         setIsModalOpenConfirmCompletion(true)
                                     }}  >Hoàn Thành</Button>
                                 }
                             </div>
 
                             <div>
-                                {
-                                    bill && (bill.status == TrangThaiBill.CHO_GIAO || bill.status == TrangThaiBill.CHO_XAC_NHAN) && <Button onClick={() => {
+                                <Modal title="Xác Nhận Hủy" width={500} open={isModalOpenCancelling} footer={null} onCancel={() => { setIsModalOpenCancelling(false) }} >
+                                    <label>Bạn Có Chắc Muốn Hủy Hóa Đơn Này ?</label>
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <div className='flex justify-end mt-4 gap-3'>
+                                        <Button type='primary' onClick={() => {
+                                            axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`, {
+                                                description: confirmAcceptOrderDes
+                                            })
+                                                .then(res => {
+                                                    fetchDataBill();
+                                                    toast.success(res.data.message);
+                                                    setConfirmAcceptOrderDes("")
+                                                    setIsModalOpenCancelling(false)
+                                                }).catch(err => {
+                                                    toast.error(err.response.data.message);
+                                                })
+                                        }}>Xác nhận</Button>
+                                        <Button type='default' onClick={() => { setIsModalOpenCancelling(false) }}>Hủy</Button>
+                                    </div>
+                                </Modal>
 
+                                {
+                                    bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_THANH_TOAN) && <Button onClick={() => {
+                                        setIsModalOpenCancelling(true)
                                     }} type="primary" danger className='ml-4'>
                                         Hủy Đơn
                                     </Button>
@@ -331,13 +342,14 @@ function BillDetail() {
                                                 key: history.id,
                                                 type: <Tag color="blue">{
                                                     history?.type == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                                        history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                            history?.type == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                                history?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
-                                                                    history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                        history?.type == TrangThaiBill.DA_THANH_TOAN ? "Hoàn Thành" :
-                                                                            history?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                                history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                        history?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                            history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                                history?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                                    history?.type == TrangThaiBill.VAN_CHUYEN ? "Vận Chuyển" :
+                                                                        history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
+                                                                            history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                                history?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                                    history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                                 }</Tag>,
                                                 createdDate: dayjs(history?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
                                                 createdBy: history.createdBy,
@@ -382,7 +394,7 @@ function BillDetail() {
                         </div>
                         <div>
                             {
-                                (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
+                                (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.DA_XAC_NHAN) &&
                                 <Button danger onClick={showModalAddress}>Cập Nhật</Button>
                             }
                             <Modal title="Cập Nhật Thông Tin" width={800} open={isModalOpenAddress} footer={null} onCancel={handleCancelAddress} >
@@ -401,16 +413,17 @@ function BillDetail() {
                                 <Tag color="blue">
                                     {
                                         bill?.status == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                            bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                bill?.status == TrangThaiBill.CHO_GIAO ? "Chờ Giao" :
-                                                    bill?.status == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
-                                                        bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                            bill?.status == TrangThaiBill.HUY ? "Hủy" :
-                                                                bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                            bill?.status == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                    bill?.status == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                        bill?.status == TrangThaiBill.VAN_CHUYEN ? "Vận Chuyển" :
+                                                            bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                bill?.status == TrangThaiBill.HUY ? "Hủy" :
+                                                                    bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
                                     }
                                 </Tag>
                             </Descriptions.Item>
-                            <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}>{bill?.billType == "0" ? "Online" : bill?.billType == "1" ? "Offline" : "Không Biết"}</Descriptions.Item>
+                            <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}>{bill?.billFormat == "0" ? "Online" : bill?.billFormat == "1" ? "Offline" : bill?.billFormat == "2" ? "Giao Hàng" : "Khác"}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Địa Chỉ</span>}>{bill?.receiverDetails} {bill?.receiverCommune} {bill?.receiverDistrict} {bill?.receiverProvince}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Ghi Chú</span>}>{bill?.description}</Descriptions.Item>
 
@@ -420,103 +433,6 @@ function BillDetail() {
 
 
                 <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
-                    <div className='flex justify-between pb-4' style={{ borderBottom: '1px solid #cccccc' }}>
-                        <h4>Lịch Sử Thanh Toán</h4>
-                        <div>
-                            <Modal title="Xác Nhận Thanh Toán" width={600} open={isModalOpenPayment} footer={null} onCancel={() => { setIsModalOpenPayment(false) }} >
-                                <div className='mt-4 mb-4'>
-                                    <div className='flex justify-between mt-4'>
-                                        <p>Số Tiền Cần Thanh Toán</p>
-                                        <span className='text-rose-600	font-medium	'>{fixMoney(bill?.intoMoney)}</span>
-                                    </div>
-                                    <div className='mt-4'>
-                                        <label>Tiền Khách Đưa</label>
-                                        <Input
-                                            min={0}
-                                            formatter={(value) => `${value}VNĐ`}
-                                            parser={(value) => value.replace('VNĐ', '')}
-                                            className='mt-2' placeholder="Nhập Tiền Khách Đưa" value={paymentHistory?.customMoney}
-                                            onChange={(event) => {
-                                                setPaymentHistory({
-                                                    ...paymentHistory,
-                                                    customMoney: event.target.value,
-                                                    refundsMoney: event.target.value - bill?.intoMoney
-                                                })
-
-                                            }}
-                                        />
-                                    </div>
-                                    <div className='mt-4'>
-                                        <label>Tiền Thừa</label>
-                                        <Input
-                                            min={0}
-                                            formatter={(value) => `${value}VNĐ`}
-                                            parser={(value) => value.replace('VNĐ', '')}
-                                            className='mt-2' disabled placeholder="Nhập Tiền Khách Đưa" value={paymentHistory?.refundsMoney} />
-                                    </div>
-                                    <div className='mt-4'>
-                                        <label>Ghi Chú</label>
-                                        <Input.TextArea className='mt-2' rows={5} placeholder='Ghi Chú' value={paymentHistory?.description}
-                                            onChange={(event) => {
-                                                setPaymentHistory({
-                                                    ...paymentHistory,
-                                                    description: event.target.value
-                                                })
-                                            }}
-                                        />
-                                    </div>
-                                    <div className='mt-4'>
-                                        <div>
-                                            <div className='mb-4'>Phương Thức Thanh Toán</div>
-                                            <Radio.Group value={paymentHistory?.paymentMethod} size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none"
-                                                onChange={(e) => {
-                                                    setPaymentHistory(
-                                                        {
-                                                            ...paymentHistory,
-                                                            paymentMethod: e.target.value
-                                                        }
-                                                    )
-
-                                                }}>
-                                                <div className='flex justify-between'>
-                                                    <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2'>Tiền Mặt</span> </Radio.Button>
-                                                    <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2'>Chuyển khoản</span> </Radio.Button>
-                                                </div>
-                                                {/* <Radio.Button className='text-center mt-4' style={{ width: '100%' }} value="2">Tiền Mặt & Chuyển khoản</Radio.Button> */}
-                                            </Radio.Group>
-                                        </div>
-                                        <div className='mt-4' style={{ visibility: paymentHistory && paymentHistory?.paymentMethod == "1" ? 'visible' : 'hidden' }}>
-                                            <Input
-                                                className='mt-2'
-                                                placeholder="Nhập Mã Giao Dịch"
-                                                value={paymentHistory.tradingCode}
-                                                onChange={(e) => {
-                                                    setPaymentHistory({
-                                                        ...paymentHistory,
-                                                        tradingCode: e.target.value
-                                                    });
-                                                }}
-                                            />
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div className='mt-14'>
-                                    <div className='flex justify-end mt-4 gap-3'>
-                                        <Button type='primary' onClick={handleConfigPaymentHistory} >Xác nhận</Button>
-                                        <Button type='default' onClick={() => { setIsModalOpenPayment(false) }}>Hủy</Button>
-                                    </div>
-                                </div>
-                            </Modal>
-
-                            {
-                                bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
-                                    setIsModalOpenPayment(true)
-                                }}>Xác Nhận Thanh Toán</Button>
-
-                            }
-                        </div>
-                    </div>
                     <div>
                         <BillPaymentHistory bill={bill} fetchDataBill={fetchDataBill} lstPaymentHistory={bill?.lstPaymentHistory} ></BillPaymentHistory>
                     </div>
@@ -528,13 +444,15 @@ function BillDetail() {
                         <BillProducts bill={bill} fetchDataBill={fetchDataBill} lstBillDetails={lstBillDetails}></BillProducts>
                     </div>
                 </div>
+                {lstBillDetailsReturn.length > 0 &&
+                    <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
 
-                <div className='bg-white p-4 mt-6 mb-10 shadow-lg '>
-
-                    <div>
-                        <BillProductsBack bill={bill} fetchDataBill={fetchDataBill} lstBillDetailsReturn={lstBillDetailsReturn}></BillProductsBack>
+                        <div>
+                            <BillProductsBack bill={bill} fetchDataBill={fetchDataBill} lstBillDetailsReturn={lstBillDetailsReturn}></BillProductsBack>
+                        </div>
                     </div>
-                </div>
+                }
+
 
                 <div className='bg-white p-4 mt-6 mb-20 shadow-lg '>
                     <div className='flex justify-between'>
@@ -542,13 +460,13 @@ function BillDetail() {
                             <div className='flex justify-between'>
                                 <div>
 
-                                    <div>Mã Giảm Giá:</div>
-                                    <div>Phiếu Giảm Giá:</div>
+                                    {/* <div>Mã Giảm Giá:</div>
+                                    <div>Phiếu Giảm Giá:</div> */}
 
                                 </div>
                                 <div className='font-medium text-end'>
-                                    <div>abc</div>
-                                    <div>abc</div>
+                                    {/* <div>abc</div>
+                                    <div>abc</div> */}
                                 </div>
                             </div>
                         </div>
@@ -575,7 +493,7 @@ function BillDetail() {
 
 
             </div>
-            <ToastContainer />;
+            <ToastContainer />
 
         </>
     );

@@ -250,10 +250,9 @@ export default function AddCustomer() {
         {
             accessorKey: "key",
             header: "Mặc định",
-            cell: ({ row }) => (<>
-                {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
+            cell: ({ row }) => (<div className='flex justify-center'>
                 <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.id || row.original.key) }} />
-            </>
+            </div>
             ),
         },
         {
@@ -261,7 +260,7 @@ export default function AddCustomer() {
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center min-h-10 justify-center'
+                        className='flex items-center min-h-12 justify-center'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên người nhận
@@ -269,7 +268,7 @@ export default function AddCustomer() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">
+            cell: ({ row }) => <div className="lowercase text-xl">
                 {row.original && <p>{row.original.receiverName}</p>}
             </div>,
         },
@@ -277,7 +276,7 @@ export default function AddCustomer() {
             accessorKey: "phone",
             header: () => <div className="text-center">số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.phone}</p>}
                 </div>
             },
@@ -286,7 +285,7 @@ export default function AddCustomer() {
             accessorKey: "province",
             header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {
                         row.original &&
                         <p>{row.original.province.name}</p>
@@ -298,7 +297,7 @@ export default function AddCustomer() {
             accessorKey: "district",
             header: () => <div className="text-center">Quận/ huyện</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {
                         row.original && <p>{row.original.district.name}</p>
                     }
@@ -309,7 +308,7 @@ export default function AddCustomer() {
             accessorKey: "commune",
             header: () => <div className="text-center">Xã/ phường</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original && <p>{row.original.commune.name}</p>}
                 </div>
             },
@@ -318,7 +317,7 @@ export default function AddCustomer() {
             accessorKey: "detail",
             header: () => <div className="text-center">Chi tiết</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.detail}</p>}
                 </div>
             },

@@ -195,7 +195,7 @@ function BillAddress({ bill, handleCancelAddress, fetchDataBill,lstBillDetails }
                     console.log(error.response.data);
                 })
         }
-    }, [serviceId])
+    }, [serviceId, lstBillDetails])
 
 
     //Lấy Thời Gian Giao Hàng Dự Kiến

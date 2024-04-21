@@ -16,6 +16,7 @@ import UserAdd from '~/pages/User/add'
 import UserUpdate from '~/pages/User/update'
 import Home from '~/pages/Home';
 import Default from '~/pages/Default';
+import PaymentIpn from '~/pages/PaymenIpn';
 
 import Promotion from '~/pages/Promotion'
 import PromotionUpdate from '~/pages/Promotion/update'
@@ -49,6 +50,8 @@ const privateRouter = [
     { path: '/product/category', component: Category },
     { path: '/bill', component: Bill },
     { path: '/bill/bill-detail/:id', component: BillDetails },
+    { path: '/paymentIPN', component: PaymentIpn },
+    { path: '/order', component: Order },
 
     { path: '/user/staff', component: User },
     { path: '/user/customer', component: Customer },

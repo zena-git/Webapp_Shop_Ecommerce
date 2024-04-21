@@ -30,7 +30,7 @@ export default function ListTable({ data }) {
     const handleToggleOpen = (id) => {
         setOpen((prevOpen) => ({
             ...prevOpen,
-            [id]: !prevOpen[id] // Nếu đã mở thì đóng, và ngược lại
+            [id]: !prevOpen[id]
         }));
     };
 
@@ -41,7 +41,7 @@ export default function ListTable({ data }) {
                 <div className='flex justify-center'>
                     <Checkbox
                         checked={
-                            table.getIsAllPageRowsSelected()
+                            selectedProduct.every(target => target.selected)
                         }
                         onChange={(value) => dispatch(set({
                             value: {
@@ -75,7 +75,7 @@ export default function ListTable({ data }) {
             accessorKey: "image",
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
-                return (<div className='flex justify-center'>
+                return (<div className='flex justify-center text-xl'>
                     {row.original.image_url ? <img src={row.original.image_url.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
                 </div>)
             },
@@ -85,7 +85,7 @@ export default function ListTable({ data }) {
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center justify-center min-h-10'
+                        className='flex items-center justify-center min-h-12'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên sản phẩm
@@ -93,7 +93,7 @@ export default function ListTable({ data }) {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.getValue("name")}</div>,
         },
         {
             accessorKey: "giá",
@@ -102,7 +102,7 @@ export default function ListTable({ data }) {
                     <div className='flex justify-center'>Giá</div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase text-center">{minMaxPrice(row.original.lstProductDetails)}</div>,
+            cell: ({ row }) => <div className="lowercase text-center text-xl">{minMaxPrice(row.original.lstProductDetails)}</div>,
         },
         {
             id: "accordion",
@@ -256,11 +256,13 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
                 <div></div>
             ),
             cell: ({ row }) => (
-                <Checkbox
-                    defaultChecked={selectedProduct.find(slt => slt.id == targetDataId) && selectedProduct.find(slt => slt.id == targetDataId).children.find(child => { return child.id == row.original.id })?.selected}
-                    onClick={(value) => { dispatch(toggleChildren({ id: row.getValue("id"), parentId: targetDataId, value: !!value.target.checked })) }}
-                    aria-label="Select row"
-                />
+                <div className='flex justify-center'>
+                    <Checkbox
+                        checked={selectedProduct.find(slt => slt.id == targetDataId) && selectedProduct.find(slt => slt.id == targetDataId).children.find(child => { return child.id == row.original.id })?.selected}
+                        onClick={(value) => { dispatch(toggleChildren({ id: row.original.id, parentId: targetDataId, value: !!value.target.checked })) }}
+                        aria-label="Select row"
+                    />
+                </div>
             ),
             enableSorting: false,
             enableHiding: false,
@@ -269,7 +271,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             accessorKey: "imageUrl",
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
-                return <div className="text-center flex justify-center font-medium max-h-16">
+                return <div className="text-center flex justify-center font-medium max-h-16 text-xl">
                     {row.original.image_url ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
                 </div>
             },
@@ -278,17 +280,17 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             accessorKey: "size",
             header: ({ column }) => {
                 return (
-                    <div className='text-center min-h-8 flex items-center justify-center'>Kích cỡ</div>
+                    <div className='text-center min-h-10 flex items-center justify-center'>Kích cỡ</div>
                 )
             },
-            cell: ({ row }) => <div className="text-center">{row.original.size.name}</div>,
+            cell: ({ row }) => <div className="text-center text-xl">{row.original.size.name}</div>,
         },
         {
             accessorKey: "color",
             header: () => <div className="text-center">màu sắc</div>,
             cell: ({ row }) => {
 
-                return <div className={`text-center font-medium rounded-md px-1 py-1 text-slate-200`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
+                return <div className={`text-center font-medium rounded-md px-1 py-1 text-slate-200 text-xl`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
             },
         },
         {
@@ -296,7 +298,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             header: () => <div className="text-center">Giá</div>,
             cell: ({ row }) => {
 
-                return <div className="text-center font-medium">{numberToPrice(row.original.price)}</div>
+                return <div className="text-center font-medium text-xl">{numberToPrice(row.original.price)}</div>
             },
         },
     ], [dispatch, selectedProduct, targetDataId]);

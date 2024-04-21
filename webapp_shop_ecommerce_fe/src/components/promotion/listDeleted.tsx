@@ -16,12 +16,9 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { PromotionResponse } from "~/lib/type"
-import axios from 'axios'
-import { baseUrlV3 } from '~/lib/functional'
 import { set } from '../../redux/features/promotion-deleted'
 import { useDispatch } from 'react-redux'
 import Table from '../../components/ui/table'
-import { ToastContainer, toast } from 'react-toastify'
 export default function ListTable({data}: {data: PromotionResponse[]}) {
 
     const dispatch = useDispatch()
@@ -64,7 +61,7 @@ export default function ListTable({data}: {data: PromotionResponse[]}) {
             accessorKey: "id",
             header: "id",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
+                <div className="capitalize text-xl text-center">{row.getValue("id")}</div>
             ),
         },
         {
@@ -72,39 +69,36 @@ export default function ListTable({data}: {data: PromotionResponse[]}) {
             header: ({ column }) => {
                 return (
                     <div onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className='flex items-center justify-center min-h-10'>
-                        <p>Họ và tên</p>
+                        <p>Tên chương trình</p>
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.getValue("name")}</div>,
         },
         {
             accessorKey: "startDate",
-            header: () => <div className="text-center">ngày bắt đầu</div>,
+            header: () => <div className="text-center">Ngày bắt đầu</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
-                    {/* @ts-ignore */}
+                return <div className='text-center text-xl'>
                     {row.original.startDate.toString().split("T")[0] + " - " + row.original.startDate.toString().split("T")[1]}
                 </div>
             },
         },
         {
             accessorKey: "endDate",
-            header: () => <div className="text-center">ngày kết thúc</div>,
+            header: () => <div className="text-center">Ngày kết thúc</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
-                    {/* @ts-ignore */}
+                return <div className='text-center text-xl'>
                     {row.original.endDate.toString().split("T")[0] + " - " + row.original.endDate.toString().split("T")[1]}
                 </div>
             },
         },
         {
             accessorKey: "value",
-            header: () => <div className="text-center">giá trị giảm</div>,
+            header: () => <div className="text-center">Giá trị giảm</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
-                    {/* eslint-disable-next-line eqeqeq */}
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.value + "%"}
                 </div>
             },
@@ -133,12 +127,11 @@ export default function ListTable({data}: {data: PromotionResponse[]}) {
     return (
         <>
             <div className="w-full">
-                <ToastContainer />
                 <div className="rounded-md border p-3 bg-white">
                     {Table(table, flexRender, columns)}
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
+                    <div className="flex-1 text-lg text-muted-foreground">
                         {table.getFilteredSelectedRowModel().rows.length} of{" "}
                         {table.getFilteredRowModel().rows.length} row(s) selected.
                     </div>

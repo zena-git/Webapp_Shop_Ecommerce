@@ -18,7 +18,6 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ToastContainer, toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone'
-import QRScanner from 'qr-scanner'
 import { QrReader } from "react-qr-reader";
 
 const { TextArea } = Input
@@ -148,15 +147,49 @@ export default function Add() {
     });
 
     const handleSubmitForm = (values) => {
-        if (!pending) {
-            if (originalThumbnail) {
-                const formData = new FormData();
-                formData.append("file", originalThumbnail.file);
-                formData.append("cloud_name", "db9i1b2yf");
-                formData.append("upload_preset", "product");
-                setPending(true);
-                console.log(values.birthday)
-                axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+        if (!addProvince) {
+            toast.error('chưa chọn Tỉnh/thành phố')
+        } else if (!addDistrict) {
+            toast.error('chưa chọn Quận/huyện')
+        } else if (!addWard) {
+            toast.error('chưa chọn Xã/phường')
+        }else if(values.fullName.trim().length == 0){
+            toast.error('chưa điền tên')
+        } else {
+            if (!pending) {
+                if (originalThumbnail) {
+                    const formData = new FormData();
+                    formData.append("file", originalThumbnail.file);
+                    formData.append("cloud_name", "db9i1b2yf");
+                    formData.append("upload_preset", "product");
+                    setPending(true);
+                    console.log(values.birthday)
+                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+                        const body = {
+                            birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()).toISOString() : null,
+                            commune: addWard,
+                            detail: values.detail,
+                            district: addDistrict.DistrictName,
+                            province: addProvince.ProvinceName,
+                            email: values.email,
+                            status: 0,
+                            fullName: values.fullName,
+                            gender: gender == '0',
+                            phone: values.phone,
+                            imageUrl: res.data.url
+                        }
+
+                        axios.post(`${baseUrl}/user`, body).then(() => {
+                            toast.success("Thêm mới thành công");
+                            setPending(false);
+                            form.reset();
+                            setOriginalThumbnail(null);
+                        }).catch(err => {
+                            setPending(false);
+                            toast.error(err.response.data.message)
+                        })
+                    })
+                } else {
                     const body = {
                         birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()).toISOString() : null,
                         commune: addWard,
@@ -168,44 +201,20 @@ export default function Add() {
                         fullName: values.fullName,
                         gender: gender == '0',
                         phone: values.phone,
-                        imageUrl: res.data.url
                     }
-
+                    setPending(true);
                     axios.post(`${baseUrl}/user`, body).then(() => {
-                        toast.success("Thêm mới thành công");
-                        setPending(false);
+                        toast.success("Thêm mới thành công")
                         form.reset();
+                        setPending(false);
+                        setAddDistrict(null);
+                        setAddWard(null);
                         setOriginalThumbnail(null);
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message)
                     })
-                })
-            } else {
-                const body = {
-                    birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()).toISOString() : null,
-                    commune: addWard,
-                    detail: values.detail,
-                    district: addDistrict.DistrictName,
-                    province: addProvince.ProvinceName,
-                    email: values.email,
-                    status: 0,
-                    fullName: values.fullName,
-                    gender: gender == '0',
-                    phone: values.phone,
                 }
-                setPending(true);
-                axios.post(`${baseUrl}/user`, body).then(() => {
-                    toast.success("Thêm mới thành công")
-                    form.reset();
-                    setPending(false);
-                    setAddDistrict(null);
-                    setAddWard(null);
-                    setOriginalThumbnail(null);
-                }).catch(err => {
-                    setPending(false);
-                    toast.error(err.response.data.message)
-                })
             }
         }
     }
@@ -253,8 +262,8 @@ export default function Add() {
                     <form onSubmit={e => { e.preventDefault() }} className="w-full flex gap-5 max-lg:flex-col">
                         <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
-                                <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
+                                <p className='text-2xl font-bold'>Thông tin nhân viên</p>
                             </div>
                             <div className='bg-slate-700 h-[2px]'></div>
                             <div className='w-full flex flex-col'>
@@ -298,7 +307,7 @@ export default function Add() {
                         </div>
                         <div className="flex-grow flex flex-col gap-2 bg-white shadow-lg rounded-md p-5">
                             <div className='flex justify-between items-center'>
-                                <p className='text-lg font-bold'>Thông tin chi tiết</p>
+                                <p className='text-2xl font-bold'>Thông tin chi tiết</p>
                                 <Button type="primary" onClick={() => setIsModalOpen(true)}>
                                     Quét mã QR
                                 </Button>

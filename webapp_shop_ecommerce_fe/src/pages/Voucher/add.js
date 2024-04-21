@@ -23,7 +23,6 @@ import { set } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
-import moment from 'moment'
 
 const { RangePicker } = DatePicker
 const { TextArea } = Input
@@ -176,8 +175,8 @@ const VoucherPage = () => {
                     <div className='w-full h-fit flex max-xl:flex-col justify-center gap-3'>
                         <div className='px-3 py-5 h-fit bg-white shadow-lg gap-2 flex flex-col w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
-                                <p className='ml-3 text-lg font-semibold'>Thêm phiếu giảm giá</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
+                                <p className='ml-3 text-2xl font-semibold'>Thêm phiếu giảm giá</p>
                             </div>
                             <div className='h-[2px] bg-slate-600 mt-1'></div>
                             <Form {...form}>
@@ -302,7 +301,7 @@ const VoucherPage = () => {
                                         )}
                                     />
                                     <div className=''>
-                                        <p className='mt-1 text-sm font-semibold mb-2'>Đối tượng áp dụng</p>
+                                        <p className='mt-1 text-xl font-semibold mb-2'>Đối tượng áp dụng</p>
                                         <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
                                             <Radio value={"0"}>Tất cả khách hàng</Radio>
                                             <Radio value={"1"}>Khách hàng chỉ định</Radio>
@@ -311,7 +310,7 @@ const VoucherPage = () => {
 
                                     <div className='mt-1'>
                                         <label>
-                                            <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                                             <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
                                         </label>
                                     </div>
@@ -322,7 +321,7 @@ const VoucherPage = () => {
                             </Form>
                         </div>
                         <div className='flex-grow bg-white p-5 shadow-lg flex flex-col gap-3'>
-                            <p className='text-lg font-semibold'>Danh sách khách hàng</p>
+                            <p className='text-2xl font-semibold'>Danh sách khách hàng</p>
                             <div className='h-[2px] bg-slate-600'></div>
                             <ListCustomer listCustomer={listCustomer} />
                         </div>

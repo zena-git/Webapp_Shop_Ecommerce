@@ -120,7 +120,6 @@ function EditPage() {
 
     return (
         <div>
-
             <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
                 <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
                     <div className='flex gap-2 items-center'>

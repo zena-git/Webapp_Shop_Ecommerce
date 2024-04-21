@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin } from 'antd';
+import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin, Carousel } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
-import { PlusOutlined, DeleteOutlined, RollbackOutlined, LoadingOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, RollbackOutlined, LoadingOutlined, ExclamationCircleFilled } from '@ant-design/icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -77,7 +77,7 @@ const columnsTableConfig = [
         title: 'Sản Phẩm',
         dataIndex: 'name',
         key: 'name',
-        width: 250,
+        width: 300,
     },
     {
         title: 'Đơn Giá',
@@ -128,7 +128,7 @@ const columnsTable = [
                 <Tooltip title={hexToColorName(color?.name) + ' - ' + color?.name} color={color?.name} key={color?.name}>
                     <div style={{ width: '20px', height: '20px', backgroundColor: color?.name }}></div>
                 </Tooltip>
-                <span className='ml-2'>- {color?.name}</span>
+                <span className='ml-2'>- {hexToColorName(color?.name)}</span>
             </div>
 
         ),
@@ -226,25 +226,54 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
 
 
     const fillDataProductDetails = (data) => {
-        const sortedDataTable = data.sort((a, b) => a.id - b.id);
-        const dataTable = sortedDataTable.map((data, index) => {
+        console.log(data);
+        const dataTable = data.map((data, index) => {
             let product = {
                 key: data.id,
                 id: data.id,
                 index: index + 1,
                 name: <>
                     <div className='flex flex-start'>
-                        <div>
-                            <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='product' />
-                        </div>
-                        <h4> {data?.product?.name}</h4>
+                        {data?.imageUrl && (
+                            <div className='relative'>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '120px' }}>
+                                    {data.imageUrl.split("|").map((imageUrl, index) => (
+                                        <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                    ))}
+                                </Carousel>
+                                {
+                                    data?.promotionDetailsActive &&
+                                    <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+                                        <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive.promotion.value}%</span>
+                                    </div>
+                                }
+                            </div>
+
+                        )}
+                        <h4 className='ml-4'> {data?.product?.name}</h4>
                     </div>
 
                 </>,
                 code: data?.code,
                 color: data?.color,
                 size: data?.size,
-                price: fixMoney(data.price),
+                price: <>
+                    {
+                        data?.promotionDetailsActive ? (
+                            <div className='flex flex-col	'>
+                                <span className='line-through text-slate-500	text-xl	'>
+                                    {fixMoney(data.price)}
+                                </span>
+                                <span className='text-red-600	'>
+                                    {fixMoney(data.price - (data.promotionDetailsActive.promotion.value * data.price / 100))}
+                                </span>
+                            </div>
+                        ) : (
+                            <span>
+                                {fixMoney(data.price)}
+                            </span>)
+                    }
+                </>,
                 quantity: data.quantity,
             };
             return product;
@@ -288,9 +317,22 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 name: <>
                     <div className='flex'>
                         <div className='flex'>
-                            <div>
-                                <img src={data.imageUrl} style={{ maxWidth: '60px', maxHeight: '60px' }} alt='Product' />
-                            </div>
+                            {data?.imageUrl && (
+                                <div className='relative'>
+
+                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                        {data.imageUrl.split("|").map((imageUrl, index) => (
+                                            <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                        ))}
+                                    </Carousel>
+                                    {
+                                        data?.promotionDetailsActive &&
+                                        <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+                                            <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive?.promotion.value}%</span>
+                                        </div>
+                                    }
+                                </div>
+                            )}
                             <div className='ml-4'>
                                 <h4>{data.product.name}</h4>
                                 <div style={{ fontSize: '12px' }}>
@@ -304,14 +346,32 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                         </div>
                     </div>
                 </>,
-                price: data.price,
+                price: <>
+                    {
+                        data?.promotionDetailsActive ? (
+                            <div className='flex flex-col	'>
+                                <span className='line-through text-slate-500	text-xl	'>
+                                    {fixMoney(data.price)}
+                                </span>
+                                <span className='text-red-600	'>
+                                    {fixMoney(data.price - (data.promotionDetailsActive.promotion.value * data.price / 100))}
+                                </span>
+                            </div>
+                        ) : (
+                            <span>
+                                {fixMoney(data.price)}
+                            </span>)
+                    }
+                </>,
                 quantity: <InputNumber
                     min={1}
                     max={data.quantityMax}
                     value={data.quantity} // Sử dụng giá trị quantity như mặc định
                     onChange={(value) => onChangeQuantityProductConfig(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
-                totalMoney: data.price * data.quantity,
+                totalMoney: data?.promotionDetailsActive ?
+                    fixMoney((data.price - (data.promotionDetailsActive.promotion.value * data.price / 100)) * data.quantity)
+                    : fixMoney(data.price * data.quantity),
                 action: <>
                     <Button danger onClick={() => { handleDeleteProductConfig(data.id) }} ><DeleteOutlined></DeleteOutlined></Button>
                 </>
@@ -323,6 +383,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const onChangeQuantityProductConfig = (value, id) => {
+        
         const updatedProductDetails = lstBillDetailsConfig.map(productDetail => {
             if (productDetail.id === id) {
                 return {
@@ -380,6 +441,10 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const handleChangeQuantity = (value, id) => {
+        if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
+            toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
+            return;
+        }
         if (value == null) {
             return;
         }
@@ -411,6 +476,10 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     };
 
     const handleDeleteProduct = (id) => {
+        if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
+            toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
+            return;
+        }
         const idBill = bill?.id;
         if (idBill == null) {
             toast.error("Invalid or missing bill ID.");
@@ -439,6 +508,23 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             })
 
     }
+
+    const showDeleteAllProduct = (id) => {
+        confirm({
+            title: 'Xác Nhận?',
+            icon: <ExclamationCircleFilled />,
+            content: 'Bạn có chắc muốn xóa sản phẩm này?',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                handleDeleteProduct(id)
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
@@ -564,7 +650,23 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 name: <>
                     <div className='flex items-start'>
                         <div className='mr-6'>
-                            <img src={data.productDetails.imageUrl} style={{ width: '140px', height: '140px' }}></img>
+                            {data?.productDetails.imageUrl && (
+                                <div className='relative'>
+
+                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '140px', height: '180px' }}>
+                                        {data.productDetails.imageUrl.split("|").map((imageUrl, index) => (
+                                            <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
+                                        ))}
+                                    </Carousel>
+                                    {
+                                        data?.promotionDetailsActive &&
+                                        <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
+
+                                            <span className='text-red-600 text-[12px]'>{data?.promotionDetailsActive?.promotionValue == null ? "Giảm giá" : "- " + data?.promotionDetailsActive?.promotionValue + " %"}</span>
+                                        </div>
+                                    }
+                                </div>
+                            )}
                         </div>
                         <div className='leading-10	'>
                             <div className='flex text-[16px]'>
@@ -574,8 +676,24 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                                 </div>
                             </div>
                             <div className='flex flex-col font-medium'>
-                                <span className='text-red-600 text-[15px] '> {fixMoney(data.unitPrice)}</span>
-                                <span className='text-gray-400 line-through text-[13px] '> {fixMoney(data.unitPrice)}</span>
+                                {
+                                    data?.promotionDetailsActive ? (
+                                        <div className='flex flex-col'>
+                                            <span className='text-red-600 text-[15px] '>
+                                                {fixMoney(data.unitPrice)}
+
+                                            </span>
+                                            <span className='text-gray-400 line-through text-[13px] '>
+                                                {fixMoney(data.originalPrice)}
+
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className='text-red-600 text-[15px] '>
+                                            {fixMoney(data.unitPrice)}
+                                        </span>)
+                                }
+
                             </div>
                             <div className='flex text-[14px] font-medium'>
                                 x<span> {data.quantity}</span>
@@ -598,11 +716,12 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                     <span className='text-red-600  font-medium'>{fixMoney(data.quantity * data.unitPrice)}</span>
                 </>,
                 action: <>
-                    {bill && (bill?.status === TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
-                        <Button onClick={() => { handleDeleteProduct(data.id) }}>
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
+                        <Button onClick={() => { showDeleteAllProduct(data.id) }}>
                             <DeleteOutlined />
                         </Button>
                     ) : (
+                        bill && bill?.status != TrangThaiBill.HUY &&
                         <div>
                             <Button onClick={() => {
                                 setDataReturntProduct({
@@ -629,15 +748,15 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     const handleReturntProduct = (idBillDetail) => {
         console.log(idBillDetail);
         console.log(dataReturntProduct);
-        axios.post(`http://localhost:8080/api/v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`,dataReturntProduct )
-        .then(response=>{
-            fetchDataBill();
-             toast.success(response.data.message)
-             setIsOpenModalReturntProduct(false)
-        })
-        .catch(error=>{
-             toast.error(error.response.data.message)
-         })
+        axios.post(`http://localhost:8080/api/v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`, dataReturntProduct)
+            .then(response => {
+                fetchDataBill();
+                toast.success(response.data.message)
+                setIsOpenModalReturntProduct(false)
+            })
+            .catch(error => {
+                toast.error(error.response.data.message)
+            })
 
 
     }
@@ -657,7 +776,14 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 <h4>Danh Sách Sản Phẩm</h4>
                 <div>
                     {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
-                        <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
+                        <Button type='primary' className='ml-4' onClick={() => {
+                            if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
+                                toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
+                            } else {
+                                setOpenAddProduct(true)
+                            }
+                        }}
+                        ><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
                     }
                 </div>
                 <>

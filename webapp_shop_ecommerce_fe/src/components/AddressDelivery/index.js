@@ -6,6 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faMap } from '@fortawesome/free-regular-svg-icons';
 import Address from '../Address';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 const { TextArea } = Input;
 function AddressDelivery() {
 
@@ -31,13 +34,15 @@ function AddressDelivery() {
     const [valueDistrictDefautl, setValueDistrictDefautl] = useState(null);
     const [valueWardDefautl, setValueWardDefautl] = useState(null);
 
-    const [serviceTypeId, setServiceTypeId] = useState(2);
+    const [serviceId, setServiceId] = useState('53321');
+    const [leadtime, setLeadtime] = useState(null);
 
 
     const [receiverName, setReceiverName] = useState('');
     const [email, setEmail] = useState('');
     const [receiverPhone, setReceiverPhone] = useState('');
     const [details, setDetails] = useState('');
+    const [description, setDescription] = useState('');
     const [labelProvince, setLabelProvince] = useState(null);
     const [labelDistrict, setLabelDistrict] = useState(null);
     const [labelWard, setLabelWard] = useState(null);
@@ -63,11 +68,17 @@ function AddressDelivery() {
 
     useEffect(() => {
         if (customer !== null && isDelivery) {
-            setAddress(customer?.defaultAddress)
+            console.log(lstAddress);
+            lstAddress.map(address =>{
+                if(address?.defaultAddress){
+                    setAddress(address)
+                    setCheckValueAddress(address.id);
+                }
+            })
         } else {
             setAddress(null)
         }
-    }, [customer, isDelivery])
+    }, [customer, isDelivery, lstAddress])
 
 
 
@@ -79,9 +90,10 @@ function AddressDelivery() {
             commune: labelWard,
             district: labelDistrict,
             province: labelProvince,
+            description: description
         }
         setDataAddressBill(address)
-    }, [receiverName, receiverPhone, details, labelProvince, labelDistrict, labelDistrict, labelWard, address])
+    }, [receiverName, receiverPhone, details, labelProvince, labelDistrict, labelDistrict, labelWard, address, description])
 
 
     useEffect(() => {
@@ -126,11 +138,7 @@ function AddressDelivery() {
             console.log(response.data);
             setLstAddress(response.data.lstAddress);
             // Kiểm tra và thiết lập giá trị kiểm tra
-            response.data.lstAddress.forEach(address => {
-                if (address.defaultAddress) {
-                    setCheckValueAddress(address.id);
-                }
-            });
+           
         } catch (error) {
             console.error(error);
         }
@@ -261,8 +269,8 @@ function AddressDelivery() {
                 }
             )
                 .then((response) => {
-                    setServiceTypeId(response.data.data[0].service_type_id)
-                    console.log(response.data.data[0].service_type_id);
+                    setServiceId(response.data.data[0].service_id)
+                    console.log(response.data.data[0].service_id);
                 })
                 .catch((error) => {
                     console.log(error.response.data);
@@ -280,10 +288,9 @@ function AddressDelivery() {
             return accumulator + (currentProduct.unitPrice * currentProduct.quantity);
         }, 0);
 
-        // const weightProduct = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
-        //     return accumulator +currentProduct.weight;
-        // }, 0);
-
+        const weightProduct = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
+            return accumulator +(currentProduct.productDetails.weight * currentProduct.quantity);
+        }, 0);
 
         if (valueDistrict != null) {
 
@@ -294,13 +301,13 @@ function AddressDelivery() {
                         shop_id: 4962936
                     },
                     params: {
-                        service_type_id: serviceTypeId,
+                        service_id: serviceId,
                         insurance_value: priceProduct,
                         coupon: null,
                         from_district_id: 3440,
                         to_district_id: valueDistrict,
                         to_ward_code: valueWard,
-                        weight: 1000,
+                        weight: weightProduct,
                     }
 
                 }
@@ -316,6 +323,34 @@ function AddressDelivery() {
         }
     }, [valueDistrict, lstProductDetailsCart])
 
+    //Lấy Thời Gian Giao Hàng Dự Kiến
+    useEffect(() => {
+        if (valueDistrict != null && valueWard != null) {
+            console.log(valueWard);
+            axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime',
+                {
+                    headers: {
+                        token: 'dfe1e7cf-e582-11ee-b290-0e922fc774da',
+                    },
+                    params: {
+                        from_district_id: 3440,
+                        from_ward_code: 13007,
+                        to_district_id: valueDistrict,
+                        to_ward_code: valueWard,
+                        service_id: serviceId,
+                    }
+
+                }
+            )
+                .then((response) => {
+                    setLeadtime(response.data.data.leadtime)
+                    console.log(response.data.data);
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                })
+        }
+    }, [valueDistrict, valueWard])
 
     const handleChangeProvince = (value) => {
         if (value) {
@@ -483,9 +518,18 @@ function AddressDelivery() {
                     </div>
                     <div className='mb-4'>
                         <div className='mb-2'>Ghi Chú</div>
-                        <TextArea rows={4} />
+                        <TextArea rows={4} placeholder="Ghi Chú" onChange={(e) => { setDescription(e.target.value) }} />
                     </div>
+                    <div className='mb-4'>
+                        <img style={{ width: '180px' }} src='https://cdn.haitrieu.com/wp-content/uploads/2022/05/Logo-GHN-Slogan-En.png'></img>
+                        <div className='mt-2'>
+                            Thời Gian Giao Hàng Dự Kiến: {leadtime == null ? "" : dayjs?.unix(leadtime).format('DD/MM/YYYY')}
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
         </>
     );

@@ -39,10 +39,9 @@ const siderStyle = {
 const contentStyle = {
   marginTop: '84px',
   margin: '24px 16px 0',
-  overflow: 'initial',
   position: 'relative',
-  minHeight: '100vh',
-
+  minHeight: '80vh',
+  maxWidth: 'calc(100vw-220px)'
 }
 const footerStyle = {
   textAlign: 'center',
@@ -64,13 +63,13 @@ function DefaultLayout({ children }) {
   } = theme.useToken();
 
   return (
-    <div>
+    <div >
       <Layout hasSider >
         <Sider style={siderStyle} >
           <div className='flex justify-center content-center	mt-6 mb-6 pt-8 pb-8'>
             <img style={{
               width: '154px',
-            }} src='./logo.png'></img>
+            }} src='../../logo.png'></img>
           </div>
           <Menu style={{ width: '100%' }}></Menu>
         </Sider>
@@ -99,12 +98,13 @@ function DefaultLayout({ children }) {
           </Header>
           <Content style={contentStyle}>
             {children}
-            <Footer style={footerStyle}>
-              <div className='font-medium	'>
-                Alice Shop <span>{new Date().getFullYear()}</span> V0.1
-              </div>
-            </Footer>
+
           </Content>
+          <Footer style={footerStyle}>
+            <div className='font-medium	'>
+              Alice Shop <span>{new Date().getFullYear()}</span> V0.1
+            </div>
+          </Footer>
         </Layout>
       </Layout>
     </div>

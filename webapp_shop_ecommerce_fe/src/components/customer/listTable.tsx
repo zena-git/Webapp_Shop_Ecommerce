@@ -62,7 +62,7 @@ export default function ListTable() {
             id: "index",
             header: () => <div className="text-center">#</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.index + 1}</div>
+                return <div className='flex justify-center text-xl'>{row.index + 1}</div>
             },
         },
         {
@@ -78,27 +78,27 @@ export default function ListTable() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("fullName")}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.fullName}</div>,
         },
         {
             accessorKey: "phone",
             header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.phone}</div>
+                return <div className='flex justify-center text-xl'>{row.original.phone}</div>
             },
         },
         {
             accessorKey: "email",
             header: () => <div className="text-center">Email</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.email}</div>
+                return <div className='flex justify-center text-xl'>{row.original.email}</div>
             },
         },
         {
             accessorKey: "birthday",
             header: () => <div className="text-center">Ngày sinh</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.birthday ? row.original.birthday.toString().split("T")[0] : ''}</div>
+                return <div className='flex justify-center text-xl'>{row.original.birthday ? row.original.birthday.toString().split("T")[0] : ''}</div>
             },
         },
         {
@@ -186,7 +186,7 @@ export default function ListTable() {
             <div className="w-full rounded-md bg-white p-6 flex flex-col gap-3">
                 <ToastContainer />
                 <div className='flex justify-between items-center'>
-                    <p className='text-xl font-bold'>Khách hàng</p>
+                    <p className='text-2xl font-bold'>Khách hàng</p>
                 </div>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <div className='bg-slate-50 rounded-md mb-3 p-3 shadow-md'>

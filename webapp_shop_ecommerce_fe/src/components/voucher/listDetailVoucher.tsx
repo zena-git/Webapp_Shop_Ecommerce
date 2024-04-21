@@ -31,9 +31,9 @@ export default function ListTable({ data }: { data: VoucherDetailResponse[] }) {
     const columns: ColumnDef<VoucherDetailResponse>[] = useMemo(() => [
         {
             accessorKey: "id",
-            header: "id",
+            header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
+                <div className="capitalize text-xl text-center">{row.index + 1}</div>
             ),
         },
         {
@@ -44,27 +44,27 @@ export default function ListTable({ data }: { data: VoucherDetailResponse[] }) {
                         className='flex items-center justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        tên khách hàng
+                        Tên khách hàng
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.customer.fullName}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.customer.fullName}</div>,
         },
         {
             accessorKey: "startDate",
-            header: () => <div className="text-center">ngày sử dụng</div>,
+            header: () => <div className="text-center">Ngày sử dụng</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.usedDate ? row.original.usedDate.toString().split("T")[0] + " - " + row.original.usedDate.toString().split("T")[1] : "Chưa sử dụng"}
                 </div>
             },
         },
         {
             accessorKey: "value",
-            header: () => <div className="text-center">trạng thái hóa đơn</div>,
+            header: () => <div className="text-center">Trạng thái hóa đơn</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.bill ? row.original.bill.status : "Chưa sử dụng"}
                 </div>
             },

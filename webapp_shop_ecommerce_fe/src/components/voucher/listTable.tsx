@@ -103,7 +103,7 @@ export default function ListTable() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase text-center">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-center text-xl">{row.getValue("name")}</div>,
         },
         {
             accessorKey: "code",
@@ -115,7 +115,7 @@ export default function ListTable() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase text-center">{row.original.code}</div>,
+            cell: ({ row }) => <div className="lowercase text-center text-xl">{row.original.code}</div>,
         },
 
         {
@@ -123,7 +123,7 @@ export default function ListTable() {
             accessorKey: "value",
             header: () => <div className="text-center">Giá trị giảm</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.discountType == "0" ? numberToPrice(row.original.value) : `${row.original.value}%`}
                 </div>
             },
@@ -132,7 +132,7 @@ export default function ListTable() {
             accessorKey: "orderMinValue",
             header: () => <div className="text-center">Đơn tối thiểu</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {numberToPrice(row.original.orderMinValue)}
                 </div>
             },
@@ -141,7 +141,7 @@ export default function ListTable() {
             accessorKey: "maxDiscountValue",
             header: () => <div className="text-center">Giảm tối đa</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {numberToPrice(row.original.maxDiscountValue)}
                 </div>
             },
@@ -151,7 +151,7 @@ export default function ListTable() {
             header: () => <div className="text-center">Ngày bắt đầu</div>,
             filterFn: customStartDateFilter,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {/* + " - " + row.original.startDate.toString().split("T")[1] */}
                     {row.original.startDate.toString().split("T")[0]}
                 </div>
@@ -162,7 +162,7 @@ export default function ListTable() {
             filterFn: customEndDateFilter,
             header: () => <div className="text-center">Ngày kết thúc</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {/* + " - " + row.original.endDate.toString().split("T")[1] */}
                     {row.original.endDate.toString().split("T")[0]}
                 </div>
@@ -273,7 +273,7 @@ export default function ListTable() {
             <ToastContainer />
             <div className='grid grid-cols-2 items-center my-3 bg-white rounded-md p-3 shadow-lg gap-5'>
                 <div className='w-full flex flex-col'>
-                    <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
+                    <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
 
                     <Select
                         className='min-w-sm w-2/3'
@@ -295,7 +295,7 @@ export default function ListTable() {
                     </Select>
                 </div>
                 <div className='w-full flex flex-col'>
-                    <p className='mb-1 font-semibold text-sm'>Hình thức giảm</p>
+                    <p className='mb-1 font-semibold text-xl'>Hình thức giảm</p>
                     <Select className='min-w-sm w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
                         let filterValue = null;
                         if (value != 0) {
@@ -309,7 +309,7 @@ export default function ListTable() {
                     </Select>
                 </div>
                 <div>
-                    <p className='mb-1 font-semibold text-sm'>Tìm kiếm</p>
+                    <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
                     <Input
                         placeholder="tên..."
                         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -320,7 +320,7 @@ export default function ListTable() {
                     />
                 </div>
                 <div>
-                    <p className='mb-1 font-semibold text-sm'>Khoảng ngày</p>
+                    <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
                     <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
                         table.getColumn("startDate").setFilterValue(value[0]);
                         table.getColumn("endDate").setFilterValue(value[1])
@@ -331,7 +331,7 @@ export default function ListTable() {
                 {Table(table, flexRender, columns)}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
+                <div className="flex-1 text-xl text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>

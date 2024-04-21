@@ -30,7 +30,7 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
             accessorKey: "id",
             header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
+                <div className="capitalize text-xl">{row.index + 1}</div>
             ),
         },
         {
@@ -46,13 +46,13 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.productDetails.code}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.productDetails.code}</div>,
         },
         {
             id: "type",
             header: () => <div className="text-center">Giá bán gốc</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {numberToPrice(row.original.productDetails.price)}
                 </div>
             },
@@ -61,7 +61,7 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
             id: "type",
             header: () => <div className="text-center">Giá bán sau giảm</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {numberToPrice(row.original.productDetails.price - row.original.productDetails.price * value / 100)}
                 </div>
             },
@@ -70,7 +70,7 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
             id: "price",
             header: () => <div className="text-center">Phân loại</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {"[ " + row.original.productDetails.color.name + " - " + row.original.productDetails.size.name + " ]"}
                 </div>
             },
@@ -79,7 +79,7 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
             id: "quantity",
             header: () => <div className="text-center">Số lượng</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.productDetails.quantity}
                 </div>
             },
@@ -112,7 +112,7 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
                     {Table(table, flexRender, columns)}
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
+                    <div className="flex-1 text-lg text-muted-foreground">
                         {table.getFilteredSelectedRowModel().rows.length} of{" "}
                         {table.getFilteredRowModel().rows.length} row(s) selected.
                     </div>

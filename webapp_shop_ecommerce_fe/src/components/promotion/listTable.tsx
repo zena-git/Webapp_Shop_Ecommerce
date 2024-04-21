@@ -87,7 +87,7 @@ export default function ListTable() {
             accessorKey: "id",
             header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
+                <div className="capitalize text-xl">{row.index + 1}</div>
             ),
         },
         {
@@ -103,13 +103,13 @@ export default function ListTable() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.getValue("name")}</div>,
         },
         {
             accessorKey: "value",
             header: () => <div className="text-center">Giá trị giảm</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.getValue("value") + "%"}
                 </div>
             },
@@ -119,7 +119,7 @@ export default function ListTable() {
             header: () => <div className="text-center">Ngày bắt đầu</div>,
             filterFn: customStartDateFilter,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.startDate.toString().split("T")[1] + " : " + row.original.startDate.toString().split("T")[0]}
                 </div>
             },
@@ -129,7 +129,7 @@ export default function ListTable() {
             filterFn: customEndDateFilter,
             header: () => <div className="text-center">Ngày kết thúc</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.endDate.toString().split("T")[1] + " : " + row.original.endDate.toString().split("T")[0]}
                 </div>
             },
@@ -234,7 +234,7 @@ export default function ListTable() {
     return (
         <>
             <div className='flex gap-5 items-center'>
-                <Link to={'/discount/promotion/add'} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-sm my-3'>
+                <Link to={'/discount/promotion/add'} className='bg-blue-500 text-white font-semibold px-3 py-[8px] rounded-lg my-3'>
                     Thêm sự kiện giảm giá mới
                 </Link>
                 {Recover()}
@@ -242,7 +242,7 @@ export default function ListTable() {
             <ToastContainer />
             <div className='grid grid-cols-3 items-center my-3 bg-slate-50 rounded-md p-3 shadow-lg gap-5 border'>
                 <div className='flex flex-col w-full'>
-                    <p className='mb-1 font-semibold text-sm'>Trạng thái</p>
+                    <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
                     <div className='min-w-[240px]'>
                         <Select
                             style={{ width: '240px' }}
@@ -265,7 +265,7 @@ export default function ListTable() {
                     </div>
                 </div>
                 <div>
-                    <p className='mb-1 font-semibold text-sm'>Tìm kiếm</p>
+                    <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
                     <Input
                         placeholder="tên..."
                         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -276,7 +276,7 @@ export default function ListTable() {
                     />
                 </div>
                 <div>
-                    <p className='mb-1 font-semibold text-sm'>Khoảng ngày</p>
+                    <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
                     <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
                         if (value && value[0] && value[1]) {
                             table.getColumn("startDate").setFilterValue(value[0]);

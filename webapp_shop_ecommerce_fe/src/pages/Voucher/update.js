@@ -192,8 +192,8 @@ const VoucherPage = () => {
                     <div className='w-full flex max-xl:flex-col justify-center p-5 gap-5'>
                         <div className='bg-white p-5 shadow-lg flex flex-col gap-3 w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
-                                <p className='ml-3 text-lg font-semibold'>Cập nhật phiếu giảm giá</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
+                                <p className='ml-3 text-2xl font-semibold'>Cập nhật phiếu giảm giá</p>
                             </div>
                             <div className='h-[2px] bg-slate-600'></div>
                             <Form {...form}>
@@ -323,7 +323,7 @@ const VoucherPage = () => {
                                     />
                                     }
                                     <div>
-                                        <p className='my-1 text-sm font-semibold'>Đối tượng áp dụng</p>
+                                        <p className='my-1 text-xl font-semibold'>Đối tượng áp dụng</p>
                                         <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
                                             <Radio value={"0"}>Tất cả khách hàng</Radio>
                                             <Radio value={"1"}>Khách hàng chỉ định</Radio>
@@ -332,7 +332,7 @@ const VoucherPage = () => {
 
                                     <div className='mt-1'>
                                         <label>
-                                            <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                                             {/* @ts-ignore */}
                                             <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
                                         </label>
@@ -344,7 +344,7 @@ const VoucherPage = () => {
                             </Form>
                         </div>
                         <div className='flex-grow p-5 bg-white shadow-lg flex flex-col gap-3'>
-                            <p className='text-lg font-semibold'>Danh sách khách hàng</p>
+                            <p className='text-2xl font-semibold'>Danh sách khách hàng</p>
                             <div className='h-[2px] bg-slate-600'></div>
                             <ListCustomer listCustomer={listCustomer}/>
                         </div>

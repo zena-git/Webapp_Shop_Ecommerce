@@ -19,6 +19,9 @@
         "@testing-library/user-event": "^13.5.0",
         "antd": "^5.14.2",
         "axios": "^1.6.7",
+        "cloudinary-react": "^1.8.1",
+        "compressorjs": "^1.2.1",
+        "quagga": "^0.12.1",
         "class-variance-authority": "^0.7.0",
         "classnames": "^2.5.1",
         "clsx": "^2.1.0",
@@ -73,7 +76,7 @@
         "customize-cra": "^1.0.0",
         "postcss": "^8.4.35",
         "react-app-rewired": "^2.2.1",
-        "sass": "^1.75.0",
+        "sass": "^1.71.1",
         "tailwindcss": "^3.4.1"
     }
 }

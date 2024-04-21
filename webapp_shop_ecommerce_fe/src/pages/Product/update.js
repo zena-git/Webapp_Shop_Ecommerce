@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Table, Spin, Select, Input, Space, Modal, Divider, Tag, ColorPicker, InputNumber, Upload, Tooltip } from 'antd';
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { Button, Table, Spin, Select, Input, Space, Modal, Divider, Tag, ColorPicker, InputNumber, Upload, Tooltip, Popconfirm } from 'antd';
 import axios from 'axios';
+import Compressor from 'compressorjs';
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
+import { PlusOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
 const tagRender = (props) => {
@@ -25,7 +27,7 @@ const tagRender = (props) => {
                 marginRight: 3,
             }}
         >
-            {label}
+            {hexToColorName(label)}
         </Tag>
     );
 };
@@ -36,25 +38,25 @@ const getBase64 = (file) =>
         reader.onload = () => resolve(reader.result);
         reader.onerror = (error) => reject(error);
     });
-    const calculateRowSpan = (data, dataIndex, rowIndex) => {
-        if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
-            return 0;
+const calculateRowSpan = (data, dataIndex, rowIndex) => {
+    if (rowIndex > 0 && data[rowIndex][dataIndex].name === data[rowIndex - 1][dataIndex].name) {
+        return 0;
+    }
+    let count = 1;
+    for (let i = rowIndex + 1; i < data.length; i++) {
+        if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
+            count++;
+        } else {
+            break;
         }
-        let count = 1;
-        for (let i = rowIndex + 1; i < data.length; i++) {
-            if (data[i][dataIndex].name === data[i - 1][dataIndex].name) {
-                count++;
-            } else {
-                break;
-            }
-        }
-        return count;
-    };
-    
+    }
+    return count;
+};
+
 function ProductUpdate() {
     const { id } = useParams();
     const [product, setProduct] = useState();
-
+    const navigate = useNavigate();
     const [dataRowProductDetail, setDataRowProductDetail] = useState([]);
     const [dataProductDetailOld, setDataProductDetailOld] = useState([]);
     const [dataProductDetailNew, setDataProductDetailNew] = useState([]);
@@ -98,59 +100,92 @@ function ProductUpdate() {
     const inputRefColor = useRef(null);
     const inputRefSize = useRef(null);
 
-    useEffect(() => {
-        axios.get(`http://localhost:8080/api/v1/product/${id}`)
-            .then(response => {
-                console.log(response.data);
-                setProduct(response.data);
-                fillDataProduct(response.data);
-            })
-            .catch(error => console.error(error));
-        console.log(id);
-    }, [id]);
+    const [valueInputQuantityCustom, setValueInputQuantityCustom] = useState(null);
+    const [valueInputPriceCustom, setValueInputPriceCustom] = useState(null);
+    const [valueInputWeightCustom, setValueInputWeightCustom] = useState(null);
 
-    const fillDataProduct = (pro) => {
-        console.log(pro);
-        setValueCodeProduct(pro.code);
-        setValueNameProduct(pro.name);
-        setValueDecProduct(pro.description);
-        setValueCategory(pro.category.id);
-        setValueMaterial(pro.material.id);
-        setValueBrand(pro.brand.id);
-        setValueStyle(pro.style.id);
-
-
-        const dataTable = pro.lstProductDetails.map((data, index) => {
-            let product = {
-                key: data.id,
-                id: data.id,
-                index: index + 1,
-                barcode: data.barcode,
-                code: data.code,
-                name: pro.name,
-                color: data.color,
-                size: data.size,
-                price: data.price,
-                quantity: data.quantity,
-                action: <Button danger >
-                    <DeleteOutlined />
-                </Button>,
-                imageUrl: [pro.imageUrl],
-            }
-            return product;
-        })
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
+    const [previewTitle, setPreviewTitle] = useState('');
+    const [fileList, setFileList] = useState([
+        {
+            uid: '-1',
+            name: 'image.png',
+            status: 'done',
+            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        },
+        {
+            uid: '-2',
+            name: 'image.png',
+            status: 'done',
+            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+        }
+    ]);
+    const handleCancelImg = () => setPreviewOpen(false);
+    const handlePreviewImg = async (file) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        setPreviewImage(file.url || file.preview);
+        setPreviewOpen(true);
+        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+    };
 
 
-        setDataProductDetailOld(dataTable)
-        setDataRowProductDetail(dataTable)
-    }
+    const uploadButton = (
+        <button
+            style={{
+                border: 0,
+                background: 'none',
+            }}
+            type="button"
+        >
+            <PlusOutlined />
+            <div
+                style={{
+                    marginTop: 8,
+                }}
+            >
+                Upload
+            </div>
+        </button>
+    );
+    const handleUpload = ({ file, onSuccess, onError }) => {
+        if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+            toast.error("Upload Sai Định Dạng")
+            const error = new Error('File format is not supported. Please upload PNG or JPG files.');
+            console.error(error);
+            onError(error);
+            return;
+        }
 
-    useEffect(() => {
-        const dataCustom = [...dataProductDetailOld, ...dataProductDetailNew]
-        setDataRowProductDetail(dataCustom)
-    }, [dataProductDetailOld, dataProductDetailNew])
+        new Compressor(file, {
+            quality: 0.6,
+            maxWidth: 800,
+            maxHeight: 600,
+            success(result) {
+                const formData = new FormData();
+                formData.append('file', result);
+                formData.append('upload_preset', 'aliceshop');
 
-
+                axios
+                    .post('https://api.cloudinary.com/v1_1/dgxbxvkso/image/upload', formData)
+                    .then((response) => {
+                        const { secure_url } = response.data;
+                        console.log(secure_url);
+                        onSuccess(secure_url);
+                    })
+                    .catch((error) => {
+                        console.error('Error uploading image:', error);
+                        onError(error);
+                    });
+            },
+            error(error) {
+                console.error('Error compressing image:', error);
+                onError(error);
+            },
+        });
+    };
     const columnsTable = [
         {
             title: '#',
@@ -193,10 +228,11 @@ function ProductUpdate() {
             key: 'price',
             render: (text, record) => (
                 <InputNumber
-                    defaultValue={record?.price || null}
+                    style={{ width: '80%' }}
+                    value={record?.price || null}
                     min={1000}
-                    formatter={(value) => `${value}VNĐ`}
-                    parser={(value) => value.replace('VNĐ', '')}
+                    formatter={(value) => `${value} VNĐ`}
+                    parser={(value) => value.replace(' VNĐ', '')}
                     onChange={(value) => onChangePrice(record.key, value)}
                 />
             ),
@@ -206,7 +242,21 @@ function ProductUpdate() {
             dataIndex: 'quantity',
             key: 'quantity',
             render: (text, record) => (
-                <InputNumber min={1} defaultValue={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+                <InputNumber min={1} value={record.quantity} onChange={(value) => onChangeQuantity(record.key, value)} />
+            ),
+        },
+        {
+            title: 'Khối Lượng',
+            dataIndex: 'weight',
+            key: 'weight',
+            render: (text, record) => (
+                <InputNumber
+                    value={record?.weight || 0}
+                    min={1}
+                    formatter={(value) => `${value} gam`}
+                    parser={(value) => value.replace('gam', '')}
+                    onChange={(value) => onChangeWeight(record.key, value)}
+                />
             ),
         },
         {
@@ -214,10 +264,20 @@ function ProductUpdate() {
             dataIndex: 'action',
             key: 'action',
             render: (text, record) => (
-                <Button danger onClick={() => handleDeleteProduct(record.key, record.id)}>
-                    {record.index + "_" + record.key}
-                    <DeleteOutlined />
-                </Button>
+                <Popconfirm
+                    title="Loại bỏ chi tiết"
+                    description="Bạn có chắc muốn loại bỏ chi tiết này khỏi khay tạm?"
+                    onConfirm={() => handleDeleteProduct(record.key, record.id)}
+                    okText="Xác Nhận"
+                    cancelText="Không"
+                >
+                    <Button danger>
+                        {record.index + "_" + record.key}
+                        <DeleteOutlined />
+                    </Button>
+                </Popconfirm>
+
+
             ),
         },
         {
@@ -231,18 +291,61 @@ function ProductUpdate() {
                 return {
                     children: (
                         <>
-                        <h2>sadasd</h2>
-                            {/* <Upload
-                                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                            <Upload
+                                accept="image/*"
+                                key={index}
                                 listType="picture-card"
                                 fileList={record.imageUrl}
+                                customRequest={handleUpload}
                                 multiple
                                 onPreview={handlePreviewImg}
-                                onChange={handleChangeImg}
+                                onChange={({ fileList: newFileList }) => {
+                                    // console.log(newFileList)
+                                    // console.log(record.color)
+
+
+                                    const validFiles = newFileList.filter(file => {
+                                        return file.type === 'image/png' || file.type === 'image/jpeg';
+                                        // return file.status == "done";
+                                    });
+
+                                    console.log(validFiles)
+                                    if (validFiles.length >= 4) {
+                                        toast.error("Chỉ Được Tải Lên Tối Đa 3 Ảnh !");
+                                        return;
+                                    }
+
+                                    const productDetailFinal = dataRowProductDetail.find(product => product.uuid === record.uuid);
+                                    const dataProductDetail = dataRowProductDetail.map((productDetail) => {
+                                        if (productDetail.color.id === productDetailFinal.color.id) {
+                                            return {
+                                                ...productDetail,
+                                                imageUrl: validFiles,
+                                            }
+                                        } else {
+                                            return {
+                                                ...productDetail
+                                            }
+                                        }
+
+                                    })
+
+                                    console.log(product.uuid)
+                                    console.log(record.uuid)
+
+                                    // console.log(productDetailFinal)
+                                    console.log(dataProductDetail)
+
+                                    setDataRowProductDetail(dataProductDetail)
+
+
+                                }}
                             >
-                                {record.imageUrl.length >= 6 ? null : uploadButton}
+                                {record.imageUrl.length >= 3 ? null : uploadButton}
                             </Upload>
-                            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancelImg}>
+                            <Modal open={previewOpen} title={previewTitle} footer={null}
+                                onCancel={handleCancelImg}
+                            >
                                 <img
                                     alt="example"
                                     style={{
@@ -250,7 +353,7 @@ function ProductUpdate() {
                                     }}
                                     src={previewImage}
                                 />
-                            </Modal> */}
+                            </Modal>
 
                         </>
                     ),
@@ -265,6 +368,66 @@ function ProductUpdate() {
     ];
 
 
+    useEffect(() => {
+        axios.get(`http://localhost:8080/api/v1/product/${id}`)
+            .then(response => {
+                console.log(response.data);
+                setProduct(response.data);
+                fillDataProduct(response.data);
+            })
+            .catch(error => console.error(error));
+        console.log(id);
+    }, [id]);
+
+    const fillDataProduct = (pro) => {
+        console.log(pro);
+        setValueCodeProduct(pro.code);
+        setValueNameProduct(pro.name);
+        setValueDecProduct(pro.description);
+        setValueCategory(pro.category.id);
+        setValueMaterial(pro.material.id);
+        setValueBrand(pro.brand.id);
+        setValueStyle(pro.style.id);
+        setImageAvatar(pro.imageUrl)
+
+        const dataTable = pro.lstProductDetails.sort((a, b) => a.color.id - b.color.id).map((data, index) => {
+            let product = {
+                key: data.id,
+                id: data.id,
+                uuid: data.id,
+                index: index + 1,
+                barcode: data.barcode,
+                code: data.code,
+                name: pro.name,
+                color: data.color,
+                size: data.size,
+                price: data.price,
+                quantity: data.quantity,
+                weight: data.weight,
+                action: <Button danger >
+                    <DeleteOutlined />
+                </Button>,
+                imageUrl: data?.imageUrl ? data.imageUrl.split("|").map((image, index) => {
+                    return {
+                        uid: index + index,
+                        name: index + 'image.png',
+                        status: 'done',
+                        url: image,
+                        type: "image/jpeg"
+                    };
+                }) : [],
+            }
+            return product;
+        })
+
+        setDataProductDetailOld(dataTable)
+        setDataRowProductDetail(dataTable)
+    }
+
+    useEffect(() => {
+        const dataCustom = [...dataProductDetailOld, ...dataProductDetailNew]
+        setDataRowProductDetail(dataCustom.sort((a, b) => a.color.id - b.color.id))
+    }, [dataProductDetailOld, dataProductDetailNew])
 
 
 
@@ -500,6 +663,7 @@ function ProductUpdate() {
 
     //select Color
     const handleChangeColor = (value) => {
+        console.log(value);
         setValueColor(value)
         console.log(`selected ${value}`);
     };
@@ -508,10 +672,10 @@ function ProductUpdate() {
             .then((response) => {
                 const newObj = response.data.map(rep => ({
 
-                    label: hexToColorName(rep.name),
+                    label: rep.name,
                     value: rep.id,
                     emoji: <ColorPicker defaultValue={rep.name} disabled size="small" />,
-                    desc: rep.name,
+                    desc: hexToColorName(rep.name),
                     key: rep.id, // Sử dụng một trường duy nhất từ dữ liệu làm key
                 }));
                 setOptionColor(newObj);
@@ -638,25 +802,49 @@ function ProductUpdate() {
 
         setDataRowProductDetail(updatedProductList);
     };
-
+    const onChangeWeight = (key, value) => {
+        // Update the data array or perform any other necessary action
+        const updatedProductList = dataRowProductDetail.map(product => {
+            if (product.key === key) {
+                return {
+                    ...product,
+                    weight: value
+                };
+            }
+            return product;
+        });
+        setDataRowProductDetail(updatedProductList);
+    };
     //update product
     const [loading, setLoading] = useState(false);
     const handleUpdateProduct = async (e) => {
-
         e.preventDefault();
+        console.log(dataRowProductDetail);
+
         setLoading(true);
         try {
-            const lstProductDetails = dataRowProductDetail.map((product) => ({
-                id:product.id,
-                barcode: product.barcode,
-                status: product.status,
-                // imageUrl: [...product.imageUrl],
-                code: product.code,
-                price: product.price,
-                quantity: product.quantity,
-                size: product.size.id,
-                color: product.color.id,
-            }));
+            const lstProductDetails = dataRowProductDetail.map((product) => {
+                let imageProduct = product.imageUrl.map((image) => {
+
+                    return image.url || image.response
+                })
+
+                return {
+                    id: product.id,
+                    product: id,
+                    barcode: product.barcode,
+                    status: product.status,
+                    imageUrl: imageProduct.join("|"),
+                    code: product.code,
+                    price: product.price,
+                    quantity: product.quantity,
+                    size: product.size.id,
+                    color: product.color.id,
+                    weight: product.weight
+                }
+            });
+
+            console.log(lstProductDetails);
             const response = await axios.put(`http://localhost:8080/api/v1/product/${id}`, {
                 code: valueCodeProduct,
                 name: valueNameProduct,
@@ -665,12 +853,17 @@ function ProductUpdate() {
                 brand: valueBrand,
                 material: valueMaterial,
                 style: valueMaterial,
+                imageUrl: imageUrlAvatar,
                 status: '0',
                 lstProductDetails: lstProductDetails,
             });
             const { status, message, errCode } = response.data;
-            toast.success(message);
+            toast.success("Cập nhật thành công");
             console.log(response.data);
+            setTimeout(() => {
+                navigate('/product/' + id)
+            }, 1000);
+
         } catch (error) {
             const { status, message, errCode } = error.response.data;
             toast.error(message);
@@ -683,15 +876,30 @@ function ProductUpdate() {
     };
     //Modal add product details new
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpenCustomQuantityPrice, setIsModalOpenCustomQuantityPrice] = useState(false);
     const showModal = () => {
         setIsModalOpen(true);
     };
     const handleAddProductDetails = () => {
         const lstProductDetails = valueColor.map((cl, index) => {
             return valueSize.map((size, i) => {
+                const checkProduct = dataProductDetailOld.find(product => product.color.id == cl && product.size.id == size);
+                // Nếu sản phẩm đã tồn tại, bỏ qua và không thêm vào lstProductDetails
+                if (checkProduct) {
+                    return null;
+                }
+
+                //backup lại ảnh
+                const existingProduct = dataRowProductDetail.find(product => product.color.id === cl);
+                let imageUrl = [];
+                if (existingProduct) {
+                    imageUrl = existingProduct.imageUrl; // Copy existing image URLs
+                }
+
                 return {
                     key: `${index}_${i}`,
                     index: index,
+                    uuid: index,
                     group: index,
                     name: valueNameProduct,
                     color: optionColor.filter((c) => c.value == cl)
@@ -709,259 +917,244 @@ function ProductUpdate() {
                                 name: size.label
                             }
                         })[0],
-                    price: 1000,
+                    price: 100000,
                     quantity: 1,
-                    imageUrl: []
+                    weight: 200,
+                    imageUrl: imageUrl
                 }
             })
         })
-        // console.log("---");
-        // console.log(dataRowProductDetail);
-        // console.log(lstProductDetails.flat() );
-        setDataProductDetailNew(lstProductDetails.flat())
+        //lọc data null
+        const dataProductDetailNew = lstProductDetails.flat().filter(product => product != null);
+        console.log(dataProductDetailNew);
+
+        setDataProductDetailNew(dataProductDetailNew)
         setIsModalOpen(false);
     };
     const handleCancel = () => {
         setIsModalOpen(false);
     };
 
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState('');
-    const [previewTitle, setPreviewTitle] = useState('');
-    const [fileList, setFileList] = useState([
-        {
-            uid: '-1',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        },
-        {
-            uid: '-2',
-            name: 'image.png',
-            status: 'done',
-            url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+
+    const [imageUrlAvatar, setImageAvatar] = useState(null);
+    const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
+
+
+    const handleImageChange = (event) => {
+        const file = event?.target?.files[0];
+        console.log(file);
+        if (file == 'undefined') {
+            return
         }
-    ]);
-    // const handleCancelImg = () => setPreviewOpen(false);
-    // const handlePreviewImg = async (file) => {
-    //   if (!file.url && !file.preview) {
-    //     file.preview = await getBase64(file.originFileObj);
-    //   }
-    //   setPreviewImage(file.url || file.preview);
-    //   setPreviewOpen(true);
-    //   setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
-    // };
-    // const handleChangeImg = ({ fileList: newFileList }) => setFileList(newFileList);
-    // const uploadButton = (
-    //     <button
-    //       style={{
-    //         border: 0,
-    //         background: 'none',
-    //       }}
-    //       type="button"
-    //     >
-    //       <PlusOutlined />
-    //       <div
-    //         style={{
-    //           marginTop: 8,
-    //         }}
-    //       >
-    //         Upload
-    //       </div>
-    //     </button>
-    //   );
+        if (file?.type !== 'image/png' && file?.type !== 'image/jpeg') {
+            toast.error("Upload Sai Định Dạng")
+            return;
+        }
+
+        new Compressor(file, {
+            quality: 0.6,
+            maxWidth: 800,
+            maxHeight: 600,
+            success(result) {
+                const formData = new FormData();
+                formData.append('file', result);
+                formData.append('upload_preset', 'aliceshop');
+                setIsLoadingAvatar(true)
+                axios
+                    .post('https://api.cloudinary.com/v1_1/dgxbxvkso/image/upload', formData)
+                    .then((response) => {
+                        const { secure_url } = response.data;
+                        setImageAvatar(secure_url);
+                        console.log(secure_url);
+                    })
+                    .catch((error) => {
+                        console.error('Error uploading image:', error);
+                    })
+                    .finally(() => setIsLoadingAvatar(false));
+            },
+            error(error) {
+                console.error('Error compressing image:', error);
+            },
+        });
+    };
+    const onChangeQuantityPriceCustom = () => {
+        if (selectedRowKeys.length <= 0) {
+            toast.info("Vui Lòng Chọn Thuộc Tính !")
+            setIsModalOpenCustomQuantityPrice(false);
+
+            return;
+        }
+        if (valueInputQuantityCustom < 1) {
+            toast.info("Số Lượng Phải Lớn Hơn 1 !")
+            return;
+        }
+
+        if (valueInputPriceCustom < 1000) {
+            toast.info("Giá Phải Lớn Hơn 1000 !")
+            return;
+        }
+
+        if (valueInputWeightCustom < 1) {
+            toast.info("Khối Lượng Phải Lớn Hơn 1 gam!")
+            return;
+        }
+        const updatedProductList = dataRowProductDetail.map(product => {
+            if (selectedRowKeys.includes(product.key)) {
+                return {
+                    ...product,
+                    price: valueInputPriceCustom,
+                    quantity: valueInputQuantityCustom,
+                    weight: valueInputWeightCustom
+                };
+            }
+            return product;
+        });
+        console.log(updatedProductList);
+        // setDataRowProductDetail(updatedProductList);
+        setDataRowProductDetail(updatedProductList)
+        setIsModalOpenCustomQuantityPrice(false);
+        setValueInputPriceCustom(null);
+        setValueInputQuantityCustom(null);
+        setValueInputWeightCustom(null);
+    }
+
+
     return (
-        <div className='bg-white p-4'>
+        <div className=''>
             <div>
-                <div>
-                    <label>Mã Sản Phẩm</label>
-                    <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
-                </div>
-
-                <div>
-                    <label>Tên Sản Phẩm</label>
-                    <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
-                </div>
-                <div>
-                    <label>Mô Tả Sản Phẩm</label>
-                    <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
-                </div>
-                <div className='grid grid-cols-4 gap-4 my-4'>
-                    <div>
-                        <label>Loại</label>
-                        <Select className="w-full mt-4" placeholder="Chọn Loại"
-
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
-                                    <Divider className='my-4' />
-                                    <Space >
-                                        <Input
-                                            placeholder="Please enter item"
-                                            ref={inputRefCategory}
-                                            value={valueInputCategory}
-                                            onChange={(e) => setValueInputCategory(e.target.value)}
-                                            onKeyDown={(e) => e.stopPropagation()}
-                                        />
-                                        <Button type="text" icon={<PlusOutlined />} onClick={addCategory}>
-                                            Add item
-                                        </Button>
-                                    </Space>
-                                </>
-                            )}
-                            onChange={handleChangeCategory}
-                            options={optionCategory}
-                            value={valueCategory}
-                        />
+                <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                    <div className='mb-10 mt-2 '>
+                        <div className='text-[16px] font-semibold	'>Thông Tin Cơ Bản</div>
                     </div>
+                    <div className='flex items-end mt-4	mb-10'>
+                        <div className='w-1/4 flex justify-center	'>
+                            <div style={{
+                                height: '200px',
+                                border: '2px dashed #ccc',
+                                width: '200px',
+                                borderRadius: '10px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                overflow: 'hidden',
 
-                    <div>
-                        <label>Chất Liệu</label>
-                        <Select className="w-full mt-4" placeholder="Chọn Chất Liệu"
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
-                                    <Divider className='my-4' />
-                                    <Space >
-                                        <Input
-                                            placeholder="Please enter item"
-                                            ref={inputRefMaterial}
-                                            value={valueInputMaterial}
-                                            onChange={(e) => setValueInputMaterial(e.target.value)}
-                                            onKeyDown={(e) => e.stopPropagation()}
-                                        />
-                                        <Button type="text" icon={<PlusOutlined />} onClick={addMaterial}>
-                                            Add item
-                                        </Button>
-                                    </Space>
-                                </>
-                            )}
-                            onChange={handleChangeMaterial}
-                            options={optionMaterial}
-                            value={valueMaterial}
+                            }}>
+                                <label
+                                    style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                    htmlFor="image-upload" className="label">
+                                    <div className="circle"
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
 
-                        />
-                    </div>
+                                            position: 'relative'
+                                        }}>
+                                        {imageUrlAvatar ? (
+                                            <div
 
-                    <div>
-                        <label>Phong Cách</label>
-                        <Select className="w-full mt-4" placeholder="Chọn Phong Cách"
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
-                                    <Divider className='my-4' />
-                                    <Space >
-                                        <Input
-                                            placeholder="Please enter item"
-                                            ref={inputRefStyle}
-                                            value={valueInputStyle}
-                                            onChange={(e) => setValueInputStyle(e.target.value)}
-                                            onKeyDown={(e) => e.stopPropagation()}
-                                        />
-                                        <Button type="text" icon={<PlusOutlined />} onClick={addStyle}>
-                                            Add item
-                                        </Button>
-                                    </Space>
-                                </>
-                            )}
-                            onChange={handleChangeStyle}
-                            options={optionStyle}
-                            value={valueStyle}
+                                            // onMouseEnter={handleMouseEnter}
+                                            // onMouseLeave={handleMouseLeave}
+                                            >
+                                                <img
+                                                    style={{
+                                                        borderRadius: '10px',
+                                                        padding: '10px',
+                                                        width: '200px',
+                                                        height: '200px',
+                                                        objectFit: 'cover',
+                                                        objectPosition: 'center',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    src={imageUrlAvatar}
+                                                    alt="Selected"
+                                                    className="preview-image"
+                                                />
 
-                        />
-                    </div>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    height: '100%'
+                                                }}
+                                                className="placeholder flex flex-col justify-center items-center"
+                                            >
+                                                <PlusOutlined className="text-4xl" />
+                                                <span className="mt-2">Ảnh Bìa</span>
+                                            </div>
+                                        )}
+                                        {(isLoadingAvatar &&
+                                            <div style={{
+                                                position: 'absolute',
+                                                zIndex: '1',
+                                                top: '0',
+                                                left: '0',
+                                                right: '0',
+                                                bottom: '0',
+                                                width: '100%',
+                                                height: '100%',
+                                                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
 
-                    <div>
-                        <label>Thương Hiệu</label>
-                        <Select className="w-full mt-4" placeholder="Chọn Thương Hiệu"
-                            dropdownRender={(menu) => (
-                                <>
-                                    {menu}
-                                    <Divider className='my-4' />
-                                    <Space >
-                                        <Input
-                                            placeholder="Please enter item"
-                                            ref={inputRefBrand}
-                                            value={valueInputBrand}
-                                            onChange={(e) => setValueInputBrand(e.target.value)}
-                                            onKeyDown={(e) => e.stopPropagation()}
-                                        />
-                                        <Button type="text" icon={<PlusOutlined />} onClick={addBrand}>
-                                            Add item
-                                        </Button>
-                                    </Space>
-                                </>
-                            )}
-                            onChange={handleChangeBrand}
-                            options={optionBrand}
-                            value={valueBrand}
-                        />
-                    </div>
+                                            }}>
+                                                <LoadingOutlined
+                                                    style={{
+                                                        color: '#fff',
+                                                        fontSize: '30px',
+                                                    }}
+                                                ></LoadingOutlined>
+                                            </div>
 
-                </div>
+                                        )}
+                                    </div>
+                                </label>
+                                <input
+                                    id="image-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
 
-
-                <div>
-                    <Button type="primary" onClick={handleUpdateProduct} >Update Sản Phẩm</Button>
-                    <Button type="primary" onClick={showModal}>
-                        Thêm Chi Tiết
-                    </Button>
-                </div>
-                <div>
-                    <Table
-                        rowSelection={rowSelection}
-                        columns={columnsTable}
-                        dataSource={dataRowProductDetail}
-                        pagination={false}
-                    />
-                </div>
-
-                <Modal title="Basic Modal" open={isModalOpen} onOk={handleAddProductDetails} onCancel={handleCancel}>
-                    <div className='grid grid-cols-2 gap-2 my-4'>
-
-                        <div>
-                            <label>Màu Sắc</label>
-                            <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
-                                mode="multiple"
-
-                                tagRender={tagRender}
-                                dropdownRender={(menu) => (
-                                    <>
-                                        {menu}
-                                        <Divider className='my-4' />
-                                        <Space >
-                                            <ColorPicker
-                                                onChange={(e) => setValueInputColor(e.toHexString())}
-                                                onKeyDown={(e) => e.stopPropagation()}
-                                                value={valueInputColor}
-                                                showText
-                                                placement="bottom"
-                                            />
-                                            <Button type="text" icon={<PlusOutlined />} onClick={addColor}>
-                                                Add item
-                                            </Button>
-                                        </Space>
-                                    </>
-                                )}
-                                optionRender={(option) => (
-                                    <Space>
-                                        <span role="img" aria-label={option.data.label}>
-                                            {option.data.emoji}
-                                        </span>
-                                        {option.data.desc + "-" + option.data.label}
-                                    </Space>
-                                )}
-                                onChange={handleChangeColor}
-
-                                options={optionColor}
-                                value={valueColor}
-                            />
                         </div>
+                        <div className='w-3/4	'>
+                            <div>
+                                <label>Mã Sản Phẩm</label>
+                                <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
+                            </div>
 
+                            <div>
+                                <label>Tên Sản Phẩm</label>
+                                <Input className="my-4" placeholder="Nhập Tên Sản Phẩm" value={valueNameProduct} onChange={e => setValueNameProduct(e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Mô Tả Sản Phẩm</label>
+                        <TextArea className="my-4" rows={4} placeholder="Nhập Mô Tả Sản Phẩm" maxLength={350} value={valueDecProduct} onChange={e => setValueDecProduct(e.target.value)} />
+                    </div>
+
+                </div>
+                <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
+                    <div className='mb-10 mt-2 '>
+                        <div className='text-[16px] font-semibold	'>Thông Tin Chi Tiết</div>
+                    </div>
+                    <div className='grid grid-cols-4 gap-4 my-4'>
                         <div>
-                            <label>Kích Thước</label>
-                            <Select className="w-full mt-4" placeholder="Chọn Kích Thước"
-                                mode="multiple"
+                            <label>Loại</label>
+                            <Select className="w-full mt-4" placeholder="Chọn Loại"
+
                                 dropdownRender={(menu) => (
                                     <>
                                         {menu}
@@ -969,24 +1162,239 @@ function ProductUpdate() {
                                         <Space >
                                             <Input
                                                 placeholder="Please enter item"
-                                                ref={inputRefSize}
-                                                value={valueInputSize}
-                                                onChange={(e) => setValueInputSize(e.target.value)}
+                                                ref={inputRefCategory}
+                                                value={valueInputCategory}
+                                                onChange={(e) => setValueInputCategory(e.target.value)}
                                                 onKeyDown={(e) => e.stopPropagation()}
                                             />
-                                            <Button type="text" icon={<PlusOutlined />} onClick={addSize}>
+                                            <Button type="text" icon={<PlusOutlined />} onClick={addCategory}>
                                                 Add item
                                             </Button>
                                         </Space>
                                     </>
                                 )}
-                                onChange={handleChangeSize}
-                                options={optionSize}
-                                value={valueSize}
+                                onChange={handleChangeCategory}
+                                options={optionCategory}
+                                value={valueCategory}
                             />
                         </div>
+
+                        <div>
+                            <label>Chất Liệu</label>
+                            <Select className="w-full mt-4" placeholder="Chọn Chất Liệu"
+                                dropdownRender={(menu) => (
+                                    <>
+                                        {menu}
+                                        <Divider className='my-4' />
+                                        <Space >
+                                            <Input
+                                                placeholder="Please enter item"
+                                                ref={inputRefMaterial}
+                                                value={valueInputMaterial}
+                                                onChange={(e) => setValueInputMaterial(e.target.value)}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                            <Button type="text" icon={<PlusOutlined />} onClick={addMaterial}>
+                                                Add item
+                                            </Button>
+                                        </Space>
+                                    </>
+                                )}
+                                onChange={handleChangeMaterial}
+                                options={optionMaterial}
+                                value={valueMaterial}
+
+                            />
+                        </div>
+
+                        <div>
+                            <label>Phong Cách</label>
+                            <Select className="w-full mt-4" placeholder="Chọn Phong Cách"
+                                dropdownRender={(menu) => (
+                                    <>
+                                        {menu}
+                                        <Divider className='my-4' />
+                                        <Space >
+                                            <Input
+                                                placeholder="Please enter item"
+                                                ref={inputRefStyle}
+                                                value={valueInputStyle}
+                                                onChange={(e) => setValueInputStyle(e.target.value)}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                            <Button type="text" icon={<PlusOutlined />} onClick={addStyle}>
+                                                Add item
+                                            </Button>
+                                        </Space>
+                                    </>
+                                )}
+                                onChange={handleChangeStyle}
+                                options={optionStyle}
+                                value={valueStyle}
+
+                            />
+                        </div>
+
+                        <div>
+                            <label>Thương Hiệu</label>
+                            <Select className="w-full mt-4" placeholder="Chọn Thương Hiệu"
+                                dropdownRender={(menu) => (
+                                    <>
+                                        {menu}
+                                        <Divider className='my-4' />
+                                        <Space >
+                                            <Input
+                                                placeholder="Please enter item"
+                                                ref={inputRefBrand}
+                                                value={valueInputBrand}
+                                                onChange={(e) => setValueInputBrand(e.target.value)}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                            <Button type="text" icon={<PlusOutlined />} onClick={addBrand}>
+                                                Add item
+                                            </Button>
+                                        </Space>
+                                    </>
+                                )}
+                                onChange={handleChangeBrand}
+                                options={optionBrand}
+                                value={valueBrand}
+                            />
+                        </div>
+
                     </div>
-                </Modal>
+                </div>
+
+                <div className='bg-white p-4 mt-4 mb-20 shadow-lg'>
+                    <div className='mb-6 mt-2 '>
+                        <div className='text-[16px] font-semibold'>Chi Tiết Sản Phẩm</div>
+                    </div>
+                    <div className='mt-4 mb-6 flex justify-between'>
+                        <div>
+                            <Button className='mr-4' type="primary" onClick={handleUpdateProduct} >Cập Nhật Sản Phẩm</Button>
+                            <Button type="primary" onClick={showModal}>
+                                Thêm Chi Tiết
+                            </Button>
+                            <div>
+                                <Modal title="Thêm Chi Tiết Sản Phẩm" open={isModalOpen} onOk={handleAddProductDetails} onCancel={handleCancel}>
+                                    <div className='grid grid-cols-2 gap-2 my-4'>
+
+                                        <div>
+                                            <label>Màu Sắc</label>
+                                            <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
+                                                mode="multiple"
+
+                                                tagRender={tagRender}
+                                                dropdownRender={(menu) => (
+                                                    <>
+                                                        {menu}
+                                                        <Divider className='my-4' />
+                                                        <Space >
+                                                            <ColorPicker
+                                                                onChange={(e) => setValueInputColor(e.toHexString())}
+                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                value={valueInputColor}
+                                                                showText
+                                                                placement="bottom"
+                                                            />
+                                                            <Button type="text" icon={<PlusOutlined />} onClick={addColor}>
+                                                                Add item
+                                                            </Button>
+                                                        </Space>
+                                                    </>
+                                                )}
+                                                optionRender={(option) => (
+                                                    <Space>
+                                                        <span role="img" aria-label={option.data.label}>
+                                                            {option.data.emoji}
+                                                        </span>
+                                                        {option.data.desc + "-" + option.data.label}
+                                                    </Space>
+                                                )}
+                                                onChange={handleChangeColor}
+
+                                                options={optionColor}
+                                                value={valueColor}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label>Kích Thước</label>
+                                            <Select className="w-full mt-4" placeholder="Chọn Kích Thước"
+                                                mode="multiple"
+                                                dropdownRender={(menu) => (
+                                                    <>
+                                                        {menu}
+                                                        <Divider className='my-4' />
+                                                        <Space >
+                                                            <Input
+                                                                placeholder="Please enter item"
+                                                                ref={inputRefSize}
+                                                                value={valueInputSize}
+                                                                onChange={(e) => setValueInputSize(e.target.value)}
+                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                            />
+                                                            <Button type="text" icon={<PlusOutlined />} onClick={addSize}>
+                                                                Add item
+                                                            </Button>
+                                                        </Space>
+                                                    </>
+                                                )}
+                                                onChange={handleChangeSize}
+                                                options={optionSize}
+                                                value={valueSize}
+                                            />
+                                        </div>
+                                    </div>
+                                </Modal>
+                            </div>
+                        </div>
+                        <div>
+                            <Button type="primary" onClick={() => {
+                                setIsModalOpenCustomQuantityPrice(true)
+                            }}>Áp Dụng Chung Cho Các Phân Loại</Button>
+                            <> <Modal title="Ap Dụng Chung Cho Các Phân Loại" okText="Cập Nhật" open={isModalOpenCustomQuantityPrice}
+                                onOk={onChangeQuantityPriceCustom}
+                                onCancel={() => {
+                                    setIsModalOpenCustomQuantityPrice(false)
+                                }}>
+                                <div>
+                                    <label>Đơn Giá</label>
+                                    <InputNumber className='mt-2 mb-2 w-full' placeholder="Nhập Đơn Giá"
+                                        value={valueInputPriceCustom}
+                                        onChange={(value) => { setValueInputPriceCustom(value) }}
+                                    ></InputNumber>
+                                </div>
+                                <div>
+                                    <label>Số Lượng</label>
+                                    <InputNumber className='mt-2 mb-2 w-full' placeholder="Nhập Số Lượng"
+                                        value={valueInputQuantityCustom}
+                                        onChange={(value) => { setValueInputQuantityCustom(value) }}
+                                    ></InputNumber>
+                                </div>
+
+
+                                <div>
+                                    <label>Khối Lượng</label>
+                                    <InputNumber className='mt-2 mb-2 w-full' placeholder="Nhập Khối Lượng"
+                                        value={valueInputWeightCustom}
+                                        onChange={(value) => { setValueInputWeightCustom(value) }}
+                                    ></InputNumber>
+                                </div>
+                            </Modal></>
+                        </div>
+                    </div>
+                    <div>
+                        <Table
+                            rowSelection={rowSelection}
+                            columns={columnsTable}
+                            dataSource={dataRowProductDetail}
+                            pagination={false}
+                        />
+                    </div>
+                </div>
+
+
 
 
 

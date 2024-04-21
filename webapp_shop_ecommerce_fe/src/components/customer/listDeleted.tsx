@@ -61,13 +61,13 @@ export default function ListTable({ data }: { data: CustomerResponse[] }) {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.fullName}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.fullName}</div>,
         },
         {
             accessorKey: "phone",
             header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.phone}
                 </div>
             },
@@ -76,7 +76,7 @@ export default function ListTable({ data }: { data: CustomerResponse[] }) {
             accessorKey: "email",
             header: () => <div className="text-center">Email</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.email}
                 </div>
             },

@@ -15,7 +15,7 @@ import { IoArrowBackSharp } from "react-icons/io5";
 const { TextArea } = Input
 const { RangePicker } = DatePicker
 
-function EditPage() {
+function EditPage() { 
     const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState(makeid());
@@ -26,7 +26,7 @@ function EditPage() {
     const [PromotionType, setPromotionType] = useState("0");
 
     const navigate = useNavigate();
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     const [listProduct, setListProduct] = useState([]);
 
@@ -103,41 +103,45 @@ function EditPage() {
         }
     }
 
+    useEffect(() => {
+        console.log(listSelectedProduct)
+    },[listSelectedProduct]);
+
     return (
         <div>
             <div className='w-full flex max-lg:flex-col py-5 gap-5 bg-white'>
                 <ToastContainer />
                 <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg border border-slate-600'>
                     <div className='flex gap-2 items-center'>
-                        <div className='text-lg cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
-                        <p className='ml-3 text-lg font-semibold'>Thêm mới sự kiện giảm giá</p>
+                        <div className='text-2xl cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
+                        <p className='ml-3 text-2xl font-semibold'>Thêm mới sự kiện giảm giá</p>
                     </div>
                     <div className='h-[2px] bg-slate-600'></div>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
+                        <p className='mb-1 text-xl text-slate-600'>Mã chương trình giảm giá</p>
                         <Input value={code} onChange={e => { setCode(e.target.value) }} />
                     </label>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
+                        <p className='mb-1 text-xl text-slate-600'>Tên chương trình giảm giá</p>
                         <Input value={name} onChange={e => { setName(e.target.value) }} />
                     </label>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (%)</p>
+                        <p className='mb-1 text-xl text-slate-600'>Giá trị giảm (%)</p>
                         <InputNumber min={0} max={100} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
                     </label>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
+                        <p className='mb-1 text-xl text-slate-600'>Mô tả</p>
                         <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
                     </label>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
+                        <p className='mb-1 text-xl text-slate-600'>Đối tượng áp dụng</p>
                         <Radio.Group name="radiogroup" defaultValue={"0"} value={PromotionType} onChange={e => setPromotionType(e.target.value)}>
                             <Radio value={"0"}>Tất cả sản phẩm</Radio>
                             <Radio value={"1"}>Sản phẩm chỉ định</Radio>
                         </Radio.Group>
                     </label>
                     <label>
-                        <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                        <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                         <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
                     </label>
                     <Button className='mt-3' type='primary' onClick={() => { handleSubmitForm() }}>
@@ -145,7 +149,7 @@ function EditPage() {
                     </Button>
                 </div>
                 <div className='flex-grow bg-slate-50 px-3 py-3 rounded-lg h-fit flex flex-col gap-3 border border-slate-600'>
-                    <p className='text-lg font-semibold'>Danh sách sản phẩm</p>
+                    <p className='text-2xl font-semibold'>Danh sách sản phẩm</p>
                     <div className='h-[2px] bg-slate-600'></div>
                     <ListDetailProduct data={listProduct} />
                 </div>

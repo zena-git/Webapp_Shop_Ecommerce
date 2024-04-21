@@ -15,26 +15,31 @@
     margin: 0;
 }
 
-// html {
-//     font-size: 62.5%;
-// }
-// body {
-//     font-size: 1.6rem;
-//     font-weight: 500;
-// }
+html {
+    font-size: 62.5%;
+}
+body {
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+//Bỏ thẻ canvas trong quét barcode
+.drawingBuffer{
+    display: none !important;;
+}
+
+
+.ant-btn {
+
+    font-size: 1.3rem;
+}
 .ant-btn-primary {
     background-color: var(--color-primary);
     font-weight: 500;
     border-radius: 4px;
 }
 
-.anticon{
-    width: 18px;
-    height: 18px;
-}
-
 .ant-menu-item-icon svg {
-
     font-weight: bold;
     font-size: 1.8rem;
 }
@@ -113,4 +118,11 @@
 
 :where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab:hover {
     color: var(--color-primary);
+}
+
+.ant-table-thead th {
+    background-color: #da749392 !important;
+}
+.ant-form-item-label{
+    padding-bottom: 0px !important;
 }
