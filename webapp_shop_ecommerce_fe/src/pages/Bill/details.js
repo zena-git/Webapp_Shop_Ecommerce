@@ -6,9 +6,11 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import hexToColorName from "~/ultils/HexToColorName";
 import { useDebounce } from '~/hooks';
+import { AiOutlineCloseCircle } from "react-icons/ai";
+
 import { fixMoney } from '~/ultils/fixMoney';
 import { Timeline, TimelineEvent } from '@mailtop/horizontal-timeline';
-import { FaBug, FaRegCalendarCheck, FaRegFileAlt } from 'react-icons/fa';
+import { FaBug, FaCheckCircle, FaRegFileAlt } from 'react-icons/fa';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill1, faCreditCard } from '@fortawesome/free-solid-svg-icons';
@@ -30,11 +32,12 @@ function BillDetail() {
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
         DA_XAC_NHAN: "1",
-        VAN_CHUYEN: "2",
-        DA_THANH_TOAN: "3",
+        CHO_GIA0: "2",
+        DANG_GIAO: "3",
         HOAN_THANH: "4",
-        HUY: "5",
-        TRA_HANG: "6",
+        DA_THANH_TOAN: "5",
+        HUY: "6",
+        TRA_HANG: "10",
         DANG_BAN: "7",
         CHO_THANH_TOAN: "8",
         HOAN_TIEN: "9",
@@ -90,6 +93,7 @@ function BillDetail() {
     const [isModalOpenAddress, setIsModalOpenAddress] = useState(false);
     const [isModalOpenConfirmRollback, setIsModalOpenConfirmRollback] = useState(false);
     const [isModalOpenConfirmAcceptOrder, setIsModalOpenConfirmAcceptOrder] = useState(false);
+    const [isModalOpenConfirmWaitDelivery, setIsModalOpenConfirmWaitDelivery] = useState(false);
     const [isModalOpenConfirmDelivery, setIsModalOpenConfirmDelivery] = useState(false);
     const [isModalOpenConfirmCompletion, setIsModalOpenConfirmCompletion] = useState(false);
     const [isModalOpenTimelineDetails, setIsModalOpenTimelineDetails] = useState(false);
@@ -118,24 +122,25 @@ function BillDetail() {
                         <h4>Lịch Sử Đơn Hàng</h4>
                     </div>
                     <div className='max-w-[calc(100vw-300px)] w-fit'>
-                        <Timeline minEvents={5} placeholder height="230">
+                        <Timeline minEvents={5} height="230">
                             <div className='w-[calc(100vw-280px)] overflow-x-auto flex'>
                                 {bill?.lstHistoryBill.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map((historyBill, index) => {
                                     return (
                                         <TimelineEvent
                                             key={index}
-                                            color='#87a2c7'
-                                            icon={FaRegFileAlt}
+                                            color={historyBill?.type == TrangThaiBill.HOAN_THANH ? "#00c11d" : historyBill?.type == TrangThaiBill.HUY ? "#dc2020" : "#108ee9"}
+                                            icon={historyBill?.type == TrangThaiBill.HOAN_THANH ? FaCheckCircle : historyBill?.type == TrangThaiBill.HUY ? AiOutlineCloseCircle : FaRegFileAlt}
                                             title=<h4 className='text-2xl	'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
                                                 historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
                                                     historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
                                                         historyBill?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
-                                                            historyBill?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
-                                                                historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                    historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                        historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                            historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
-                                                                                historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
+                                                            historyBill?.type == TrangThaiBill.CHO_GIA0 ? "Chờ Giao" :
+                                                                historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                                    historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
+                                                                        historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                            historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                                historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
+                                                                                    historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
                                             }</h4>
 
                                             subtitle=<span className='text-xl font-medium	'>
@@ -169,7 +174,7 @@ function BillDetail() {
                                 <Button type='default' onClick={() => { setIsModalOpenConfirmRollback(false) }}>Hủy</Button>
                             </div>
                         </Modal>
-                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.VAN_CHUYEN) && bill?.lstPaymentHistory == 0 && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
+                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.CHO_GIA0 || bill.status == TrangThaiBill.DANG_GIAO || bill.status == TrangThaiBill.HOAN_THANH) && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
                     </div>
 
                 </div>
@@ -201,20 +206,50 @@ function BillDetail() {
                                     </div>
                                 </Modal>
                                 {
-                                    bill && (bill.status == TrangThaiBill.CHO_XAC_NHAN || bill.status == TrangThaiBill.CHO_THANH_TOAN)&& <Button danger onClick={() => {
+                                    bill && (bill.status == TrangThaiBill.CHO_XAC_NHAN || bill.status == TrangThaiBill.CHO_THANH_TOAN) && <Button danger onClick={() => {
                                         setIsModalOpenConfirmAcceptOrder(true);
                                     }}  >Xác Nhận Đơn Hàng</Button>
                                 }
                             </div>
 
                             <div>
-                                <Modal title="Xác Nhận Vận Chuyển" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
+                                <Modal title="Xác Nhận Chờ Giao" width={500} open={isModalOpenConfirmWaitDelivery} footer={null}
+                                    onCancel={() => { setIsModalOpenConfirmWaitDelivery(false) }} >
                                     <label>Ghi Chú</label>
                                     <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.VAN_CHUYEN,
+                                                type: TrangThaiBill.CHO_GIA0,
+                                                description: confirmAcceptOrderDes
+                                            }).then(res => {
+                                                setConfirmAcceptOrderDes("")
+                                                fetchDataBill();
+                                                toast.success(res.data.message);
+                                                setIsModalOpenConfirmWaitDelivery(false)
+                                            }).catch(err => {
+                                                toast.error(err.response.data.message);
+                                            })
+                                        }}>Xác nhận</Button>
+                                        <Button type='default' onClick={() => { setIsModalOpenConfirmDelivery(false) }}>Hủy</Button>
+                                    </div>
+                                </Modal>
+
+                                {
+                                    bill && bill.status == TrangThaiBill.DA_XAC_NHAN && <Button danger onClick={() => {
+                                        setIsModalOpenConfirmWaitDelivery(true)
+                                    }}  >Chờ Giao</Button>
+                                }
+                            </div>
+
+                            <div>
+                                <Modal title="Xác Nhận Giao Hàng" width={500} open={isModalOpenConfirmDelivery} footer={null} onCancel={() => { setIsModalOpenConfirmDelivery(false) }} >
+                                    <label>Ghi Chú</label>
+                                    <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
+                                    <div className='flex justify-end mt-4 gap-3'>
+                                        <Button type='primary' onClick={() => {
+                                            axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
+                                                type: TrangThaiBill.DANG_GIAO,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
                                                 setConfirmAcceptOrderDes("")
@@ -230,9 +265,9 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.DA_XAC_NHAN && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.CHO_GIA0 && <Button danger onClick={() => {
                                         setIsModalOpenConfirmDelivery(true)
-                                    }}  >Vận Chuyển</Button>
+                                    }}  >Giao Hàng</Button>
                                 }
                             </div>
 
@@ -243,8 +278,8 @@ function BillDetail() {
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             const filterPayment = bill?.lstPaymentHistory?.filter(data => data?.type == "0");
-                                            const filterPaymentReturn =  bill?.lstPaymentHistory?.filter(data => data?.type == "1") || [];
-                                           
+                                            const filterPaymentReturn = bill?.lstPaymentHistory?.filter(data => data?.type == "1") || [];
+
                                             var totalPayment = filterPayment?.reduce(function (acc, cur) {
                                                 return acc + cur.paymentAmount;
                                             }, 0);
@@ -254,7 +289,7 @@ function BillDetail() {
                                                 return acc + cur.paymentAmount;
                                             }, 0);
 
-                                            if (bill?.intoMoney !=  (totalPayment - totalPaymentReturn)) {
+                                            if (bill?.intoMoney != (totalPayment - totalPaymentReturn)) {
                                                 toast.error("Không Thể Hoàn Thành Khi Chưa Thanh Toán Đủ!");
                                                 setIsModalOpenConfirmCompletion(false)
                                                 return;
@@ -277,7 +312,7 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.VAN_CHUYEN && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
                                         setIsModalOpenConfirmCompletion(true)
                                     }}  >Hoàn Thành</Button>
                                 }
@@ -306,7 +341,7 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_THANH_TOAN) && <Button onClick={() => {
+                                    bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_THANH_TOAN || bill?.status == TrangThaiBill.CHO_GIA0) && <Button onClick={() => {
                                         setIsModalOpenCancelling(true)
                                     }} type="primary" danger className='ml-4'>
                                         Hủy Đơn
@@ -340,17 +375,19 @@ function BillDetail() {
                                         bill?.lstHistoryBill.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map(history => {
                                             return {
                                                 key: history.id,
-                                                type: <Tag color="blue">{
-                                                    history?.type == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                                        history?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
-                                                            history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                                history?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
-                                                                    history?.type == TrangThaiBill.VAN_CHUYEN ? "Vận Chuyển" :
-                                                                        history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                            history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                                history?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                                    history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
-                                                }</Tag>,
+                                                type: <>{
+                                                    history?.type == TrangThaiBill.TAO_DON_HANG ? <Tag color="#108ee9">Tạo Đơn Hàng</Tag> :
+                                                        history?.type == TrangThaiBill.CHO_THANH_TOAN ? <Tag color="#108ee9">Chờ Thanh Toán</Tag> :
+                                                            history?.type == TrangThaiBill.CHO_XAC_NHAN ? <Tag color="#108ee9">Chờ Xác Nhận</Tag> :
+                                                                history?.type == TrangThaiBill.DA_XAC_NHAN ? <Tag color="#108ee9">Đã Xác Nhận</Tag> :
+                                                                    history?.type == TrangThaiBill.CHO_GIA0 ? <Tag color="#108ee9">Chờ Giao</Tag> :
+                                                                        history?.type == TrangThaiBill.DANG_GIAO ? <Tag color="#108ee9">Đang Giao</Tag> :
+                                                                            history?.type == TrangThaiBill.DA_THANH_TOAN ? <Tag color="#108ee9">Đã Thanh Toán</Tag> :
+                                                                                history?.type == TrangThaiBill.HOAN_THANH ? <Tag color="#00c11d">Hoàn Thành</Tag> :
+                                                                                    history?.type == TrangThaiBill.HUY ? <Tag color="#dc2020">Hủy</Tag> :
+                                                                                        history?.type == TrangThaiBill.HOAN_TIEN ? <Tag color="#108ee9">Hoàn Tiền</Tag> :
+                                                                                            history?.type == TrangThaiBill.TRA_HANG ? <Tag color="#108ee9">Trả Hàng</Tag> : "Khác"
+                                                }</>,
                                                 createdDate: dayjs(history?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
                                                 createdBy: history.createdBy,
                                                 description: history.description
@@ -407,23 +444,24 @@ function BillDetail() {
 
                     <div className='pt-4'>
                         <Descriptions>
+                            <Descriptions.Item label={<span className='font-medium text-black'>Tên Khách Hàng</span>}>{bill?.customer?.fullName}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Tên Người Nhận</span>}>{bill?.receiverName}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Số Điện Thoại</span>}>{bill?.receiverPhone}</Descriptions.Item>
+                            <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}> {bill?.billFormat == "0" ? <Tag color="#87d068">Online</Tag> : bill?.billFormat == "1" ? <Tag color="#108ee9">Offline</Tag> : bill?.billFormat == "2" ? <Tag color="#2db7f5">Giao Hàng</Tag> : "Khác"} </Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Trạng Thái</span>}>
-                                <Tag color="blue">
-                                    {
-                                        bill?.status == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                            bill?.status == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
-                                                bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                    bill?.status == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
-                                                        bill?.status == TrangThaiBill.VAN_CHUYEN ? "Vận Chuyển" :
-                                                            bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                bill?.status == TrangThaiBill.HUY ? "Hủy" :
-                                                                    bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : ""
-                                    }
-                                </Tag>
+
+                                {
+                                    bill?.status == TrangThaiBill.TAO_DON_HANG ? <Tag color="#108ee9">Tạo Đơn Hàng</Tag> :
+                                        bill?.status == TrangThaiBill.CHO_THANH_TOAN ? <Tag color="#108ee9">Chờ Thanh Toán</Tag> :
+                                            bill?.status == TrangThaiBill.CHO_XAC_NHAN ? <Tag color="#108ee9">Chờ Xác Nhận</Tag> :
+                                                bill?.status == TrangThaiBill.DA_XAC_NHAN ? <Tag color="#108ee9">Đã Xác Nhận</Tag> :
+                                                    bill?.status == TrangThaiBill.CHO_GIA0 ? <Tag color="#108ee9">Chờ Giao</Tag> :
+                                                        bill?.status == TrangThaiBill.DANG_GIAO ? <Tag color="#108ee9">Đang Giao</Tag> :
+                                                            bill?.status == TrangThaiBill.HOAN_THANH ? <Tag color="#00c11d">Hoàn Thành</Tag> :
+                                                                bill?.status == TrangThaiBill.HUY ? <Tag color="#dc2020">Hủy</Tag> :
+                                                                    bill?.status == TrangThaiBill.TRA_HANG ? <Tag color="#87d068">Trả Hàng</Tag> : "Khác"
+                                }
                             </Descriptions.Item>
-                            <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}>{bill?.billFormat == "0" ? "Online" : bill?.billFormat == "1" ? "Offline" : bill?.billFormat == "2" ? "Giao Hàng" : "Khác"}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Địa Chỉ</span>}>{bill?.receiverDetails} {bill?.receiverCommune} {bill?.receiverDistrict} {bill?.receiverProvince}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Ghi Chú</span>}>{bill?.description}</Descriptions.Item>
 
@@ -476,7 +514,7 @@ function BillDetail() {
                                 <div>
                                     <div>Tiền Hàng:</div>
                                     <div>Giảm Giá:</div>
-                                    <div>Phí Vận Chuyên:</div>
+                                    <div>Phí Vận Chuyển:</div>
                                     <div>Tổng Tiền:</div>
                                 </div>
                                 <div className='font-medium text-end'>

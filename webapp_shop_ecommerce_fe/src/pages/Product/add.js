@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber, Tooltip,Popconfirm } from 'antd';
+import { Button, Table, Spin, Select, Input, Space, Modal, Upload, Divider, Tag, ColorPicker, InputNumber,Form, Tooltip,Popconfirm } from 'antd';
 import axios from 'axios';
 import Compressor from 'compressorjs';
 import { ToastContainer, toast } from 'react-toastify';

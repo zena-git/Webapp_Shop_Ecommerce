@@ -180,13 +180,16 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
         TAT_CA: '',
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
-        CHO_GIAO: "1",
-        DANG_GIAO: "2",
-        DA_THANH_TOAN: "3",
+        DA_XAC_NHAN: "1",
+        CHO_GIA0: "2",
+        DANG_GIAO: "3",
         HOAN_THANH: "4",
-        HUY: "5",
-        TRA_HANG: "6",
+        DA_THANH_TOAN: "5",
+        HUY: "6",
+        TRA_HANG: "10",
         DANG_BAN: "7",
+        CHO_THANH_TOAN: "8",
+        HOAN_TIEN: "9",
         NEW: "New",
     }
     const [openAddProduct, setOpenAddProduct] = useState(false);
@@ -383,7 +386,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const onChangeQuantityProductConfig = (value, id) => {
-        
+
         const updatedProductDetails = lstBillDetailsConfig.map(productDetail => {
             if (productDetail.id === id) {
                 return {
@@ -704,7 +707,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 color: data.productDetails.color,
                 size: data.productDetails.size,
                 quantity: <>
-                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) ?
+                    {bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIA0) ?
                         <InputNumber min={1} max={data.productDetails.quantity} value={data.quantity} onChange={(value) => { handleChangeQuantity(value, data.id) }} /> :
                         <span>{data.quantity}</span>
                     }
@@ -716,11 +719,13 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                     <span className='text-red-600  font-medium'>{fixMoney(data.quantity * data.unitPrice)}</span>
                 </>,
                 action: <>
-                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? (
-                        <Button onClick={() => { showDeleteAllProduct(data.id) }}>
-                            <DeleteOutlined />
-                        </Button>
-                    ) : (
+                    {/* {bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? ( */}
+                    <Button
+                        disabled={bill?.status != TrangThaiBill.DA_XAC_NHAN && bill?.status != TrangThaiBill.CHO_GIA0}
+                        onClick={() => { showDeleteAllProduct(data.id) }}>
+                        <DeleteOutlined />
+                    </Button>
+                    {/* ) : (
                         bill && bill?.status != TrangThaiBill.HUY &&
                         <div>
                             <Button onClick={() => {
@@ -736,7 +741,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                             </Button>
 
                         </div>
-                    )}
+                    )} */}
                 </>
             }
         })
@@ -775,7 +780,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             <div className='flex justify-between pb-4' style={{ borderBottom: '1px solid #cccccc' }}>
                 <h4>Danh Sách Sản Phẩm</h4>
                 <div>
-                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
                         <Button type='primary' className='ml-4' onClick={() => {
                             if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
                                 toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
