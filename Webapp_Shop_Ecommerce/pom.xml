@@ -100,7 +100,24 @@
             <artifactId>poi-ooxml</artifactId>
             <version>5.1.0</version> <!-- Thay version tùy theo phiên bản bạn muốn sử dụng -->
         </dependency>
-
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-core</artifactId>
+            <version>9.1.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf-itext5</artifactId>
+            <version>9.1.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jtidy</groupId>
+            <artifactId>jtidy</artifactId>
+            <version>r938</version>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -111,6 +128,17 @@
             <groupId>com.example</groupId>
             <artifactId>Webapp_Shop_Ecommerce</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-core</artifactId>
+            <version>8.0.3</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.1.22</version>
         </dependency>
 
     </dependencies>

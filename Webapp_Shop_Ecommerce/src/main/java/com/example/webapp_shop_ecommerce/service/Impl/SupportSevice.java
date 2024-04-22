@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.request.User.UserRequest;
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportRequest;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
@@ -15,20 +16,29 @@ import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
+import org.w3c.tidy.Tidy;
 import org.apache.catalina.User;
+import org.apache.commons.math3.analysis.function.Add;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+import static com.itextpdf.text.pdf.BaseFont.IDENTITY_H;
+import java.io.*;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class SupportSevice {
-
+    private static final String UTF_8 = "UTF-8";
     @Autowired
     IAddressService addressService;
     @Autowired
@@ -64,7 +74,15 @@ public class SupportSevice {
     IPromotionDetailsRepository promotionDetailsRepo;
 
     @Autowired
+    ICustomerService customerService;
+    @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private IBillService billService;
+
+    @Autowired
+    private SpringTemplateEngine templateEngine;
 
     public ResponseEntity<ResponseObject> deleteAddress(Long id){
         return addressService.physicalDelete(id);
@@ -137,6 +155,12 @@ public class SupportSevice {
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> findAllCustomerByDeleted(Boolean tyle){
+        List<Customer> lstPromotion = customerRepo.findAllCustomerByDeleted(tyle);
+        List<CustomerResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, CustomerResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
     public ResponseEntity<?> findAllByDeleted(Boolean tyle){
         List<Promotion> lstPromotion = promotionRepo.findAllByDeleted(tyle);
         List<PromotionSupportResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, PromotionSupportResponse.class)).collect(Collectors.toList());
@@ -147,6 +171,15 @@ public class SupportSevice {
         List<Voucher> lstPromotion = voucherRepo.findAllByDeleted(tyle);
         List<VoucherResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, VoucherResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> recoverCustomer(Long id ){
+        Optional<Customer> otp = customerRepo.findByIdDeleted(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        customerRepo.updateRecover(id);
+        return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
     }
 
     public ResponseEntity<?> recoverPromotion(Long id ){
@@ -190,6 +223,7 @@ public class SupportSevice {
         List<UserResponse> resultDto  = lstUser.stream().map(user -> mapper.map(user, UserResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
+
 
     public ResponseEntity<?> recoverUser(Long id ){
         Optional<Users> otp = usersRepo.findById(id);
@@ -254,8 +288,136 @@ public class SupportSevice {
         return new ResponseEntity<>(new ResponseObject("success","Thành công",0, request), HttpStatus.OK);
 
     }
-    public ResponseEntity<?> abc(AddressRequest request){
-        return null;
+
+    public ResponseEntity<?> saveOrUpdateCustomer( CustomerSupportRequest customerDto, Long ...idCustomer){
+        if (idCustomer.length <= 0){
+            Customer customer = new Customer();
+            customer = mapper.map(customerDto, Customer.class);
+            customer.setDeleted(false);
+            customer.setCreatedDate(LocalDateTime.now());
+            customer.setLastModifiedDate(LocalDateTime.now());
+            customer.setCreatedBy("Admin");
+            customer.setLastModifiedBy("Admin");
+            Customer customerReturn =  customerRepo.save(customer);
+            Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
+            lstAddressRequest.stream().map(addressRequest -> {
+                Address address = mapper.map(addressRequest, Address.class);
+                address.setId(null);
+                address.setCustomer(customerReturn);
+                addressService.createNew(address);
+                return addressRequest;
+            }).collect(Collectors.toList());
+            return new ResponseEntity<>(new ResponseObject("success","Thêm Mới Thành công",0, customerDto), HttpStatus.OK);
+        }else {
+            Optional<Customer> customerOtp = customerRepo.findById(idCustomer[0]);
+            if (customerOtp.isEmpty()){
+                return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy khách hàng " + idCustomer[0], 1, null), HttpStatus.BAD_REQUEST);
+            }
+            Customer customer = customerOtp.get();
+            Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
+            Set<Address> lstAddress =  customer.getLstAddress();
+
+            //Lst càn giữ
+            List<Long> lstAddressId = lstAddressRequest.stream()
+                    .filter(addressRequest -> addressRequest.getId() != null)
+                    .map(AddressRequest::getId)
+                    .collect(Collectors.toList());
+            List<Long> lstAddressDelete = lstAddress.stream()
+                    .filter(address -> !lstAddressId.contains(address.getId()))
+                    .map(address -> {
+                        return address.getId();
+                    }).collect(Collectors.toList());
+             addressRepo.deleteAllById(lstAddressDelete);
+
+            lstAddressRequest.stream().map(address ->{
+
+                if (address.getId() != null){
+                    Optional<Address> otpAddress = addressRepo.findById(address.getId());
+                    if (otpAddress.isEmpty()){
+                        return null;
+                    }
+                    Address entity = mapper.map(address, Address.class);
+                    entity.setId(address.getId());
+                    entity.setCustomer(customerOtp.get());
+                    addressService.update(entity);
+                    return entity;
+                }
+                Address entity = mapper.map(address, Address.class);
+                entity.setId(null);
+                entity.setCustomer(customerOtp.get());
+                addressService.createNew(entity);
+                return entity;
+            }).collect(Collectors.toList());
+
+            customer = mapper.map(customerDto, Customer.class);
+            customer.setId(customerOtp.get().getId());
+            customerService.update(customer);
+            return new ResponseEntity<>(new ResponseObject("success","Cập Nhật Thành công",0, customerDto), HttpStatus.OK);
+
+        }
+
+    }
+
+    public void generatePdfFromHtml(String htmlContent, String outputPath) throws Exception {
+        ITextRenderer renderer = new ITextRenderer();
+        String xHtml = convertToXhtml(htmlContent);
+        renderer.getFontResolver().addFont("./font/Roboto-Light.ttf", IDENTITY_H, true);
+        renderer.setDocumentFromString(xHtml);
+        renderer.layout();
+        try (OutputStream os = new FileOutputStream(outputPath)) {
+            renderer.createPDF(os);
+        }
+    }
+
+    public void PrintInvoice(Long id) throws Exception {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+        Map<String, Object> props = new HashMap<>();
+        Bill b = billService.findById(id).get();
+        props.put("invoiceDate", dateFormat.format(new Date()).toString());
+        props.put("invoiceNumber", "1233");
+        props.put("bill", b);
+        if(b.getCustomer() != null){
+            props.put("customer", b.getCustomer());
+        }else{
+            Customer customer = new Customer();
+            customer.setFullName("Guest");
+            props.put("customer", customer);
+        }
+        props.put("receiverName", b.getReceiverName());
+        props.put("receiverPhone", b.getReceiverPhone());
+        props.put("billDetails", b.getLstBillDetails());
+
+        Set<BillDetails> billDetails = b.getLstBillDetails();
+
+        BigDecimal totalNetTotal = billDetails.stream()
+                .map(billDetail -> billDetail.getUnitPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalDiscount = billDetails.stream()
+                .map(BillDetails::getDiscount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        props.put("NetTotal", totalNetTotal);
+
+        props.put("Discount", totalDiscount);
+        props.put("Total", totalNetTotal.add(totalDiscount.negate()));
+
+        Context context = new Context();
+        context.setVariables(props);
+        String html = templateEngine.process("invoice", context);
+        generatePdfFromHtml(html, "E:/tq.pdf");
+    }
+
+    private String convertToXhtml(String html) throws UnsupportedEncodingException {
+        Tidy tidy = new Tidy();
+        tidy.setInputEncoding(UTF_8);
+        tidy.setOutputEncoding(UTF_8);
+        tidy.setXHTML(true);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        tidy.parseDOM(inputStream, outputStream);
+        return outputStream.toString(StandardCharsets.UTF_8);
     }
 
 }
