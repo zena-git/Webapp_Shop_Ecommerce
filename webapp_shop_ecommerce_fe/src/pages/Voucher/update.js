@@ -120,39 +120,13 @@ const VoucherPage = () => {
     )
 
     const handleSubmitForm = (values) => {
-        if (!pending) {
-            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-                toast.error('cần nhập giá trị ngày trong tương lai')
-                return;
-            }
-            if (VoucherType == "0") {
-                setPending(true);
-                axios.put(`${baseUrl}/voucher/${path.id}`, {
-                    id: path.id,
-                    code: values.code,
-                    name: values.name,
-                    value: values.value,
-                    status: "0",
-                    quantity: values.usage_limit,
-                    discountType: discountType ? 0 : 1,
-                    maxDiscountValue: values.max_discount_value,
-                    orderMinValue: values.order_min_value,
-                    description: values.description,
-                    startDate: date[0].add(7, 'hour').toDate(),
-                    endDate: date[1].add(7, 'hour').toDate(),
-                    lstCustomer: listCustomer.map(val => { return val.id })
-                }).then(r => {
-                    toast.success("Đã cập nhật voucher thành công");
-                    setPending(false);
-                    setTimeout(() => {
-                        navigate(`/discount/voucher/detail/${path.id}`)
-                    }, 200)
-                }).catch(err => {
-                    toast.error(err.response.data.message);
-                    setPending(false);
-                })
-            } else {
-                if (selectedCustomer.length > 0) {
+        if (targetVoucher.status == 0) {
+            if (!pending) {
+                if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
+                    toast.error('cần nhập giá trị ngày trong tương lai')
+                    return;
+                }
+                if (VoucherType == "0") {
                     setPending(true);
                     axios.put(`${baseUrl}/voucher/${path.id}`, {
                         id: path.id,
@@ -163,12 +137,13 @@ const VoucherPage = () => {
                         quantity: values.usage_limit,
                         discountType: discountType ? 0 : 1,
                         maxDiscountValue: values.max_discount_value,
-                        description: values.description,
                         orderMinValue: values.order_min_value,
+                        description: values.description,
                         startDate: date[0].add(7, 'hour').toDate(),
                         endDate: date[1].add(7, 'hour').toDate(),
-                        lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
-                    }).then(res => {
+                        lstCustomer: listCustomer.map(val => { return val.id })
+                    }).then(r => {
+                        toast.success("Đã cập nhật voucher thành công");
                         setPending(false);
                         setTimeout(() => {
                             navigate(`/discount/voucher/detail/${path.id}`)
@@ -178,10 +153,40 @@ const VoucherPage = () => {
                         setPending(false);
                     })
                 } else {
-                    toast({ title: 'chưa chọn khách hàng nào' })
-                    toast.error("chưa chọn khách hàng nào")
+                    if (selectedCustomer.length > 0) {
+                        setPending(true);
+                        axios.put(`${baseUrl}/voucher/${path.id}`, {
+                            id: path.id,
+                            code: values.code,
+                            name: values.name,
+                            value: values.value,
+                            status: "0",
+                            quantity: values.usage_limit,
+                            discountType: discountType ? 0 : 1,
+                            maxDiscountValue: values.max_discount_value,
+                            description: values.description,
+                            orderMinValue: values.order_min_value,
+                            startDate: date[0].add(7, 'hour').toDate(),
+                            endDate: date[1].add(7, 'hour').toDate(),
+                            lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
+                        }).then(res => {
+                            setPending(false);
+                            setTimeout(() => {
+                                navigate(`/discount/voucher/detail/${path.id}`)
+                            }, 200)
+                        }).catch(err => {
+                            toast.error(err.response.data.message);
+                            setPending(false);
+                        })
+                    } else {
+                        toast({ title: 'chưa chọn khách hàng nào' })
+                        toast.error("chưa chọn khách hàng nào")
+                    }
                 }
             }
+
+        }else{
+            toast.error('Phiếu giảm giá đã diễn ra không thể chỉnh sửa')
         }
     }
 
@@ -346,7 +351,7 @@ const VoucherPage = () => {
                         <div className='flex-grow p-5 bg-white shadow-lg flex flex-col gap-3'>
                             <p className='text-2xl font-semibold'>Danh sách khách hàng</p>
                             <div className='h-[2px] bg-slate-600'></div>
-                            <ListCustomer listCustomer={listCustomer}/>
+                            <ListCustomer listCustomer={listCustomer} />
                         </div>
                         <ToastContainer />
                     </div>

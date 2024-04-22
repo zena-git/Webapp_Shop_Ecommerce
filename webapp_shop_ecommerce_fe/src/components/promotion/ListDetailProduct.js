@@ -72,20 +72,11 @@ export default function ListTable({ data }) {
             enableHiding: false,
         },
         {
-            accessorKey: "image",
-            header: () => <div className="text-center">Ảnh</div>,
-            cell: ({ row }) => {
-                return (<div className='flex justify-center text-xl'>
-                    {row.original.image_url ? <img src={row.original.image_url.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
-                </div>)
-            },
-        },
-        {
             accessorKey: "name",
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center justify-center min-h-12'
+                        className='flex items-center justify-center min-h-16'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên sản phẩm
@@ -94,6 +85,15 @@ export default function ListTable({ data }) {
                 )
             },
             cell: ({ row }) => <div className="lowercase text-xl">{row.getValue("name")}</div>,
+        },
+        {
+            accessorKey: "image",
+            header: () => <div className="text-center">Ảnh</div>,
+            cell: ({ row }) => {
+                return (<div className='flex justify-center text-xl'>
+                    {row.original.image_url ? <img src={row.original.image_url.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
+                </div>)
+            },
         },
         {
             accessorKey: "giá",
@@ -138,10 +138,10 @@ export default function ListTable({ data }) {
         <>
             <div className="w-full">
                 <div className="rounded-md border">
-                    <table className="min-w-full border border-collapse border-spacing-0">
-                        <thead className='bg-purple-600 text-slate-100'>
+                    <table className="min-w-full border">
+                        <thead className='ant-table-thead'>
                             {table.getHeaderGroups().map((headerGroup) => (
-                                <tr key={headerGroup.id} className='border-b border-gray-300'>
+                                <tr key={headerGroup.id} className='ant-table-cell py-5'>
                                     {headerGroup.headers.map((header) => {
                                         return (
                                             <th key={header.id}>
@@ -280,14 +280,14 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             accessorKey: "size",
             header: ({ column }) => {
                 return (
-                    <div className='text-center min-h-10 flex items-center justify-center'>Kích cỡ</div>
+                    <div className='text-center flex items-center justify-center'>Kích cỡ</div>
                 )
             },
             cell: ({ row }) => <div className="text-center text-xl">{row.original.size.name}</div>,
         },
         {
             accessorKey: "color",
-            header: () => <div className="text-center">màu sắc</div>,
+            header: () => <div className="text-center">Màu sắc</div>,
             cell: ({ row }) => {
 
                 return <div className={`text-center font-medium rounded-md px-1 py-1 text-slate-200 text-xl`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>

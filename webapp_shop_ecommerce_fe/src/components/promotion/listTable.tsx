@@ -1,4 +1,4 @@
-import { Tag, Checkbox, DatePicker, Select, Button, Input, Modal } from 'antd/lib'
+import { Tag, Checkbox, DatePicker, Select, Button, Input, Modal, Dropdown } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -24,7 +24,9 @@ import { toast, ToastContainer } from 'react-toastify'
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import ListDeleted from '~/components/promotion/listDeleted'
 import { useAppSelector } from '../../redux/storage';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
+const { confirm } = Modal;
 const dayjs = require('dayjs');
 const { RangePicker } = DatePicker;
 export default function ListTable() {
@@ -81,6 +83,26 @@ export default function ListTable() {
         return dayjs(row.original.endDate).toDate() < filterValue.toDate();
     };
 
+    const showDeleteConfirm = (id) => {
+        confirm({
+            title: 'Bạn có muốn xóa không',
+            icon: <ExclamationCircleFilled />,
+            content: '',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                axios.delete(`${baseUrl}/promotion/${id}`).then(res => {
+                    toast.success('xóa thành công');
+                    fillData();
+                    fillDeletedData();
+                })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
     const columns: ColumnDef<PromotionResponse>[] = useMemo(() => [
         {
@@ -146,30 +168,40 @@ export default function ListTable() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/promotion/update/${row.getValue('id')}`) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '2',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/promotion/detail/${row.getValue('id')}`) }}>
+                                <FaEye />
+                                Chi tiết
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
                     <div className="flex justify-center gap-2 items-center">
-                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/promotion/update/${row.getValue('id')}`) }}><FaEdit /></Button>
-                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/promotion/detail/${row.getValue('id')}`) }}><FaEye /></Button>
-                        <Button type="primary" className="flex items-center" onClick={() => { setOpenModal(true) }}>
-                            <FaTrash />
-                        </Button>
-                        <Modal
-                            title="Xác nhận"
-                            open={openModal}
-                            onOk={() => {
-                                setOpenModal(false)
-                                axios.delete(`${baseUrl}/promotion/${row.original.id}`).then(res => {
-                                    toast.success('xóa thành công');
-                                    fillData();
-                                    fillDeletedData();
-                                })
-                            }}
-                            onCancel={() => { setOpenModal(false) }}
-                            okText="xác nhận"
-                            cancelText="hủy"
-                        >
-                            Xác nhận xóa
-                        </Modal>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -202,8 +234,8 @@ export default function ListTable() {
 
         return (
             <>
-                <Button type="primary" onClick={showModal}>
-                    Sự kiện giảm giá đã xóa
+                <Button danger onClick={showModal}>
+                    <FaTrash />
                 </Button>
                 <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                     {ListDeleted({ data: deletedData })}
@@ -233,62 +265,68 @@ export default function ListTable() {
 
     return (
         <>
-            <div className='flex gap-5 items-center'>
-                <Link to={'/discount/promotion/add'} className='bg-blue-500 text-white font-semibold px-3 py-[8px] rounded-lg my-3'>
-                    Thêm sự kiện giảm giá mới
-                </Link>
-                {Recover()}
-            </div>
             <ToastContainer />
-            <div className='grid grid-cols-3 items-center my-3 bg-slate-50 rounded-md p-3 shadow-lg gap-5 border'>
-                <div className='flex flex-col w-full'>
-                    <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
-                    <div className='min-w-[240px]'>
-                        <Select
-                            style={{ width: '240px' }}
-                            defaultValue={0}
-                            defaultActiveFirstOption
-                            onChange={(value) => {
-                                let filterValue = null;
-                                if (value !== 0) {
-                                    filterValue = (value - 1).toString();
-                                }
-                                table.getColumn("status").setFilterValue(filterValue);
-                            }}
-                        >
-                            <option value={0}>Tất cả</option>
-                            <option value={1}>Sắp diễn ra</option>
-                            <option value={2}>Đang diễn ra</option>
-                            <option value={3}>Đã kết thúc</option>
-                            <option value={4}>Đã hủy</option>
-                        </Select>
+            <div className='bg-slate-50 rounded-md p-3 shadow-lg'>
+                <div className='grid grid-cols-3 items-center my-3  gap-5 border'>
+                    <div className='flex flex-col w-full'>
+                        <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
+                        <div className='min-w-[240px]'>
+                            <Select
+                                style={{ width: '240px' }}
+                                defaultValue={0}
+                                defaultActiveFirstOption
+                                onChange={(value) => {
+                                    let filterValue = null;
+                                    if (value !== 0) {
+                                        filterValue = (value - 1).toString();
+                                    }
+                                    table.getColumn("status").setFilterValue(filterValue);
+                                }}
+                            >
+                                <option value={0}>Tất cả</option>
+                                <option value={1}>Sắp diễn ra</option>
+                                <option value={2}>Đang diễn ra</option>
+                                <option value={3}>Đã kết thúc</option>
+                                <option value={4}>Đã hủy</option>
+                            </Select>
+                        </div>
                     </div>
+                    <div>
+                        <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
+                        <Input
+                            placeholder="tên..."
+                            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                            onChange={(event) =>
+                                table.getColumn("name")?.setFilterValue(event.target.value)
+                            }
+                            className="max-w-sm"
+                        />
+                    </div>
+                    <div>
+                        <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
+                        <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
+                            if (value && value[0] && value[1]) {
+                                table.getColumn("startDate").setFilterValue(value[0]);
+                                table.getColumn("endDate").setFilterValue(value[1])
+                            } else {
+                                table.getColumn("startDate").setFilterValue(null);
+                                table.getColumn("endDate").setFilterValue(null)
+                            }
+                        }} />
+                    </div>
+
                 </div>
-                <div>
-                    <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
-                    <Input
-                        placeholder="tên..."
-                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                </div>
-                <div>
-                    <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
-                    <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
-                        if (value && value[0] && value[1]) {
-                            table.getColumn("startDate").setFilterValue(value[0]);
-                            table.getColumn("endDate").setFilterValue(value[1])
-                        } else {
-                            table.getColumn("startDate").setFilterValue(null);
-                            table.getColumn("endDate").setFilterValue(null)
-                        }
-                    }} />
+
+                <div className='flex gap-5 items-center justify-between'>
+                    <Button type="primary" variant="ountline" onClick={() => { navigate('/discount/promotion/add') }} className=''>
+                        Thêm sự kiện giảm giá mới
+                    </Button>
+                    {Recover()}
                 </div>
             </div>
-            <div className="rounded-md border bg-slate-50 p-3 shadow-lg">
+            <div className="rounded-md border bg-slate-50 p-3 shadow-lg flex flex-col gap-3">
+                <p>Danh sách sự kiện giảm giá</p>
+                <div className='h-[2px] bg-slate-600'></div>
                 {Table(table, flexRender, columns)}
             </div>
         </>

@@ -1,4 +1,4 @@
-import { Select, Input, Button, Modal } from 'antd/lib'
+import { Select, Input, Button, Modal, Dropdown } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -27,7 +27,9 @@ import { FaEye, FaEdit, FaTrash } from 'react-icons/fa'
 import { ToastContainer, toast } from 'react-toastify'
 import ListDeleted from './listDeleted'
 import { set } from '../../redux/features/voucher-deleted'
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
+const { confirm } = Modal;
 export default function ListTable() {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -54,7 +56,29 @@ export default function ListTable() {
     useEffect(() => {
         fillData();
         fillDeletedData();
-    }, [])
+    }, []);
+
+
+    const showDeleteConfirm = (id) => {
+        confirm({
+            title: 'Bạn có muốn xóa không',
+            icon: <ExclamationCircleFilled />,
+            content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                axios.delete(`${baseUrl}/customer/${id}`).then(res => {
+                    fillData();
+                    fillDeletedData();
+                    toast.success('xóa thành công')
+                })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
 
     const columns: ColumnDef<CustomerResponse>[] = useMemo(() => [
@@ -106,28 +130,40 @@ export default function ListTable() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/user/customer/update/${row.original.id}`) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '2',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/user/customer/detail/${row.original.id}`) }}>
+                                <FaEye />
+                                Chi tiết
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
                     <div className="flex items-center gap-2 justify-center">
-                        <Button type='primary' className='flex items-center' onClick={() => { navigate(`/user/customer/update/${row.original.id}`) }}><FaEdit /></Button>
-                        <Button type='primary' className='flex items-center' onClick={() => { navigate(`/user/customer/detail/${row.original.id}`) }}><FaEye /></Button>
-                        <Button type='primary' className='flex items-center' onClick={() => { setIsModalOpen(true) }}><FaTrash /></Button>
-                        <Modal
-                            title="Xác nhận"
-                            open={isModalOpen}
-                            onOk={() => {
-                                setIsModalOpen(false)
-                                axios.delete(`${baseUrl}/customer/${row.original.id}`).then(res => {
-                                    fillData();
-                                    fillDeletedData();
-                                    toast.success('xóa thành công')
-                                })
-                            }}
-                            onCancel={() => { setIsModalOpen(false) }}
-                            okText="xác nhận"
-                            cancelText="hủy"
-                        >
-                            Xác nhận xóa
-                        </Modal>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -173,7 +209,7 @@ export default function ListTable() {
 
         return (
             <>
-                <Button onClick={() => setOpenModal(true)} variant="outline" className="bg-blue-500 text-white hover:bg-blue-400 hover:text-white">Khách hàng đã xóa</Button>
+                <Button onClick={() => setOpenModal(true)} variant="outline" danger className="flex items-center ml-2"><FaTrash /></Button>
                 <Modal title="Khôi phục lại" open={openModal} onOk={handleOk} onCancel={handleCancel} className='min-w-[60vw]'>
                     <ListDeleted data={deletedData} />
                 </Modal>
@@ -189,10 +225,10 @@ export default function ListTable() {
                     <p className='text-2xl font-bold'>Khách hàng</p>
                 </div>
                 <div className='bg-slate-600 h-[2px]'></div>
-                <div className='bg-slate-50 rounded-md mb-3 p-3 shadow-md'>
+                <div className='rounded-md mb-3 p-3 shadow-md'>
                     <div className='grid grid-cols-2 gap-3 my-3'>
                         <div>
-                            <p className='font-semibold mb-1'>Họ và tên</p>
+                            <p className='font-semibold mb-2'>Họ và tên</p>
                             <Input
                                 placeholder="tìm kiếm theo tên"
                                 value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
@@ -203,7 +239,7 @@ export default function ListTable() {
                             />
                         </div>
                         <div>
-                            <p className='font-semibold mb-1'>Email</p>
+                            <p className='font-semibold mb-2'>Email</p>
                             <Input
                                 placeholder="tìm kiếm theo email"
                                 value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -214,7 +250,7 @@ export default function ListTable() {
                             />
                         </div>
                         <div>
-                            <p className='font-semibold mb-1'>Số điện thoại</p>
+                            <p className='font-semibold mb-2'>Số điện thoại</p>
                             <Input
                                 placeholder="tìm kiếm theo số điện thoại"
                                 value={(table.getColumn("phone")?.getFilterValue() as string) ?? ""}
@@ -225,12 +261,14 @@ export default function ListTable() {
                             />
                         </div>
                     </div>
-                    <div className='flex gap-2 items-center'>
-                        <Button onClick={() => { navigate('/user/customer/add') }} variant="outline" className="bg-blue-500 text-white hover:bg-blue-400 hover:text-white">Thêm khách hàng mới</Button>
+                    <div className='flex gap-2 items-center justify-between py-4'>
+                        <Button type="primary" onClick={() => { navigate('/user/customer/add') }} variant="outline">Thêm khách hàng mới</Button>
                         {Recover()}
                     </div>
                 </div>
-                <div className="rounded-md border border-slate-900 bg-slate-50 p-3">
+                <div className="rounded-md border border-slate-900 bg-slate-50 flex flex-col gap-4 mt-2 p-3">
+                    <h4>Danh sách khách hàng</h4>
+                    <div className='bg-slate-600 h-[2px]'></div>
                     {Table(table, flexRender, columns)}
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">

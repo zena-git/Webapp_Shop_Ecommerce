@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Select, Button, Checkbox, Modal, Input, Radio } from 'antd/lib';
+import { DatePicker, InputNumber, Select, Button, Checkbox, Modal, Input, Radio, Dropdown } from 'antd/lib';
 import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
@@ -355,10 +355,31 @@ export default function AddCustomer() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
                     <div className="flex justify-center gap-2 items-center">
-                        <Button className='flex items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}><FaEdit /></Button>
-                        <Button className='flex items-center' onClick={() => { Remove(row.original.key, row.original.id) }}><FaTrash /></Button>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -405,32 +426,34 @@ export default function AddCustomer() {
         if (!pending) {
             if (listAddress.length == 0) {
                 toast.error('Hãy thêm ít nhất 1 địa chỉ');
+            } else if (values.fullName.trim().length == 0) {
+                toast.error('Nhập tên khách hàng');
+            } else if (values.phone.trim().length == 0) {
+                toast.error('Nhập số điện thoại');
             } else {
-                const data = { ...values, birthDay: birthDay, gender: gender == '1' }
+                const lstAddressData = listAddress.map(add => {
+                    return {
+                        receiverName: add.receiverName,
+                        receiverPhone: add.phone,
+                        commune: add.commune.name,
+                        district: add.district.name,
+                        province: add.province.name,
+                        communeID: add.commune.id,
+                        districtID: add.district.id,
+                        provinceID: add.province.id,
+                        defaultAddress: defaultAddress == add.key,
+                        detail: add.detail,
+                        id: add.id
+                    }
+                })
+                const data = { ...values, birthDay: birthDay, gender: gender == '1', lstAddress: lstAddressData }
                 setPending(true);
-                axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
-                    const promises = listAddress.map(add => {
-                        const body = {
-                            receiverName: add.receiverName,
-                            receiverPhone: add.phone,
-                            commune: add.commune.name,
-                            district: add.district.name,
-                            province: add.province.name,
-                            defaultAddress: defaultAddress == add.key,
-                            detail: add.detail,
-                            customer: path.id,
-                            id: add.id
-                        }
-                        return axios.post(`${baseUrlV3}/address`, body)
-                    })
-                    return Promise.all(promises)
-                        .then(() => {
-                            toast.success('cập nhật khách hàng thành công');
-                            setPending(false);
-                            setTimeout(() => {
-                                navigate(`/user/customer/detail/${res.data.data.id}`)
-                            }, 2000);
-                        });
+                axios.put(`${baseUrlV3}/customer/${path.id}`, data).then(res => {
+                    toast.success('cập nhật khách hàng thành công');
+                    setPending(false);
+                    setTimeout(() => {
+                        navigate(`/user/customer/`)
+                    }, 2000);
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)

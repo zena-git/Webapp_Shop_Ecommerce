@@ -109,7 +109,6 @@ const VoucherPage = () => {
                 toast.error('mức giảm không quá 100% được');
                 return;
             }
-            console.log(date[0].toDate());
             if (VoucherType == "0") {
                 setPending(true);
                 axios.post(`${baseUrl}/voucher`, {

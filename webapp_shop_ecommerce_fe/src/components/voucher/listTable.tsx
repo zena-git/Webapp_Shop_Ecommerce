@@ -1,4 +1,4 @@
-import { Tag, Checkbox, Select, Input, DatePicker, Button, Modal } from 'antd/lib'
+import { Tag, Checkbox, Select, Input, DatePicker, Button, Modal, Dropdown } from 'antd/lib'
 import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
@@ -24,7 +24,9 @@ import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { useAppSelector } from '../../redux/storage';
 import ListDeleted from '~/components/voucher/listDeleted'
 import { ToastContainer, toast } from 'react-toastify'
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
+const { confirm } = Modal;
 const dayjs = require('dayjs');
 const { RangePicker } = DatePicker;
 
@@ -67,7 +69,7 @@ export default function ListTable() {
         if (filterValue == null) {
             return true;
         }
-        return row.original.discount_type == filterValue;
+        return row.original.discountType == filterValue;
     };
 
     const customStartDateFilter = (
@@ -92,7 +94,40 @@ export default function ListTable() {
         return dayjs(row.original.endDate).toDate() < filterValue.toDate();
     };
 
+    const showDeleteConfirm = (id) => {
+        confirm({
+            title: 'Are you sure delete this task?',
+            icon: <ExclamationCircleFilled />,
+            content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                axios.delete(`${baseUrl}/voucher/${id}`).then(res => {
+                    toast.success("Xóa thành công")
+                    fillData();
+                    fillDeletedData();
+                })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     const columns: ColumnDef<VoucherResponse>[] = useMemo(() => [
+        {
+            accessorKey: "code",
+            header: ({ column }) => {
+                return (
+                    <div className="text-center flex justify-center items-center min-h-10" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                        Mã phiếu
+                        <CaretSortIcon className="ml-2 h-4 w-4" />
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="lowercase text-center text-xl">{row.original.code}</div>,
+        },
         {
             accessorKey: "name",
             header: ({ column }) => {
@@ -106,22 +141,10 @@ export default function ListTable() {
             cell: ({ row }) => <div className="lowercase text-center text-xl">{row.getValue("name")}</div>,
         },
         {
-            accessorKey: "code",
-            header: ({ column }) => {
-                return (
-                    <div className="text-center flex justify-center items-center min-h-10" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                        Mã phiếu
-                        <CaretSortIcon className="ml-2 h-4 w-4" />
-                    </div>
-                )
-            },
-            cell: ({ row }) => <div className="lowercase text-center text-xl">{row.original.code}</div>,
-        },
-
-        {
             id: "value",
             accessorKey: "value",
             header: () => <div className="text-center">Giá trị giảm</div>,
+            filterFn: customDiscountTypeFilter,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.discountType == "0" ? numberToPrice(row.original.value) : `${row.original.value}%`}
@@ -182,30 +205,40 @@ export default function ListTable() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '2',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/voucher/detail/${row.original.id}`) }}>
+                                <FaEye />
+                                Chi tiết
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
                     <div className="flex justify-center gap-2">
-                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}><FaEdit /></Button>
-                        <Button type="primary" className="flex items-center" onClick={() => { navigate(`/discount/voucher/detail/${row.original.id}`) }}><FaEye /></Button>
-                        <Button type="primary" className="flex items-center" onClick={() => { setOpenModal(true) }}>
-                            <FaTrash />
-                        </Button>
-                        <Modal
-                            title="Xác nhận"
-                            open={openModal}
-                            onOk={() => {
-                                setOpenModal(false)
-                                axios.delete(`${baseUrl}/voucher/${row.original.id}`).then(res => {
-                                    toast.success("Xóa thành công")
-                                    fillData();
-                                    fillDeletedData();
-                                })
-                            }}
-                            onCancel={() => { setOpenModal(false) }}
-                            okText="xác nhận"
-                            cancelText="hủy"
-                        >
-                            Xác nhận xóa
-                        </Modal>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -254,8 +287,8 @@ export default function ListTable() {
 
         return (
             <>
-                <Button variant="outline" type="primary" onClick={showModal}>
-                    Phiếu giảm giá đã xóa
+                <Button variant="outline" danger onClick={showModal} className="flex items-center">
+                    <FaTrash />
                 </Button>
                 <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                     {ListDeleted({ data: deletedData })}
@@ -266,68 +299,71 @@ export default function ListTable() {
 
     return (
         <>
-            <div className='flex gap-5 items-center'>
-                <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" className="bg-blue-500 py-1 text-white hover:bg-blue-300 hover:text-white">Thêm phiếu giảm giá</Button>
-                {Recover()}
-            </div>
             <ToastContainer />
-            <div className='grid grid-cols-2 items-center my-3 bg-white rounded-md p-3 shadow-lg gap-5'>
-                <div className='w-full flex flex-col'>
-                    <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
-
-                    <Select
-                        className='min-w-sm w-2/3'
-                        defaultValue={0}
-                        defaultActiveFirstOption
-                        onChange={(value) => {
+            <div className='p-3 rounded-md shadow-lg bg-white'>
+                <div className='grid grid-cols-2 items-center my-3'>
+                    <div className='w-full flex flex-col'>
+                        <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
+                        <Select
+                            className='min-w-sm w-2/3'
+                            defaultValue={0}
+                            defaultActiveFirstOption
+                            onChange={(value) => {
+                                let filterValue = null;
+                                if (value !== 0) {
+                                    filterValue = (value - 1).toString();
+                                }
+                                table.getColumn("status").setFilterValue(filterValue);
+                            }}
+                        >
+                            <option value={0}>Tất cả</option>
+                            <option value={1}>Sắp diễn ra</option>
+                            <option value={2}>Đang diễn ra</option>
+                            <option value={3}>Đã kết thúc</option>
+                            <option value={4}>Đã hủy</option>
+                        </Select>
+                    </div>
+                    <div className='w-full flex flex-col'>
+                        <p className='mb-1 font-semibold text-xl'>Hình thức giảm</p>
+                        <Select className='min-w-sm w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
                             let filterValue = null;
-                            if (value !== 0) {
+                            if (value != 0) {
                                 filterValue = (value - 1).toString();
                             }
-                            table.getColumn("status").setFilterValue(filterValue);
-                        }}
-                    >
-                        <option value={0}>Tất cả</option>
-                        <option value={1}>Sắp diễn ra</option>
-                        <option value={2}>Đang diễn ra</option>
-                        <option value={3}>Đã kết thúc</option>
-                        <option value={4}>Đã hủy</option>
-                    </Select>
+                            table.getColumn("value").setFilterValue(filterValue);
+                        }}>
+                            <option value={0}>Tất cả</option>
+                            <option value={1}>Giảm trực tiếp</option>
+                            <option value={2}>Giảm phần trăm</option>
+                        </Select>
+                    </div>
+                    <div>
+                        <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
+                        <Input
+                            placeholder="tên..."
+                            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                            onChange={(event) =>
+                                table.getColumn("name")?.setFilterValue(event.target.value)
+                            }
+                            className="max-w-sm"
+                        />
+                    </div>
+                    <div>
+                        <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
+                        <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
+                            table.getColumn("startDate").setFilterValue(value[0]);
+                            table.getColumn("endDate").setFilterValue(value[1])
+                        }} />
+                    </div>
                 </div>
-                <div className='w-full flex flex-col'>
-                    <p className='mb-1 font-semibold text-xl'>Hình thức giảm</p>
-                    <Select className='min-w-sm w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
-                        let filterValue = null;
-                        if (value != 0) {
-                            filterValue = (value - 1).toString();
-                        }
-                        table.getColumn("discount_type").setFilterValue(filterValue);
-                    }}>
-                        <option value={0}>Tất cả</option>
-                        <option value={1}>Giảm trực tiếp</option>
-                        <option value={2}>Giảm phần trăm</option>
-                    </Select>
-                </div>
-                <div>
-                    <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
-                    <Input
-                        placeholder="tên..."
-                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                        onChange={(event) =>
-                            table.getColumn("name")?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm"
-                    />
-                </div>
-                <div>
-                    <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
-                    <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
-                        table.getColumn("startDate").setFilterValue(value[0]);
-                        table.getColumn("endDate").setFilterValue(value[1])
-                    }} />
+                <div className='flex gap-5 items-center my-4 justify-between pr-2'>
+                    <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" type="primary">Thêm phiếu giảm giá</Button>
+                    {Recover()}
                 </div>
             </div>
-            <div className="rounded-md border border-slate-800 shadow-md">
+            <div className="rounded-md border border-slate-800 shadow-md flex flex-col gap-3 mt-4 bg-white p-3">
+                <h4>Danh sách phiếu giảm giá</h4>
+                <div className='h-[2px] bg-slate-600'></div>
                 {Table(table, flexRender, columns)}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">

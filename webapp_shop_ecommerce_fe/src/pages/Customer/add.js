@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Input, Select, Button, Checkbox, Modal, Radio } from 'antd/lib';
+import { DatePicker, InputNumber, Input, Select, Button, Checkbox, Modal, Radio, Dropdown } from 'antd/lib';
 import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
@@ -17,7 +17,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl } from '../../lib/functional'
+import { baseUrl, baseUrlV3 } from '../../lib/functional'
 import {
     CaretSortIcon,
     DotsHorizontalIcon,
@@ -227,7 +227,7 @@ export default function AddCustomer() {
         } catch (error) {
             console.log(error)
         }
-    } 
+    }
 
     const Remove = ({ key, id }) => {
         if (key) {
@@ -274,7 +274,7 @@ export default function AddCustomer() {
         },
         {
             accessorKey: "phone",
-            header: () => <div className="text-center">số điện thoại</div>,
+            header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.phone}</p>}
@@ -326,20 +326,31 @@ export default function AddCustomer() {
             id: "update",
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
-                    <div className='flex gap-2'>
-                        <Button type='primary' className='flex items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
-                            <FaEdit />
-                        </Button>
-                        <Button type='primary' className='flex items-center' onClick={() => {
-                            if (row.original.key) {
-                                Remove({ key: row.original.key })
-                            } else {
-                                Remove({ id: row.original.id })
-                            }
-                        }}>
-                            <FaTrash />
-                        </Button>
+                    <div className='flex justify-center'>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -392,33 +403,34 @@ export default function AddCustomer() {
         if (!pending) {
             if (listAddress.length == 0) {
                 toast.error('Hãy thêm ít nhất 1 địa chỉ');
+            } else if (values.fullName.trim().length == 0) {
+                toast.error('Nhập tên khách hàng');
+            } else if (values.phone.trim().length == 0) {
+                toast.error('Nhập số điện thoại');
             } else {
-                const data = { ...values, birthday: birthDay, gender: gender == '1', }
+                const lstAddressData = listAddress.map(add => {
+                    return {
+                        receiverName: add.receiverName,
+                        receiverPhone: add.phone,
+                        commune: add.commune.name,
+                        district: add.district.name,
+                        province: add.province.name,
+                        communeID: add.commune.id,
+                        districtID: add.district.id,
+                        provinceID: add.province.id,
+                        defaultAddress: defaultAddress == add.key,
+                        detail: add.detail,
+                        id: add.id
+                    }
+                })
+                const data = { ...values, birthday: birthDay, password: makeid(), gender: gender == '1', lstAddress: lstAddressData }
                 setPending(true);
-                axios.post(`${baseUrl}/customer`, data).then(res => {
-                    const promises = listAddress.map(add => {
-                        const body = {
-                            receiverName: add.receiverName,
-                            receiverPhone: add.phone,
-                            commune: add.commune.name,
-                            district: add.district.name,
-                            province: add.province.name,
-                            communeID: add.commune.id,
-                            districtID: add.district.id,
-                            provinceID: add.province.id,
-                            defaultAddress: defaultAddress == add.key,
-                            detail: add.detail,
-                            customer: res.data.data.id,
-                            id: add.id
-                        }
-                        return axios.post(`${baseUrl}/address`, body)
-                    })
-                    Promise.all(promises).then(() => {
-                        toast.success('thêm khách hàng thành công');
-                        form.reset();
-                        setPending(false);
-                        setListAddress([]);
-                    })
+                axios.post(`${baseUrlV3}/customer`, data).then(res => {
+                    toast.success('thêm khách hàng thành công');
+                    form.reset();
+                    setPending(false);
+                    setListAddress([]);
+                    navigate('/user/customer');
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -468,8 +480,8 @@ export default function AddCustomer() {
         <div className='flex flex-col gap-5 pb-8'>
             <div className='flex flex-col gap-3 w-full max-lg:w-full bg-white p-5 shadow-lg rounded-lg'>
                 <div className='flex gap-2 items-center'>
-                    <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
-                    <p className='ml-3 text-lg font-semibold'>Thông tin khách hàng</p>
+                    <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
+                    <p className='ml-3 text-2xl font-semibold'>Thông tin khách hàng</p>
                 </div>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <ToastContainer />
@@ -553,7 +565,7 @@ export default function AddCustomer() {
                 </Form>
             </div>
             <div className="rounded-md border w-full bg-white shadow-lg p-6 flex flex-col gap-3">
-                <p className='text-lg font-semibold'>Danh sách địa chỉ</p>
+                <p className='text-2xl font-semibold'>Danh sách địa chỉ</p>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <div className='w-fit'>
                     <Button type="primary" onClick={() => { handleAddAddress(); }}>

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { baseUrl } from "../../lib/functional";
-import { Tag } from "antd";
+import { Tag, Button } from "antd";
 import ListDetailVoucher from '../../components/voucher/listDetailVoucher'
 import { IoArrowBackSharp } from "react-icons/io5";
 
@@ -37,7 +37,7 @@ export default function VoucherDetail() {
                     <div className='text-xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
                     <p className="text-2xl font-semibold">Thông tin voucher {targetVoucher.code}</p>
                 </div>
-                <Link to={`/discount/voucher/edit/${targetVoucher.id}`} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-sm'>Chỉnh sửa</Link>
+                <Button type="primary" variant="outline" onClick={() => {navigate(`/discount/voucher/update/${targetVoucher.id}`)}}>Chỉnh sửa</Button>
             </div>
             <div className='h-[2px] bg-slate-600'></div>
             <div className="grid grid-cols-2 grid-rows-2 grid-flow-row gap-2 bg-slate-50 p-6 rounded-md shadow-lg">

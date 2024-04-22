@@ -211,7 +211,7 @@ export default function ListTable() {
 
         return (
             <>
-                <Button onClick={() => setIsModalOpen(true)} variant="outline" className="bg-blue-500 text-white hover:bg-blue-400 hover:text-white">Khôi phục nhân viên</Button>
+                <Button danger  onClick={() => setIsModalOpen(true)} variant="outline" className="flex items-center"><FaTrash /></Button>
                 <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} className='min-w-[60vw]'>
                     <ListDeleted data={deletedData} />
                 </Modal>
@@ -231,7 +231,7 @@ export default function ListTable() {
 
                     <div className="grid grid-cols-2 gap-3 my-3">
                         <div>
-                            <p className='text-xl font-semibold mb-1'>Họ và tên</p>
+                            <p className='text-xl font-semibold mb-2'>Họ và tên</p>
                             <Input
                                 placeholder="tìm kiếm theo tên"
                                 value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
@@ -242,7 +242,7 @@ export default function ListTable() {
                             />
                         </div>
                         <div>
-                            <p className='text-xl font-semibold mb-1'>Email</p>
+                            <p className='text-xl font-semibold mb-2'>Email</p>
                             <Input
                                 placeholder="tìm kiếm theo email"
                                 value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -253,7 +253,7 @@ export default function ListTable() {
                             />
                         </div>
                         <div>
-                            <p className='text-xl font-semibold mb-1'>Số điện thoại</p>
+                            <p className='text-xl font-semibold mb-2'>Số điện thoại</p>
                             <Input
                                 placeholder="tìm kiếm theo số điện thoại"
                                 value={(table.getColumn("phone")?.getFilterValue() as string) ?? ""}
@@ -264,7 +264,7 @@ export default function ListTable() {
                             />
                         </div>
                         <div>
-                            <p className='text-xl font-semibold mb-1'>Trạng thái</p>
+                            <p className='text-xl font-semibold mb-2'>Trạng thái</p>
                             <Radio.Group name="radiogroup" defaultValue={"0"} value={(table.getColumn("status")?.getFilterValue() as string) ?? "0"} onChange={e => { table.getColumn("status")?.setFilterValue(e.target.value) }}>
                                 <Radio value={"0"}>Tất cả</Radio>
                                 <Radio value={"1"}>Đang làm việc</Radio>
@@ -272,8 +272,8 @@ export default function ListTable() {
                             </Radio.Group>
                         </div>
                     </div>
-                    <div className='flex gap-5 items-center'>
-                        <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white hover:bg-blue-400 hover:text-white">Thêm nhân viên</Button>
+                    <div className='flex gap-5 items-center justify-between pr-2 my-4'>
+                        <Button type="primary" onClick={() => { navigate('/user/staff/add') }} variant="outline">Thêm nhân viên</Button>
                         {Recover()}
                     </div>
                 </div>
