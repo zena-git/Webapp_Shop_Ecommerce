@@ -200,23 +200,24 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         BigDecimal intoMoney = totalMoney
                 .subtract(voucherMoney)
-                .add(bill.getShipMoney());
-
-        bill.setTotalMoney(totalMoney);
-        bill.setVoucherMoney(voucherMoney);
-        bill.setIntoMoney(intoMoney);
+                .add(billRequest.getShipMoney());
+        Bill billOpt = billRepo.findById(bill.getId()).get();
+        billOpt.setTotalMoney(totalMoney);
+        billOpt.setShipMoney(billRequest.getShipMoney());
+        billOpt.setVoucherMoney(voucherMoney);
+        billOpt.setIntoMoney(intoMoney);
         if(intoMoney.compareTo(BigDecimal.ZERO) < 0){
-            bill.setIntoMoney(BigDecimal.ZERO);
+            billOpt.setIntoMoney(BigDecimal.ZERO);
         }
-        update(bill);
-        historyBillService.addHistoryBill(bill, TrangThaiBill.TAO_DON_HANG.getLabel(), "");
+        update(billOpt);
+        historyBillService.addHistoryBill(billOpt, TrangThaiBill.TAO_DON_HANG.getLabel(), "");
         cartDetailsRepo.deleteAll(lstCartDetails);
 
-        if (bill.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())) {
-            historyBillService.addHistoryBill(bill, TrangThaiBill.CHO_THANH_TOAN.getLabel(), "");
-            return vnpayService.createPayment(bill, billRequest.getReturnUrl());
+        if (billOpt.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())) {
+            historyBillService.addHistoryBill(billOpt, TrangThaiBill.CHO_THANH_TOAN.getLabel(), "");
+            return vnpayService.createPayment(billOpt, billRequest.getReturnUrl());
         }
-        historyBillService.addHistoryBill(bill, TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
+        historyBillService.addHistoryBill(billOpt, TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
 
         return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, bill), HttpStatus.CREATED);
 
@@ -340,22 +341,24 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         BigDecimal intoMoney = totalMoney
                 .subtract(voucherMoney)
-                .add(bill.getShipMoney());
+                .add(billRequest.getShipMoney());
 
-        bill.setTotalMoney(totalMoney);
-        bill.setVoucherMoney(voucherMoney);
-        bill.setIntoMoney(intoMoney);
+        Bill billOpt = billRepo.findById(bill.getId()).get();
+        billOpt.setShipMoney(billRequest.getShipMoney());
+        billOpt.setTotalMoney(totalMoney);
+        billOpt.setVoucherMoney(voucherMoney);
+        billOpt.setIntoMoney(intoMoney);
         if(intoMoney.compareTo(BigDecimal.ZERO) < 0){
-            bill.setIntoMoney(BigDecimal.ZERO);
+            billOpt.setIntoMoney(BigDecimal.ZERO);
         }
-        update(bill);
-        historyBillService.addHistoryBill(bill, TrangThaiBill.TAO_DON_HANG.getLabel(), "");
+        update(billOpt);
+        historyBillService.addHistoryBill(billOpt, TrangThaiBill.TAO_DON_HANG.getLabel(), "");
 
-        if (bill.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())) {
-            historyBillService.addHistoryBill(bill, TrangThaiBill.CHO_THANH_TOAN.getLabel(), "");
-            return vnpayService.createPayment(bill, billRequest.getReturnUrl());
+        if (billOpt.getPaymentMethod().equalsIgnoreCase(PaymentMethod.CHUYEN_KHOAN.getLabel())) {
+            historyBillService.addHistoryBill(billOpt, TrangThaiBill.CHO_THANH_TOAN.getLabel(), "");
+            return vnpayService.createPayment(billOpt, billRequest.getReturnUrl());
         }
-        historyBillService.addHistoryBill(bill, TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
+        historyBillService.addHistoryBill(billOpt, TrangThaiBill.CHO_XAC_NHAN.getLabel(), "");
 
         return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, bill), HttpStatus.CREATED);
 
@@ -1093,7 +1096,9 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         lstBillDetails.stream().map(entity -> {
             ProductDetails productDetails = entity.getProductDetails();
-            productDetails.setQuantity(productDetails.getQuantity() + entity.getQuantity());
+            if (!bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
+                productDetails.setQuantity(productDetails.getQuantity() + entity.getQuantity());
+            }
             productDetailsService.update(productDetails);
             return entity;
         }).collect(Collectors.toList());

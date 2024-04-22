@@ -7,9 +7,13 @@ import com.example.webapp_shop_ecommerce.dto.response.bill.BillClientResponse;
 import com.example.webapp_shop_ecommerce.dto.response.bill.BillResponse;
 import com.example.webapp_shop_ecommerce.entity.Address;
 import com.example.webapp_shop_ecommerce.entity.Bill;
+import com.example.webapp_shop_ecommerce.entity.BillDetails;
+import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
+import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.service.IBillService;
 import com.example.webapp_shop_ecommerce.service.IHistoryBillService;
+import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,6 +35,9 @@ public class BillClientController {
     private IBillService billService;
     @Autowired
     IHistoryBillService historyBillService;
+
+    @Autowired
+    IProductDetailsRepository productDetailsRepo;
     @GetMapping()
     public ResponseEntity<?> findAll(@RequestParam(value = "status", defaultValue = "") String status) {
 
@@ -71,10 +79,16 @@ public class BillClientController {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy mã hóa đơn " + code, 1, null), HttpStatus.BAD_REQUEST);
         }
         Bill bill = otp.get();
-
-        if (bill.getPaymentMethod().equals("1") && bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_THANH_TOAN.getLabel())) {
-            return new ResponseEntity<>(new ResponseObject("error", "Không thể hủy hóa đơn thanh tóoán chuyển khoản" + code, 1, code), HttpStatus.BAD_REQUEST);
+        if (bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_THANH_TOAN.getLabel())){
+            Set<BillDetails> lstBillDetails = bill.getLstBillDetails();
+            lstBillDetails.stream().map(entity->{
+                ProductDetails productDetails = entity.getProductDetails();
+                productDetails.setQuantity(productDetails.getQuantity() +entity.getQuantity());
+                productDetailsRepo.save(productDetails);
+                return entity;
+            }).collect(Collectors.toList());
         }
+
         bill.setStatus(TrangThaiBill.HUY.getLabel());
         billService.update(bill);
         historyBillService.addHistoryBill(bill, TrangThaiBill.HUY.getLabel(), "");

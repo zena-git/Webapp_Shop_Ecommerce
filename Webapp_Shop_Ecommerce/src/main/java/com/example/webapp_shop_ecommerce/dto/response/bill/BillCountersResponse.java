@@ -53,7 +53,7 @@ public class BillCountersResponse {
 //    private UserDto user;
 
     Set<BillDetailsCountersResponse> lstBillDetails;
-    Set<VoucherDetailsResponse> lstVoucherDetails;
+//    Set<VoucherDetailsResponse> lstVoucherDetails;
 
 
 }
