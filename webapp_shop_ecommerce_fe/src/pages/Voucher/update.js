@@ -136,7 +136,7 @@ const VoucherPage = () => {
                         status: "0",
                         quantity: values.usage_limit,
                         discountType: discountType ? 0 : 1,
-                        maxDiscountValue: values.max_discount_value,
+                        maxDiscountValue: discountType ? values.value : values.max_discount_value,
                         orderMinValue: values.order_min_value,
                         description: values.description,
                         startDate: date[0].add(7, 'hour').toDate(),
@@ -163,7 +163,7 @@ const VoucherPage = () => {
                             status: "0",
                             quantity: values.usage_limit,
                             discountType: discountType ? 0 : 1,
-                            maxDiscountValue: values.max_discount_value,
+                            maxDiscountValue: discountType ? values.value : values.max_discount_value,
                             description: values.description,
                             orderMinValue: values.order_min_value,
                             startDate: date[0].add(7, 'hour').toDate(),
@@ -185,8 +185,8 @@ const VoucherPage = () => {
                 }
             }
 
-        }else{
-            toast.error('Phiếu giảm giá đã diễn ra không thể chỉnh sửa')
+        } else {
+            toast.error('Chỉ phiếu giảm giá chưa diễn ra có thể chỉnh sửa')
         }
     }
 

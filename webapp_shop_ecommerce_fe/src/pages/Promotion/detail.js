@@ -4,7 +4,7 @@ import { baseUrlV3 } from '~/lib/functional';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ListDetailPromotion from '../../components/promotion/listDetailPromotion'
 import ReduxProvider from '../../redux/provider'
-import { Tag } from 'antd/lib';
+import { Button, Tag } from 'antd/lib';
 import { IoArrowBackSharp } from "react-icons/io5";
 
 function Detail() {
@@ -29,21 +29,21 @@ function Detail() {
                         <div className='text-2xl cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='text-2xl font-semibold'>Phiếu giảm giá {targetPromotion?.code}</p>
                     </div>
-                    <Link to={`/discount/promotion/update/${targetPromotion?.id}`} className='bg-blue-500 text-white font-semibold px-3 py-2 rounded-sm my-3'>Chỉnh sửa</Link>
+                    <Button type='primary' className='my-2' onClick={() => { navigate(`/discount/promotion/update/${targetPromotion?.id}`) }}>Chỉnh sửa</Button>
                 </div>
                 <div className='h-[2px] bg-slate-600'></div>
                 <div className='my-3'>
                     <div className='grid grid-cols-2 grid-rows-2 grid-flow-row gap-2'>
-                        <p className='text-xl font-semibold text-slate-800'>Tên chương trình:</p>
-                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.name}</p>
                         <p className='text-xl font-semibold text-slate-800'>Mã chương trình giảm giá: </p>
                         <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.code}</p>
+                        <p className='text-xl font-semibold text-slate-800'>Tên chương trình:</p>
+                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.name}</p>
                         <p className='text-xl font-semibold text-slate-800'>Giá trị giảm: </p>
                         <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.value}%</p>
                         <p className='text-xl font-semibold text-slate-800'>Trạng thái:</p>
                         {targetPromotion && <p><Tag color='blue' className='font-semibold text-xl'>{targetPromotion?.status == 0 ? 'Sắp diễn ra' : targetPromotion.status == 1 ? 'Đang diễn ra' : 'Đã kết thúc'}</Tag></p>}
                         <p className='text-xl font-semibold text-slate-800'>Ngày hoạt động:</p>
-                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.startDate.split("T")[1] + " : " + targetPromotion?.startDate.split("T")[0] + " đến " + targetPromotion?.endDate.split("T")[1] + " : " + targetPromotion?.endDate.split("T")[0]}</p>
+                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.startDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.startDate.split("T")[0] + " đến " + targetPromotion?.endDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.endDate.split("T")[0]}</p>
                     </div>
                 </div>
             </div>

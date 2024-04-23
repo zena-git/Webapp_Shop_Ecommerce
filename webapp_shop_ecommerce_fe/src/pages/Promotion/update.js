@@ -118,7 +118,7 @@ function EditPage() {
                 }
             }
         } else {
-            toast.error('Sự kiện giảm giá đang diễn ra không thể bị chính sửa');
+            toast.error('Chỉ sự kiện giảm giá chưa diễn ra có thể chỉnh sửa');
         }
     }
 

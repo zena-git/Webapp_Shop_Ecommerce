@@ -109,8 +109,17 @@ export default function ListTable() {
             accessorKey: "id",
             header: "#",
             cell: ({ row }) => (
-                <div className="capitalize text-xl">{row.index + 1}</div>
+                <div className="capitalize text-xl text-center">{row.index + 1}</div>
             ),
+        },
+        {
+            accessorKey: "code",
+            header: () => <div className="text-center">Mã chương trình</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16 text-xl">
+                    {row.original.code}
+                </div>
+            },
         },
         {
             accessorKey: "name",
