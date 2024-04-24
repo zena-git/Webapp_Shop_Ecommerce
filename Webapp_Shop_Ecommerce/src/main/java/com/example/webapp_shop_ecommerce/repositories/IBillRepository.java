@@ -4,10 +4,13 @@ import com.example.webapp_shop_ecommerce.entity.Bill;
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,4 +30,12 @@ public interface IBillRepository extends IBaseReporitory<Bill, Long> {
 
     @Query("select b from Bill b where b.codeBill = ?1 and b.deleted = false")
     Optional<Bill> findBillByCode(String codeBill);
+
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Bill b set b.status = :newStatus where b.status = :oldStatus and b.createdDate <= :now")
+    void updateBillChoThanhToanToHuy(@Param("now") LocalDateTime now, @Param("oldStatus") String oldStatus, @Param("newStatus") String newStatus);
+
 }

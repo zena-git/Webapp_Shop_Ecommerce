@@ -5,12 +5,15 @@ import com.example.webapp_shop_ecommerce.dto.response.address.AddressResponse;
 import com.example.webapp_shop_ecommerce.entity.Address;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IAddressService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,7 +68,16 @@ public class AddressController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> save(@RequestBody AddressRequest addressDto){
+    public ResponseEntity<?> save(@Valid @RequestBody AddressRequest addressDto, BindingResult result){
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, addressDto), HttpStatus.BAD_REQUEST);
+        }
         return addressService.save(addressDto);
     }
 
@@ -75,8 +87,17 @@ public class AddressController {
         return addressService.delete(id);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody AddressRequest addressDto, @PathVariable("id") Long id){
+    public ResponseEntity<?> update(@Valid @RequestBody AddressRequest addressDto, BindingResult result, @PathVariable("id") Long id){
         System.out.println("Update ID: " + id);
+        if (result.hasErrors()) {
+            // Xử lý lỗi validate ở đây
+            StringBuilder errors = new StringBuilder();
+            for (FieldError error : result.getFieldErrors()) {
+                errors.append(error.getDefaultMessage()).append("\n");
+            }
+            // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
+            return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, addressDto), HttpStatus.BAD_REQUEST);
+        }
         return addressService.update(addressDto,id);
 
 

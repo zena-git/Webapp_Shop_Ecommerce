@@ -51,6 +51,11 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
     }
 
     @Override
+    public Optional<ProductDetails> findByProductDetailWhereDeletedAndStatus(Long id, String status) {
+        return repository.findByProductDetailWhereDeletedAndStatus(id, status);
+    }
+
+    @Override
     public ResponseEntity<ResponseObject> saveAll(List<ProductDetailsRequest> lstProductDetails) {
         List<ProductDetails> lst = lstProductDetails.stream()
                 .filter(entity -> entity.getId() == null)

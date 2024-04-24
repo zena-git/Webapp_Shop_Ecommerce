@@ -6,10 +6,7 @@ import com.example.webapp_shop_ecommerce.dto.request.historybill.HistoryBillRequ
 import com.example.webapp_shop_ecommerce.dto.request.paymentHistory.PaymentHistoryRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.*;
-import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
-import com.example.webapp_shop_ecommerce.infrastructure.enums.DiscountType;
-import com.example.webapp_shop_ecommerce.infrastructure.enums.PaymentMethod;
-import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.*;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
@@ -79,11 +76,28 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     @Override
     public ResponseEntity<ResponseObject> buyBillClient(BillRequest billRequest) throws UnsupportedEncodingException {
         Customer customer = authentication.getCustomer();
-        List<Long> lstIdCartDetails = billRequest.getLstCartDetails().stream().map(cartDetails -> cartDetails.getId()).collect(Collectors.toList());
-        ;
+        List<Long> lstIdCartDetails = billRequest.getLstCartDetails().stream()
+                .map(cartDetails -> cartDetails.getId()).collect(Collectors.toList());
+
         if (lstIdCartDetails.size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
+        List<CartDetails> lstCartDetails = cartDetailsRepo.findAllById(lstIdCartDetails);
+        for (CartDetails cartDetails : lstCartDetails) {
+
+            Optional<ProductDetails> productDetailsOtp = productDetailsService.findByProductDetailWhereDeletedAndStatus(cartDetails.getProductDetails().getId(), TrangThai.HOAT_DONG.getLabel());
+            if (productDetailsOtp.isEmpty()){
+                cartDetailsRepo.delete(cartDetails);
+                return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm " + cartDetails.getProductDetails().getProduct().getName() + " đã ngừng bán hoặc đã bị xóa khỏi cửa hàng", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+
+            ProductDetails productDetails = productDetailsOtp.get();
+            if (cartDetails.getQuantity() > productDetails.getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+        }
+
+
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
         billDto.setCodeBill(invoiceGenerator.generateInvoiceNumber());
@@ -106,15 +120,11 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             billDto.setStatus(TrangThaiBill.CHO_THANH_TOAN.getLabel());
         }
         Bill bill = billRepo.save(billDto);
-        List<CartDetails> lstCartDetails = cartDetailsRepo.findAllById(lstIdCartDetails);
         for (CartDetails cartDetails : lstCartDetails) {
 
             BillDetails billDetails = new BillDetails();
-            ProductDetails productDetails = cartDetails.getProductDetails();
-
-            if (cartDetails.getQuantity()> productDetails.getQuantity()) {
-                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ", 1, billRequest), HttpStatus.BAD_REQUEST);
-            }
+            Optional<ProductDetails> productDetailsOtp = productDetailsService.findByProductDetailWhereDeletedAndStatus(cartDetails.getProductDetails().getId(), TrangThai.HOAT_DONG.getLabel());
+            ProductDetails productDetails = productDetailsOtp.get();
 
             // Cần xác định giá của sản phẩm từ đâu
             if (productDetails.getPromotionDetailsActive() != null) {
@@ -228,6 +238,19 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         if (billRequest.getLstCartDetails().size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
+        for (CartDetails cartDetails : billRequest.getLstCartDetails()) {
+            Optional<ProductDetails> poductDetailsOpt = productDetailsService.findByProductDetailWhereDeletedAndStatus(cartDetails.getProductDetails().getId(), TrangThai.HOAT_DONG.getLabel());
+            if (poductDetailsOpt.isEmpty()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm bạn chọn không có trong cửa hàng hoặc đã được bán hết", 001, cartDetails.getProductDetails().getId()), HttpStatus.BAD_REQUEST);
+
+            }
+
+            ProductDetails productDetails = poductDetailsOpt.get();
+            if (cartDetails.getQuantity() > productDetails.getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ chỉ còn " + productDetails.getQuantity(), 001, billRequest), HttpStatus.BAD_REQUEST);
+            }
+        }
+
 
         Bill billDto = mapper.map(billRequest, Bill.class);
         billDto.setId(null);
@@ -250,15 +273,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
         for (CartDetails cartDetails : billRequest.getLstCartDetails()) {
             BillDetails billDetails = new BillDetails();
-            Optional<ProductDetails> poductDetailsOpt = productDetailsRepo.findById(cartDetails.getProductDetails().getId());
-            if (poductDetailsOpt.isEmpty()) {
-                return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm bạn chọn không có trong cửa hàng hoặc đã được bán hết", 001, cartDetails.getProductDetails().getId()), HttpStatus.BAD_REQUEST);
-            }
+            Optional<ProductDetails> poductDetailsOpt = productDetailsService.findByProductDetailWhereDeletedAndStatus(cartDetails.getProductDetails().getId(), TrangThai.HOAT_DONG.getLabel());
             ProductDetails productDetails = poductDetailsOpt.get();
-            if (cartDetails.getQuantity() > productDetails.getQuantity()) {
-                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ chỉ còn " + productDetails.getQuantity(), 001, billRequest), HttpStatus.BAD_REQUEST);
-            }
-
             billDetails.setBill(bill);
             billDetails.setProductDetails(productDetails);
             // Cần xác định giá của sản phẩm từ đâu
@@ -411,7 +427,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         }
 
         for (BillDetailsRequest billDetailsDto : lstBillDetailsDto) {
-            Optional<ProductDetails> productDetailOpt = productDetailsRepo.findById(billDetailsDto.getProductDetails());
+            Optional<ProductDetails> productDetailOpt = productDetailsRepo.findByProductDetailWhereDeletedAndStatus(billDetailsDto.getProductDetails(), TrangThai.HOAT_DONG.getLabel());
             if (productDetailOpt.isEmpty()) {
                 return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm", 1, null), HttpStatus.BAD_REQUEST);
             }
@@ -430,52 +446,18 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
             if (billDetailsOpt.isPresent()) {
                 BillDetails billDetails = billDetailsOpt.get();
-                // Cần xác định giá của sản phẩm từ đâu
-                if (productDetails.getPromotionDetailsActive() != null) {
-                    BigDecimal price = productDetails.getPrice().subtract(
-                            productDetails.getPrice()
-                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
-                                            .divide(BigDecimal.valueOf(100))));
-                    billDetails.setUnitPrice(price);
-                    billDetails.setDiscount(productDetails.getPrice()
-                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
-                                    .divide(BigDecimal.valueOf(100))));
-                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
-                } else {
-                    billDetails.setUnitPrice(productDetails.getPrice());
-                    billDetails.setDiscount(BigDecimal.ZERO);
-                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
-                }
-                billDetails.setOriginalPrice(productDetails.getPrice());
                 billDetails.setQuantity(billDetails.getQuantity() + billDetailsDto.getQuantity());
                 billDetailsService.update(billDetails);
                 productDetails.setQuantity(productDetails.getQuantity() - billDetailsDto.getQuantity());
                 productDetailsService.update(productDetails);
             } else {
                 BillDetails billDetails = mapper.map(billDetailsDto, BillDetails.class);
-
-                // Cần xác định giá của sản phẩm từ đâu
-                if (productDetails.getPromotionDetailsActive() != null) {
-                    BigDecimal price = productDetails.getPrice().subtract(
-                            productDetails.getPrice()
-                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
-                                            .divide(BigDecimal.valueOf(100))));
-                    billDetails.setUnitPrice(price);
-
-                    billDetails.setDiscount(productDetails.getPrice()
-                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
-                                    .divide(BigDecimal.valueOf(100))));
-                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
-                } else {
-                    billDetails.setUnitPrice(productDetails.getPrice());
-                    billDetails.setDiscount(BigDecimal.ZERO);
-
-                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
-                }
-
                 billDetails.setId(null);
                 billDetails.setBill(bill);
-                billDetails.setOriginalPrice(productDetails.getPrice());
+                billDetails.setDiscount(BigDecimal.ZERO);
+                billDetails.setOriginalPrice(BigDecimal.ZERO);
+                billDetails.setUnitPrice(BigDecimal.ZERO);
+                billDetails.setQuantity(billDetailsDto.getQuantity());
                 billDetails.setProductDetails(productDetails);
                 billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
                 billDetailsService.createNew(billDetails);
@@ -623,6 +605,29 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ Hàng", 0, id), HttpStatus.BAD_REQUEST);
         }
 
+        for (BillDetails billDetails: lstBillDetail){
+                ProductDetails productDetails = billDetails.getProductDetails();
+                // Cần xác định giá của sản phẩm từ đâu
+                if (productDetails.getPromotionDetailsActive() != null) {
+                    BigDecimal price = productDetails.getPrice().subtract(
+                            productDetails.getPrice()
+                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                            .divide(BigDecimal.valueOf(100))));
+                    billDetails.setUnitPrice(price);
+                    billDetails.setDiscount(productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                } else {
+                    billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setDiscount(BigDecimal.ZERO);
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }
+                billDetails.setOriginalPrice(productDetails.getPrice());
+                billDetails.setQuantity(billDetails.getQuantity());
+                billDetailsRepo.save(billDetails);
+        }
+
 
         bill = mapper.map(billDto, Bill.class);
         BigDecimal totalMoney = lstBillDetail.stream()
@@ -714,7 +719,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             paymentHistoryService.createNew(paymentHistory);
         }
 
-        return new ResponseEntity<>(new ResponseObject("success", "Thanh Toán Thành Công", 0, billDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, billDto), HttpStatus.CREATED);
 
     }
 
@@ -1006,23 +1011,191 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
     @Override
     public ResponseEntity<ResponseObject> billAddProductNew(List<BillDetailsRequest> lstBillDetailsDto, Long id) {
-        ResponseEntity<ResponseObject> result = countersAddProduct(lstBillDetailsDto, id);
+        Optional<Bill> billOpt = billRepo.findById(id);
+        if (billOpt.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Id Hóa Đơn", 1, id), HttpStatus.BAD_REQUEST);
+        }
+        if (lstBillDetailsDto.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Chọn ít nhất 1 sản phẩm", 1, null), HttpStatus.BAD_REQUEST);
+        }
+
+        for (BillDetailsRequest billDetailsDto : lstBillDetailsDto) {
+            Optional<ProductDetails> productDetailOpt = productDetailsRepo.findByProductDetailWhereDeletedAndStatus(billDetailsDto.getProductDetails(), TrangThai.HOAT_DONG.getLabel());
+            if (productDetailOpt.isEmpty()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm", 1, null), HttpStatus.BAD_REQUEST);
+            }
+
+            Bill bill = billOpt.get();
+            ProductDetails productDetails = productDetailOpt.get();
+
+            Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill, productDetails);
+
+            if (productDetails.getQuantity() == 0) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Là 0", 1, null), HttpStatus.BAD_REQUEST);
+            }
+            if (productDetails.getQuantity() < billDetailsDto.getQuantity()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Không Đủ", 1, null), HttpStatus.BAD_REQUEST);
+            }
+
+            if (billDetailsOpt.isPresent()) {
+                BillDetails billDetails = billDetailsOpt.get();
+                if (productDetails.getQuantity() < (billDetailsDto.getQuantity()+billDetails.getQuantity())) {
+                    return new ResponseEntity<>(new ResponseObject("error", "Bạn đang có "+billDetails.getQuantity()+" sản phẩm. Lên vượt mức số lượng trong kho ", 1, null), HttpStatus.BAD_REQUEST);
+                }
+
+                // Cần xác định giá của sản phẩm từ đâu
+                if (productDetails.getPromotionDetailsActive() != null) {
+                    BigDecimal price = productDetails.getPrice().subtract(
+                            productDetails.getPrice()
+                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                            .divide(BigDecimal.valueOf(100))));
+                    billDetails.setUnitPrice(price);
+                    billDetails.setDiscount(productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                } else {
+                    billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setDiscount(BigDecimal.ZERO);
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }
+                billDetails.setOriginalPrice(productDetails.getPrice());
+                billDetails.setQuantity(billDetails.getQuantity() + billDetailsDto.getQuantity());
+
+                billDetailsService.update(billDetails);
+                if (!bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
+                    productDetails.setQuantity(productDetails.getQuantity() - billDetailsDto.getQuantity());
+                    productDetailsRepo.save(productDetails);
+                }
+            } else {
+                BillDetails billDetails = mapper.map(billDetailsDto, BillDetails.class);
+
+                // Cần xác định giá của sản phẩm từ đâu
+                if (productDetails.getPromotionDetailsActive() != null) {
+                    BigDecimal price = productDetails.getPrice().subtract(
+                            productDetails.getPrice()
+                                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                            .divide(BigDecimal.valueOf(100))));
+                    billDetails.setUnitPrice(price);
+
+                    billDetails.setDiscount(productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                } else {
+                    billDetails.setUnitPrice(productDetails.getPrice());
+                    billDetails.setDiscount(BigDecimal.ZERO);
+
+                    billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+                }
+
+                billDetails.setId(null);
+                billDetails.setBill(bill);
+                billDetails.setOriginalPrice(productDetails.getPrice());
+                billDetails.setProductDetails(productDetails);
+                billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
+                billDetailsService.createNew(billDetails);
+
+                if (!bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
+                    productDetails.setQuantity(productDetails.getQuantity() - billDetailsDto.getQuantity());
+                    productDetailsRepo.save(productDetails);
+                }
+            }
+        }
         updateChangeMoneyBill(id);
-        return result;
+
+        return new ResponseEntity<>(new ResponseObject("success", "Thêm Sản Phẩm Thành Công", 0, lstBillDetailsDto), HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<ResponseObject> chaneQuantityBillToBillDetails(BillDetailsRequest billDetailsRequest, Long idBill, Long idBillDetail) {
-        ResponseEntity<ResponseObject> result = chaneQuantityBillDetails(billDetailsRequest, idBillDetail);
-        updateChangeMoneyBill(idBill);
-        return result;
+        Optional<BillDetails> opt = billDetailsRepo.findById(idBillDetail);
+        if (opt.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy IdBilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<Bill> optBill = billRepo.findById(idBill);
+        if (optBill.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+        System.out.println("idBillDetail" + idBillDetail);
+        Optional<ProductDetails> optProductDetails = productDetailsService.findByProductDetailWhereDeletedAndStatus(opt.get().getProductDetails().getId(),TrangThai.HOAT_DONG.getLabel());
+        if (optProductDetails.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy mặt hàng này. Có thể đã bị xóa hoặc tạm ngưng bán", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+
+        if (billDetailsRequest.getQuantity() == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "Vui lòng nhập số lượng", 1, null), HttpStatus.BAD_REQUEST);
+        }
+        if (billDetailsRequest.getQuantity() < 1) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Phải Lớn Hơn 0", 1, null), HttpStatus.BAD_REQUEST);
+        }
+
+        BillDetails billDetails = opt.get();
+        ProductDetails productDetails = optProductDetails.get();
+
+//        productDetails.setQuantity(productDetails.getQuantity() + opt.get().getQuantity());
+
+        if ((productDetails.getQuantity() + opt.get().getQuantity()) < billDetailsRequest.getQuantity()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Không Đủ", 1, null), HttpStatus.BAD_REQUEST);
+        }
+
+
+        billDetails.setQuantity(billDetailsRequest.getQuantity());
+
+        // Cần xác định giá của sản phẩm từ đâu
+        if (productDetails.getPromotionDetailsActive() != null) {
+            BigDecimal price = productDetails.getPrice().subtract(
+                    productDetails.getPrice()
+                            .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                                    .divide(BigDecimal.valueOf(100))));
+            billDetails.setUnitPrice(price);
+            billDetails.setDiscount(productDetails.getPrice()
+                    .multiply(BigDecimal.valueOf(productDetails.getPromotionDetailsActive().getPromotion().getValue())
+                            .divide(BigDecimal.valueOf(100))));
+            billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+        } else {
+            billDetails.setUnitPrice(productDetails.getPrice());
+            billDetails.setDiscount(BigDecimal.ZERO);
+            billDetails.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
+        }
+
+//        productDetails.setQuantity(productDetails.getQuantity() - billDetailsRequest.getQuantity());
+//        productDetailsRepo.save(productDetails);
+
+        billDetailsRepo.save(billDetails);
+//        updateChangeMoneyBill(idBill);
+        return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDetailsRequest), HttpStatus.CREATED);
     }
 
     @Override
     public ResponseEntity<ResponseObject> deleteBillToBillDetail(Long idBill, Long idBillDetail) {
-        ResponseEntity<ResponseObject> result = billDeleteBillDetail(idBillDetail);
+        Optional<BillDetails> opt = billDetailsRepo.findById(idBillDetail);
+        if (opt.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy BilDetails Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+        Optional<Bill> optBill = billRepo.findById(idBill);
+        if (optBill.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+        BillDetails billDetails = opt.get();
+        Optional<ProductDetails> productDetailsOtp = productDetailsRepo.findById(billDetails.getProductDetails().getId());
+
+        if (productDetailsOtp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm Trong Giỏ", 0, idBillDetail), HttpStatus.BAD_REQUEST);
+        }
+
+        ProductDetails productDetails = productDetailsOtp.get();
+        if (!optBill.get().getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
+            productDetails.setQuantity(productDetails.getQuantity() + billDetails.getQuantity());
+            productDetailsRepo.save(productDetails);
+        }
+
+        billDetailsRepo.delete(billDetails);
         updateChangeMoneyBill(idBill);
-        return result;
+        return new ResponseEntity<>(new ResponseObject("success", "Xóa sản phẩm thành công", 0, idBillDetail), HttpStatus.OK);
     }
 
     @Override
@@ -1074,13 +1247,15 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         HistoryBill historyBill = new HistoryBill();
         historyBill.setBill(optionalBill.get());
         if (paymentHistory.getType().equalsIgnoreCase("1")){
+            historyBill.setDescription("Đã Hoàn " + paymentHistory.getPaymentAmount()+ " VNĐ");
             historyBill.setType(TrangThaiBill.HOAN_TIEN.getLabel());
         }else {
+            historyBill.setDescription("Đã Thanh Toán " + paymentHistory.getPaymentAmount()+ " VNĐ");
             historyBill.setType(TrangThaiBill.DA_THANH_TOAN.getLabel());
         }
         historyBillService.createNew(historyBill);
         paymentHistoryService.createNew(paymentHistory);
-        return new ResponseEntity<>(new ResponseObject("seccess", "Xác Nhận Thanh Toán Thành Công", 0, paymentHistoryRequest), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseObject("seccess", "Thanh Toán Thành Công", 0, paymentHistoryRequest), HttpStatus.OK);
 
     }
 
@@ -1098,8 +1273,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             ProductDetails productDetails = entity.getProductDetails();
             if (!bill.getStatus().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())){
                 productDetails.setQuantity(productDetails.getQuantity() + entity.getQuantity());
+                productDetailsRepo.save(productDetails);
             }
-            productDetailsService.update(productDetails);
             return entity;
         }).collect(Collectors.toList());
 

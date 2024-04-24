@@ -4,11 +4,13 @@ import com.example.webapp_shop_ecommerce.entity.Voucher;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.*;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +27,10 @@ public class CronJob {
     IProductDetailsRepository productDetailsRepo;
 
     @Autowired
-   IPromotionDetailsRepository promotionDetailsRepo;
+    IPromotionDetailsRepository promotionDetailsRepo;
+
+    @Autowired
+    IBillRepository billRepo;
 
 
 //    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
@@ -41,7 +46,7 @@ public class CronJob {
 
     }
 
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void PromotionCronJob() {
         LocalDateTime now = LocalDateTime.now();
         //set Dang dien ra
@@ -54,5 +59,26 @@ public class CronJob {
 
         //active giam gia product detail
         productDetailsRepo.updateProductDetailsToPromotionDetailsWherePromotionToDangDienRa(TrangThaiGiamGia.DANG_DIEN_RA.getLabel());
+    }
+
+
+    @PostConstruct
+    public void startApplicationOn() {
+        // Lấy thời gian hiện tại
+        LocalDateTime now = LocalDateTime.now();
+
+        // Đặt giờ và phút thành 23:59
+        LocalDateTime specificTime = now.withHour(23).withMinute(59);
+
+        System.out.println("Thời gian hiện tại: " + now);
+        System.out.println("Thời gian cấu hình: " + specificTime);
+    }
+    @Scheduled(cron = "0 59 23 * * ?")
+    public void CancellingInvoice() {
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("Giơ hien taại " + now.toString());
+        System.out.println("huy bill");
+        //set Dang dien ra to huy
+        billRepo.updateBillChoThanhToanToHuy(now,TrangThaiBill.CHO_THANH_TOAN.getLabel(), TrangThaiBill.HUY.getLabel());
     }
 }
