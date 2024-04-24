@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Modal, Radio, Table, Input, Alert, Switch } from 'antd';
+import { Button, Modal, Radio, Table, Input, Alert, Switch, InputNumber } from 'antd';
 import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,11 +9,12 @@ import { fixMoney } from '~/ultils/fixMoney';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { toast } from 'react-toastify';
 dayjs.extend(customParseFormat);
 const { confirm } = Modal
-function OrderBuy({fetchAddBillNew}) {
+function OrderBuy({ fetchAddBillNew }) {
     //provider
-    const { voucher, setDataVoucher, handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer,lstBill } = useOrderData();
+    const { voucher, setDataVoucher, handlePaymentBill, totalPrice, intoMoney, setDataShipMoney, isDelivery, shipMoney, voucherMoney, paymentCustomer, setDataIsDelivery, setDataPaymentCustomer, setDataPaymentMethods, moneyPaid, paymentMethods, customer, lstBill } = useOrderData();
 
     const [isModalOpenVoucher, setIsModalOpenVoucher] = useState(false);
     const [lstDataVoucher, setLstDataVoucher] = useState([]);
@@ -115,8 +116,12 @@ function OrderBuy({fetchAddBillNew}) {
 
     const handleUseVoucher = (voucher) => {
         setIsModalOpenVoucher(false);
+        if(voucher?.orderMinValue > intoMoney){
+            toast.error('Đơn hàng chưa đạt giá trị tối thiểu để áp dụng');
+            return;
+        }
         setDataVoucher(voucher)
-       
+
     }
 
     const handleQuitUseVoucher = () => {
@@ -141,6 +146,7 @@ function OrderBuy({fetchAddBillNew}) {
 
     const handleRadioChange = (e) => {
         setDataPaymentMethods(e.target.value);
+        setDataPaymentCustomer(0)
     };
 
     const showConfirm = () => {
@@ -149,10 +155,8 @@ function OrderBuy({fetchAddBillNew}) {
             icon: <ExclamationCircleFilled />,
             content: 'Xác Nhận Thanh Toán ?',
             onOk() {
-
                 handlePaymentBill();
-                window.scrollTo(0, 0);
-                
+
             },
             okText: 'Đồng ý',
             cancelText: 'Thoát',
@@ -190,7 +194,7 @@ function OrderBuy({fetchAddBillNew}) {
                                             <h4>{voucher?.name}</h4>
                                             <span className='text-xl	'>
                                                 Giảm Giá {voucher?.discountType == 1 ?
-                                                   voucher?.value + "%" :
+                                                    voucher?.value + "%" :
                                                     fixMoney(voucher?.value)
                                                 } Cho Đơn Hàng
                                             </span>
@@ -229,7 +233,7 @@ function OrderBuy({fetchAddBillNew}) {
                     <div className='mb-4'>
                         <div className='mb-4'>Phương Thức Thanh Toán</div>
 
-                        <Radio.Group onChange={handleRadioChange} defaultValue="0" size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none">
+                        <Radio.Group disabled={isDelivery} onChange={handleRadioChange} defaultValue="0" size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none">
                             <div className='flex justify-between'>
                                 <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2'>Tiền Mặt</span> </Radio.Button>
                                 <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2'>Chuyển khoản</span> </Radio.Button>
@@ -254,9 +258,7 @@ function OrderBuy({fetchAddBillNew}) {
                                 <div className='text-rose-600	'>{fixMoney(intoMoney)}</div>
                             </div>
                         </div>
-                        <div style={{
-                            display: paymentMethods != 1 ? 'block' : 'none'
-                        }}>
+                        <div >
                             <div className='flex justify-between'>
                                 <div>
                                     <div>Tiền Khách đưa:</div>
@@ -266,11 +268,15 @@ function OrderBuy({fetchAddBillNew}) {
                             </div>
 
                             <div className='w-full'>
-                                <Input
+                                <InputNumber
+                                    controls={false}
+                                    min={0}
+                                    className='w-full'
+                                    disabled={isDelivery || paymentMethods == 1}
                                     placeholder="Nhập Tiền Khách Đưa"
                                     suffix="VNĐ"
                                     value={paymentCustomer}
-                                    onChange={(e) => setDataPaymentCustomer(e.target.value)}
+                                    onChange={(value) => setDataPaymentCustomer(value)}
                                 />
                             </div>
 
@@ -289,7 +295,7 @@ function OrderBuy({fetchAddBillNew}) {
 
                     <div className='w-full mt-10 mb-10'>
                         <Button className='w-full h-20' type="primary" onClick={showConfirm}  >
-                            Thanh Toán
+                            Xác Nhận Đặt Hàng
                         </Button>
 
                     </div>

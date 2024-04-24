@@ -11,7 +11,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import { fixMoney } from '~/ultils/fixMoney';
 import { Timeline, TimelineEvent } from '@mailtop/horizontal-timeline';
 import { FaBug, FaCheckCircle, FaRegFileAlt } from 'react-icons/fa';
-
+import { LoadingOutlined } from '@ant-design/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill1, faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import BillAddress from '~/components/BillAddress';
@@ -43,7 +43,11 @@ function BillDetail() {
         HOAN_TIEN: "9",
         NEW: "New",
     }
-
+    const BillType = {
+        ONLINE: "0",
+        OFFLINE: "1",
+        DELIVERY: "2",
+    }
     const fetchDataBill = async () => {
         try {
             const response = await axios.get('http://localhost:8080/api/v1/bill/show/' + id);
@@ -101,6 +105,13 @@ function BillDetail() {
     const [confirmAcceptOrderDes, setConfirmAcceptOrderDes] = useState("")
 
 
+    const [loadingConfirmRollback, setLoadingConfirmRollback] = useState(false);
+    const [loadingConfirmAcceptOrder, setLoadingConfirmAcceptOrder] = useState(false);
+    const [loadingConfirmWaitDelivery, setLoadingConfirmWaitDelivery] = useState(false);
+    const [loadingConfirmDelivery, setLoadingConfirmDelivery] = useState(false);
+    const [loadingConfirmCompletion, setLoadingConfirmCompletion] = useState(false);
+    const [loadingCancelling, setLoadingCancelling] = useState(false);
+
     const showModalAddress = () => {
         setIsModalOpenAddress(true);
     };
@@ -154,11 +165,12 @@ function BillDetail() {
                         </Timeline>
                     </div>
                     <div className='flex justify-end mt-2'>
-                        <Modal title="Quay Lại Trạng Thái Đơn Hàng" width={500} open={isModalOpenConfirmRollback} footer={null} onCancel={() => { setIsModalOpenConfirmAcceptOrder(false) }} >
+                        <Modal title="Quay Lại Trạng Thái Đơn Hàng" width={500} open={isModalOpenConfirmRollback} footer={null} onCancel={() => { setIsModalOpenConfirmRollback(false) }} >
                             <label>Nội Dung</label>
                             <Input.TextArea rows={5} minLength={50} placeholder='Ghi Chú' value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                             <div className='flex justify-end mt-4 gap-3'>
                                 <Button type='primary' onClick={() => {
+                                    setLoadingConfirmRollback(true);
                                     axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                         type: Number.parseInt(bill.status) - 1,
                                         description: confirmAcceptOrderDes
@@ -170,11 +182,23 @@ function BillDetail() {
                                     }).catch(err => {
                                         toast.error(err.response.data.message);
                                     })
+                                        .finally(() => {
+                                            setTimeout(() => {
+                                                setLoadingConfirmRollback(false);
+                                            }, 500)
+                                        })
                                 }}>Xác nhận</Button>
                                 <Button type='default' onClick={() => { setIsModalOpenConfirmRollback(false) }}>Hủy</Button>
                             </div>
+                            {loadingConfirmRollback && (
+                                <div className='absolute top-0 left-0 right-0 bottom-0 bottom-0 flex items-center justify-center' style={{
+                                    backgroundColor: 'rgba(146, 146, 146, 0.16)',
+                                }}>
+                                    <LoadingOutlined className='text-6xl text-rose-500	' />
+                                </div>
+                            )}
                         </Modal>
-                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.CHO_GIA0 || bill.status == TrangThaiBill.DANG_GIAO || bill.status == TrangThaiBill.HOAN_THANH) && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
+                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.CHO_GIA0 || bill.status == TrangThaiBill.DANG_GIAO || bill.status == TrangThaiBill.HOAN_THANH) && bill?.billFormat == BillType.DELIVERY && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
                     </div>
 
                 </div>
@@ -190,6 +214,7 @@ function BillDetail() {
                                     <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
+                                            setLoadingConfirmAcceptOrder(true);
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.DA_XAC_NHAN,
                                                 description: confirmAcceptOrderDes
@@ -201,9 +226,21 @@ function BillDetail() {
                                             }).catch(err => {
                                                 toast.error(err.response.data.message);
                                             })
+                                                .finally(() => {
+                                                    setTimeout(() => {
+                                                        setLoadingConfirmAcceptOrder(false);
+                                                    }, 500)
+                                                })
                                         }}>Xác nhận</Button>
                                         <Button type='default' onClick={() => { setIsModalOpenConfirmAcceptOrder(false) }}>Hủy</Button>
                                     </div>
+                                    {loadingConfirmAcceptOrder && (
+                                        <div className='absolute top-0 left-0 right-0 bottom-0 bottom-0 flex items-center justify-center' style={{
+                                            backgroundColor: 'rgba(146, 146, 146, 0.16)',
+                                        }}>
+                                            <LoadingOutlined className='text-6xl text-rose-500	' />
+                                        </div>
+                                    )}
                                 </Modal>
                                 {
                                     bill && (bill.status == TrangThaiBill.CHO_XAC_NHAN || bill.status == TrangThaiBill.CHO_THANH_TOAN) && <Button danger onClick={() => {
@@ -219,6 +256,7 @@ function BillDetail() {
                                     <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
+                                            setLoadingConfirmWaitDelivery(true);
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.CHO_GIA0,
                                                 description: confirmAcceptOrderDes
@@ -230,9 +268,21 @@ function BillDetail() {
                                             }).catch(err => {
                                                 toast.error(err.response.data.message);
                                             })
+                                                .finally(() => {
+                                                    setTimeout(() => {
+                                                        setLoadingConfirmWaitDelivery(false);
+                                                    }, 500)
+                                                })
                                         }}>Xác nhận</Button>
-                                        <Button type='default' onClick={() => { setIsModalOpenConfirmDelivery(false) }}>Hủy</Button>
+                                        <Button type='default' onClick={() => { setIsModalOpenConfirmWaitDelivery(false) }}>Hủy</Button>
                                     </div>
+                                    {loadingConfirmWaitDelivery && (
+                                        <div className='absolute top-0 left-0 right-0 bottom-0 bottom-0 flex items-center justify-center' style={{
+                                            backgroundColor: 'rgba(146, 146, 146, 0.16)',
+                                        }}>
+                                            <LoadingOutlined className='text-6xl text-rose-500	' />
+                                        </div>
+                                    )}
                                 </Modal>
 
                                 {
@@ -248,6 +298,7 @@ function BillDetail() {
                                     <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
+                                            setLoadingConfirmDelivery(true);
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.DANG_GIAO,
                                                 description: confirmAcceptOrderDes
@@ -259,9 +310,22 @@ function BillDetail() {
                                             }).catch(err => {
                                                 toast.error(err.response.data.message);
                                             })
+                                                .finally(() => {
+                                                    setTimeout(() => {
+                                                        setLoadingConfirmDelivery(false);
+                                                    }, 500)
+                                                })
                                         }}>Xác nhận</Button>
                                         <Button type='default' onClick={() => { setIsModalOpenConfirmDelivery(false) }}>Hủy</Button>
                                     </div>
+
+                                    {loadingConfirmDelivery && (
+                                        <div className='absolute top-0 left-0 right-0 bottom-0 bottom-0 flex items-center justify-center' style={{
+                                            backgroundColor: 'rgba(146, 146, 146, 0.16)',
+                                        }}>
+                                            <LoadingOutlined className='text-6xl text-rose-500	' />
+                                        </div>
+                                    )}
                                 </Modal>
 
                                 {
@@ -294,7 +358,7 @@ function BillDetail() {
                                                 setIsModalOpenConfirmCompletion(false)
                                                 return;
                                             }
-
+                                            setLoadingConfirmCompletion(true);
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.HOAN_THANH,
                                                 description: confirmAcceptOrderDes
@@ -305,10 +369,21 @@ function BillDetail() {
                                                 setIsModalOpenConfirmCompletion(false)
                                             }).catch(err => {
                                                 toast.error(err.response.data.message);
+                                            }).finally(() => {
+                                                setTimeout(() => {
+                                                    setLoadingConfirmCompletion(false);
+                                                }, 500)
                                             })
                                         }}>Xác nhận</Button>
                                         <Button type='default' onClick={() => { setIsModalOpenConfirmCompletion(false) }}>Hủy</Button>
                                     </div>
+                                    {loadingConfirmCompletion && (
+                                        <div className='absolute top-0 left-0 right-0 bottom-0 bottom-0 flex items-center justify-center' style={{
+                                            backgroundColor: 'rgba(146, 146, 146, 0.16)',
+                                        }}>
+                                            <LoadingOutlined className='text-6xl text-rose-500	' />
+                                        </div>
+                                    )}
                                 </Modal>
 
                                 {
@@ -324,6 +399,7 @@ function BillDetail() {
                                     <Input.TextArea placeholder='Ghi chú' className='mt-2' rows={5} value={confirmAcceptOrderDes} onChange={e => setConfirmAcceptOrderDes(e.target.value)} />
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
+                                            setLoadingCancelling(true);
                                             axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`, {
                                                 description: confirmAcceptOrderDes
                                             })
@@ -334,10 +410,21 @@ function BillDetail() {
                                                     setIsModalOpenCancelling(false)
                                                 }).catch(err => {
                                                     toast.error(err.response.data.message);
+                                                }).finally(() => {
+                                                    setTimeout(() => {
+                                                        setLoadingCancelling(false);
+                                                    }, 500)
                                                 })
                                         }}>Xác nhận</Button>
                                         <Button type='default' onClick={() => { setIsModalOpenCancelling(false) }}>Hủy</Button>
                                     </div>
+                                    {loadingCancelling && (
+                                        <div className='absolute top-0 left-0 right-0 bottom-0 bottom-0 flex items-center justify-center' style={{
+                                            backgroundColor: 'rgba(146, 146, 146, 0.16)',
+                                        }}>
+                                            <LoadingOutlined className='text-6xl text-rose-500	' />
+                                        </div>
+                                    )}
                                 </Modal>
 
                                 {

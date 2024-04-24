@@ -272,7 +272,7 @@ function ProductUpdate() {
                     cancelText="Không"
                 >
                     <Button danger>
-                        {record.index + "_" + record.key}
+                        {/* {record.index + "_" + record.key} */}
                         <DeleteOutlined />
                     </Button>
                 </Popconfirm>

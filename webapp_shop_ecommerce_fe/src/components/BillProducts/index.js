@@ -444,10 +444,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const handleChangeQuantity = (value, id) => {
-        if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
-            toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
-            return;
-        }
+
         if (value == null) {
             return;
         }
@@ -479,10 +476,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     };
 
     const handleDeleteProduct = (id) => {
-        if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
-            toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
-            return;
-        }
+
         const idBill = bill?.id;
         if (idBill == null) {
             toast.error("Invalid or missing bill ID.");
@@ -707,7 +701,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 color: data.productDetails.color,
                 size: data.productDetails.size,
                 quantity: <>
-                    {bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIA0) ?
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN) ?
                         <InputNumber min={1} max={data.productDetails.quantity} value={data.quantity} onChange={(value) => { handleChangeQuantity(value, data.id) }} /> :
                         <span>{data.quantity}</span>
                     }
@@ -721,7 +715,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                 action: <>
                     {/* {bill && (bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status === TrangThaiBill.CHO_GIAO) ? ( */}
                     <Button
-                        disabled={bill?.status != TrangThaiBill.DA_XAC_NHAN && bill?.status != TrangThaiBill.CHO_GIA0}
+                        disabled={bill?.status != TrangThaiBill.CHO_XAC_NHAN}
                         onClick={() => { showDeleteAllProduct(data.id) }}>
                         <DeleteOutlined />
                     </Button>
@@ -780,13 +774,9 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             <div className='flex justify-between pb-4' style={{ borderBottom: '1px solid #cccccc' }}>
                 <h4>Danh Sách Sản Phẩm</h4>
                 <div>
-                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN || bill?.status == TrangThaiBill.DA_XAC_NHAN || bill?.status == TrangThaiBill.CHO_GIAO) &&
+                    {bill && (bill?.status == TrangThaiBill.CHO_XAC_NHAN) &&
                         <Button type='primary' className='ml-4' onClick={() => {
-                            if (bill?.status == TrangThaiBill.CHO_XAC_NHAN) {
-                                toast.error("Vui lòng xác nhận đơn hàng để chỉnh sửa sản phẩm")
-                            } else {
-                                setOpenAddProduct(true)
-                            }
+                            setOpenAddProduct(true)
                         }}
                         ><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
                     }

@@ -13,6 +13,8 @@ export const useOrderData = () => {
 };
 
 const OrderDataProvider = ({ children }) => {
+    const [loadingContent, setLoadingContent] = useState(false);
+
     const [idBill, setIdBill] = useState(null);
     const [lstBill, setLstBill] = useState([]);
 
@@ -72,8 +74,18 @@ const OrderDataProvider = ({ children }) => {
 
     //Tiền trả kháhc
     useEffect(() => {
-        setMoneyPaid(paymentCustomer - intoMoney);
+        const money = paymentCustomer - intoMoney;
+        if (money < 0) {
+            setMoneyPaid(0);
+        }
+        else {
+            setMoneyPaid(money);
+        }
     }, [paymentCustomer])
+
+    const setDataLoadingContent = (data) => {
+        setLoadingContent(data);
+    };
     const setDataVoucher = (data) => {
         setVoucher(data);
     };
@@ -100,6 +112,9 @@ const OrderDataProvider = ({ children }) => {
 
     const setDataIsDelivery = () => {
         setIsDelivery(!isDelivery)
+        if (!isDelivery) {
+            setPaymentCustomer(0)
+        }
     };
 
     const setDataShipMoney = (data) => {
@@ -217,25 +232,31 @@ const OrderDataProvider = ({ children }) => {
     }, [idBill]);
 
     const handlePaymentBill = () => {
-        //4 - Hoàn Thành
-        //1- Chờ Giao
+
         let status = '4';
-        // if (isDelivery) {
-        //     status = '1';
-        // }
-
-        let returnUrl = window.location.origin;
-
-
-
-        //Validate tạm số tiền
         if (idBill == null) {
             return;
         }
-        // if (paymentCustomer < intoMoney) {
-        //     toast.error('Số Tiền Khách Nhập Chưa Đủ')
-        //     return;
-        // }
+        let returnUrl = window.location.origin;
+        if (isDelivery) {
+            if (addressBill?.receiverName.trim().length == 0 ||
+                addressBill?.receiverPhone.trim().length == 0 ||
+                addressBill?.detail.trim().length == 0 ||
+                addressBill?.commune.trim().length == 0 ||
+                addressBill?.province.trim().length == 0 ||
+                addressBill?.district.trim().length == 0
+            ) {
+                toast.error('Vui Lòng Nhập Đủ Thông Tin Giao Hàng')
+                return;
+            }
+        }
+
+
+
+        if (paymentCustomer < intoMoney && paymentMethods == "0" && !isDelivery) {
+            toast.error('Số Tiền Khách Nhập Chưa Đủ')
+            return;
+        }
         const dataBill = {
             paymentMethod: paymentMethods,
             totalMoney: totalPrice,
@@ -256,6 +277,7 @@ const OrderDataProvider = ({ children }) => {
             returnUrl: returnUrl
         }
         console.log(dataBill);
+        setLoadingContent(true);
         axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)
             .then((response) => {
                 if (response.data.status == "redirect") {
@@ -270,7 +292,11 @@ const OrderDataProvider = ({ children }) => {
             })
             .catch((error) => {
                 toast.error(error.response.data.message);
-            })
+            }).finally(() => {
+                setTimeout(() => {
+                    setLoadingContent(false);
+                }, 1000)
+            });
 
     };
     const resetData = () => {
@@ -284,9 +310,12 @@ const OrderDataProvider = ({ children }) => {
         setPaymentCustomer(0);
         setMoneyPaid(0);
         setPaymentMethods(0);
+        window.scrollTo(0, 0);
     };
 
     const dataContextValue = {
+        loadingContent,
+
         idBill,
         lstBill,
         totalPrice,
@@ -314,6 +343,7 @@ const OrderDataProvider = ({ children }) => {
         setDataIdBill,
         setDataShipMoney,
         setDataVoucher,
+        setDataLoadingContent,
 
         updateDataLstBill,
         updateDataProductDetails,

@@ -10,6 +10,11 @@ import {
   GiftOutlined,
 } from '@ant-design/icons';
 import { Menu, Switch } from 'antd';
+import { BsBoxSeamFill } from "react-icons/bs";
+import { AiOutlineDashboard } from "react-icons/ai";
+
+import { AiOutlineLayout } from "react-icons/ai";
+
 
 function getItem(label, key, icon, children, theme) {
   return {
@@ -23,10 +28,10 @@ function getItem(label, key, icon, children, theme) {
 
 
 const items = [
-  getItem(<Link to="/">Thống Kê</Link>, '1', <MailOutlined />),
+  getItem(<Link to="/">Thống Kê</Link>, '1', <AiOutlineDashboard />),
   getItem(<Link to="/order">Bán Hàng</Link>, '2', <ShoppingCartOutlined />),
-  getItem(<Link to="/bill">Quản Lý Đơn Hàng</Link>, '15', <ShoppingCartOutlined />),
-  getItem('Quản Lý Sản Phẩm', 'sub1', <AppstoreOutlined />, [
+  getItem(<Link to="/bill">Quản Lý Đơn Hàng</Link>, '15', <TruckOutlined />),
+  getItem('Quản Lý Sản Phẩm', 'sub1', <AiOutlineLayout />, [
     getItem(<Link to="/product">Sản Phẩm</Link>, '3'),
     getItem('Thuộc Tính', 'sub1-2', null,
       [
@@ -45,9 +50,9 @@ const items = [
     getItem(<Link to="/discount/voucher">Khuyến Mãi</Link>, '12'),
     getItem(<Link to="/discount/promotion">Khuyến Mại</Link>, '13')
   ]),
-  getItem(<Link to="/">Trả Hàng</Link>, '14', <TruckOutlined />),
+  // getItem(<Link to="/">Trả Hàng</Link>, '14', <TruckOutlined />),
   getItem(
-    <a href="/ant.design" target="_blank" rel="noopener noreferrer">
+    <a href="/logout" target="_blank" rel="noopener noreferrer">
       Đăng Xuất
     </a>,
     'link',
