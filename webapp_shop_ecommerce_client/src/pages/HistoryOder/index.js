@@ -1,10 +1,12 @@
 
 import LayoutProfile from "~/components/LayoutProfile";
-import { Tabs, Button, Tag } from 'antd';
+import { Tabs, Button, Tag, Badge, Input } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { fixMoney } from "~/ultils/fixMoney";
+import { SearchOutlined } from '@ant-design/icons';
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Scrollbar } from 'react-scrollbars-custom';
+import { useDebounce } from '~/hooks';
 import { useContext } from "react";
 import DataContext from "~/DataContext";
 import axios from "axios";
@@ -18,67 +20,123 @@ function HistoryOder() {
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
         DA_XAC_NHAN: "1",
-        VAN_CHUYEN: "2",
-        DA_THANH_TOAN: "3",
+        CHO_GIA0: "2",
+        DANG_GIAO: "3",
         HOAN_THANH: "4",
-        HUY: "5",
-        TRA_HANG: "6",
+        DA_THANH_TOAN: "5",
+        HUY: "6",
+        TRA_HANG: "10",
         DANG_BAN: "7",
         CHO_THANH_TOAN: "8",
+        HOAN_TIEN: "9",
         NEW: "New",
     }
 
 
-    const tabs = [
-        {
-            key: TrangThaiBill.TAT_CA,
-            label: 'Tất Cả',
-        },
-        {
-            key: TrangThaiBill.CHO_XAC_NHAN,
-            label: 'Chờ Xác Nhận',
-        },
-        {
-            key: TrangThaiBill.DA_XAC_NHAN,
-            label: 'Đã Xác Nhận',
-        },
-        {
-            key: TrangThaiBill.VAN_CHUYEN,
-            label: 'Vận Chuyển',
-        },
-        {
-            key: TrangThaiBill.HOAN_THANH,
-            label: 'Hoàn Thành',
-        },
-        {
-            key: TrangThaiBill.HUY,
-            label: 'Hủy',
-        },
-        {
-            key: TrangThaiBill.CHO_THANH_TOAN,
-            label: 'Chờ Thanh Toán',
-        },
-    ];
+
     const [lstBill, setLstBill] = useState([])
+    const [dataColumBill, setDataColumBill] = useState([]);
+    const [search, setSearch] = useState('');
     const [status, setStatus] = useState('');
     const { loading, setDataLoading } = useContext(DataContext);
 
-    useEffect(() => {
-        axios.get('http://localhost:8080/api/v2/bill', {
-            params: {
-                status: status
-            }
-        })
-            .then(response => {
-                setLstBill(response.data)
-            })
-            .catch(err => {
+    const debounceSearch = useDebounce(search.trim(), 500)
+    const tabs = [
+        {
+            key: '-1',
+            label: <Badge count={lstBill?.length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Tất Cả</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.CHO_XAC_NHAN,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.CHO_XAC_NHAN).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Chờ Xác Nhận</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.DA_XAC_NHAN,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.DA_XAC_NHAN).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Đã Xác Nhận</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.CHO_GIA0,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.CHO_GIA0).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Chờ Giao</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.DANG_GIAO,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.DANG_GIAO).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Đang Giao</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.HOAN_THANH,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.HOAN_THANH).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Hoàn Thành</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.HUY,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.HUY).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Hủy</span>
+            </Badge>,
+        },
+        {
+            key: TrangThaiBill.CHO_THANH_TOAN,
+            label: <Badge count={lstBill?.filter(bill => bill?.status == TrangThaiBill.CHO_THANH_TOAN).length} style={{ marginTop: '-4px', marginRight: '-4px' }}>
+                <span>Chờ Thanh Toán</span>
+            </Badge>,
+        },
+    ];
 
-            })
-    }, [status])
+    const fetchDataBill = async () => {
+
+        try {
+            const response = await axios.get('http://localhost:8080/api/v2/bill'
+                // , {
+                //     params: {
+                //         status: status
+                //     }
+                // }
+            )
+            console.log(response.data);
+            setLstBill(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchDataBill();
+    }, [status, debounceSearch])
+
+    useEffect(() => {
+        const dataTable = lstBill?.filter(bill => {
+            // Lọc theo tên ,phone
+            if (debounceSearch &&
+                !(bill?.codeBill?.toLowerCase().includes(debounceSearch.toLowerCase())
+                )) {
+                return false;
+            }
+
+            if (status &&
+                !(bill?.status?.toLowerCase().includes(status.toLowerCase()))) {
+                return false;
+            }
+            return true;
+        })
+
+        setDataColumBill(dataTable);
+    }, [lstBill]);
     const onChange = (key) => {
-        console.log(key);
-        setStatus(key);
+        if (key == -1) {
+            setStatus('')
+        } else {
+            setStatus(key);
+        }
     };
     const buyPayment = (codeBill) => {
         if (codeBill == null) {
@@ -102,12 +160,19 @@ function HistoryOder() {
                 setDataLoading(false);
             })
     }
-
+    const handleInputSearch = (e) => {
+        console.log(e.target.value);
+        setSearch(e.target.value);
+    }
     return (<>
 
         <LayoutProfile>
             <div>
                 <Tabs defaultActiveKey="-1" items={tabs} onChange={onChange} />
+            </div>
+
+            <div className="mb-4">
+                <Input placeholder="Nhập mã hóa đơn hoặc số điện thoại" prefix={<SearchOutlined />} value={search} onChange={handleInputSearch} />
             </div>
 
             <Scrollbar style={{
@@ -116,7 +181,7 @@ function HistoryOder() {
             }}>
 
                 {
-                    lstBill?.map((bill, index) => {
+                    dataColumBill?.map((bill, index) => {
                         return (
                             <div key={index} className="mt-4 mr-4" style={{
                                 borderBottom: '1px solid rgb(229 231 235)'
@@ -130,10 +195,11 @@ function HistoryOder() {
                                                 bill?.status == TrangThaiBill.CHO_THANH_TOAN ? <Tag color="#108ee9">Chờ Thanh Toán</Tag> :
                                                     bill?.status == TrangThaiBill.CHO_XAC_NHAN ? <Tag color="#108ee9">Chờ Xác Nhận</Tag> :
                                                         bill?.status == TrangThaiBill.DA_XAC_NHAN ? <Tag color="#108ee9">Đã Xác Nhận</Tag> :
-                                                            bill?.status == TrangThaiBill.VAN_CHUYEN ? <Tag color="#108ee9">Đang Vận Chuyển</Tag> :
-                                                                bill?.status == TrangThaiBill.HOAN_THANH ? <Tag color="#87d068">Hoàn Thành</Tag> :
-                                                                    bill?.status == TrangThaiBill.HUY ? <Tag color="#eb2727">Hủy</Tag> :
-                                                                        bill?.status == TrangThaiBill.TRA_HANG ? <Tag color="#108ee9">Trả Hàng</Tag> : <Tag color="#108ee9">Khác</Tag>
+                                                            bill?.status == TrangThaiBill.CHO_GIA0 ? <Tag color="#108ee9">Chờ Giao</Tag> :
+                                                                bill?.status == TrangThaiBill.DANG_GIAO ? <Tag color="#108ee9">Đang Giao</Tag> :
+                                                                    bill?.status == TrangThaiBill.HOAN_THANH ? <Tag color="#87d068">Hoàn Thành</Tag> :
+                                                                        bill?.status == TrangThaiBill.HUY ? <Tag color="#eb2727">Hủy</Tag> :
+                                                                            bill?.status == TrangThaiBill.TRA_HANG ? <Tag color="#108ee9">Trả Hàng</Tag> : <Tag color="#108ee9">Khác</Tag>
                                         }
                                     </div>
                                 </div>
@@ -160,9 +226,12 @@ function HistoryOder() {
                                 <div className="flex justify-end mt-6 mb-4">
                                     {
                                         bill?.status == TrangThaiBill.CHO_THANH_TOAN &&
-                                        <Button danger className="mr-4" onClick={() => {
-                                            buyPayment(bill?.codeBill)
-                                        }}>Thanh Toán Ngay</Button>
+                                        <div>
+                                            <Button danger className="mr-4" onClick={() => {
+                                                buyPayment(bill?.codeBill)
+                                            }}>Thanh Toán Ngay</Button>
+                                        </div>
+
                                     }
 
                                     <Link to={"/historyOrder/" + bill.codeBill}>

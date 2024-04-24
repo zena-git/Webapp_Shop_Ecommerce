@@ -289,12 +289,16 @@ const DataProvider = ({ children }) => {
                 })
                 .catch(err => {
                     toast.error(err.response.data.message)
-
+                    updateData()
+                    toast.error("Bạn sẽ được chuyển hướng về giỏ hàng sau 3s")
+                    setTimeout(() => {
+                        navigate('/cart');
+                    }, 3000);
                 })
                 .finally(() => {
                     setTimeout(() => {
                         setLoading(false);
-                    }, 500);
+                    }, 1000);
                 })
         } else {
 
@@ -314,17 +318,20 @@ const DataProvider = ({ children }) => {
                 })
                 .catch(err => {
                     toast.error(err.response.data.message)
-
+                    toast.error("Bạn sẽ được chuyển hướng về giỏ hàng sau 3s")
+                    setTimeout(() => {
+                        navigate('/cart');
+                    }, 3000);
                     console.log(err);
                 })
                 .finally(() => {
                     setTimeout(() => {
                         setLoading(false);
-                    }, 500);
+                    }, 1000);
                 })
         }
 
-    }, [addressBill, paymentMethods, voucher,dataCheckout]);
+    }, [addressBill, paymentMethods, voucher,dataCheckout, shipMoney,]);
 
 
     // thêm giỏ hàng
@@ -342,6 +349,7 @@ const DataProvider = ({ children }) => {
                 price: price,
             }
             // console.log(product);
+            setLoading(true)
             axios.post('http://localhost:8080/api/v2/cart', product)
                 .then(res => {
                     console.log(res.data);
@@ -351,8 +359,13 @@ const DataProvider = ({ children }) => {
                 .catch(err => {
                     console.log(err);
                     toast.error(err.response.data.message)
+                }).finally(() => {
+                    setTimeout(() => {
+                        setLoading(false);
+                    }, 1000);
                 })
         } else {
+            setLoading(true)
 
             const existingItemIndex = data.findIndex((item) => item.productDetails.id == dataProduct.productDetails.id);
 
@@ -389,6 +402,9 @@ const DataProvider = ({ children }) => {
                 }];
                 setData(dataCart);
             }
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
             toast.success("Thêm sản phẩm vào giỏ hàng tạm thành công");
 
         }
@@ -410,6 +426,7 @@ const DataProvider = ({ children }) => {
                 price: price
             }
             // console.log(product);
+            setLoading(true)
             axios.post('http://localhost:8080/api/v2/cart', product)
                 .then(res => {
                     updateData();
@@ -419,8 +436,13 @@ const DataProvider = ({ children }) => {
                 .catch(err => {
                     console.log(err);
                     toast.error(err.response.data.message)
+                }).finally(() => {
+                    setTimeout(() => {
+                        setLoading(false);
+                    }, 1000);
                 })
         } else {
+            setLoading(true)
             const existingItemIndex = data.findIndex((item) => item.productDetails.id == dataProduct.productDetails.id);
             if (existingItemIndex != -1) {
                 const existingItem = data[existingItemIndex];
@@ -455,6 +477,9 @@ const DataProvider = ({ children }) => {
                 }];
                 setData(dataCart);
             }
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
             navigate('/cart');
 
         }

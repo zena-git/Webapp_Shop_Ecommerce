@@ -5,7 +5,7 @@
 }
 
 .box_layout-menu {
-    height: 500px;
+    height: 530px;
     background-color: #ffffff;
     border: 1px solid #e8e8e8;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
@@ -15,7 +15,7 @@
     border-bottom: 1px solid #e8e8e8;
 }
 .box_layout-conten{
-    min-height: 500px;
+    min-height: 530px;
     background-color: #ffffff;
     border: 1px solid #e8e8e8;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;

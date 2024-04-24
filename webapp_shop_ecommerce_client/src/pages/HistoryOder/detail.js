@@ -2,7 +2,7 @@ import OrderDetail from "~/components/OrderDetail";
 import LayoutProfile from "~/components/LayoutProfile";
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Modal, Button, Tag } from 'antd';
+import { Modal, Button, Alert } from 'antd';
 import DataContext from "~/DataContext";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,13 +15,15 @@ function HistoryOrderDetail() {
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
         DA_XAC_NHAN: "1",
-        VAN_CHUYEN: "2",
-        DA_THANH_TOAN: "3",
+        CHO_GIA0: "2",
+        DANG_GIAO: "3",
         HOAN_THANH: "4",
-        HUY: "5",
-        TRA_HANG: "6",
+        DA_THANH_TOAN: "5",
+        HUY: "6",
+        TRA_HANG: "10",
         DANG_BAN: "7",
         CHO_THANH_TOAN: "8",
+        HOAN_TIEN: "9",
         NEW: "New",
     }
 
@@ -101,54 +103,50 @@ function HistoryOrderDetail() {
     return (
         <>
             <LayoutProfile>
-                <div className="mt-4 mb-4">
-                    <Link to="/historyOrder">
-                        <Button> Trở Lại</Button>
-                    </Link>
-                    {
-                        (bill?.status == TrangThaiBill.CHO_THANH_TOAN ||
-                            bill?.status == TrangThaiBill.CHO_XAC_NHAN ||
-                            bill?.status == TrangThaiBill.DA_XAC_NHAN) &&
-                        <Button className="ml-4" type="primary" onClick={showModal}> Hủy</Button>
-                    }
+                <div>
+                    <div className="mt-4 mb-4">
+                        <Link to="/historyOrder">
+                            <Button> Trở Lại</Button>
+                        </Link>
+                        {
+                            (bill?.status == TrangThaiBill.CHO_THANH_TOAN ||
+                                bill?.status == TrangThaiBill.CHO_XAC_NHAN) &&
+                            <Button className="ml-4" type="primary" onClick={showModal}> Hủy</Button>
+                        }
 
+                        {
+                            bill?.status == TrangThaiBill.CHO_THANH_TOAN &&
+                            <Button className="ml-4" danger onClick={() => {
+                                buyPayment(id)
+                            }}>Thanh Toán</Button>
+                        }
+
+                        <Modal title="Hủy Đơn Hàng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
+                            <div>
+                                <p>Bạn có chắc chắn muốn hủy đơn hàng này?</p>
+                            </div>
+                            <div className="flex justify-end mt-4">
+                                <Button onClick={handleCancel}>Thoát</Button>
+                                {
+                                    (bill?.paymentMethod == '1' && bill?.CHO_THANH_TOAN) ?
+                                        <Button className="ml-4" type="primary" onClick={handleOk}>Xác Nhận</Button> :
+                                        <Button className="ml-4" type="primary" onClick={() => {
+                                            deleteBill()
+                                        }}>Xác Nhận</Button>
+
+                                }
+                            </div>
+
+
+                        </Modal>
+                    </div>
                     {
                         bill?.status == TrangThaiBill.CHO_THANH_TOAN &&
-                        <Button className="ml-4" danger onClick={() => {
-                            buyPayment(id)
-                        }}>Thanh Toán</Button>
+                        <Alert message="Vui lòng thanh toán trước 23h59. Nếu không đơn hàng sẽ tự động hủy bởi hệ thống" type="warning" />
                     }
 
-                    <Modal title="Hủy Đơn Hàng" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-                        <div>
-                            {
-                                (bill?.paymentMethod == '1' && bill?.CHO_THANH_TOAN) ?
-                                    <>
-                                        <div>
-                                            <p>Vì bạn đã thanh toán chuyển khoản</p>
-                                            <p>Bạn vui lòng liên hệ cửa hàng để hủy đơn hàng</p>
-                                            <p>Hotline: 09123456789 </p>
-                                            <p>Email: alice@alice.com </p>
-                                        </div>
-                                    </> :
-                                    <p>Bạn có chắc chắn muốn hủy đơn hàng này?</p>
-                            }
-                        </div>
-                        <div className="flex justify-end mt-4">
-                            <Button onClick={handleCancel}>Thoát</Button>
-                            {
-                                (bill?.paymentMethod == '1' && bill?.CHO_THANH_TOAN) ?
-                                    <Button className="ml-4" type="primary" onClick={handleOk}>Xác Nhận</Button> :
-                                    <Button className="ml-4" type="primary" onClick={() => {
-                                        deleteBill()
-                                    }}>Xác Nhận</Button>
-
-                            }
-                        </div>
-
-
-                    </Modal>
                 </div>
+
                 <div >
                     <OrderDetail bill={bill}>
 

@@ -1,11 +1,11 @@
 import React, { useState, } from 'react';
-import {  Table, Carousel, Button, Descriptions, Tag,  Tooltip, Modal } from 'antd';
+import { Table, Carousel, Button, Descriptions, Tag, Tooltip, Modal } from 'antd';
 import hexToColorName from "~/ultils/HexToColorName";
 import { fixMoney } from '~/ultils/fixMoney';
 import { Timeline, TimelineEvent } from '@mailtop/horizontal-timeline';
-import { FaRegFileAlt } from 'react-icons/fa';
 import { Scrollbar } from 'react-scrollbars-custom';
-
+import { AiOutlineCloseCircle } from "react-icons/ai";
+import { FaBug, FaCheckCircle, FaRegFileAlt } from 'react-icons/fa';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
@@ -15,11 +15,12 @@ function OrderDetail({ bill }) {
         TAO_DON_HANG: "-1",
         CHO_XAC_NHAN: "0",
         DA_XAC_NHAN: "1",
-        VAN_CHUYEN: "2",
-        DA_THANH_TOAN: "3",
+        CHO_GIA0: "2",
+        DANG_GIAO: "3",
         HOAN_THANH: "4",
-        HUY: "5",
-        TRA_HANG: "6",
+        DA_THANH_TOAN: "5",
+        HUY: "6",
+        TRA_HANG: "10",
         DANG_BAN: "7",
         CHO_THANH_TOAN: "8",
         HOAN_TIEN: "9",
@@ -37,7 +38,7 @@ function OrderDetail({ bill }) {
                     </div>
 
                     <div>
-                        <Timeline  minEvents={10} placeholder>
+                        <Timeline minEvents={10} placeholder>
                             <Scrollbar style={{ width: '100%', height: 220 }} >
                                 <div className='flex'>
                                     {bill?.lstHistoryBill.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map((historyBill, index) => {
@@ -45,25 +46,27 @@ function OrderDetail({ bill }) {
                                             <div key={index} style={{
                                                 width: '225px',
                                             }}>
-                                            <TimelineEvent
-                                                color='#87a2c7'
-                                                icon={FaRegFileAlt}
-                                                title=<h4 className='text-2xl'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
-                                                    historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
-                                                        historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                            historyBill?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
-                                                                historyBill?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
-                                                                    historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                        historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                            historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
-                                                                            historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                                historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
-                                                }</h4>
+                                                <TimelineEvent
+                                                    key={index}
+                                                    color={historyBill?.type == TrangThaiBill.HOAN_THANH ? "#00c11d" : historyBill?.type == TrangThaiBill.HUY ? "#dc2020" : "#108ee9"}
+                                                    icon={historyBill?.type == TrangThaiBill.HOAN_THANH ? FaCheckCircle : historyBill?.type == TrangThaiBill.HUY ? AiOutlineCloseCircle : FaRegFileAlt}
+                                                    title=<h4 className='text-2xl	'>{historyBill?.type == "-1" ? "Tạo Đơn Hàng" :
+                                                        historyBill?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
+                                                            historyBill?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
+                                                                historyBill?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
+                                                                    historyBill?.type == TrangThaiBill.CHO_GIA0 ? "Chờ Giao" :
+                                                                        historyBill?.type == TrangThaiBill.DANG_GIAO ? "Đang Giao" :
+                                                                            historyBill?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
+                                                                                historyBill?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
+                                                                                    historyBill?.type == TrangThaiBill.HUY ? "Hủy" :
+                                                                                        historyBill?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
+                                                                                            historyBill?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
+                                                    }</h4>
 
-                                                subtitle=<span className='text-xl font-medium	'>
-                                                    {dayjs(historyBill?.createdDate).format('YYYY-MM-DD HH:mm:ss')}
-                                                </span>
-                                            />
+                                                    subtitle=<span className='text-xl font-medium	'>
+                                                        {dayjs(historyBill?.createdDate).format('YYYY-MM-DD HH:mm:ss')}
+                                                    </span>
+                                                />
                                             </div>
 
                                         );
@@ -90,18 +93,19 @@ function OrderDetail({ bill }) {
                                     bill?.lstHistoryBill.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate)).map(history => {
                                         return {
                                             key: history.id,
-                                            type: <Tag color="blue">{
-                                                history?.type == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                                    history?.type == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
-                                                        history?.type == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                            history?.type == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
-                                                                history?.type == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
-                                                                    history?.type == TrangThaiBill.DA_THANH_TOAN ? "Đã Thanh Toán" :
-                                                                        history?.type == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                            history?.type == TrangThaiBill.HUY ? "Hủy" :
-                                                                            history?.type == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
-                                                                                history?.type == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
-                                            }</Tag>,
+                                            type: <>{
+                                                history?.type == TrangThaiBill.TAO_DON_HANG ? <Tag color="#108ee9">Tạo Đơn Hàng</Tag> :
+                                                    history?.type == TrangThaiBill.CHO_THANH_TOAN ? <Tag color="#108ee9">Chờ Thanh Toán</Tag> :
+                                                        history?.type == TrangThaiBill.CHO_XAC_NHAN ? <Tag color="#108ee9">Chờ Xác Nhận</Tag> :
+                                                            history?.type == TrangThaiBill.DA_XAC_NHAN ? <Tag color="#108ee9">Đã Xác Nhận</Tag> :
+                                                                history?.type == TrangThaiBill.CHO_GIA0 ? <Tag color="#108ee9">Chờ Giao</Tag> :
+                                                                    history?.type == TrangThaiBill.DANG_GIAO ? <Tag color="#108ee9">Đang Giao</Tag> :
+                                                                        history?.type == TrangThaiBill.DA_THANH_TOAN ? <Tag color="#108ee9">Đã Thanh Toán</Tag> :
+                                                                            history?.type == TrangThaiBill.HOAN_THANH ? <Tag color="#00c11d">Hoàn Thành</Tag> :
+                                                                                history?.type == TrangThaiBill.HUY ? <Tag color="#dc2020">Hủy</Tag> :
+                                                                                    history?.type == TrangThaiBill.HOAN_TIEN ? <Tag color="#108ee9">Hoàn Tiền</Tag> :
+                                                                                        history?.type == TrangThaiBill.TRA_HANG ? <Tag color="#108ee9">Trả Hàng</Tag> : "Khác"
+                                            }</>,
                                             createdDate: dayjs(history?.createdDate).format('YYYY-MM-DD HH:mm:ss'),
                                             createdBy: history.createdBy,
                                             description: history.description
@@ -149,19 +153,17 @@ function OrderDetail({ bill }) {
                             <Descriptions.Item label={<span className='font-medium text-black'>Tên Người Nhận</span>}>{bill?.receiverName}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Số Điện Thoại</span>}>{bill?.receiverPhone}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Trạng Thái</span>}>
-                                <Tag color="blue">
-                                    {
-                                        bill?.status == TrangThaiBill.TAO_DON_HANG ? "Tạo Đơn Hàng" :
-                                            bill?.status == TrangThaiBill.CHO_THANH_TOAN ? "Chờ Thanh Toán" :
-                                                bill?.status == TrangThaiBill.CHO_XAC_NHAN ? "Chờ Xác Nhận" :
-                                                    bill?.status == TrangThaiBill.DA_XAC_NHAN ? "Đã Xác Nhận" :
-                                                        bill?.status == TrangThaiBill.VAN_CHUYEN ? "Đang Vận Chuyển" :
-                                                            bill?.status == TrangThaiBill.HOAN_THANH ? "Hoàn Thành" :
-                                                                bill?.status == TrangThaiBill.HUY ? "Hủy" :
-                                                                bill?.status == TrangThaiBill.HOAN_TIEN ? "Hoàn Tiền" :
-                                                                    bill?.status == TrangThaiBill.TRA_HANG ? "Trả Hàng" : "Khác"
-                                    }
-                                </Tag>
+                                {
+                                    bill?.status == TrangThaiBill.TAO_DON_HANG ? <Tag color="#108ee9">Tạo Đơn Hàng</Tag> :
+                                        bill?.status == TrangThaiBill.CHO_THANH_TOAN ? <Tag color="#108ee9">Chờ Thanh Toán</Tag> :
+                                            bill?.status == TrangThaiBill.CHO_XAC_NHAN ? <Tag color="#108ee9">Chờ Xác Nhận</Tag> :
+                                                bill?.status == TrangThaiBill.DA_XAC_NHAN ? <Tag color="#108ee9">Đã Xác Nhận</Tag> :
+                                                    bill?.status == TrangThaiBill.CHO_GIA0 ? <Tag color="#108ee9">Chờ Giao</Tag> :
+                                                        bill?.status == TrangThaiBill.DANG_GIAO ? <Tag color="#108ee9">Đang Giao</Tag> :
+                                                            bill?.status == TrangThaiBill.HOAN_THANH ? <Tag color="#00c11d">Hoàn Thành</Tag> :
+                                                                bill?.status == TrangThaiBill.HUY ? <Tag color="#dc2020">Hủy</Tag> :
+                                                                    bill?.status == TrangThaiBill.TRA_HANG ? <Tag color="#87d068">Trả Hàng</Tag> : "Khác"
+                                }
                             </Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Địa Chỉ</span>}>{bill?.receiverDetails} {bill?.receiverCommune} {bill?.receiverDistrict} {bill?.receiverProvince}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Ghi Chú</span>}>{bill?.description}</Descriptions.Item>
