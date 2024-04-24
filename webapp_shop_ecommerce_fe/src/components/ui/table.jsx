@@ -43,9 +43,9 @@ export default function Table(table, flexRender, columns) {
                     <tr>
                         <td
                             colSpan={columns.length}
-                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
+                            className="px-6 py-4 whitespace-nowrap text-xl text-gray-500 text-center"
                         >
-                            No results.
+                            Không có kết quả nào.
                         </td>
                     </tr>
                 )}

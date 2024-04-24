@@ -1,4 +1,4 @@
-import { Tag, Button, Input, Radio, Modal } from 'antd/lib'
+import { Tag, Button, Input, Radio, Modal, Dropdown, Switch } from 'antd/lib'
 import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
@@ -19,7 +19,7 @@ import {
 import { useAppSelector } from '../../redux/storage';
 import { User } from "~/lib/type"
 import axios from 'axios'
-import { baseUrlV3 } from '~/lib/functional'
+import { baseUrlV3, baseUrl } from '~/lib/functional'
 import { useNavigate } from 'react-router-dom'
 import ListDeleted from '../../components/user/listDeleted'
 import { useDispatch } from 'react-redux';
@@ -27,6 +27,9 @@ import Table from '../../components/ui/table'
 import { toast, ToastContainer } from 'react-toastify'
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { set } from '../../redux/features/voucher-deleted'
+import { ExclamationCircleFilled } from '@ant-design/icons';
+
+const { confirm } = Modal;
 
 export default function ListTable() {
 
@@ -67,6 +70,27 @@ export default function ListTable() {
             return row.original.status == 1
         }
     }
+
+    const showDeleteConfirm = (id) => {
+        confirm({
+            title: 'Bạn có muốn xóa không',
+            icon: <ExclamationCircleFilled />,
+            content: '',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                axios.delete(`${baseUrlV3}/user/delete/${id}`).then(res => {
+                    fillData();
+                    fillDeltedData();
+                    toast.success('xóa thành công')
+                })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
     const columns: ColumnDef<User>[] = useMemo(() => [
         {
@@ -125,8 +149,20 @@ export default function ListTable() {
             header: () => <div className="text-center">Trạng thái</div>,
             filterFn: customFilterType,
             cell: ({ row }) => {
+                let pending = false;
                 return <div className="text-center font-medium max-h-16">
-                    <Tag color={row.original.status == 1 ? 'red' : 'blue'}>{row.original.status == 0 ? 'Đang làm việc' : 'Đã nghỉ việc'}</Tag>
+                    <Switch checkedChildren="Đang làm việc" disabled={pending} unCheckedChildren="Đã nghỉ việc" defaultChecked={row.original.status == 0} onChange={e => {
+                        if (!pending) {
+                            pending = true;
+                            axios.put(`${baseUrl}/user/${row.original.id}`, { ...row.original, status: e ? 0 : 1 }).then(res => {
+                                toast.success('Cập nhật thành công');
+                                pending = false;
+                            }).catch(err => {
+                                pending = false;
+                                toast.error(err.response.data.message);
+                            })
+                        }
+                    }} />
                 </div>
             },
         },
@@ -135,30 +171,40 @@ export default function ListTable() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/user/staff/update/${row.original.id}`) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '2',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/user/staff/detail/${row.original.id}`) }}>
+                                <FaEye />
+                                Chi tiết
+                            </div>
+                        ),
+                    },
+                    // {
+                    //     key: '3',
+                    //     label: (
+                    //         <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                    //             <FaTrash />
+                    //             Xóa
+                    //         </div>
+                    //     ),
+                    // },
+                ];
                 return (
                     <div className="flex justify-center gap-2">
-                        <Button className="flex items-center" type="primary" onClick={() => { navigate(`/user/staff/update/${row.original.id}`) }}><FaEdit /></Button>
-                        <Button className="flex items-center" type="primary" onClick={() => { navigate(`/user/staff/detail/${row.original.id}`) }}><FaEye /></Button>
-                        <Button className="flex items-center" type="primary" onClick={() => { setOpenModal(true) }}>
-                            <FaTrash />
-                        </Button>
-                        <Modal
-                            title="Xác nhận"
-                            open={openModal}
-                            onOk={() => {
-                                setOpenModal(false)
-                                axios.delete(`${baseUrlV3}/user/delete/${row.original.id}`).then(res => {
-                                    fillData();
-                                    fillDeltedData();
-                                    toast.success('xóa thành công')
-                                })
-                            }}
-                            onCancel={() => { setOpenModal(false) }}
-                            okText="xác nhận"
-                            cancelText="hủy"
-                        >
-                            Xác nhận xóa
-                        </Modal>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -211,7 +257,7 @@ export default function ListTable() {
 
         return (
             <>
-                <Button danger  onClick={() => setIsModalOpen(true)} variant="outline" className="flex items-center"><FaTrash /></Button>
+                <Button danger onClick={() => setIsModalOpen(true)} variant="outline" className="flex items-center"><FaTrash /></Button>
                 <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} className='min-w-[60vw]'>
                     <ListDeleted data={deletedData} />
                 </Modal>
@@ -230,7 +276,7 @@ export default function ListTable() {
                 <div className='bg-white rounded-md mb-3 p-3 shadow-md'>
 
                     <div className="grid grid-cols-2 gap-3 my-3">
-                        <div>
+                        <div className='my-2'>
                             <p className='text-xl font-semibold mb-2'>Họ và tên</p>
                             <Input
                                 placeholder="tìm kiếm theo tên"
@@ -238,10 +284,10 @@ export default function ListTable() {
                                 onChange={(event) =>
                                     table.getColumn("fullName")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-sm"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
+                        <div className='my-2'>
                             <p className='text-xl font-semibold mb-2'>Email</p>
                             <Input
                                 placeholder="tìm kiếm theo email"
@@ -249,10 +295,10 @@ export default function ListTable() {
                                 onChange={(event) =>
                                     table.getColumn("email")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-sm"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
+                        <div className='my-2'>
                             <p className='text-xl font-semibold mb-2'>Số điện thoại</p>
                             <Input
                                 placeholder="tìm kiếm theo số điện thoại"
@@ -260,10 +306,10 @@ export default function ListTable() {
                                 onChange={(event) =>
                                     table.getColumn("phone")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-sm"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
+                        <div className='my-2'>
                             <p className='text-xl font-semibold mb-2'>Trạng thái</p>
                             <Radio.Group name="radiogroup" defaultValue={"0"} value={(table.getColumn("status")?.getFilterValue() as string) ?? "0"} onChange={e => { table.getColumn("status")?.setFilterValue(e.target.value) }}>
                                 <Radio value={"0"}>Tất cả</Radio>
@@ -274,10 +320,12 @@ export default function ListTable() {
                     </div>
                     <div className='flex gap-5 items-center justify-between pr-2 my-4'>
                         <Button type="primary" onClick={() => { navigate('/user/staff/add') }} variant="outline">Thêm nhân viên</Button>
-                        {Recover()}
+                        {/* {Recover()} */}
                     </div>
                 </div>
-                <div className="rounded-md border p-3 bg-white shadow-md">
+                <div className="rounded-md border p-3 bg-white shadow-md flex flex-col gap-2">
+                    <p className='text-2xl font-bold'>Danh sách nhân viên</p>
+                    <div className='h-[2px] bg-slate-600'></div>
                     {Table(table, flexRender, columns)}
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">

@@ -33,10 +33,8 @@ const { RangePicker } = DatePicker;
 
 export default function ListTable() {
     const [data, setData] = useState<VoucherResponse[]>([]);
-    const [deletedData, setDeletedData] = useState([]);
 
     const [openModal, setOpenModal] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const navigate = useNavigate();
 
@@ -46,14 +44,8 @@ export default function ListTable() {
         })
     }
 
-    const fillDeletedData = () => {
-        axios.get(`${baseUrlV3}/voucher/deleted`).then(res => {
-            setDeletedData(res.data);
-        })
-    }
     useEffect(() => {
         fillData();
-        fillDeletedData();
     }, [])
 
     const [sorting, setSorting] = useState<SortingState>([])
@@ -96,17 +88,18 @@ export default function ListTable() {
 
     const showDeleteConfirm = (id) => {
         confirm({
-            title: 'Are you sure delete this task?',
+            title: '',
             icon: <ExclamationCircleFilled />,
-            content: 'Some descriptions',
-            okText: 'Yes',
+            content: 'Bạn có muốn hủy không',
+            okText: 'Có',
             okType: 'danger',
-            cancelText: 'No',
+            cancelText: 'Không',
             onOk() {
-                axios.delete(`${baseUrl}/voucher/${id}`).then(res => {
-                    toast.success("Xóa thành công")
+                axios.put(`${baseUrlV3}/voucher/disable/${id}`).then(res => {
+                    toast.success('Đã hủy');
                     fillData();
-                    fillDeletedData();
+                }).catch(err => {
+                    console.log(err);
                 })
             },
             onCancel() {
@@ -175,8 +168,8 @@ export default function ListTable() {
             filterFn: customStartDateFilter,
             cell: ({ row }) => {
                 return <div className='text-center text-xl'>
-                    {/* + " - " + row.original.startDate.toString().split("T")[1] */}
-                    {row.original.startDate.toString().split("T")[0]}
+                    <p>{row.original.startDate.toString().split("T")[0]}</p>
+                    <p>{row.original.startDate.toString().split("T")[1]}</p>
                 </div>
             },
         },
@@ -186,8 +179,8 @@ export default function ListTable() {
             header: () => <div className="text-center">Ngày kết thúc</div>,
             cell: ({ row }) => {
                 return <div className='text-center text-xl'>
-                    {/* + " - " + row.original.endDate.toString().split("T")[1] */}
-                    {row.original.endDate.toString().split("T")[0]}
+                    <p>{row.original.endDate.toString().split("T")[0]}</p>
+                    <p>{row.original.endDate.toString().split("T")[1]}</p>
                 </div>
             },
         },
@@ -195,7 +188,7 @@ export default function ListTable() {
             accessorKey: "status",
             header: () => <div className="text-center">Trạng thái</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{<Tag color={"blue"}>
+                return <div className='flex justify-center'>{<Tag color={row.original.status == "0" ? "blue" : row.original.status == "1" ? "green" : row.original.status == "2" ? "gold" : "red"}>
                     {row.original.status == "0" ? "Sắp diễn ra" : row.original.status == "1" ? "Đang diễn ra" : row.original.status == "2" ? "Đã kết thúc" : "Đã hủy"}
                 </Tag>}</div>
             },
@@ -227,10 +220,12 @@ export default function ListTable() {
                     {
                         key: '3',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
-                                <FaTrash />
-                                Xóa
-                            </div>
+                            <>
+                                {row.original.status != "4" ? <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                                    <FaTrash />
+                                    Hủy
+                                </div> : <></>}
+                            </>
                         ),
                     },
                 ];
@@ -264,48 +259,48 @@ export default function ListTable() {
         },
     })
 
-    const Recover = () => {
-        const showModal = () => {
-            setIsModalOpen(true);
-        };
-        const handleOk = () => {
-            const promises = listVoucherDeleteSelected.map(slt => {
-                return axios.put(`${baseUrlV3}/voucher/recover?id=${slt.id}`)
-            })
-            Promise.all(promises).then(() => {
-                setIsModalOpen(false);
-                fillData();
-                fillDeletedData();
-            })
+    // const Recover = () => {
+    //     const showModal = () => {
+    //         setIsModalOpen(true);
+    //     };
+    //     const handleOk = () => {
+    //         const promises = listVoucherDeleteSelected.map(slt => {
+    //             return axios.put(`${baseUrlV3}/voucher/recover?id=${slt.id}`)
+    //         })
+    //         Promise.all(promises).then(() => {
+    //             setIsModalOpen(false);
+    //             fillData();
+    //             fillDeletedData();
+    //         })
 
-        };
-        const handleCancel = () => {
-            setIsModalOpen(false);
-        };
+    //     };
+    //     const handleCancel = () => {
+    //         setIsModalOpen(false);
+    //     };
 
-        const listVoucherDeleteSelected = useAppSelector(state => state.voucherDeletedReducer.value.selected)
+    //     const listVoucherDeleteSelected = useAppSelector(state => state.voucherDeletedReducer.value.selected)
 
-        return (
-            <>
-                <Button variant="outline" danger onClick={showModal} className="flex items-center">
-                    <FaTrash />
-                </Button>
-                <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    {ListDeleted({ data: deletedData })}
-                </Modal>
-            </>
-        );
-    }
+    //     return (
+    //         <>
+    //             <Button variant="outline" danger onClick={showModal} className="flex items-center">
+    //                 <FaTrash />
+    //             </Button>
+    //             <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+    //                 {ListDeleted({ data: deletedData })}
+    //             </Modal>
+    //         </>
+    //     );
+    // }
 
     return (
         <>
             <ToastContainer />
             <div className='p-3 rounded-md shadow-lg bg-white'>
                 <div className='grid grid-cols-2 items-center my-3'>
-                    <div className='w-full flex flex-col'>
-                        <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
+                    <div className='w-full flex flex-col my-2'>
+                        <p className='mb-3 font-semibold text-xl'>Trạng thái</p>
                         <Select
-                            className='min-w-sm w-2/3'
+                            className='w-2/3'
                             defaultValue={0}
                             defaultActiveFirstOption
                             onChange={(value) => {
@@ -320,12 +315,12 @@ export default function ListTable() {
                             <option value={1}>Sắp diễn ra</option>
                             <option value={2}>Đang diễn ra</option>
                             <option value={3}>Đã kết thúc</option>
-                            <option value={4}>Đã hủy</option>
+                            <option value={5}>Đã hủy</option>
                         </Select>
                     </div>
-                    <div className='w-full flex flex-col'>
-                        <p className='mb-1 font-semibold text-xl'>Hình thức giảm</p>
-                        <Select className='min-w-sm w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
+                    <div className='w-full flex flex-col my-2'>
+                        <p className='mb-3 font-semibold text-xl'>Hình thức giảm</p>
+                        <Select className='w-2/3' defaultValue={0} defaultActiveFirstOption onChange={(value) => {
                             let filterValue = null;
                             if (value != 0) {
                                 filterValue = (value - 1).toString();
@@ -337,20 +332,20 @@ export default function ListTable() {
                             <option value={2}>Giảm phần trăm</option>
                         </Select>
                     </div>
-                    <div>
-                        <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
+                    <div className='my-2'>
+                        <p className='mb-3 font-semibold text-xl'>Tìm kiếm</p>
                         <Input
                             placeholder="tên..."
                             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                             onChange={(event) =>
                                 table.getColumn("name")?.setFilterValue(event.target.value)
                             }
-                            className="max-w-sm"
+                            className="w-2/3"
                         />
                     </div>
                     <div>
-                        <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
-                        <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
+                        <p className='mb-3 font-semibold text-xl'>Khoảng ngày</p>
+                        <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} className='w-2/3' onChange={value => {
                             table.getColumn("startDate").setFilterValue(value[0]);
                             table.getColumn("endDate").setFilterValue(value[1])
                         }} />
@@ -358,7 +353,7 @@ export default function ListTable() {
                 </div>
                 <div className='flex gap-5 items-center my-4 justify-between pr-2'>
                     <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" type="primary">Thêm phiếu giảm giá</Button>
-                    {Recover()}
+                    {/* {Recover()} */}
                 </div>
             </div>
             <div className="rounded-md border border-slate-800 shadow-md flex flex-col gap-3 mt-4 bg-white p-3">

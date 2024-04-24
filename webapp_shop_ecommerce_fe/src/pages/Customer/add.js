@@ -401,9 +401,7 @@ export default function AddCustomer() {
 
     const handleSubmitForm = (values) => {
         if (!pending) {
-            if (listAddress.length == 0) {
-                toast.error('Hãy thêm ít nhất 1 địa chỉ');
-            } else if (values.fullName.trim().length == 0) {
+            if (values.fullName.trim().length == 0) {
                 toast.error('Nhập tên khách hàng');
             } else if (values.phone.trim().length == 0) {
                 toast.error('Nhập số điện thoại');

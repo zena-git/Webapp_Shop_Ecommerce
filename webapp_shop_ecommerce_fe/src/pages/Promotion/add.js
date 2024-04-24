@@ -95,6 +95,9 @@ function EditPage() {
                     setCode(makeid());
                     setName("");
                     setDescription("");
+                    setTimeout(() => {
+                        navigate("/discount/promotion")
+                    }, 2000)
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)

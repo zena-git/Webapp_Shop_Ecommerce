@@ -63,10 +63,10 @@ export default function ListTable() {
         confirm({
             title: 'Bạn có muốn xóa không',
             icon: <ExclamationCircleFilled />,
-            content: 'Some descriptions',
-            okText: 'Yes',
+            content: 'Xóa nhân viên này',
+            okText: 'Có',
             okType: 'danger',
-            cancelText: 'No',
+            cancelText: 'Không',
             onOk() {
                 axios.delete(`${baseUrl}/customer/${id}`).then(res => {
                     fillData();
@@ -227,7 +227,7 @@ export default function ListTable() {
                 <div className='bg-slate-600 h-[2px]'></div>
                 <div className='rounded-md mb-3 p-3 shadow-md'>
                     <div className='grid grid-cols-2 gap-3 my-3'>
-                        <div>
+                        <div className='my-2'>
                             <p className='font-semibold mb-2'>Họ và tên</p>
                             <Input
                                 placeholder="tìm kiếm theo tên"
@@ -235,10 +235,10 @@ export default function ListTable() {
                                 onChange={(event) =>
                                     table.getColumn("fullName")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-md"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
+                        <div className='my-2'>
                             <p className='font-semibold mb-2'>Email</p>
                             <Input
                                 placeholder="tìm kiếm theo email"
@@ -246,10 +246,10 @@ export default function ListTable() {
                                 onChange={(event) =>
                                     table.getColumn("email")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-md"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
+                        <div className='my-2'>
                             <p className='font-semibold mb-2'>Số điện thoại</p>
                             <Input
                                 placeholder="tìm kiếm theo số điện thoại"
@@ -257,7 +257,7 @@ export default function ListTable() {
                                 onChange={(event) =>
                                     table.getColumn("phone")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-md"
+                                className="w-2/3"
                             />
                         </div>
                     </div>

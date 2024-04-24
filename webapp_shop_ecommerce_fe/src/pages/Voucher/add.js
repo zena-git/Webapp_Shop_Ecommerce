@@ -129,7 +129,10 @@ const VoucherPage = () => {
                     setPending(false);
                     toast.success("Đã tạo voucher thành công")
                     form.reset();
-                    dispatch(set({ value: { selected: [] } }))
+                    dispatch(set({ value: { selected: [] } }));
+                    setTimeout(() => {
+                        navigate('/discount/voucher');
+                    }, 2000)
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -156,6 +159,9 @@ const VoucherPage = () => {
                         toast.success("Đã tạo voucher thành công")
                         dispatch(set({ value: { selected: [] } }))
                         form.reset();
+                        setTimeout(() => {
+                            navigate('/discount/voucher');
+                        }, 2000)
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message)
@@ -244,10 +250,12 @@ const VoucherPage = () => {
                                                 <FormItem>
                                                     <FormLabel>Hình thức giảm giá</FormLabel>
                                                     <FormControl>
-                                                        <Radio.Group name="radiogroup" defaultValue={"1"} onChange={e => setDiscountType(e.target.value == '0')}>
-                                                            <Radio value={"0"}>Giảm giá trực tiếp</Radio>
-                                                            <Radio value={"1"}>Giảm giá %</Radio>
-                                                        </Radio.Group>
+                                                        <div>
+                                                            <Radio.Group name="radiogroup" defaultValue={"1"} onChange={e => setDiscountType(e.target.value == '0')}>
+                                                                <Radio value={"0"}>Giảm giá trực tiếp</Radio>
+                                                                <Radio value={"1"}>Giảm giá %</Radio>
+                                                            </Radio.Group>
+                                                        </div>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

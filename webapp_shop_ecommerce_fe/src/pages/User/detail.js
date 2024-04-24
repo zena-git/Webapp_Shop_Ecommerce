@@ -33,11 +33,11 @@ export default function DetailPage() {
                     </div>
                     <div className="flex-grow pl-5 flex flex-col gap-8 p-4 bg-slate-50 rounded-md shadow-lg">
                         <p className='mt-4 text-2xl font-bold mb-2'>Thông tin</p>
-                        <p className="text-xl font-semibold">Tên khách hàng: {targetUser?.fullName}</p>
-                        <p className="text-xl font-semibold">Sinh nhật: {targetUser?.birthday || "Không có"}</p>
-                        <p className="text-xl font-semibold">Giới tính: {targetUser && targetUser.gender == 0 ? "nam" : "nữ"}</p>
-                        <p className="text-xl font-semibold">SDT: {targetUser?.phone}</p>
-                        <p className="text-xl font-semibold">Email: {targetUser?.email}</p>
+                        <p className="text-2xl font-semibold">Tên nhân viên: {targetUser?.fullName}</p>
+                        <p className="text-2xl font-semibold">Sinh nhật: {targetUser?.birthday?.split("T")[0] || "Không có"}</p>
+                        <p className="text-2xl font-semibold">Giới tính: {targetUser && targetUser.gender == 0 ? "nam" : "nữ"}</p>
+                        <p className="text-2xl font-semibold">SDT: {targetUser?.phone}</p>
+                        <p className="text-2xl font-semibold">Email: {targetUser?.email}</p>
                     </div>
                 </div>
             </div>

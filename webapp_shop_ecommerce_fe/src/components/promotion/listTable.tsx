@@ -43,14 +43,8 @@ export default function ListTable() {
             setData(res.data);
         })
     }
-    const fillDeletedData = () => {
-        axios.get(`${baseUrlV3}/promotion/deleted`).then(res => {
-            setDeletedData(res.data);
-        })
-    }
     useEffect(() => {
         fillData();
-        fillDeletedData();
     }, [])
 
 
@@ -85,17 +79,18 @@ export default function ListTable() {
 
     const showDeleteConfirm = (id) => {
         confirm({
-            title: 'Bạn có muốn xóa không',
+            title: 'Bạn có muốn hủy không',
             icon: <ExclamationCircleFilled />,
             content: '',
-            okText: 'Yes',
+            okText: 'Có',
             okType: 'danger',
-            cancelText: 'No',
+            cancelText: 'Không',
             onOk() {
-                axios.delete(`${baseUrl}/promotion/${id}`).then(res => {
-                    toast.success('xóa thành công');
+                axios.put(`${baseUrlV3}/promotion/disable/${id}`).then(res => {
+                    toast.success('Đã hủy');
                     fillData();
-                    fillDeletedData();
+                }).catch(err => {
+                    console.log(err);
                 })
             },
             onCancel() {
@@ -199,10 +194,12 @@ export default function ListTable() {
                     {
                         key: '3',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
-                                <FaTrash />
-                                Xóa
-                            </div>
+                            <>
+                                {row.original.status != 4 ? <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                                    <FaTrash />
+                                    Hủy
+                                </div> : <></>}
+                            </>
                         ),
                     },
                 ];
@@ -215,43 +212,43 @@ export default function ListTable() {
                 )
             },
         },
-    ], [openModal, setOpenModal, fillData, fillDeletedData]);
+    ], [openModal, setOpenModal, fillData]);
 
 
-    const Recover = () => {
+    // const Recover = () => {
 
-        const showModal = () => {
-            setIsModalOpen(true);
-        };
+    //     const showModal = () => {
+    //         setIsModalOpen(true);
+    //     };
 
-        const handleOk = () => {
-            const promises = listPromotionDeleteSelected.map(slt => {
-                return axios.put(`${baseUrlV3}/promotion/recover?id=${slt.id}`)
-            })
-            Promise.all(promises).then(() => {
-                setIsModalOpen(false);
-                fillData();
-                fillDeletedData()
-            })
+    //     const handleOk = () => {
+    //         const promises = listPromotionDeleteSelected.map(slt => {
+    //             return axios.put(`${baseUrlV3}/promotion/recover?id=${slt.id}`)
+    //         })
+    //         Promise.all(promises).then(() => {
+    //             setIsModalOpen(false);
+    //             fillData();
+    //             fillDeletedData()
+    //         })
 
-        };
-        const handleCancel = () => {
-            setIsModalOpen(false);
-        };
+    //     };
+    //     const handleCancel = () => {
+    //         setIsModalOpen(false);
+    //     };
 
-        const listPromotionDeleteSelected = useAppSelector(state => state.promotionDeletedReducer.value.selected)
+    //     const listPromotionDeleteSelected = useAppSelector(state => state.promotionDeletedReducer.value.selected)
 
-        return (
-            <>
-                <Button danger onClick={showModal}>
-                    <FaTrash />
-                </Button>
-                <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    {ListDeleted({ data: deletedData })}
-                </Modal>
-            </>
-        );
-    }
+    //     return (
+    //         <>
+    //             <Button danger onClick={showModal} className="flex items-center">
+    //                 <FaTrash />
+    //             </Button>
+    //             <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+    //                 {ListDeleted({ data: deletedData })}
+    //             </Modal>
+    //         </>
+    //     );
+    // }
 
     const table = useReactTable({
         data,
@@ -275,13 +272,13 @@ export default function ListTable() {
     return (
         <>
             <ToastContainer />
-            <div className='bg-slate-50 rounded-md p-3 shadow-lg'>
-                <div className='grid grid-cols-3 items-center my-3  gap-5 border'>
+            <div className='bg-slate-50 rounded-md p-3 pb-6 shadow-lg'>
+                <div className='grid grid-cols-2 items-center my-3 gap-5 border'>
                     <div className='flex flex-col w-full'>
                         <p className='mb-1 font-semibold text-xl'>Trạng thái</p>
                         <div className='min-w-[240px]'>
                             <Select
-                                style={{ width: '240px' }}
+                                className=' w-2/3'
                                 defaultValue={0}
                                 defaultActiveFirstOption
                                 onChange={(value) => {
@@ -296,24 +293,35 @@ export default function ListTable() {
                                 <option value={1}>Sắp diễn ra</option>
                                 <option value={2}>Đang diễn ra</option>
                                 <option value={3}>Đã kết thúc</option>
-                                <option value={4}>Đã hủy</option>
+                                <option value={5}>Đã hủy</option>
                             </Select>
                         </div>
                     </div>
                     <div>
-                        <p className='mb-1 font-semibold text-xl'>Tìm kiếm</p>
+                        <p className='mb-1 font-semibold text-xl'>Tìm kiếm theo mã</p>
+                        <Input
+                            placeholder="mã..."
+                            value={(table.getColumn("code")?.getFilterValue() as string) ?? ""}
+                            onChange={(event) =>
+                                table.getColumn("code")?.setFilterValue(event.target.value)
+                            }
+                            className="w-2/3"
+                        />
+                    </div>
+                    <div>
+                        <p className='mb-1 font-semibold text-xl'>Tìm kiếm theo tên</p>
                         <Input
                             placeholder="tên..."
                             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                             onChange={(event) =>
                                 table.getColumn("name")?.setFilterValue(event.target.value)
                             }
-                            className="max-w-sm"
+                            className="w-2/3"
                         />
                     </div>
                     <div>
                         <p className='mb-1 font-semibold text-xl'>Khoảng ngày</p>
-                        <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} onChange={value => {
+                        <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} className=' w-2/3' onChange={value => {
                             if (value && value[0] && value[1]) {
                                 table.getColumn("startDate").setFilterValue(value[0]);
                                 table.getColumn("endDate").setFilterValue(value[1])
@@ -323,14 +331,13 @@ export default function ListTable() {
                             }
                         }} />
                     </div>
-
                 </div>
 
-                <div className='flex gap-5 items-center justify-between'>
+                <div className='flex gap-5 items-center justify-between mt-4'>
                     <Button type="primary" variant="ountline" onClick={() => { navigate('/discount/promotion/add') }} className=''>
                         Thêm sự kiện giảm giá mới
                     </Button>
-                    {Recover()}
+                    {/* {Recover()} */}
                 </div>
             </div>
             <div className="rounded-md border bg-slate-50 p-3 shadow-lg flex flex-col gap-3">
