@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.repositories;
 
 import com.example.webapp_shop_ecommerce.entity.Promotion;
 import com.example.webapp_shop_ecommerce.entity.Voucher;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -35,8 +36,13 @@ public interface IVoucherRepository extends IBaseReporitory<Voucher, Long> {
     @Query("UPDATE Voucher p SET p.status = :newStatus WHERE p.endDate <= :now AND p.status = :oldStatus and p.deleted = false ")
     void updateStatusToDaKetThuc(@Param("now") LocalDateTime now, @Param("oldStatus") String oldStatus, @Param("newStatus") String newStatus);
 
-    @Query("SELECT p FROM Voucher p WHERE  p.deleted = :type")
-    List<Voucher> findAllByDeleted(@Param("type") Boolean type);
+    @Query("SELECT p FROM Voucher p WHERE  p.status = :type")
+    List<Voucher> findAllByDeleted(@Param("type") Integer type);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Voucher p SET p.status = :status WHERE p.id = :id and p.deleted = false ")
+    void disableVoucher(@Param("id") Long id, @Param("status") String status);
 
     @Query("SELECT p FROM Voucher p WHERE  p.id = :id AND p.deleted = true")
     Voucher findDeletedId(@Param("id") Long id);

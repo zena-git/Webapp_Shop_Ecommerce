@@ -44,5 +44,8 @@ public interface IPromotionRepository extends IBaseReporitory<Promotion, Long> {
     @Query("UPDATE Promotion p SET p.deleted = false where p.id = :id")
     void updateRecover(@Param("id") Long id);
 
-
+    @Transactional
+    @Modifying
+    @Query("UPDATE Promotion p SET p.status = :status WHERE p.id = :id and p.deleted = false ")
+    void disablePromotion(@Param("id") Long id, @Param("status") String status);
 }

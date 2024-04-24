@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 public class CronJob {
     //https://hocspringboot.net/2020/10/30/scheduled-annotation-trong-spring-boot/
     private TrangThaiGiamGia trangThaiGiamGia;
@@ -20,7 +19,7 @@ public class CronJob {
     IVoucherRepository voucherRepo;
     @Autowired
     IPromotionRepository promotionRepo;
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void VoucherCronJob() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -33,7 +32,7 @@ public class CronJob {
 
     }
 
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void PromotionCronJob() {
         LocalDateTime now = LocalDateTime.now();
         //set Dang dien ra

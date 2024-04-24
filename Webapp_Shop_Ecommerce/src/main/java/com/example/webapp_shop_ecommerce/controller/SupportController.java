@@ -21,14 +21,19 @@ import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.SupportSevice;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,9 +93,15 @@ public class SupportController {
         return supportSevice.recoverPromotion(id);
     }
 
+    @PutMapping("/voucher/disable/{id}")
+    public ResponseEntity<?> disableVoucher(@PathVariable("id") Long id) {
+
+        return supportSevice.disableVoucher(id);
+    }
+
     @GetMapping("/voucher/deleted")
     public ResponseEntity<?> findVoucherByDelete(@RequestParam(value = "type", defaultValue = "true") Boolean type ) {
-        return supportSevice.findAllVoucherByDeleted(type);
+        return supportSevice.findAllVoucherByDisabled();
     }
 
     @PutMapping("/voucher/recover")
@@ -128,6 +139,12 @@ public class SupportController {
     @PostMapping("/promotion/update")
     public ResponseEntity<?> promotionUpadte(@RequestBody PromotionRequest request) {
         return supportSevice.promotionUpadte(request);
+    }
+
+    @PutMapping("/promotion/disable/{id}")
+    public ResponseEntity<?> disablePromotion(@PathVariable("id") Long id) {
+
+        return supportSevice.disablePromotion(id);
     }
 
     @GetMapping("/customer/deleted")
@@ -188,7 +205,21 @@ public class SupportController {
     }
 
     @GetMapping("/print/{id}")
-    public void printInvoice(@PathVariable("id") Long id) throws Exception {
-        supportSevice.PrintInvoice(id);
+    public ResponseEntity<?> printInvoice(@PathVariable("id") Long id) throws Exception {
+        String output = supportSevice.PrintInvoice(id);
+        File file = new File(output);
+        HttpHeaders headers = new HttpHeaders();
+        String[] parts = output.split("/");
+        String fileName = parts[parts.length - 1];
+        headers.add("Content-Disposition", "inline; filename=" + fileName);
+
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/pdf"))
+                .body(resource);
+
     }
 }
