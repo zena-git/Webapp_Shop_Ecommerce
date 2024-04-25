@@ -3,11 +3,10 @@ import Quagga from 'quagga'
 import { Button, } from 'antd';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
-const BarcodeScanner = ({ isOpenModalQrcode, idBill, setIsOpenModalQrcode }) => {
+const BarcodeScanner = ({ isOpenModalQrcode, idBill, setIsOpenModalQrcode, handleAddProductDetailsQrCode }) => {
   const [cameraOpen, setCameraOpen] = useState(isOpenModalQrcode)
-
   useEffect(() => {
-    if (isOpenModalQrcode) {
+    if (cameraOpen) {
       Quagga.init(
         {
           inputStream: {
@@ -61,19 +60,20 @@ const BarcodeScanner = ({ isOpenModalQrcode, idBill, setIsOpenModalQrcode }) => 
     } else {
       Quagga.stop()
     }
-    console.log(isOpenModalQrcode);
 
     return () => {
       Quagga.offDetected(_onDetected)
     }
-  }, [isOpenModalQrcode])
+  }, [cameraOpen])
+
 
   const toggleCamera = () => {
+
     setCameraOpen(!cameraOpen)
   }
 
   const _onDetected = (result) => {
-    console.log(result.codeResult.code);
+    handleAddProductDetailsQrCode(result.codeResult.code);
   }
 
   return (
@@ -83,17 +83,22 @@ const BarcodeScanner = ({ isOpenModalQrcode, idBill, setIsOpenModalQrcode }) => 
         height: '320px',
         backgroundColor: 'black'
       }}>
-        {isOpenModalQrcode && <div id="interactive" className="viewport" />}
+        {cameraOpen && <div id="interactive" className="viewport" />}
       </div>
 
       <div className='flex justify-end	mt-6'>
-        {/* <Button type='primary' onClick={toggleCamera}>
+        <Button type='primary' onClick={toggleCamera}>
           {cameraOpen ? 'Đóng Camera' : 'Mở Camera'}
-        </Button> */}
-        <Button className='ml-4' onClick={toggleCamera}>
+        </Button>
+        <Button className='ml-4' onClick={() => {
+          // setCameraOpen(false)
+          setIsOpenModalQrcode(false)
+        }}>
           Thoát
         </Button>
       </div>
+
+      <ToastContainer></ToastContainer>
     </div>
   )
 }

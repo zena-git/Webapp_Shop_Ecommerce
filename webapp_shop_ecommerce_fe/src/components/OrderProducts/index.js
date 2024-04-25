@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import BarcodeScanner from '../BarcodeScanner';
+import QRScanner from '../QRScanner';
 import { useDebounce } from '~/hooks';
 const { confirm } = Modal;
 const tagRender = (props) => {
@@ -586,6 +587,24 @@ function OrderProducts() {
             });
     }
 
+    const handleAddProductDetailsQrCode = async (barcode)  => {
+        
+        if (!idBill) {
+            toast.error("Invalid or missing bill ID.");
+            return;
+        }
+        try {
+            const response = await axios.post(`http://localhost:8080/api/v1/counters/${idBill}/product/barcode/${barcode}`);
+            console.log('API response:', response.data);
+            toast.success(response.data.message);
+            updateDataDataCart();
+            updateDataProductDetails();
+          } catch (error) {
+            console.error('API error:', error);
+            toast.error(error.response.data.message);
+          }
+    }
+
 
     const onSelectChange = (newSelectedRowKeys) => {
         console.log('selectedRowKeys changed: ', newSelectedRowKeys);
@@ -768,7 +787,8 @@ function OrderProducts() {
                                         setIsOpenModalQrcode(false);
                                     }}>
                                         <div className='flex justify-center	'>
-                                            <BarcodeScanner isOpenModalQrcode={isOpenModalQrcode} setIsOpenModalQrcode={setIsOpenModalQrcode} idBill={bill?.id}></BarcodeScanner>
+                                            {/* <QRScanner></QRScanner> */}
+                                            <BarcodeScanner isOpenModalQrcode={isOpenModalQrcode} setIsOpenModalQrcode={setIsOpenModalQrcode} idBill={bill?.id} handleAddProductDetailsQrCode={handleAddProductDetailsQrCode}></BarcodeScanner>
                                         </div>
                                     </Modal>
                                 </>
