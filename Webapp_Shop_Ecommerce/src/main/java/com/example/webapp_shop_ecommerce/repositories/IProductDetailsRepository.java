@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,8 +41,22 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
 
     Optional<ProductDetails> findByBarcode(String bacode);
 
-    @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.deleted = false and proDetail.product.status = '0' and proDetail.quantity >0")
+    @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.deleted = false and proDetail.product.status = '0' and proDetail.quantity >0 order by proDetail.lastModifiedDate desc ")
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable pageable);
 
+
+
+
+
+    //conjob
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.status != :status")
+    void updateProductDetailsPromotionActiveToNull( @Param("status") String status);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductDetails pd set pd.promotionDetailsActive = (SELECT pd2 FROM PromotionDetails pd2 WHERE pd2.productDetails.id = pd.id AND pd2.promotion.status = :status)")
+    void updateProductDetailsToPromotionDetailsWherePromotionToDangDienRa( @Param("status") String status);
 
 }

@@ -26,11 +26,22 @@ public interface IPromotionDetailsRepository extends IBaseReporitory<PromotionDe
     List<PromotionDetails> findPromotionDetailsByProductDetailAAndPromotion(@Param("idProductDetails") Long idProductDetails,@Param("idPromotion") Long idPromotion);
     @Modifying
     @Transactional
+// <<<<<<< HEAD
+//     @Query("UPDATE PromotionDetails p SET p.deleted = true WHERE p.id NOT IN :ids")
+// =======
     @Query("UPDATE PromotionDetails p SET p.deleted = true WHERE p.productDetails.id NOT IN :ids")
+// >>>>>>> origin/be_b
     void updateDeletedFlagForNotInIds(@Param("ids") List<Long> ids);
 
     @Modifying
     @Transactional
+// <<<<<<< HEAD
+//     @Query("UPDATE PromotionDetails p SET p.deleted = true WHERE p.id =:id")
+//     void updateDeletedFalseById(@Param("id") Long id);
+
+
+
+// =======
     @Query("UPDATE PromotionDetails p SET p.deleted = false WHERE p.productDetails.id IN :ids")
     void updateDeletedFalseInIds(@Param("ids") List<Long> ids);
 
@@ -38,4 +49,5 @@ public interface IPromotionDetailsRepository extends IBaseReporitory<PromotionDe
     @Transactional
     @Query("UPDATE PromotionDetails p SET p.deleted = false WHERE p.id =:id")
     void updateDeletedFalseById(@Param("id") Long id);
+// >>>>>>> origin/be_b
 }

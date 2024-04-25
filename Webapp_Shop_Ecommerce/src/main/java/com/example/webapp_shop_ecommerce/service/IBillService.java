@@ -33,6 +33,7 @@ public interface IBillService extends IBaseService<Bill, Long> {
     ResponseEntity<ResponseObject> chaneQuantityBillDetails(BillDetailsRequest chaneQuantityBillDetails, Long idBillDetail);
     ResponseEntity<ResponseObject> billCounterPay( BillRequest billDto, Long id) throws UnsupportedEncodingException;
     ResponseEntity<ResponseObject> billDeleteBillDetail(Long idBillDetail);
+    ResponseEntity<ResponseObject> billDeleteAllBillDetail(Long idBill);
     ResponseEntity<ResponseObject> deleteBillToBillDetailAll(Long idBill);
 
     Page<Bill> findAllDeletedFalseAndStatusAndStatusNot(Pageable page, Map<String,Object> keyWork, String statusNot);
@@ -46,7 +47,7 @@ public interface IBillService extends IBaseService<Bill, Long> {
 
     ResponseEntity<ResponseObject> addHistorybill(HistoryBillRequest historyBillRequest ,Long idBill);
     ResponseEntity<ResponseObject> billPaymentHistory(PaymentHistoryRequest paymentHistoryRequest , Long idBill);
-    ResponseEntity<ResponseObject> cancellingBill(Long idBill);
+    ResponseEntity<ResponseObject> cancellingBill(Long idBill, HistoryBillRequest historyBillRequest);
     Optional<Bill> findBillByCode(String codeBill);
 
 

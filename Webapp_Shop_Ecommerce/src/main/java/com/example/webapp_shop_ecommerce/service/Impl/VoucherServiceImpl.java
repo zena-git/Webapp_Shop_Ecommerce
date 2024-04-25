@@ -2,7 +2,10 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.entity.*;
+import com.example.webapp_shop_ecommerce.entity.Customer;
+import com.example.webapp_shop_ecommerce.entity.Promotion;
+import com.example.webapp_shop_ecommerce.entity.Voucher;
+import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.ICustomerRepository;
 import com.example.webapp_shop_ecommerce.repositories.IVoucherDetailsRepository;
@@ -17,7 +20,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +37,11 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
     @Override
     public Page<Voucher> findVoucherByKeyWorkAndDeletedFalse(Pageable pageable, Map<String, String> keyWork) {
         return repository.findVoucherByKeyWorkAndDeletedFalse(pageable, keyWork);
+    }
+
+    @Override
+    public List<Voucher> findAllByIdCustomer(Long idCustomer) {
+        return repository.findAllByIdCustomer(idCustomer, TrangThaiGiamGia.DANG_DIEN_RA.getLabel());
     }
 
     @Override
@@ -97,6 +108,43 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
             entity.setStatus("0");
         }
 
+// <<<<<<< HEAD
+//         Voucher voucher = repository.save(entity);
+//         if (voucher == null){
+//             return new ResponseEntity<>(new ResponseObject("error", "Thất Bại", 1, voucherRequest), HttpStatus.BAD_REQUEST);
+//         }
+//         //xoa tat ca voucherDetail tyle updated vi customer da su dung voucher r
+//         voucherDetailsRepo.deleteByVoucherTyleUpdate(voucher);
+
+//         List<Long> lstIdCustomer = voucherRequest.getLstCustomer();
+//         List<Customer> lstCustomer = new ArrayList<Customer>();
+//         if (lstIdCustomer.size()>0){
+//             lstCustomer = customerRepo.findAllById(lstIdCustomer);
+//         }else {
+//             lstCustomer = customerRepo.findAll();
+//         }
+
+//         List<VoucherDetails> lstVoucherDetails = lstCustomer.stream().map(
+//                 customer -> {
+//                     VoucherDetails voucherDetails = new VoucherDetails();
+//                     voucherDetails.setVoucher(voucher);
+//                     voucherDetails.setCustomer(customer);
+//                     voucherDetails.setId(null);
+//                     voucherDetails.setDeleted(false);
+//                     voucherDetails.setCreatedBy("Admin");
+//                     voucherDetails.setCreatedDate(LocalDateTime.now());
+//                     voucherDetails.setLastModifiedDate(LocalDateTime.now());
+//                     voucherDetails.setLastModifiedBy("Admin");
+//                     voucherDetails.setStatus(false);
+//                     return voucherDetails;
+//                 }
+//         ).collect(Collectors.toList());
+
+//         voucherDetailsRepo.saveAll(lstVoucherDetails);
+//         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, voucherRequest), HttpStatus.OK);
+
+
+// =======
         List<VoucherDetails> listVoucherDetails = voucherDetailsRepo.findByVoucherId(id);
         List<Long> lstIdCustomer = voucherRequest.getLstCustomer();
         List<Customer> lstCustomer = customerRepo.findAll();
@@ -142,5 +190,6 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
 
         Voucher voucher = repository.save(entity);
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, voucherRequest), HttpStatus.OK);
+// >>>>>>> origin/be_b
     }
 }

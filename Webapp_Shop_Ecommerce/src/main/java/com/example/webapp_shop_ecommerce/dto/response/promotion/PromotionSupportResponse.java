@@ -1,7 +1,6 @@
 package com.example.webapp_shop_ecommerce.dto.response.promotion;
 
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsSupportResponse;
-import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotionDetails.PromotionDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotionDetails.PromotionDetailsSupportResponse;
 import lombok.AllArgsConstructor;

@@ -61,7 +61,7 @@ public class BillShowResponse {
     private UserResponse user;
 
 //    Set<BillDetailsBillResponse> lstBillDetails;
-    Set<VoucherDetailsResponse> lstVoucherDetails;
+//    Set<VoucherDetailsResponse> lstVoucherDetails;
     Set<HistoryBillResponse> lstHistoryBill;
     Set<PaymentHistoryResponse> lstPaymentHistory;
 

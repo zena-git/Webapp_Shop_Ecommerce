@@ -22,5 +22,4 @@ public class CustomerRequest {
     private Boolean gender;
     private String phone;
     private String email;
-    private String username;
 }

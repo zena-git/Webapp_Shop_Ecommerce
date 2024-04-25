@@ -5,7 +5,11 @@ import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IVoucherDetailsService extends IBaseService<VoucherDetails, Long>{
-    List<VoucherDetails> findAllByIdCustomer(Long idCustomer);
+
+
+    Optional<VoucherDetails> findVoucherDetailsByCustomerAndVoucher(Long idCustomer,Long idVoucher);
+
 }

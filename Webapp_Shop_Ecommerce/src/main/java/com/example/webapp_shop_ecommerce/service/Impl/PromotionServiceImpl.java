@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -102,6 +103,18 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
 
 
         //delete all PromotionDetails by promotion
+// <<<<<<< HEAD
+//         promotionDetailsRepo.deleteByPromotion(promotion);
+
+//         List<ProductDetails> lstProductDetails = productDetailsRepo.findAllById(promotionRequest.getLstProductDetails());
+
+//         List<PromotionDetails> lstPromotionDetails = lstProductDetails.stream().map(
+//                 productDetails -> {
+
+//                     PromotionDetails promotionDetails = new PromotionDetails();
+//                     promotionDetails.setPromotion(promotion);
+//                     promotionDetails.setProductDetails(productDetails);
+// =======
 //        promotionDetailsRepo.deleteByPromotion(promotion);
 
         promotionDetailsRepo.updateDeletedFlagForNotInIds(promotionRequest.getLstProductDetails());
@@ -112,6 +125,7 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
 
                     promotionDetails.setPromotion(promotion);
                     promotionDetails.setProductDetails(productDetailsRepo.findById(productId).get());
+// >>>>>>> origin/be_b
 
                     promotionDetails.setId(null);
                     promotionDetails.setDeleted(false);
@@ -119,6 +133,14 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
                     promotionDetails.setCreatedDate(LocalDateTime.now());
                     promotionDetails.setLastModifiedDate(LocalDateTime.now());
                     promotionDetails.setLastModifiedBy("Admin");
+// <<<<<<< HEAD
+
+//                     PromotionDetails promotionDetailsActive = promotionDetailsRepo.save(promotionDetails);
+//                     productDetails.setPromotionDetailsActive(promotionDetailsActive);
+//                     productDetailsRepo.save(productDetails);
+//                     return promotionDetails;
+//                 }).collect(Collectors.toList());
+// =======
                     return promotionDetailService.createNew(promotionDetails);
         });
 //        promotionDetailsRepo.createnotInIds(promotionRequest.getLstProductDetails(), id);
@@ -142,6 +164,7 @@ public class PromotionServiceImpl extends BaseServiceImpl<Promotion, Long, IProm
 //                    productDetailsRepo.save(productDetails);
 //                    return promotionDetails;
 //                }).collect(Collectors.toList());
+// >>>>>>> origin/be_b
         //save all list PromotionDetails
 //        promotionDetailsRepo.saveAll(lstPromotionDetails);
         return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, promotionRequest), HttpStatus.OK);

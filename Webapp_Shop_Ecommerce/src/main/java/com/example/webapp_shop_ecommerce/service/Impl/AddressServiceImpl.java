@@ -62,7 +62,7 @@ public class AddressServiceImpl extends BaseServiceImpl<Address, Long, IAddressR
         }
 
         Address addressSave = repository.save(address);
-        customer.setDefaultAddress(addressSave);
+//        customer.setDefaultAddress(addressSave);
         customerService.update(customer);
 
         return new ResponseEntity<>(new ResponseObject("success", "Thêm Mới Thành Công", 0, request), HttpStatus.CREATED);
@@ -96,7 +96,7 @@ public class AddressServiceImpl extends BaseServiceImpl<Address, Long, IAddressR
         }
 
         update(address);
-        customer.setDefaultAddress(address);
+//        customer.setDefaultAddress(address);
         customerService.update(customer);
         return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Thành Công", 0, request), HttpStatus.CREATED);
 
