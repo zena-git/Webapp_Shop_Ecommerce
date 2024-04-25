@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.response.statistical.StatisticalReponse;
 import com.example.webapp_shop_ecommerce.dto.response.statistical.StatisticalTopSaleResponse;
+import com.example.webapp_shop_ecommerce.dto.response.statistical.Top5ProductSellingReponse;
 import com.example.webapp_shop_ecommerce.dto.response.statistical.TopSaleReponse;
 import com.example.webapp_shop_ecommerce.repositories.IStatisticalRepository;
 import com.example.webapp_shop_ecommerce.service.IStatisticalService;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+
 public class StatisticalServiceImpl implements IStatisticalService {
     @Autowired
     IStatisticalRepository statisticalRepo;
@@ -30,6 +32,12 @@ public class StatisticalServiceImpl implements IStatisticalService {
     @Override
     public ResponseEntity<?> getAllStatistical(LocalDateTime startDate, LocalDateTime endDate) {
         List<StatisticalReponse> lst = statisticalRepo.getAllStatistical(startDate,endDate);
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getTop5ProductSelling() {
+        List<Top5ProductSellingReponse> lst = statisticalRepo.getTop5ProductSelling();
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
 }

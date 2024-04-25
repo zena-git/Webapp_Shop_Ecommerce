@@ -65,4 +65,9 @@ public class StatisticalController {
 
         return statisticalService.getAllStatistical(startDateTime, endDateTime);
     }
+
+    @GetMapping("/top5selling")
+    public ResponseEntity<?> findTop5Selling() {
+        return statisticalService.getTop5ProductSelling();
+    }
 }

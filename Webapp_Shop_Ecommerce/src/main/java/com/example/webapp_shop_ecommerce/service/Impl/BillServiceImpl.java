@@ -437,7 +437,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
             Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill, productDetails);
 
-            if (productDetails.getQuantity() == 0) {
+            if (productDetails.getQuantity() <= 0) {
                 return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Là 0", 1, null), HttpStatus.BAD_REQUEST);
             }
             if (productDetails.getQuantity() < billDetailsDto.getQuantity()) {
@@ -509,19 +509,28 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         Bill bill = otp.get();
         ProductDetails productDetails = productDetailOtp.get();
 
+
         Optional<BillDetails> billDetailsOpt = billDetailsRepo.findByBillAndProductDetails(bill, productDetails);
+
+        if (productDetails.getQuantity() <= 0) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm Là 0", 1, null), HttpStatus.BAD_REQUEST);
+        }
+
         if (billDetailsOpt.isPresent()) {
             BillDetails billDetails = billDetailsOpt.get();
             billDetails.setQuantity(billDetails.getQuantity() + 1);
-            billDetailsRepo.save(billDetails);
-
-            productDetails.setQuantity(productDetails.getQuantity() - billDetails.getQuantity());
+            billDetailsService.update(billDetails);
+            productDetails.setQuantity(productDetails.getQuantity() - 1);
             productDetailsService.update(productDetails);
         } else {
             BillDetails billDetails = new BillDetails();
+            billDetails.setId(null);
             billDetails.setBill(bill);
+            billDetails.setDiscount(BigDecimal.ZERO);
+            billDetails.setOriginalPrice(BigDecimal.ZERO);
+            billDetails.setUnitPrice(BigDecimal.ZERO);
+            billDetails.setQuantity(1);
             billDetails.setProductDetails(productDetails);
-            billDetails.setUnitPrice(billDetails.getUnitPrice());
             billDetails.setStatus(TrangThaiBill.DANG_BAN.getLabel());
             billDetailsService.createNew(billDetails);
 

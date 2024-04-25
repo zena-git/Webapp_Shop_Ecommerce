@@ -122,7 +122,7 @@ public class CountersController {
         return billService.billDeleteAllBillDetail(id);
     }
 
-    @GetMapping("/{idBill}/product/barcode/{data}")
+    @PostMapping("/{idBill}/product/barcode/{data}")
     public ResponseEntity<?> billAddProductBarcode(@PathVariable("idBill") Long id,@PathVariable("data") String data) {
         return billService.countersAddProductBarcode(id, data);
     }
