@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportReq
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
+import com.example.webapp_shop_ecommerce.dto.response.print.Print;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsResponse;
 import com.example.webapp_shop_ecommerce.dto.response.productdetails.ProductDetailsSupportResponse;
 import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
@@ -14,8 +15,11 @@ import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
+
+import org.w3c.tidy.Tidy;
 import org.apache.catalina.User;
 import org.apache.commons.math3.analysis.function.Add;
 import org.modelmapper.ModelMapper;
@@ -23,14 +27,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+import static com.itextpdf.text.pdf.BaseFont.IDENTITY_H;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.print.*;
+import java.io.*;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class SupportSevice {
-
+    private static final String UTF_8 = "UTF-8";
     @Autowired
     IAddressService addressService;
     @Autowired
@@ -69,6 +85,12 @@ public class SupportSevice {
     ICustomerService customerService;
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private IBillService billService;
+
+    @Autowired
+    private SpringTemplateEngine templateEngine;
 
     public ResponseEntity<ResponseObject> deleteAddress(Long id){
         return addressService.physicalDelete(id);
@@ -141,16 +163,51 @@ public class SupportSevice {
         return new ResponseEntity<>(obj, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> findAllCustomerByDeleted(Boolean tyle){
+        List<Customer> lstPromotion = customerRepo.findAllCustomerByDeleted(tyle);
+        List<CustomerResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, CustomerResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
     public ResponseEntity<?> findAllByDeleted(Boolean tyle){
         List<Promotion> lstPromotion = promotionRepo.findAllByDeleted(tyle);
         List<PromotionSupportResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, PromotionSupportResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> findAllVoucherByDeleted(Boolean tyle){
-        List<Voucher> lstPromotion = voucherRepo.findAllByDeleted(tyle);
+    public ResponseEntity<?> findAllVoucherByDisabled(){
+        List<Voucher> lstPromotion = voucherRepo.findAllByDeleted(4);
         List<VoucherResponse> resultDto  = lstPromotion.stream().map(promotion -> mapper.map(promotion, VoucherResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> disableVoucher(Long id){
+        Optional<Voucher> otp = voucherRepo.findById(id);
+        System.out.println(otp.toString());
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        voucherRepo.disableVoucher(id, TrangThaiGiamGia.DA_HUY.getLabel());
+        return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> disablePromotion(Long id){
+        Optional<Promotion> otp = promotionRepo.findById(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        promotionRepo.disablePromotion(id, TrangThaiGiamGia.DA_HUY.getLabel());
+        return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
+    }
+
+
+    public ResponseEntity<?> recoverCustomer(Long id ){
+        Optional<Customer> otp = customerRepo.findByIdDeleted(id);
+        if (otp.isEmpty()) {
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
+        }
+        customerRepo.updateRecover(id);
+        return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
     }
 
     public ResponseEntity<?> recoverPromotion(Long id ){
@@ -194,6 +251,7 @@ public class SupportSevice {
         List<UserResponse> resultDto  = lstUser.stream().map(user -> mapper.map(user, UserResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
+
 
     public ResponseEntity<?> recoverUser(Long id ){
         Optional<Users> otp = usersRepo.findById(id);
@@ -257,9 +315,6 @@ public class SupportSevice {
         promotionService.update(promotion);
         return new ResponseEntity<>(new ResponseObject("success","Thành công",0, request), HttpStatus.OK);
 
-    }
-    public ResponseEntity<?> abc(AddressRequest request){
-        return null;
     }
 
     public ResponseEntity<?> saveOrUpdateCustomer( CustomerSupportRequest customerDto, Long ...idCustomer){
@@ -331,4 +386,106 @@ public class SupportSevice {
 
     }
 
+    public void generatePdfFromHtml(String htmlContent, String outputPath) throws Exception {
+        ITextRenderer renderer = new ITextRenderer();
+        String xHtml = convertToXhtml(htmlContent);
+        renderer.getFontResolver().addFont("./font/Roboto-Light.ttf", IDENTITY_H, true);
+        renderer.setDocumentFromString(xHtml);
+        renderer.layout();
+        try (OutputStream os = new FileOutputStream(outputPath)) {
+            renderer.createPDF(os);
+//            printDocument(outputPath);
+        }
+    }
+
+//    public void printDocument(String path) {
+//        // Here you're opening the file.
+//        File file = new File(path);
+//        PdfDocument document = PdfDocument.open(new FileDataProvider(file));
+//        // Getting an instance of `PrinterJob` and the default `PageFormat`.
+//        PrinterJob printerJob = PrinterJob.getPrinterJob();
+//        PageFormat pageFormat = printerJob.defaultPage();
+//
+//        // Removing the default margins.
+//        Paper paperFormat = pageFormat.getPaper();
+//        paperFormat.setImageableArea(0, 0, paperFormat.getWidth(), paperFormat.getHeight());
+//        pageFormat.setPaper(paperFormat);
+//
+//        // A `Book` is a Java structure representing multiple printable pages.
+//        Book printableBook = new Book();
+//
+//        // Each page you wish to print must be added to the `Book` as a printable object.
+//        // You can specify a width and height for `renderPage()` to get your desired DPI when printing.
+//        for (int i = 0; i < document.getPageCount(); i++) {
+//            BufferedImage render = document.getPage(i).renderPage();
+//            printableBook.append(new Print(render), pageFormat);
+//        }
+//
+//        printerJob.setPageable(printableBook);
+//
+//        // Here you can choose to display a print dialog before the actual print call.
+//        // You're using the default dialog from `PrinterJob`.
+//        if (printerJob.printDialog()) {
+//            try {
+//                printerJob.print();
+//            } catch (PrinterException prt) {
+//                prt.printStackTrace();
+//            }
+//        }
+//    }
+
+    public String PrintInvoice(Long id) throws Exception {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+        Map<String, Object> props = new HashMap<>();
+        Bill b = billService.findById(id).get();
+        props.put("invoiceDate", dateFormat.format(new Date()).toString());
+        props.put("invoiceNumber", "1233");
+        props.put("bill", b);
+        if(b.getCustomer() != null){
+            props.put("customer", b.getCustomer());
+        }else{
+            Customer customer = new Customer();
+            customer.setFullName("Guest");
+            props.put("customer", customer);
+        }
+        props.put("receiverName", b.getReceiverName());
+        props.put("receiverPhone", b.getReceiverPhone());
+        props.put("billDetails", b.getLstBillDetails());
+
+        Set<BillDetails> billDetails = b.getLstBillDetails();
+
+        BigDecimal totalNetTotal = billDetails.stream()
+                .map(billDetail -> billDetail.getUnitPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalDiscount = billDetails.stream()
+                .map(BillDetails::getDiscount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        props.put("NetTotal", totalNetTotal);
+
+        props.put("Discount", totalDiscount);
+        props.put("Total", totalNetTotal.add(totalDiscount.negate()));
+
+        Context context = new Context();
+        context.setVariables(props);
+        String html = templateEngine.process("invoice", context);
+        String outputF = "E:/"+ b.getCodeBill() + ".pdf";
+        generatePdfFromHtml(html, outputF);
+        return outputF;
+    }
+
+    private String convertToXhtml(String html) throws UnsupportedEncodingException {
+        Tidy tidy = new Tidy();
+        tidy.setInputEncoding(UTF_8);
+        tidy.setOutputEncoding(UTF_8);
+        tidy.setXHTML(true);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        tidy.parseDOM(inputStream, outputStream);
+        return outputStream.toString(StandardCharsets.UTF_8);
+    }
+
+    
 }

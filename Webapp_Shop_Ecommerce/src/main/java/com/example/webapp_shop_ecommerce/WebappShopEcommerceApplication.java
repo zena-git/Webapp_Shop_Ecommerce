@@ -20,6 +20,10 @@ public class WebappShopEcommerceApplication {
         Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
     }
 
+//    public void initializePSPDFKit() throws PSPDFKitInitializeException {
+//        PSPDFKit.initializeTrial();
+//    }
+
     public static void main(String[] args) {
         SpringApplication.run(WebappShopEcommerceApplication.class, args);
     }

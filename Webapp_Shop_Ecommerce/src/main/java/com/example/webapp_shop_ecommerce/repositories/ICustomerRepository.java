@@ -1,9 +1,11 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
 import com.example.webapp_shop_ecommerce.entity.Customer;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +30,15 @@ public interface ICustomerRepository extends IBaseReporitory<Customer, Long> {
 
     @Query("update Customer c SET c.password = :newPassword where c.id = :id")
     void updateCustomerPassword(@Param("id") Long id, @Param("newPassword") String newPassword);
+
+    @Query("SELECT p FROM Customer p WHERE  p.deleted = :type")
+    List<Customer> findAllCustomerByDeleted(@Param("type") Boolean type);
+
+    @Query("SELECT b FROM Customer b WHERE b.id = :id and b.deleted = true")
+    Optional<Customer> findByIdDeleted(@Param("id") Long id);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Customer p SET p.deleted = false where p.id = :id")
+    void updateRecover(@Param("id") Long id);
 }

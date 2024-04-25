@@ -14,7 +14,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 public class CronJob {
     //https://hocspringboot.net/2020/10/30/scheduled-annotation-trong-spring-boot/
     private TrangThaiGiamGia trangThaiGiamGia;
