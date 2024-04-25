@@ -72,55 +72,58 @@ function EditPage() {
     }, [dispatch, path.id]);
 
     const handleSubmitForm = () => {
-        if (!pending) {
-            let lst = []
-            listSelectedProduct.map(value => {
-                value.children.map(child => {
-                    if (child.selected) { lst.push(child.id) }
+        if (targetPromotion.status == 0) {
+            if (!pending) {
+                let lst = []
+                listSelectedProduct.map(value => {
+                    value.children.map(child => {
+                        if (child.selected) { lst.push(child.id) }
+                    })
                 })
-            })
-            if (!date[0] || !date[1] || dayjs(date[0]).toDate().getTime() < new Date().getTime() || dayjs(date[1]).toDate().getTime() < new Date().getTime()) {
-                toast.error("ngày bắt đầu hoặc kết thúc phải là tương lai")
-            } else if (name.trim().length == 0) {
-                toast.error('chưa nhập tên chương trình')
-            } else if (PromotionType == "1" && lst.length == 0) {
-                toast.error('chưa chọn sản phẩm nào')
-            } else if (value.toString().trim().length == 0) {
-                toast.error('đặt mức giảm giá')
-            } else {
-                let allPro = [];
-                listProduct.map(pro => {
-                    allPro.push(...pro.lstProductDetails.map(detail => detail.id))
-                })
-                const t = {
-                    id: path.id,
-                    name: name,
-                    code: code,
-                    status: 0,
-                    value: value,
-                    description: description,
-                    startDate: dayjs(date[0]).toDate(),
-                    endDate: dayjs(date[1]).toDate(),
-                    lstProductDetails: PromotionType == "0" ? allPro : lst
+                if (!date[0] || !date[1] || dayjs(date[0]).toDate().getTime() < new Date().getTime() || dayjs(date[1]).toDate().getTime() < new Date().getTime()) {
+                    toast.error("ngày bắt đầu hoặc kết thúc phải là tương lai")
+                } else if (name.trim().length == 0) {
+                    toast.error('chưa nhập tên chương trình')
+                } else if (PromotionType == "1" && lst.length == 0) {
+                    toast.error('chưa chọn sản phẩm nào')
+                } else if (value.toString().trim().length == 0) {
+                    toast.error('đặt mức giảm giá')
+                } else {
+                    let allPro = [];
+                    listProduct.map(pro => {
+                        allPro.push(...pro.lstProductDetails.map(detail => detail.id))
+                    })
+                    const t = {
+                        id: path.id,
+                        name: name,
+                        code: code,
+                        status: 0,
+                        value: value,
+                        description: description,
+                        startDate: dayjs(date[0]).add(7, 'hour').toDate(),
+                        endDate: dayjs(date[1]).add(7, 'hour').toDate(),
+                        lstProductDetails: PromotionType == "0" ? allPro : lst
+                    }
+                    setPending(true);
+                    axios.put(`${baseUrl}/promotion/${path.id}`, t).then(res => {
+                        toast.success("cập nhật thành công");
+                        setPending(false);
+                        setTimeout(() => {
+                            navigate(`/discount/promotion/detail/${targetPromotion.id}`)
+                        }, 200)
+                    }).catch(err => {
+                        setPending(false);
+                        toast.error(err.response.data.message)
+                    })
                 }
-                setPending(true);
-                axios.put(`${baseUrl}/promotion/${path.id}`, t).then(res => {
-                    toast.success("cập nhật thành công");
-                    setPending(false);
-                    setTimeout(() => {
-                        navigate(`/discount/promotion/detail/${targetPromotion.id}`)
-                    }, 200)
-                }).catch(err => {
-                    setPending(false);
-                    toast.error(err.response.data.message)
-                })
             }
+        } else {
+            toast.error('Chỉ sự kiện giảm giá chưa diễn ra có thể chỉnh sửa');
         }
     }
 
     return (
         <div>
-
             <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
                 <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
                     <div className='flex gap-2 items-center'>

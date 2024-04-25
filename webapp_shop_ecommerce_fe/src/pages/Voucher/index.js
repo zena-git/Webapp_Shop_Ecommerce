@@ -6,7 +6,7 @@ const VoucherPage = () => {
     return (
         <div className="w-full rounded-md bg-white p-6 flex flex-col gap-3">
             <div className='flex justify-between items-center'>
-                <p className='text-xl font-bold'>Phiếu giảm giá</p>
+                <p className='text-2xl font-bold'>Phiếu giảm giá</p>
             </div>
             <div className='h-[2px] bg-slate-600'></div>
             <ListTable />

@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Select, Button, Checkbox, Modal, Input, Radio } from 'antd/lib';
+import { DatePicker, InputNumber, Select, Button, Checkbox, Modal, Input, Radio, Dropdown } from 'antd/lib';
 import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
@@ -32,6 +32,7 @@ import {
 } from "@tanstack/react-table"
 import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
+import Table from '../../components/ui/table';
 
 const { TextArea } = Input;
 
@@ -95,6 +96,7 @@ export default function AddCustomer() {
                 }
                 return {
                     ...add,
+                    key: index + 1,
                     province: {
                         id: null,
                         name: add.province
@@ -123,8 +125,8 @@ export default function AddCustomer() {
         })
     }, [path.id])
 
-    const setAddProvinceP = (value, key, id) => {
-        if (!key && !id) return;
+    const setAddProvinceP = (value, key) => {
+        if (!key) return;
         axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${value}`, {
             headers: {
                 token: token
@@ -140,7 +142,7 @@ export default function AddCustomer() {
                 setListWards(resp.data.data);
                 setListAddress(prev => {
                     return prev.map(target => {
-                        if ((key && target.key == key) || (id && target.id == id)) {
+                        if (target.key == key) {
                             let prov = listProvince.find(province => province.ProvinceID == value);
                             setEditAddress({
                                 ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
@@ -163,8 +165,8 @@ export default function AddCustomer() {
         })
     }
 
-    const setAddDistrictP = (value, key, id) => {
-        if (!key && !id) return;
+    const setAddDistrictP = (value, key) => {
+        if (!key) return;
         axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${value}`, {
             headers: {
                 token: token
@@ -173,7 +175,7 @@ export default function AddCustomer() {
             setListWards(res.data.data);
             setListAddress(prev => {
                 return prev.map(target => {
-                    if ((key && target.key == key) || (id && target.id == id)) {
+                    if (key && target.key == key) {
                         let dist = listDistricts.find(district => district.DistrictID == value)
                         setEditAddress({
                             ...editAddress,
@@ -194,13 +196,13 @@ export default function AddCustomer() {
         })
     }
 
-    const setAddCommuneP = (value, key, id) => {
-        if (!key && !id) return;
+    const setAddCommuneP = (value, key) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 let ward = listWards.find(target => target.WardCode == value);
                 return prev.map(target => {
-                    if ((key && target.key == key) || (id && target.id == id)) {
+                    if (key && target.key == key) {
                         return { ...target, commune: { id: ward.WardCode, name: ward.WardName } }
                     } else {
                         return target
@@ -214,12 +216,12 @@ export default function AddCustomer() {
 
     const navigate = useNavigate();
 
-    const handleChangeReceiverName = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverName = (key, newValue) => {
+        if (!key) return;
         setEditAddress({ ...editAddress, receiverName: newValue })
         setListAddress(prev => {
             return prev.map(address => {
-                if ((key && address.key == key) || (id && address.id == id)) {
+                if (key && address.key == key) {
                     return { ...address, receiverName: newValue };
                 }
                 return address;
@@ -227,13 +229,13 @@ export default function AddCustomer() {
         });
     };
 
-    const handleChangeReceiverPhone = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverPhone = (key, newValue) => {
+        if (!key) return;
         try {
             setEditAddress({ ...editAddress, phone: newValue })
             setListAddress(prev => {
                 return prev.map(address => {
-                    if ((key && address.key == key) || (id && address.id == id)) {
+                    if (key && address.key == key) {
                         return { ...address, phone: newValue };
                     }
                     return address;
@@ -244,12 +246,12 @@ export default function AddCustomer() {
         }
     }
 
-    const handleChangeReceiverDetail = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverDetail = (key, newValue) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 return prev.map(address => {
-                    if ((key && address.key == key) || (id && address.id == id)) {
+                    if (key && address.key == key) {
                         return { ...address, detail: newValue };
                     }
                     return address;
@@ -260,15 +262,13 @@ export default function AddCustomer() {
         }
     }
 
-    const Remove = (key, id) => {
+    const Remove = (key) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
+            if (defaultAddress == key && q.length > 0) {
+                setDefaultAddress(q[0].key);
+            }
             setListAddress(q);
-        } else if (id) {
-            axios.delete(`${baseUrl}/address/${id}`)
-            let x = listAddress.filter(target => id != target.id)
-            setDefaultAddress(x ? x[0].key || x[0].id : 0);
-            setListAddress(x);
         }
     }
 
@@ -278,10 +278,9 @@ export default function AddCustomer() {
         {
             accessorKey: "key",
             header: "Mặc định",
-            cell: ({ row }) => (<>
-                {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
+            cell: ({ row }) => (<div className='flex justify-center'>
                 <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.id || row.original.key) }} />
-            </>
+            </div>
             ),
         },
         {
@@ -289,7 +288,7 @@ export default function AddCustomer() {
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center border-none justify-center min-h-10'
+                        className='flex items-center border-none justify-center min-h-12'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên người nhận
@@ -297,7 +296,7 @@ export default function AddCustomer() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">
+            cell: ({ row }) => <div className="lowercase text-xl">
                 {row.original && <p>{row.original.receiverName}</p>}
             </div>,
         },
@@ -305,7 +304,7 @@ export default function AddCustomer() {
             accessorKey: "phone",
             header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.phone}</p>}
                 </div>
             },
@@ -314,7 +313,7 @@ export default function AddCustomer() {
             accessorKey: "province",
             header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {
                         row.original &&
                         <p>{row.original.province.name}</p>
@@ -326,7 +325,7 @@ export default function AddCustomer() {
             accessorKey: "district",
             header: () => <div className="text-center">Quận/ huyện</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {
                         row.original && <p>{row.original.district.name}</p>
                     }
@@ -337,7 +336,7 @@ export default function AddCustomer() {
             accessorKey: "commune",
             header: () => <div className="text-center">Xã/ phường</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original && <p>{row.original.commune.name}</p>}
                 </div>
             },
@@ -346,7 +345,7 @@ export default function AddCustomer() {
             accessorKey: "detail",
             header: () => <div className="text-center">Chi tiết</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.detail}</p>}
                 </div>
             },
@@ -356,10 +355,31 @@ export default function AddCustomer() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
                     <div className="flex justify-center gap-2 items-center">
-                        <Button className='flex items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}><FaEdit /></Button>
-                        <Button className='flex items-center' onClick={() => { Remove(row.original.key, row.original.id) }}><FaTrash /></Button>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -404,34 +424,34 @@ export default function AddCustomer() {
 
     const handleSubmitForm = (values) => {
         if (!pending) {
-            if (listAddress.length == 0) {
-                toast.error('Hãy thêm ít nhất 1 địa chỉ');
+            if (values.fullName.trim().length == 0) {
+                toast.error('Nhập tên khách hàng');
+            } else if (values.phone.trim().length == 0) {
+                toast.error('Nhập số điện thoại');
             } else {
-                const data = { ...values, birthDay: birthDay, gender: gender == '1' }
+                const lstAddressData = listAddress.map(add => {
+                    return {
+                        receiverName: add.receiverName,
+                        receiverPhone: add.phone,
+                        commune: add.commune.name,
+                        district: add.district.name,
+                        province: add.province.name,
+                        communeID: add.commune.id,
+                        districtID: add.district.id,
+                        provinceID: add.province.id,
+                        defaultAddress: defaultAddress == add.key,
+                        detail: add.detail,
+                        id: add.id
+                    }
+                })
+                const data = { ...values, birthDay: birthDay, gender: gender == '1', lstAddress: lstAddressData }
                 setPending(true);
-                axios.put(`${baseUrl}/customer/${path.id}`, data).then(res => {
-                    const promises = listAddress.map(add => {
-                        const body = {
-                            receiverName: add.receiverName,
-                            receiverPhone: add.phone,
-                            commune: add.commune.name,
-                            district: add.district.name,
-                            province: add.province.name,
-                            defaultAddress: add.id ? defaultAddress == add.id : defaultAddress == add.key,
-                            detail: add.detail,
-                            customer: path.id,
-                            id: add.id
-                        }
-                        return axios.post(`${baseUrlV3}/address`, body)
-                    })
-                    return Promise.all(promises)
-                        .then(() => {
-                            toast.success('cập nhật khách hàng thành công');
-                            setPending(false);
-                            setTimeout(() => {
-                                navigate(`/user/customer/detail/${res.data.data.id}`)
-                            }, 2000);
-                        });
+                axios.put(`${baseUrlV3}/customer/${path.id}`, data).then(res => {
+                    toast.success('cập nhật khách hàng thành công');
+                    setPending(false);
+                    setTimeout(() => {
+                        navigate(`/user/customer/`)
+                    }, 2000);
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -458,7 +478,7 @@ export default function AddCustomer() {
 
     const handleAddAddress = () => {
         let newObject = {
-            key: listAddress.length + 1,
+            key: listAddress.length > 0 ? listAddress[listAddress.length - 1].key + 1 : 1,
             receiverName: "",
             phone: "",
             province: { id: '269', name: 'Lào Cai' },
@@ -466,7 +486,6 @@ export default function AddCustomer() {
             commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
         }
         modalForm.reset();
-        // modalForm.resetField()
         setEditAddress(newObject);
         setListAddress(prev => [...prev, newObject])
         setIsModalOpen(true);
@@ -477,8 +496,8 @@ export default function AddCustomer() {
             <ToastContainer />
             <div className='flex flex-col gap-3 w-full bg-slate-50 shadow-lg rounded-md p-5'>
                 <div className='flex gap-2 items-center'>
-                    <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
-                    <p className='ml-3 text-lg font-semibold'>Thông tin khách hàng</p>
+                    <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
+                    <p className='ml-3 text-2xl font-semibold'>Thông tin khách hàng</p>
                 </div>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <Form {...form}>
@@ -556,13 +575,13 @@ export default function AddCustomer() {
                             </div>
                         </div>
                         <div>
-                            <p className='text-lg font-semibold mt-0 mb-3'>Danh sách địa chỉ</p>
+                            <p className='text-2xl font-semibold mt-0 mb-3'>Danh sách địa chỉ</p>
                             <div className='bg-slate-600 h-[2px]'></div>
                         </div>
                         <Button type="primary" onClick={() => { handleAddAddress(); }}>
                             Thêm địa chỉ mới
                         </Button>
-                        <Modal title="Basic Modal" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
+                        <Modal title="Điền thông tin" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
                             <Form {...modalForm}>
                                 <form onSubmit={() => { }} className="space-y-8">
                                     <FormField
@@ -572,7 +591,7 @@ export default function AddCustomer() {
                                             <FormItem>
                                                 <FormLabel>Họ và tên</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value, editAddress.id); }} />
+                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value); }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -585,7 +604,7 @@ export default function AddCustomer() {
                                             <FormItem>
                                                 <FormLabel>Số điện thoại</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value, editAddress.id); }} />
+                                                    <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value); }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -599,7 +618,7 @@ export default function AddCustomer() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key, editAddress.id); }}>
+                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/ Thành phố' {...field} value={editAddress.province.name} onChange={value => { setAddProvinceP(value, editAddress.key); }}>
                                                             {
                                                                 listProvince.map((province, key) => {
                                                                     return <option key={key} value={province.ProvinceID.toString()}>{province.ProvinceName}</option>
@@ -618,7 +637,7 @@ export default function AddCustomer() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Select className='min-w-[180px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key, editAddress.id); }}>
+                                                        <Select className='min-w-[180px]' placeholder='Quận/ huyện' {...field} value={editAddress.district.name} onChange={value => { setAddDistrictP(value, editAddress.key); }}>
                                                             {
                                                                 listDistricts.map((district, key) => {
                                                                     return <option key={key} value={district.DistrictID.toString()}>{district.DistrictName}</option>
@@ -637,7 +656,7 @@ export default function AddCustomer() {
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormControl>
-                                                        <Select {...field} className='min-w-[180px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key, editAddress.id); }}>
+                                                        <Select {...field} className='min-w-[180px]' placeholder='Xã/ phường' value={editAddress.commune.name} onChange={value => { setAddCommuneP(value, editAddress.key); }}>
                                                             {
                                                                 listWards.map((ward, key) => {
                                                                     return <option key={key} value={ward.WardCode.toString()}>{ward.WardName}</option>
@@ -652,69 +671,18 @@ export default function AddCustomer() {
                                     </div>
                                     <div>
                                         <p>Địa chỉ chi tiết</p>
-                                        <TextArea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
+                                        <TextArea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value) }} />
                                     </div>
 
                                     <div className='flex items-center gap-3'>
-                                        <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.id || editAddress.key) }} />
+                                        <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.key) }} />
                                         <p>Đặt làm địa chỉ mặc định</p>
                                     </div>
                                 </form>
                             </Form>
                         </Modal>
                         <div className="rounded-md border bg-slate-50 p-3 shadow-lg">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className='bg-purple-500 py-2'>
-                                    {table.getHeaderGroups().map((headerGroup) => (
-                                        <tr key={headerGroup.id} className='border-b border-gray-300'>
-                                            {headerGroup.headers.map((header) => {
-                                                return (
-                                                    <th key={header.id}>
-                                                        {header.isPlaceholder
-                                                            ? null
-                                                            : flexRender(
-                                                                header.column.columnDef.header,
-                                                                header.getContext()
-                                                            )}
-                                                    </th>
-                                                )
-                                            })}
-                                        </tr>
-                                    ))}
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {table.getRowModel().rows?.length ? (
-                                        table.getRowModel().rows.map((row) => (
-                                            <tr
-                                                key={row.id}
-                                                className={row.getIsSelected() ? "bg-blue-100" : ""}
-                                            >
-                                                {row.getVisibleCells().map((cell) => (
-                                                    <td
-                                                        key={cell.id}
-                                                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                                    >
-                                                        {flexRender(
-                                                            cell.column.columnDef.cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </td>
-                                                ))
-                                                }
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td
-                                                colSpan={columns.length}
-                                                className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
-                                            >
-                                                No results.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                            {Table(table, flexRender, columns)}
                         </div>
 
                         <div className='flex gap-4'>

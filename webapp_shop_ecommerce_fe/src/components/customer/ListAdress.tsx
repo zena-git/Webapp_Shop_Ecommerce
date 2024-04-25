@@ -32,7 +32,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             accessorKey: "#",
             header: "#",
             cell: ({ row }) => (
-                <div className="capitalize">{row.index + 1}</div>
+                <div className="capitalize text-xl">{row.index + 1}</div>
             ),
         },
         {
@@ -49,7 +49,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center justify-center'
+                        className='flex items-center justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên người nhận
@@ -57,13 +57,13 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
                     </div>
                 ) 
             },
-            cell: ({ row }) => <div className="lowercase">{row.original.receiverName}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.receiverName}</div>,
         },
         {
             accessorKey: "receiverPhone",
             header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.receiverPhone}
                 </div>
             },
@@ -72,7 +72,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             accessorKey: "commune",
             header: () => <div className="text-center">Xã/phường</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.commune}
                 </div>
             },
@@ -81,7 +81,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             accessorKey: "province",
             header: () => <div className="text-center">Quận/huyện</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.province}
                 </div>
             },
@@ -90,7 +90,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
             accessorKey: "district",
             header: () => <div className="text-center">Tỉnh/thành phố</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.district}
                 </div>
             },

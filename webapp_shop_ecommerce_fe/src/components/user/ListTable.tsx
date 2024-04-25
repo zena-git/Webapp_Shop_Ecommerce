@@ -1,4 +1,4 @@
-import { Tag, Button, Input, Radio, Modal } from 'antd/lib'
+import { Tag, Button, Input, Radio, Modal, Dropdown, Switch } from 'antd/lib'
 import { useState, useMemo, useEffect } from "react"
 import {
     CaretSortIcon,
@@ -19,13 +19,17 @@ import {
 import { useAppSelector } from '../../redux/storage';
 import { User } from "~/lib/type"
 import axios from 'axios'
-import { baseUrlV3 } from '~/lib/functional'
+import { baseUrlV3, baseUrl } from '~/lib/functional'
 import { useNavigate } from 'react-router-dom'
 import ListDeleted from '../../components/user/listDeleted'
 import { useDispatch } from 'react-redux';
 import Table from '../../components/ui/table'
 import { toast, ToastContainer } from 'react-toastify'
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
+import { set } from '../../redux/features/voucher-deleted'
+import { ExclamationCircleFilled } from '@ant-design/icons';
+
+const { confirm } = Modal;
 
 export default function ListTable() {
 
@@ -67,12 +71,33 @@ export default function ListTable() {
         }
     }
 
+    const showDeleteConfirm = (id) => {
+        confirm({
+            title: 'Bạn có muốn xóa không',
+            icon: <ExclamationCircleFilled />,
+            content: '',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk() {
+                axios.delete(`${baseUrlV3}/user/delete/${id}`).then(res => {
+                    fillData();
+                    fillDeltedData();
+                    toast.success('xóa thành công')
+                })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
+
     const columns: ColumnDef<User>[] = useMemo(() => [
         {
             id: "#",
             header: () => <div className="text-center">#</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.index + 1}
                 </div>
             },
@@ -90,13 +115,13 @@ export default function ListTable() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="">{row.original.fullName}</div>,
+            cell: ({ row }) => <div className=" text-xl">{row.original.fullName}</div>,
         },
         {
             accessorKey: "phone",
             header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original.phone}
                 </div>
             },
@@ -105,7 +130,7 @@ export default function ListTable() {
             accessorKey: "email",
             header: () => <div className="text-center">Email</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.email}
                 </div>
             },
@@ -114,7 +139,7 @@ export default function ListTable() {
             accessorKey: "birthday",
             header: () => <div className="text-center">Ngày sinh</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original.birthday && row.original.birthday.toString().split("T")[0]}
                 </div>
             },
@@ -124,8 +149,20 @@ export default function ListTable() {
             header: () => <div className="text-center">Trạng thái</div>,
             filterFn: customFilterType,
             cell: ({ row }) => {
+                let pending = false;
                 return <div className="text-center font-medium max-h-16">
-                    <Tag color={row.original.status == 1 ? 'red' : 'blue'}>{row.original.status == 0 ? 'Đang làm việc' : 'Đã nghỉ việc'}</Tag>
+                    <Switch checkedChildren="Đang làm việc" disabled={pending} unCheckedChildren="Đã nghỉ việc" defaultChecked={row.original.status == 0} onChange={e => {
+                        if (!pending) {
+                            pending = true;
+                            axios.put(`${baseUrl}/user/${row.original.id}`, { ...row.original, status: e ? 0 : 1 }).then(res => {
+                                toast.success('Cập nhật thành công');
+                                pending = false;
+                            }).catch(err => {
+                                pending = false;
+                                toast.error(err.response.data.message);
+                            })
+                        }
+                    }} />
                 </div>
             },
         },
@@ -134,35 +171,45 @@ export default function ListTable() {
             enableHiding: false,
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/user/staff/update/${row.original.id}`) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '2',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/user/staff/detail/${row.original.id}`) }}>
+                                <FaEye />
+                                Chi tiết
+                            </div>
+                        ),
+                    },
+                    // {
+                    //     key: '3',
+                    //     label: (
+                    //         <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                    //             <FaTrash />
+                    //             Xóa
+                    //         </div>
+                    //     ),
+                    // },
+                ];
                 return (
                     <div className="flex justify-center gap-2">
-                        <Button className="flex items-center" type="primary" onClick={() => { navigate(`/user/staff/update/${row.original.id}`) }}><FaEdit /></Button>
-                        <Button className="flex items-center" type="primary" onClick={() => { navigate(`/user/staff/detail/${row.original.id}`) }}><FaEye /></Button>
-                        <Button className="flex items-center" type="primary" onClick={() => { setOpenModal(true) }}>
-                            <FaTrash />
-                        </Button>
-                        <Modal
-                            title="Xác nhận"
-                            open={openModal}
-                            onOk={() => {
-                                setOpenModal(false)
-                                axios.delete(`${baseUrlV3}/user/delete/${row.original.id}`).then(res => {
-                                    fillData();
-                                    fillDeltedData();
-                                    toast.success('xóa thành công')
-                                })
-                            }}
-                            onCancel={() => { setOpenModal(false) }}
-                            okText="xác nhận"
-                            cancelText="hủy"
-                        >
-                            Xác nhận xóa
-                        </Modal>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
         },
-    ], []);
+    ], [openModal, setOpenModal]);
 
     const table = useReactTable({
         data,
@@ -183,10 +230,6 @@ export default function ListTable() {
         },
     });
     const listUserDeletedSelect = useAppSelector(state => state.voucherDeletedReducer.value.selected);
-
-    useEffect(() => {
-        console.log(listUserDeletedSelect)
-    }, [listUserDeletedSelect])
 
     const fillDeltedData = () => {
         axios.get(`${baseUrlV3}/user/deleted`).then(res => {
@@ -214,7 +257,7 @@ export default function ListTable() {
 
         return (
             <>
-                <Button onClick={() => setIsModalOpen(true)} variant="outline" className="bg-blue-500 text-white hover:bg-blue-400 hover:text-white">Khôi phục nhân viên</Button>
+                <Button danger onClick={() => setIsModalOpen(true)} variant="outline" className="flex items-center"><FaTrash /></Button>
                 <Modal title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} className='min-w-[60vw]'>
                     <ListDeleted data={deletedData} />
                 </Modal>
@@ -227,47 +270,47 @@ export default function ListTable() {
             <div className="w-full rounded-md bg-white p-6 flex flex-col gap-3">
                 <ToastContainer />
                 <div className='flex justify-between items-center'>
-                    <p className='text-xl font-bold'>Nhân viên</p>
+                    <p className='text-2xl font-bold'>Nhân viên</p>
                 </div>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <div className='bg-white rounded-md mb-3 p-3 shadow-md'>
 
                     <div className="grid grid-cols-2 gap-3 my-3">
-                        <div>
-                            <p className='text-sm font-semibold mb-1'>Họ và tên</p>
+                        <div className='my-2'>
+                            <p className='text-xl font-semibold mb-2'>Họ và tên</p>
                             <Input
                                 placeholder="tìm kiếm theo tên"
                                 value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
                                 onChange={(event) =>
                                     table.getColumn("fullName")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-sm"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
-                            <p className='text-sm font-semibold mb-1'>Email</p>
+                        <div className='my-2'>
+                            <p className='text-xl font-semibold mb-2'>Email</p>
                             <Input
                                 placeholder="tìm kiếm theo email"
                                 value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
                                 onChange={(event) =>
                                     table.getColumn("email")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-sm"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
-                            <p className='text-sm font-semibold mb-1'>Số điện thoại</p>
+                        <div className='my-2'>
+                            <p className='text-xl font-semibold mb-2'>Số điện thoại</p>
                             <Input
                                 placeholder="tìm kiếm theo số điện thoại"
                                 value={(table.getColumn("phone")?.getFilterValue() as string) ?? ""}
                                 onChange={(event) =>
                                     table.getColumn("phone")?.setFilterValue(event.target.value)
                                 }
-                                className="max-w-sm"
+                                className="w-2/3"
                             />
                         </div>
-                        <div>
-                            <p className='text-sm font-semibold mb-1'>Trạng thái</p>
+                        <div className='my-2'>
+                            <p className='text-xl font-semibold mb-2'>Trạng thái</p>
                             <Radio.Group name="radiogroup" defaultValue={"0"} value={(table.getColumn("status")?.getFilterValue() as string) ?? "0"} onChange={e => { table.getColumn("status")?.setFilterValue(e.target.value) }}>
                                 <Radio value={"0"}>Tất cả</Radio>
                                 <Radio value={"1"}>Đang làm việc</Radio>
@@ -275,16 +318,18 @@ export default function ListTable() {
                             </Radio.Group>
                         </div>
                     </div>
-                    <div className='flex gap-5 items-center'>
-                        <Button onClick={() => { navigate('/user/staff/add') }} variant="outline" className="bg-blue-500 text-white hover:bg-blue-400 hover:text-white">Thêm nhân viên</Button>
-                        {Recover()}
+                    <div className='flex gap-5 items-center justify-between pr-2 my-4'>
+                        <Button type="primary" onClick={() => { navigate('/user/staff/add') }} variant="outline">Thêm nhân viên</Button>
+                        {/* {Recover()} */}
                     </div>
                 </div>
-                <div className="rounded-md border p-3 bg-white shadow-md">
+                <div className="rounded-md border p-3 bg-white shadow-md flex flex-col gap-2">
+                    <p className='text-2xl font-bold'>Danh sách nhân viên</p>
+                    <div className='h-[2px] bg-slate-600'></div>
                     {Table(table, flexRender, columns)}
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
+                    <div className="flex-1 text-xl text-muted-foreground">
                         {table.getFilteredSelectedRowModel().rows.length} of{" "}
                         {table.getFilteredRowModel().rows.length} row(s) selected.
                     </div>

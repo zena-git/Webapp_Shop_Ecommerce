@@ -300,7 +300,7 @@ function BillDetail() {
                                         <Button type='primary' onClick={() => {
                                             setLoadingConfirmDelivery(true);
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.DANG_GIAO,
+                                                type: TrangThaiBill.VAN_CHUYEN,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
                                                 setConfirmAcceptOrderDes("")
@@ -331,7 +331,7 @@ function BillDetail() {
                                 {
                                     bill && bill.status == TrangThaiBill.CHO_GIA0 && <Button danger onClick={() => {
                                         setIsModalOpenConfirmDelivery(true)
-                                    }}  >Giao Hàng</Button>
+                                    }}  >Vận Chuyển</Button>
                                 }
                             </div>
 
@@ -387,7 +387,7 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.VAN_CHUYEN && <Button danger onClick={() => {
                                         setIsModalOpenConfirmCompletion(true)
                                     }}  >Hoàn Thành</Button>
                                 }

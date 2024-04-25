@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Button, Select, Radio, Input } from 'antd/lib';
+import { DatePicker, InputNumber, Button, Select, Radio, Input, Switch } from 'antd/lib';
 import { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -55,7 +55,8 @@ export default function Add() {
     const [targetUser, setTargetUser] = useState();
 
     const [enableChecking, setEnableChecking] = useState(false);
-
+    const [imageLink, setImageLink] = useState();
+    const [imageUploading, setImageUploading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -65,6 +66,7 @@ export default function Add() {
                 console.log(res.data.status);
                 setStatus(res.data.status);
                 setGender(res.data.gender ? '0' : '1');
+                setImageLink(res.data.imageUrl);
                 axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/province`, {
                     headers: {
                         token: token
@@ -173,11 +175,25 @@ export default function Add() {
             const image = new Image();
             image.src = event.target.result;
             image.onload = () => {
-                setOriginalThumbnail({
-                    file: acceptedFiles[0],
-                    width: image.width,
-                    height: image.height,
-                });
+                if (!imageUploading) {
+                    const formData = new FormData();
+                    formData.append("file", acceptedFiles[0]);
+                    formData.append("cloud_name", "db9i1b2yf");
+                    formData.append("upload_preset", "product");
+                    setImageUploading(true);
+                    axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
+                        setImageLink(res.data.url);
+                        toast.success('Ảnh đã tải lên');
+                    }).catch(err => {
+                        console.log(err)
+                    });
+                    setImageUploading(false);
+                    setOriginalThumbnail({
+                        file: acceptedFiles[0],
+                        width: image.width,
+                        height: image.height,
+                    });
+                }
             };
         };
         reader.readAsDataURL(acceptedFiles[0]);
@@ -198,37 +214,16 @@ export default function Add() {
 
 
     const handleSubmitForm = (values) => {
-        if (!pending) {
-            if (originalThumbnail) {
-                const formData = new FormData();
-                formData.append("file", originalThumbnail.file);
-                formData.append("cloud_name", "db9i1b2yf")
-                formData.append("upload_preset", "product")
-                setPending(true);
-                axios.post(`https://api.cloudinary.com/v1_1/db9i1b2yf/image/upload`, formData).then(res => {
-                    const body = {
-                        id: targetUser.id,
-                        birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()) : null,
-                        commune: addWard,
-                        detail: values.detail,
-                        district: addDistrict.DistrictName,
-                        province: addProvince.ProvinceName,
-                        email: values.email,
-                        status: status,
-                        fullName: values.fullName,
-                        gender: gender == '0',
-                        phone: values.phone,
-                        imageUrl: res.data.url
-                    }
-                    axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
-                        toast.success('Cập nhật thành công')
-                        setPending(false);
-                    }).catch(err => {
-                        setPending(false);
-                        toast.error(err.response.data.message);
-                    })
-                })
-            } else {
+        if (!addProvince) {
+            toast.error('chưa chọn Tỉnh/thành phố')
+        } else if (!addDistrict) {
+            toast.error('chưa chọn Quận/huyện')
+        } else if (!addWard) {
+            toast.error('chưa chọn Xã/phường')
+        } else if (values.fullName.trim().length == 0) {
+            toast.error('chưa điền tên')
+        } else {
+            if (!pending) {
                 const body = {
                     id: targetUser.id,
                     birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()) : null,
@@ -236,6 +231,7 @@ export default function Add() {
                     detail: values.detail,
                     district: addDistrict.DistrictName,
                     province: addProvince.ProvinceName,
+                    imageUrl: imageLink,
                     email: values.email,
                     status: status,
                     fullName: values.fullName,
@@ -262,8 +258,8 @@ export default function Add() {
                     <form onSubmit={e => { e.preventDefault() }} className="w-full flex max-lg:flex-col gap-5">
                         <div className="w-1/3 max-lg:w-full flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
-                                <p className='text-lg font-bold'>Thông tin nhân viên</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/user/staff') }}><IoArrowBackSharp /></div>
+                                <p className='text-2xl font-bold'>Thông tin nhân viên</p>
                             </div>
                             <div className='bg-slate-600 h-[2px]'></div>
                             <div className='w-full flex flex-col'>
@@ -273,6 +269,7 @@ export default function Add() {
                                 >
                                     <input
                                         {...getThumbnailInputProps()}
+                                        disabled={imageUploading}
                                         className="w-full h-full"
                                     />
                                     {isThumbnailDragActive ? (
@@ -308,18 +305,13 @@ export default function Add() {
                                     <p className='font-semibold mb-2'>Tình trạng làm việc</p>
                                     {targetUser
                                         &&
-                                        <Radio.Group onChange={(e) => { setStatus(e.target.value) }} value={status}>
-                                            <div className='flex flex-col gap-2'>
-                                                <Radio value={0}>Đang làm việc</Radio>
-                                                <Radio value={1}>Đã nghỉ việc</Radio>
-                                            </div>
-                                        </Radio.Group>
+                                        <Switch checkedChildren="Đang làm việc" unCheckedChildren="Đã nghỉ việc" checked={status == 0} onChange={e => {setStatus(e ? 0 : 1)}} />
                                     }
                                 </div>
                             </div>
                         </div>
                         <div className="flex-grow flex flex-col gap-3 bg-white shadow-lg rounded-md p-5">
-                            <p className='text-lg font-bold'>Thông tin chi tiết</p>
+                            <p className='text-2xl font-bold'>Thông tin chi tiết</p>
                             <div className='bg-slate-600 h-[2px]'></div>
                             <div className='flex flex-col gap-3'>
                                 <div className='grid grid-cols-2 gap-3 items-center'>
@@ -345,10 +337,12 @@ export default function Add() {
                                                 <FormItem>
                                                     <FormLabel>Giới tính</FormLabel>
                                                     <FormControl>
-                                                        <Radio.Group name="radiogroup" defaultValue={"0"} onValueChange={(e) => { setGender(e.target.value) }}>
-                                                            <Radio value={"0"}>Nam</Radio>
-                                                            <Radio value={"1"}>Nữ</Radio>
-                                                        </Radio.Group>
+                                                        <div>
+                                                            <Radio.Group name="radiogroup" defaultValue={"0"} onValueChange={(e) => { setGender(e.target.value) }}>
+                                                                <Radio value={"0"}>Nam</Radio>
+                                                                <Radio value={"1"}>Nữ</Radio>
+                                                            </Radio.Group>
+                                                        </div>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -397,7 +391,7 @@ export default function Add() {
                                                 <FormLabel>Tỉnh/thành phố</FormLabel>
                                                 <FormControl>
                                                     <div>
-                                                        <Select className='min-w-[180px]' placeholder='Tỉnh/Thành phố' defaultValue={targetUser?.province} value={addProvince?.ProvinceID} onChange={value => { setAddProvince(listProvince.find(target => target.ProvinceID == value)) }}>
+                                                        <Select className='min-w-[180px] w-full' placeholder='Tỉnh/Thành phố' defaultValue={targetUser?.province} value={addProvince?.ProvinceID} onChange={value => { setAddProvince(listProvince.find(target => target.ProvinceID == value)) }}>
                                                             {
                                                                 listProvince.map((province, key) => {
                                                                     return <option key={key} value={province.ProvinceID}>
@@ -418,10 +412,10 @@ export default function Add() {
                                         render={({ field }) =>
                                         (
                                             <FormItem>
-                                                <FormLabel>Quận/huyện</FormLabel>
+                                                <FormLabel className="pl-4">Quận/huyện</FormLabel>
                                                 <FormControl>
                                                     <div className='w-full'>
-                                                        <Select className='min-w-[180px]' placeholder='Quận/huyện' defaultValue={targetUser?.district} value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target.DistrictID == value)) }}>
+                                                        <Select className='min-w-[180px] w-full pl-4' placeholder='Quận/huyện' defaultValue={targetUser?.district} value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target.DistrictID == value)) }}>
                                                             {
                                                                 listDistricts.map((district, key) => {
                                                                     return <option key={key} value={district.DistrictID}>{district.DistrictName}</option>
@@ -440,10 +434,10 @@ export default function Add() {
                                         render={({ field }) =>
                                         (
                                             <FormItem>
-                                                <FormLabel>Xã/thị trấn</FormLabel>
+                                                <FormLabel className="pl-4">Xã/thị trấn</FormLabel>
                                                 <FormControl>
                                                     <div>
-                                                        <Select className='min-w-[180px]' defaultValue={targetUser?.commune} value={addWard} placeholder='Xã/thị trấn' onChange={value => { setAddWard(value) }}>
+                                                        <Select className='min-w-[180px] w-full pl-4' defaultValue={targetUser?.commune} value={addWard} placeholder='Xã/thị trấn' onChange={value => { setAddWard(value) }}>
                                                             {
                                                                 listWards.map((ward, key) => {
                                                                     return <option key={key} value={ward.WardName}>{ward.WardName}</option>

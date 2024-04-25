@@ -1,12 +1,12 @@
 export default function Table(table, flexRender, columns) {
     return (
         <table className="min-w-full border border-slate-500">
-            <thead className='bg-slate-300'>
+            <thead className='ant-table-thead'>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id} className='border-none'>
+                    <tr key={headerGroup.id} className=''>
                         {headerGroup.headers.map((header) => {
                             return (
-                                <th key={header.id} className="">
+                                <th key={header.id} className="ant-table-cell py-5">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(
@@ -19,7 +19,7 @@ export default function Table(table, flexRender, columns) {
                     </tr>
                 ))}
             </thead>
-            <tbody className="bg-white">
+            <tbody className="bg-slate-50">
                 {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => (
                         <tr
@@ -28,7 +28,7 @@ export default function Table(table, flexRender, columns) {
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className="px-6 py-4 whitespace-nowrap text-gray-500 m-0"
+                                    className="px-6 py-4 whitespace-nowrap m-0"
                                 >
                                     {flexRender(
                                         cell.column.columnDef.cell,
@@ -43,9 +43,9 @@ export default function Table(table, flexRender, columns) {
                     <tr>
                         <td
                             colSpan={columns.length}
-                            className="px-6 py-4 whitespace-nowrap text-gray-500 text-center"
+                            className="px-6 py-4 whitespace-nowrap text-xl text-gray-500 text-center"
                         >
-                            No results.
+                            Không có kết quả nào.
                         </td>
                     </tr>
                 )}

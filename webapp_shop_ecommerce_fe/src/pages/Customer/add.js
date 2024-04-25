@@ -1,4 +1,4 @@
-import { DatePicker, InputNumber, Input, Select, Button, Checkbox, Modal, Radio } from 'antd/lib';
+import { DatePicker, InputNumber, Input, Select, Button, Checkbox, Modal, Radio, Dropdown } from 'antd/lib';
 import { useEffect, useState, useMemo } from 'react';
 import dayjs from 'dayjs';
 import { makeid } from '~/lib/functional';
@@ -17,7 +17,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl } from '../../lib/functional'
+import { baseUrl, baseUrlV3 } from '../../lib/functional'
 import {
     CaretSortIcon,
     DotsHorizontalIcon,
@@ -32,6 +32,7 @@ import {
 } from "@tanstack/react-table"
 import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
+import Table from '../../components/ui/table';
 
 const { TextArea } = Input;
 dayjs.extend(customParseFormat);
@@ -231,10 +232,16 @@ export default function AddCustomer() {
     const Remove = ({ key, id }) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
+            if (defaultAddress == key && q.length > 0) {
+                setDefaultAddress(q[0].id || q[0].key);
+            }
             setListAddress(q);
         } else if (id) {
             axios.delete(`${baseUrl}/address/${id}`)
             let x = listAddress.filter(target => id != target.id)
+            if (defaultAddress == id && x.length > 0) {
+                setDefaultAddress(x[0].id || x[0].key);
+            }
             setListAddress(x);
         }
     }
@@ -243,10 +250,9 @@ export default function AddCustomer() {
         {
             accessorKey: "key",
             header: "Mặc định",
-            cell: ({ row }) => (<>
-                {/* {row.original && <div className="capitalize">{row.original.key}</div>} */}
+            cell: ({ row }) => (<div className='flex justify-center'>
                 <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.id || row.original.key) }} />
-            </>
+            </div>
             ),
         },
         {
@@ -254,7 +260,7 @@ export default function AddCustomer() {
             header: ({ column }) => {
                 return (
                     <div
-                        className='flex items-center min-h-10 justify-center'
+                        className='flex items-center min-h-12 justify-center'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tên người nhận
@@ -262,15 +268,15 @@ export default function AddCustomer() {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">
+            cell: ({ row }) => <div className="lowercase text-xl">
                 {row.original && <p>{row.original.receiverName}</p>}
             </div>,
         },
         {
             accessorKey: "phone",
-            header: () => <div className="text-center">số điện thoại</div>,
+            header: () => <div className="text-center">Số điện thoại</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.phone}</p>}
                 </div>
             },
@@ -279,7 +285,7 @@ export default function AddCustomer() {
             accessorKey: "province",
             header: () => <div className="text-center">Tỉnh/ Thành phố</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {
                         row.original &&
                         <p>{row.original.province.name}</p>
@@ -291,7 +297,7 @@ export default function AddCustomer() {
             accessorKey: "district",
             header: () => <div className="text-center">Quận/ huyện</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {
                         row.original && <p>{row.original.district.name}</p>
                     }
@@ -302,7 +308,7 @@ export default function AddCustomer() {
             accessorKey: "commune",
             header: () => <div className="text-center">Xã/ phường</div>,
             cell: ({ row }) => {
-                return <div className='text-center'>
+                return <div className='text-center text-xl'>
                     {row.original && <p>{row.original.commune.name}</p>}
                 </div>
             },
@@ -311,7 +317,7 @@ export default function AddCustomer() {
             accessorKey: "detail",
             header: () => <div className="text-center">Chi tiết</div>,
             cell: ({ row }) => {
-                return <div className="text-center font-medium max-h-16">
+                return <div className="text-center font-medium max-h-16 text-xl">
                     {row.original && <p>{row.original.detail}</p>}
                 </div>
             },
@@ -320,20 +326,31 @@ export default function AddCustomer() {
             id: "update",
             header: () => <div className="text-center">Hành động</div>,
             cell: ({ row }) => {
+                const items = [
+                    {
+                        key: '1',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                                <FaEdit />
+                                Cập nhật
+                            </div>
+                        ),
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                                <FaTrash />
+                                Xóa
+                            </div>
+                        ),
+                    },
+                ];
                 return (
-                    <div className='flex gap-2'>
-                        <Button type='primary' className='flex items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
-                            <FaEdit />
-                        </Button>
-                        <Button type='primary' className='flex items-center' onClick={() => {
-                            if (row.original.key) {
-                                Remove({ key: row.original.key })
-                            } else {
-                                Remove({ id: row.original.id })
-                            }
-                        }}>
-                            <FaTrash />
-                        </Button>
+                    <div className='flex justify-center'>
+                        <Dropdown menu={{ items }} placement="bottomRight" arrow>
+                            <Button type="primary">...</Button>
+                        </Dropdown>
                     </div>
                 )
             },
@@ -384,35 +401,34 @@ export default function AddCustomer() {
 
     const handleSubmitForm = (values) => {
         if (!pending) {
-            if (listAddress.length == 0) {
-                toast.error('Hãy thêm ít nhất 1 địa chỉ');
+            if (values.fullName.trim().length == 0) {
+                toast.error('Nhập tên khách hàng');
+            } else if (values.phone.trim().length == 0) {
+                toast.error('Nhập số điện thoại');
             } else {
-                const data = { ...values, birthday: birthDay, gender: gender == '1', }
+                const lstAddressData = listAddress.map(add => {
+                    return {
+                        receiverName: add.receiverName,
+                        receiverPhone: add.phone,
+                        commune: add.commune.name,
+                        district: add.district.name,
+                        province: add.province.name,
+                        communeID: add.commune.id,
+                        districtID: add.district.id,
+                        provinceID: add.province.id,
+                        defaultAddress: defaultAddress == add.key,
+                        detail: add.detail,
+                        id: add.id
+                    }
+                })
+                const data = { ...values, birthday: birthDay, password: makeid(), gender: gender == '1', lstAddress: lstAddressData }
                 setPending(true);
-                axios.post(`${baseUrl}/customer`, data).then(res => {
-                    const promises = listAddress.map(add => {
-                        const body = {
-                            receiverName: add.receiverName,
-                            receiverPhone: add.phone,
-                            commune: add.commune.name,
-                            district: add.district.name,
-                            province: add.province.name,
-                            communeID: add.commune.id,
-                            districtID: add.district.id,
-                            provinceID: add.province.id,
-                            defaultAddress: defaultAddress == add.key,
-                            detail: add.detail,
-                            customer: res.data.data.id,
-                            id: add.id
-                        }
-                        return axios.post(`${baseUrl}/address`, body)
-                    })
-                    Promise.all(promises).then(() => {
-                        toast.success('thêm khách hàng thành công');
-                        form.reset();
-                        setPending(false);
-                        setListAddress([]);
-                    })
+                axios.post(`${baseUrlV3}/customer`, data).then(res => {
+                    toast.success('thêm khách hàng thành công');
+                    form.reset();
+                    setPending(false);
+                    setListAddress([]);
+                    navigate('/user/customer');
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -420,8 +436,6 @@ export default function AddCustomer() {
             }
         }
     }
-
-
 
     const [editAddress, setEditAddress] = useState({});
 
@@ -442,13 +456,16 @@ export default function AddCustomer() {
 
     const handleAddAddress = () => {
         let newObject = {
-            key: listAddress.length + 1,
+            key: listAddress.length > 0 ? listAddress[listAddress.length - 1].key + 1 : 1,
             receiverName: "",
             phone: "",
             detail: "",
             province: { id: '269', name: 'Lào Cai' },
             district: { id: '2264', name: 'Huyện Si Ma Cai' },
             commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
+        }
+        if (listAddress == 0) {
+            setDefaultAddress(1);
         }
         setDetail("");
         modalForm.reset();
@@ -461,8 +478,8 @@ export default function AddCustomer() {
         <div className='flex flex-col gap-5 pb-8'>
             <div className='flex flex-col gap-3 w-full max-lg:w-full bg-white p-5 shadow-lg rounded-lg'>
                 <div className='flex gap-2 items-center'>
-                    <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
-                    <p className='ml-3 text-lg font-semibold'>Thông tin khách hàng</p>
+                    <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/user/customer') }}><IoArrowBackSharp /></div>
+                    <p className='ml-3 text-2xl font-semibold'>Thông tin khách hàng</p>
                 </div>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <ToastContainer />
@@ -546,7 +563,7 @@ export default function AddCustomer() {
                 </Form>
             </div>
             <div className="rounded-md border w-full bg-white shadow-lg p-6 flex flex-col gap-3">
-                <p className='text-lg font-semibold'>Danh sách địa chỉ</p>
+                <p className='text-2xl font-semibold'>Danh sách địa chỉ</p>
                 <div className='bg-slate-600 h-[2px]'></div>
                 <div className='w-fit'>
                     <Button type="primary" onClick={() => { handleAddAddress(); }}>
@@ -654,58 +671,7 @@ export default function AddCustomer() {
                         </form>
                     </Form>
                 </Modal>
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className='bg-purple-500 py-2'>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <tr key={headerGroup.id} className='border-b border-gray-300'>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <th key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        ))}
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <tr
-                                    key={row.id}
-                                    className={row.getIsSelected() ? "bg-blue-100" : ""}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td
-                                            key={cell.id}
-                                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </td>
-                                    ))
-                                    }
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td
-                                    colSpan={columns.length}
-                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
-                                >
-                                    No results.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                {Table(table, flexRender, columns)}
             </div>
 
         </div>

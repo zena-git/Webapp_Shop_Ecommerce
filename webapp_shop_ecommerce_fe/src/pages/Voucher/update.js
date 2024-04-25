@@ -120,39 +120,13 @@ const VoucherPage = () => {
     )
 
     const handleSubmitForm = (values) => {
-        if (!pending) {
-            if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
-                toast.error('cần nhập giá trị ngày trong tương lai')
-                return;
-            }
-            if (VoucherType == "0") {
-                setPending(true);
-                axios.put(`${baseUrl}/voucher/${path.id}`, {
-                    id: path.id,
-                    code: values.code,
-                    name: values.name,
-                    value: values.value,
-                    status: "0",
-                    quantity: values.usage_limit,
-                    discountType: discountType ? 0 : 1,
-                    maxDiscountValue: values.max_discount_value,
-                    orderMinValue: values.order_min_value,
-                    description: values.description,
-                    startDate: date[0].toDate(),
-                    endDate: date[1].toDate(),
-                    lstCustomer: listCustomer.map(val => { return val.id })
-                }).then(r => {
-                    toast.success("Đã cập nhật voucher thành công");
-                    setPending(false);
-                    setTimeout(() => {
-                        navigate(`/discount/voucher/detail/${path.id}`)
-                    }, 200)
-                }).catch(err => {
-                    toast.error(err.response.data.message);
-                    setPending(false);
-                })
-            } else {
-                if (selectedCustomer.length > 0) {
+        if (targetVoucher.status == 0) {
+            if (!pending) {
+                if (date[0].toDate() < new Date() || date[1].toDate() < new Date()) {
+                    toast.error('cần nhập giá trị ngày trong tương lai')
+                    return;
+                }
+                if (VoucherType == "0") {
                     setPending(true);
                     axios.put(`${baseUrl}/voucher/${path.id}`, {
                         id: path.id,
@@ -162,13 +136,14 @@ const VoucherPage = () => {
                         status: "0",
                         quantity: values.usage_limit,
                         discountType: discountType ? 0 : 1,
-                        maxDiscountValue: values.max_discount_value,
-                        description: values.description,
+                        maxDiscountValue: discountType ? values.value : values.max_discount_value,
                         orderMinValue: values.order_min_value,
-                        startDate: date[0].toDate(),
-                        endDate: date[1].toDate(),
-                        lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
-                    }).then(res => {
+                        description: values.description,
+                        startDate: date[0].add(7, 'hour').toDate(),
+                        endDate: date[1].add(7, 'hour').toDate(),
+                        lstCustomer: listCustomer.map(val => { return val.id })
+                    }).then(r => {
+                        toast.success("Đã cập nhật voucher thành công");
                         setPending(false);
                         setTimeout(() => {
                             navigate(`/discount/voucher/detail/${path.id}`)
@@ -178,10 +153,40 @@ const VoucherPage = () => {
                         setPending(false);
                     })
                 } else {
-                    toast({ title: 'chưa chọn khách hàng nào' })
-                    toast.error("chưa chọn khách hàng nào")
+                    if (selectedCustomer.length > 0) {
+                        setPending(true);
+                        axios.put(`${baseUrl}/voucher/${path.id}`, {
+                            id: path.id,
+                            code: values.code,
+                            name: values.name,
+                            value: values.value,
+                            status: "0",
+                            quantity: values.usage_limit,
+                            discountType: discountType ? 0 : 1,
+                            maxDiscountValue: discountType ? values.value : values.max_discount_value,
+                            description: values.description,
+                            orderMinValue: values.order_min_value,
+                            startDate: date[0].add(7, 'hour').toDate(),
+                            endDate: date[1].add(7, 'hour').toDate(),
+                            lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
+                        }).then(res => {
+                            setPending(false);
+                            setTimeout(() => {
+                                navigate(`/discount/voucher/detail/${path.id}`)
+                            }, 200)
+                        }).catch(err => {
+                            toast.error(err.response.data.message);
+                            setPending(false);
+                        })
+                    } else {
+                        toast({ title: 'chưa chọn khách hàng nào' })
+                        toast.error("chưa chọn khách hàng nào")
+                    }
                 }
             }
+
+        } else {
+            toast.error('Chỉ phiếu giảm giá chưa diễn ra có thể chỉnh sửa')
         }
     }
 
@@ -192,8 +197,8 @@ const VoucherPage = () => {
                     <div className='w-full flex max-xl:flex-col justify-center p-5 gap-5'>
                         <div className='bg-white p-5 shadow-lg flex flex-col gap-3 w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
-                                <p className='ml-3 text-lg font-semibold'>Cập nhật phiếu giảm giá</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
+                                <p className='ml-3 text-2xl font-semibold'>Cập nhật phiếu giảm giá</p>
                             </div>
                             <div className='h-[2px] bg-slate-600'></div>
                             <Form {...form}>
@@ -323,7 +328,7 @@ const VoucherPage = () => {
                                     />
                                     }
                                     <div>
-                                        <p className='my-1 text-sm font-semibold'>Đối tượng áp dụng</p>
+                                        <p className='my-1 text-xl font-semibold'>Đối tượng áp dụng</p>
                                         <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
                                             <Radio value={"0"}>Tất cả khách hàng</Radio>
                                             <Radio value={"1"}>Khách hàng chỉ định</Radio>
@@ -332,22 +337,21 @@ const VoucherPage = () => {
 
                                     <div className='mt-1'>
                                         <label>
-                                            <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                                             {/* @ts-ignore */}
                                             <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
                                         </label>
                                     </div>
                                     <div className='flex gap-4'>
                                         <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật</Button>
-                                        {/* {targetVoucher && <Button type='primary' onClick={() => { let t = confirm("xác nhận"); if (t) DisableVoucher() }}>{targetVoucher.status == "0" ? "Tạm dừng Voucher" : "Tiếp tục Voucher"}</Button>} */}
                                     </div>
                                 </form>
                             </Form>
                         </div>
                         <div className='flex-grow p-5 bg-white shadow-lg flex flex-col gap-3'>
-                            <p className='text-lg font-semibold'>Danh sách khách hàng</p>
+                            <p className='text-2xl font-semibold'>Danh sách khách hàng</p>
                             <div className='h-[2px] bg-slate-600'></div>
-                            <ListCustomer listCustomer={listCustomer}/>
+                            <ListCustomer listCustomer={listCustomer} />
                         </div>
                         <ToastContainer />
                     </div>

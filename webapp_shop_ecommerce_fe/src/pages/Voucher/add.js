@@ -23,6 +23,7 @@ import { set } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
+
 const { RangePicker } = DatePicker
 const { TextArea } = Input
 
@@ -118,17 +119,20 @@ const VoucherPage = () => {
                     target_type: values.target_type,
                     quantity: values.usage_limit,
                     discountType: discountType ? 0 : 1,
-                    maxDiscountValue: values.max_discount_value,
+                    maxDiscountValue: discountType ? values.value : values.max_discount_value,
                     orderMinValue: values.order_min_value,
                     description: values.description,
-                    startDate: date[0].toDate(),
-                    endDate: date[1].toDate(),
+                    startDate: date[0].add(7, 'hour').toDate(),
+                    endDate: date[1].add(7, 'hour').toDate(),
                     lstCustomer: listCustomer.map(val => { return val.id })
                 }).then(res => {
                     setPending(false);
                     toast.success("Đã tạo voucher thành công")
                     form.reset();
-                    dispatch(set({ value: { selected: [] } }))
+                    dispatch(set({ value: { selected: [] } }));
+                    setTimeout(() => {
+                        navigate('/discount/voucher');
+                    }, 2000)
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -144,17 +148,20 @@ const VoucherPage = () => {
                         target_type: values.target_type,
                         quantity: values.usage_limit,
                         discountType: discountType ? 0 : 1,
-                        maxDiscountValue: values.max_discount_value,
+                        maxDiscountValue: discountType ? values.value : values.max_discount_value,
                         orderMinValue: values.order_min_value,
                         description: values.description,
-                        startDate: date[0].toDate(),
-                        endDate: date[1].toDate(),
+                        startDate: date[0].add(7, 'hour').toDate(),
+                        endDate: date[1].add(7, 'hour').toDate(),
                         lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
                     }).then(res => {
                         setPending(false);
                         toast.success("Đã tạo voucher thành công")
                         dispatch(set({ value: { selected: [] } }))
                         form.reset();
+                        setTimeout(() => {
+                            navigate('/discount/voucher');
+                        }, 2000)
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message)
@@ -163,7 +170,6 @@ const VoucherPage = () => {
                     toast.error("chưa chọn khách hàng nào")
                 }
             }
-
         }
     }
 
@@ -174,8 +180,8 @@ const VoucherPage = () => {
                     <div className='w-full h-fit flex max-xl:flex-col justify-center gap-3'>
                         <div className='px-3 py-5 h-fit bg-white shadow-lg gap-2 flex flex-col w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
-                                <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
-                                <p className='ml-3 text-lg font-semibold'>Thêm phiếu giảm giá</p>
+                                <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
+                                <p className='ml-3 text-2xl font-semibold'>Thêm phiếu giảm giá</p>
                             </div>
                             <div className='h-[2px] bg-slate-600 mt-1'></div>
                             <Form {...form}>
@@ -244,10 +250,12 @@ const VoucherPage = () => {
                                                 <FormItem>
                                                     <FormLabel>Hình thức giảm giá</FormLabel>
                                                     <FormControl>
-                                                        <Radio.Group name="radiogroup" defaultValue={"1"} onChange={e => setDiscountType(e.target.value == '0')}>
-                                                            <Radio value={"0"}>Giảm giá trực tiếp</Radio>
-                                                            <Radio value={"1"}>Giảm giá %</Radio>
-                                                        </Radio.Group>
+                                                        <div>
+                                                            <Radio.Group name="radiogroup" defaultValue={"1"} onChange={e => setDiscountType(e.target.value == '0')}>
+                                                                <Radio value={"0"}>Giảm giá trực tiếp</Radio>
+                                                                <Radio value={"1"}>Giảm giá %</Radio>
+                                                            </Radio.Group>
+                                                        </div>
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -300,7 +308,7 @@ const VoucherPage = () => {
                                         )}
                                     />
                                     <div className=''>
-                                        <p className='mt-1 text-sm font-semibold mb-2'>Đối tượng áp dụng</p>
+                                        <p className='mt-1 text-xl font-semibold mb-2'>Đối tượng áp dụng</p>
                                         <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
                                             <Radio value={"0"}>Tất cả khách hàng</Radio>
                                             <Radio value={"1"}>Khách hàng chỉ định</Radio>
@@ -309,7 +317,7 @@ const VoucherPage = () => {
 
                                     <div className='mt-1'>
                                         <label>
-                                            <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                                             <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
                                         </label>
                                     </div>
@@ -320,7 +328,7 @@ const VoucherPage = () => {
                             </Form>
                         </div>
                         <div className='flex-grow bg-white p-5 shadow-lg flex flex-col gap-3'>
-                            <p className='text-lg font-semibold'>Danh sách khách hàng</p>
+                            <p className='text-2xl font-semibold'>Danh sách khách hàng</p>
                             <div className='h-[2px] bg-slate-600'></div>
                             <ListCustomer listCustomer={listCustomer} />
                         </div>
