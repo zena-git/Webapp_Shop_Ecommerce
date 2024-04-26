@@ -189,7 +189,7 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
         }
 
         Voucher voucher = repository.save(entity);
-        return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, voucherRequest), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseObject("success", "Thành Công", 0, voucher), HttpStatus.OK);
 // >>>>>>> origin/be_b
     }
 }

@@ -7,14 +7,12 @@ import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportReq
 import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.request.message.ResetPasswordRequest;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
+import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.color.ColorResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionResponse;
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
-import com.example.webapp_shop_ecommerce.entity.Color;
-import com.example.webapp_shop_ecommerce.entity.Customer;
-import com.example.webapp_shop_ecommerce.entity.Promotion;
-import com.example.webapp_shop_ecommerce.entity.Users;
+import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.service.*;
 import com.example.webapp_shop_ecommerce.service.Impl.MailServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
@@ -45,6 +43,9 @@ public class SupportController {
     SupportSevice supportSevice;
     @Autowired
     IUsersService usersService;
+
+    @Autowired
+    IVoucherService voucherService;
     @Autowired
     private ModelMapper mapper;
 
@@ -135,6 +136,11 @@ public class SupportController {
     public ResponseEntity<?> recoverUser(@RequestParam(value = "id", defaultValue = "") Long id ) {
         return supportSevice.recoverUser(id);
     }
+
+//    @PostMapping("/promotion/update")
+//    public ResponseEntity<?> voucherUpdate(@RequestBody VoucherRequest request) {
+//        return voucherService.update(request);
+//    }
 
     @PostMapping("/promotion/update")
     public ResponseEntity<?> promotionUpadte(@RequestBody PromotionRequest request) {
