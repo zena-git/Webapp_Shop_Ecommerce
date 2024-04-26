@@ -2,7 +2,7 @@ import { DatePicker, InputNumber, Button, Select, Radio, Input, Switch } from 'a
 import { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { baseUrl, baseUrlV3 } from '~/lib/functional';
+import { baseUrl, baseUrlV3, regex } from '~/lib/functional';
 import {
     Form,
     FormControl,
@@ -47,7 +47,7 @@ export default function Add() {
     const [listProvince, setListProvince] = useState([]);
     const [listDistricts, setListDistricts] = useState([]);
     const [listWards, setListWards] = useState([]);
-    const [gender, setGender] = useState('0');
+    const [gender, setGender] = useState(false);
     const [status, setStatus] = useState('0');
 
     const [originalThumbnail, setOriginalThumbnail] = useState(null);
@@ -65,7 +65,7 @@ export default function Add() {
                 setTargetUser(res.data);
                 console.log(res.data.status);
                 setStatus(res.data.status);
-                setGender(res.data.gender ? '0' : '1');
+                setGender(res.data.gender);
                 setImageLink(res.data.imageUrl);
                 axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/province`, {
                     headers: {
@@ -108,39 +108,53 @@ export default function Add() {
 
     useEffect(() => {
         if (addProvince && enableChecking) {
-            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${addProvince.ProvinceID}`, {
-                headers: {
-                    token: token
-                }
-            }).then(res => {
-                let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451)
-                if (!listFilteredDistrict[0].NameExtension.includes(listDistricts[0].DistrictName)) {
-                    setListDistricts(listFilteredDistrict);
-                    axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0].DistrictID}`, {
-                        headers: {
-                            token: token
-                        }
-                    }).then(resp => {
-                        setListWards(resp.data.data);
-                        setAddWard(resp.data.data[0].WardName);
-                    })
-                }
-            })
+            try {
+                axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${addProvince.ProvinceID}`, {
+                    headers: {
+                        token: token
+                    }
+                }).then(res => {
+                    let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451)
+                    if (!listFilteredDistrict[0].NameExtension.includes(listDistricts[0].DistrictName)) {
+                        setListDistricts(listFilteredDistrict);
+                        axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0]?.DistrictID}`, {
+                            headers: {
+                                token: token
+                            }
+                        }).then(resp => {
+                            setListWards(resp.data.data);
+                            setAddWard(resp.data.data[0].WardName);
+                        }).catch(err => {
+                            console.log(err)
+                        })
+                    }
+                })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }, [addProvince, enableChecking])
 
     useEffect(() => {
         if (addDistrict && enableChecking) {
-            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${addDistrict.DistrictID}`, {
-                headers: {
-                    token: token
-                }
-            }).then(res => {
-                if (!res.data.data[0].NameExtension.includes(listWards[0].WardName)) {
-                    setListWards(res.data.data);
-                    setAddWard(res.data.data[0].WardName)
-                }
-            })
+            try {
+
+                axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${addDistrict?.DistrictID}`, {
+                    headers: {
+                        token: token
+                    }
+                }).then(res => {
+                    if (!res.data.data[0].NameExtension.includes(listWards[0].WardName)) {
+                        setListWards(res.data.data);
+                        setAddWard(res.data.data[0].WardName)
+                    }
+                }).catch(err => {
+                    console.log(err)
+                })
+
+            } catch (error) {
+                console.log(error)
+            }
         }
     }, [addDistrict, enableChecking])
 
@@ -149,7 +163,7 @@ export default function Add() {
             resolver: zodResolver(formSchema),
             defaultValues: {
                 fullName: "",
-                gender: "0",
+                gender: false,
                 detail: "",
                 birthday: dayjs(new Date()),
                 status: "0",
@@ -163,7 +177,7 @@ export default function Add() {
                 email: targetUser ? targetUser.email : "",
                 fullName: targetUser ? targetUser.fullName : "",
                 status: targetUser ? targetUser.status : "0",
-                gender: targetUser ? targetUser.gender ? '0' : '1' : "0"
+                gender: targetUser ? targetUser.gender : false
             },
             mode: 'all'
         }
@@ -222,6 +236,8 @@ export default function Add() {
             toast.error('chưa chọn Xã/phường')
         } else if (values.fullName.trim().length == 0) {
             toast.error('chưa điền tên')
+        } else if (!regex.test(values.phone)) {
+            toast.error('sai định dạng số điện thoại')
         } else {
             if (!pending) {
                 const body = {
@@ -235,13 +251,16 @@ export default function Add() {
                     email: values.email,
                     status: status,
                     fullName: values.fullName,
-                    gender: gender == '0',
+                    gender: gender,
                     phone: values.phone
                 }
                 setPending(true);
                 axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
                     toast.success('Cập nhật thành công');
                     setPending(false);
+                    setTimeout(() => {
+                        navigate(`/user/staff/detail/${path.id}`)
+                    }, 2000)
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message);
@@ -305,7 +324,7 @@ export default function Add() {
                                     <p className='font-semibold mb-2'>Tình trạng làm việc</p>
                                     {targetUser
                                         &&
-                                        <Switch checkedChildren="Đang làm việc" unCheckedChildren="Đã nghỉ việc" checked={status == 0} onChange={e => {setStatus(e ? 0 : 1)}} />
+                                        <Switch checkedChildren="Đang làm việc" unCheckedChildren="Đã nghỉ việc" checked={status == 0} onChange={e => { setStatus(e ? 0 : 1) }} />
                                     }
                                 </div>
                             </div>
@@ -338,9 +357,9 @@ export default function Add() {
                                                     <FormLabel>Giới tính</FormLabel>
                                                     <FormControl>
                                                         <div>
-                                                            <Radio.Group name="radiogroup" defaultValue={"0"} onValueChange={(e) => { setGender(e.target.value) }}>
-                                                                <Radio value={"0"}>Nam</Radio>
-                                                                <Radio value={"1"}>Nữ</Radio>
+                                                            <Radio.Group name="radiogroup" defaultValue={gender} onChange={e => { setGender(e.target.value) }}>
+                                                                <Radio value={false}>Nam</Radio>
+                                                                <Radio value={true}>Nữ</Radio>
                                                             </Radio.Group>
                                                         </div>
                                                     </FormControl>
@@ -415,10 +434,10 @@ export default function Add() {
                                                 <FormLabel className="pl-4">Quận/huyện</FormLabel>
                                                 <FormControl>
                                                     <div className='w-full'>
-                                                        <Select className='min-w-[180px] w-full pl-4' placeholder='Quận/huyện' defaultValue={targetUser?.district} value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target.DistrictID == value)) }}>
+                                                        <Select className='min-w-[180px] w-full pl-4' placeholder='Quận/huyện' defaultValue={targetUser?.district} value={addDistrict?.DistrictID} onChange={value => { setAddDistrict(listDistricts.find(target => target?.DistrictID == value)) }}>
                                                             {
                                                                 listDistricts.map((district, key) => {
-                                                                    return <option key={key} value={district.DistrictID}>{district.DistrictName}</option>
+                                                                    return <option key={key} value={district?.DistrictID}>{district?.DistrictName}</option>
                                                                 })
                                                             }
                                                         </Select>

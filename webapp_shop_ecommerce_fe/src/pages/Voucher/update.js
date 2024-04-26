@@ -29,27 +29,23 @@ const { RangePicker } = DatePicker
 
 const formSchema = z.object({
     code: z.string().min(2, {
-        message: "code must be at least 2 characters.",
+        message: "mã tối thiểu phải có 2 ký tự",
     }),
     name: z.string().min(2, {
-        message: "name must be at least 2 characters.",
+        message: "tên tối thiểu phải có 2 ký tự",
     }),
     value: z.number().min(1, {
-        message: "value must be at least 1 characters.",
+        message: "giá trị tối thiểu là 1 ký tự",
     }),
     target_type: z.number({
-        required_error: "You need to select a target type.",
+        required_error: "cần lựa chọn 1 loại hình thức",
     }),
     discountType: z.number({
-        required_error: "You need to select a discount type.",
+        required_error: "cần lựa chọn 1 loại hình thức",
     }),
     description: z.string(),
-    order_min_value: z.number().min(4, {
-        message: "min order must be at least 4 characters."
-    }),
-    max_discount_value: z.number().min(4, {
-        message: "max dis must be at least 4 characters.",
-    }),
+    order_min_value: z.number(),
+    max_discount_value: z.number(),
     usage_limit: z.number()
 })
 
@@ -173,7 +169,7 @@ const VoucherPage = () => {
                             setPending(false);
                             setTimeout(() => {
                                 navigate(`/discount/voucher/detail/${path.id}`)
-                            }, 200)
+                            }, 2000)
                         }).catch(err => {
                             toast.error(err.response.data.message);
                             setPending(false);
@@ -336,11 +332,8 @@ const VoucherPage = () => {
                                     </div>
 
                                     <div className='mt-1'>
-                                        <label>
-                                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
-                                            {/* @ts-ignore */}
-                                            <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
-                                        </label>
+                                        <FormLabel>Ngày bắt đầu {"->"} Ngày kết thúc</FormLabel>
+                                        <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
                                     </div>
                                     <div className='flex gap-4'>
                                         <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Cập nhật</Button>

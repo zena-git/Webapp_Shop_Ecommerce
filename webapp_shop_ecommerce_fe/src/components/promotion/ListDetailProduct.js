@@ -91,7 +91,7 @@ export default function ListTable({ data }) {
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return (<div className='flex justify-center text-xl'>
-                    {row.original.image_url ? <img src={row.original.image_url.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
+                    {row.original.imageUrl ? <img src={row.original.imageUrl.split(" | ")[0]} alt='' className='w-16 aspect-square'></img> : "Không có"}
                 </div>)
             },
         },
@@ -243,10 +243,6 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
 
     const selectedProduct = useAppSelector((state) => state.promotionReducer.value.selected);
 
-    useEffect(() => {
-        console.log(selectedProduct)
-    }, [selectedProduct])
-
     const dispatch = useDispatch();
 
     const belowColumns = useMemo(() => [
@@ -272,7 +268,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return <div className="text-center flex justify-center font-medium max-h-16 text-xl">
-                    {row.original.image_url ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
+                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
                 </div>
             },
         },
@@ -290,7 +286,9 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             header: () => <div className="text-center">Màu sắc</div>,
             cell: ({ row }) => {
 
-                return <div className={`text-center font-medium rounded-md px-1 py-1 text-slate-200 text-xl`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
+                return <div className='flex justify-center items-center'>
+                    <div className={`text-center font-medium rounded-md py-2 text-slate-200 text-xl max-w-32 px-4`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
+                </div>
             },
         },
         {

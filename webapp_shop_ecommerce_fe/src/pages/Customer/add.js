@@ -17,7 +17,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl, baseUrlV3 } from '../../lib/functional'
+import { baseUrl, baseUrlV3, regex } from '../../lib/functional'
 import {
     CaretSortIcon,
     DotsHorizontalIcon,
@@ -39,21 +39,17 @@ dayjs.extend(customParseFormat);
 
 const formSchema = z.object({
     codeCustomer: z.string().min(2, {
-        message: "code must be at least 2 characters.",
+        message: "mã khách hàng tối thiểu 2 ký tự",
     }),
     fullName: z.string().min(2, {
-        message: "name must be at least 2 characters.",
+        message: "tên tối thiểu 2 ký tự",
     }),
-    gender: z.number({
-        required_error: "You need to select a target type.",
-    }),
-    address: z.string({
-        required_error: "You need to select a discount type.",
-    }),
+    gender: z.number(),
+    address: z.string(),
     phone: z.string(),
     email: z.string().email({}),
     username: z.string().min(4, {
-        message: "max dis must be at least 4 characters.",
+        message: "tên đăng nhập tối thiểu 4 ký tự",
     }),
     password: z.string()
 })
@@ -405,6 +401,8 @@ export default function AddCustomer() {
                 toast.error('Nhập tên khách hàng');
             } else if (values.phone.trim().length == 0) {
                 toast.error('Nhập số điện thoại');
+            } else if (!regex.test(values.phone)) {
+                toast.error('Số điện thoại chưa đúng định dạng');
             } else {
                 const lstAddressData = listAddress.map(add => {
                     return {
@@ -523,7 +521,7 @@ export default function AddCustomer() {
                                     <FormItem>
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
-                                            <Input className='w-full' {...field} />
+                                            <Input className='w-full mt-2' {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -536,12 +534,11 @@ export default function AddCustomer() {
                                     render={({ field }) =>
                                     (
                                         <FormItem>
-                                            <FormLabel></FormLabel>
+                                            <FormLabel>Ngày sinh</FormLabel>
                                             <FormControl>
-                                                <>
-                                                    <p className='m-0 font-semibold'>Ngày sinh</p>
-                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => setBirthday(birthDay)} />
-                                                </>
+                                                <div>
+                                                    <DatePicker className="" format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => setBirthday(birthDay)} />
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

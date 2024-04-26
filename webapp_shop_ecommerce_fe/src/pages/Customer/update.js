@@ -17,7 +17,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { baseUrl, baseUrlV3 } from '../../lib/functional'
+import { baseUrl, baseUrlV3, regex } from '../../lib/functional'
 import {
     CaretSortIcon,
     DotsHorizontalIcon,
@@ -92,7 +92,7 @@ export default function AddCustomer() {
             }
             setListAddress(res.data.lstAddress.map((add, index) => {
                 if (add.defaultAddress) {
-                    setDefaultAddress(add.id)
+                    setDefaultAddress(index + 1);
                 }
                 return {
                     ...add,
@@ -279,7 +279,7 @@ export default function AddCustomer() {
             accessorKey: "key",
             header: "Mặc định",
             cell: ({ row }) => (<div className='flex justify-center'>
-                <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.id || row.original.key) }} />
+                <Checkbox defaultChecked={defaultAddress == row.original.key} onChange={e => { setDefaultAddress(e.target.checked ? row.original.key : null) }} />
             </div>
             ),
         },
@@ -366,9 +366,9 @@ export default function AddCustomer() {
                         ),
                     },
                     {
-                        key: '3',
+                        key: '2',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { Remove(row.original.key) }}>
                                 <FaTrash />
                                 Xóa
                             </div>
@@ -428,6 +428,8 @@ export default function AddCustomer() {
                 toast.error('Nhập tên khách hàng');
             } else if (values.phone.trim().length == 0) {
                 toast.error('Nhập số điện thoại');
+            } else if (!regex.test(values.phone)) {
+                toast.error('Số điện thoại chưa đúng định dạng');
             } else {
                 const lstAddressData = listAddress.map(add => {
                     return {
@@ -675,7 +677,7 @@ export default function AddCustomer() {
                                     </div>
 
                                     <div className='flex items-center gap-3'>
-                                        <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.key) }} />
+                                        <Checkbox defaultChecked={defaultAddress == editAddress.key} onChange={e => { setDefaultAddress(e.target.checked ? editAddress.key : null) }} />
                                         <p>Đặt làm địa chỉ mặc định</p>
                                     </div>
                                 </form>

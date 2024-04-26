@@ -13,3 +13,5 @@ export function makeid() {
     }
     return result;
 }
+
+export const regex = /^(0[0-9]{9}|84[0-9]{9})$/;

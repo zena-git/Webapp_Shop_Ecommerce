@@ -105,12 +105,12 @@ function EditPage() {
                         lstProductDetails: PromotionType == "0" ? allPro : lst
                     }
                     setPending(true);
-                    axios.put(`${baseUrl}/promotion/${path.id}`, t).then(res => {
+                    axios.post(`${baseUrlV3}/promotion/update`, t).then(res => {
                         toast.success("cập nhật thành công");
                         setPending(false);
                         setTimeout(() => {
                             navigate(`/discount/promotion/detail/${targetPromotion.id}`)
-                        }, 200)
+                        }, 2000)
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message)
@@ -121,42 +121,42 @@ function EditPage() {
             toast.error('Chỉ sự kiện giảm giá chưa diễn ra có thể chỉnh sửa');
         }
     }
-
+ 
     return (
         <div>
             <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
                 <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
                     <div className='flex gap-2 items-center'>
-                        <div className='text-lg cursor-pointer flex items-center' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
-                        <p className='ml-3 text-lg font-semibold'>Cập nhật đợt giảm giá</p>
+                        <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
+                        <p className='ml-3 text-2xl font-semibold'>Cập nhật đợt giảm giá</p>
                     </div>
                     <div className='h-[2px] bg-slate-600'></div>
                     <div className='flex flex-col gap-3  bg-slate-50 px-3 pb-3 rounded-lg pt-5'>
                         <label>
-                            <p className='mb-1 text-sm text-slate-600'>Mã chương trình giảm giá</p>
+                            <p className='mb-1 text-xl text-slate-600'>Mã chương trình giảm giá</p>
                             <Input value={code} onChange={e => setCode(e)} />
                         </label>
                         <label>
-                            <p className='mb-1 text-sm text-slate-600'>Tên chương trình giảm giá</p>
+                            <p className='mb-1 text-xl text-slate-600'>Tên chương trình giảm giá</p>
                             <Input value={name} onChange={e => { setName(e.target.value) }} />
                         </label>
                         <label>
-                            <p className='mb-1 text-sm text-slate-600'>Giá trị giảm (%)</p>
+                            <p className='mb-1 text-xl text-slate-600'>Giá trị giảm (%)</p>
                             <InputNumber min={0} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
                         </label>
                         <label>
-                            <p className='mb-1 text-sm text-slate-600'>Mô tả</p>
+                            <p className='mb-1 text-xl text-slate-600'>Mô tả</p>
                             <TextArea value={description} onChange={e => { setDescription(e.target.value) }} />
                         </label>
                         <label>
-                            <p className='mb-1 text-sm text-slate-600'>Đối tượng áp dụng</p>
+                            <p className='mb-1 text-xl text-slate-600'>Đối tượng áp dụng</p>
                             <Radio.Group name="radiogroup" defaultValue={"0"} value={PromotionType} onChange={e => setPromotionType(e.target.value)}>
                                 <Radio value={"0"}>Tất cả sản phẩm</Radio>
                                 <Radio value={"1"}>Sản phẩm chỉ định</Radio>
                             </Radio.Group>
                         </label>
                         <label>
-                            <p className='mb-1 text-sm text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
                             <RangePicker className='w-full' value={date} onChange={(val) => { setDate(val) }} showTime />
                         </label>
                         <Button onClick={() => { handleSubmitForm() }} type='primary' className='bg-blue-500'>
@@ -166,7 +166,7 @@ function EditPage() {
                 </div>
 
                 <div className='flex-grow bg-slate-50 p-3 rounded-lg h-fit flex flex-col gap-2 border'>
-                    <p className='text-lg font-semibold'>Danh sách sản phẩm</p>
+                    <p className='text-2xl font-semibold'>Danh sách sản phẩm</p>
                     <div className='h-[2px] bg-slate-600'></div>
                     <ListDetailProduct data={listProduct} />
                 </div>

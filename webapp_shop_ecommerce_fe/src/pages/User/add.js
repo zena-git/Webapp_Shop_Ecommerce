@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { ToastContainer, toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone'
 import { QrReader } from "react-qr-reader";
+import { regex } from '../../lib/functional';
 
 const { TextArea } = Input
 
@@ -51,7 +52,7 @@ export default function Add() {
 
     const [imageLink, setImageLink] = useState();
     const [imageUploading, setImageUploading] = useState(false);
-    const [gender, setGender] = useState('0');
+    const [gender, setGender] = useState(false);
 
     const [originalThumbnail, setOriginalThumbnail] = useState(null);
 
@@ -168,6 +169,8 @@ export default function Add() {
             toast.error('chưa chọn Xã/phường')
         } else if (values.fullName.trim().length == 0) {
             toast.error('chưa điền tên')
+        } else if (!regex.test(values.phone)) {
+            toast.error('sai định dạng số điện thoại')
         } else {
             if (!pending) {
                 if (originalThumbnail) {
@@ -181,7 +184,7 @@ export default function Add() {
                         email: values.email,
                         status: 0,
                         fullName: values.fullName,
-                        gender: gender == '0',
+                        gender: gender,
                         phone: values.phone,
                         imageUrl: imageLink
                     }
@@ -191,6 +194,9 @@ export default function Add() {
                         setPending(false);
                         form.reset();
                         setOriginalThumbnail(null);
+                        setTimeout(() => {
+                            navigate('/user/staff')
+                        }, 2000)
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message)
@@ -205,7 +211,7 @@ export default function Add() {
                         email: values.email,
                         status: 0,
                         fullName: values.fullName,
-                        gender: gender == '0',
+                        gender: gender,
                         phone: values.phone,
                     }
                     setPending(true);
@@ -216,7 +222,9 @@ export default function Add() {
                         setAddDistrict(null);
                         setAddWard(null);
                         setOriginalThumbnail(null);
-                        navigate('/user/staff')
+                        setTimeout(() => {
+                            navigate('/user/staff')
+                        }, 2000)
                     }).catch(err => {
                         setPending(false);
                         toast.error(err.response.data.message)
@@ -243,7 +251,7 @@ export default function Add() {
                 const id = resultText.split("||")[0]
                 const name = resultText.split("||")[1].split("|")[0]
                 const birthday = dayjs(resultText.split("||")[1].split("|")[1], 'DDMMYYYY')
-                const gender = resultText.split("||")[1].split("|")[2] == "Nam" ? "0" : "1"
+                const gender = resultText.split("||")[1].split("|")[2] == "Nam" ? false : true;
                 const province = resultText.split("||")[1].split("|")[3].split(", ")[3]
                 const district = resultText.split("||")[1].split("|")[3].split(", ")[2]
                 const commune = resultText.split("||")[1].split("|")[3].split(", ")[1]
@@ -356,9 +364,9 @@ export default function Add() {
                                                 <FormLabel>Giới tính</FormLabel>
                                                 <FormControl>
                                                     <div>
-                                                        <Radio.Group name="radiogroup" defaultValue={"0"} onValueChange={(e) => { setGender(e.target.value) }}>
-                                                            <Radio value={"0"}>Nam</Radio>
-                                                            <Radio value={"1"}>Nữ</Radio>
+                                                        <Radio.Group name="radiogroup" value={gender} onChange={(e) => { setGender(e.target.value) }}>
+                                                            <Radio value={false}>Nam</Radio>
+                                                            <Radio value={true}>Nữ</Radio>
                                                         </Radio.Group>
                                                     </div>
                                                 </FormControl>
@@ -386,10 +394,10 @@ export default function Add() {
                                         name="birthday"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="pb-2">Ngày sinh</FormLabel>
+                                                <FormLabel className="">Ngày sinh</FormLabel>
                                                 <FormControl>
                                                     <div className='mt-2'>
-                                                        <DatePicker {...field} className='mt-2' placeholder='ngày sinh' needConfirm />
+                                                        <DatePicker {...field} className='' placeholder='ngày sinh' needConfirm />
                                                     </div>
                                                 </FormControl>
                                                 <FormMessage />

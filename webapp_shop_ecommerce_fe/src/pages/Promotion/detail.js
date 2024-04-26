@@ -16,7 +16,7 @@ function Detail() {
     useEffect(() => {
         if (path && path.id) {
             axios.get(`${baseUrlV3}/promotion/data?id=${path.id}`).then(res => {
-                setTargetPromotion(res.data)
+                setTargetPromotion({ ...res.data, lstPromotionDetails: res.data.lstPromotionDetails.filter(target => !target.deleted) })
             });
         }
     }, [path])
@@ -41,7 +41,12 @@ function Detail() {
                         <p className='text-xl font-semibold text-slate-800'>Giá trị giảm: </p>
                         <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.value}%</p>
                         <p className='text-xl font-semibold text-slate-800'>Trạng thái:</p>
-                        {targetPromotion && <p><Tag color='blue' className='font-semibold text-xl'>{targetPromotion?.status == 0 ? 'Sắp diễn ra' : targetPromotion.status == 1 ? 'Đang diễn ra' : 'Đã kết thúc'}</Tag></p>}
+                        {targetPromotion && <p>
+                            <Tag color={targetPromotion.status == 0 ? "blue" : targetPromotion.status == 1 ? "green" : targetPromotion.status == 2 ? "gold" : "red"}>
+                                {targetPromotion.status == 0 ? "Sắp diễn ra" : targetPromotion.status == 1 ? "Đang diễn ra" : targetPromotion.status == 2 ? "Đã kết thúc" : "Đã hủy"}
+                            </Tag>
+                        </p>
+                        }
                         <p className='text-xl font-semibold text-slate-800'>Ngày hoạt động:</p>
                         <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.startDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.startDate.split("T")[0] + " đến " + targetPromotion?.endDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.endDate.split("T")[0]}</p>
                     </div>
