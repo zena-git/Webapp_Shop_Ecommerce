@@ -318,7 +318,7 @@ function OrderProducts() {
         console.log(data);
         const lstDataCustom = data.map((data, index) => {
             return {
-                key: data.id,
+                key: index,
                 id: data.id,
                 index: index + 1,
                 name: <>
@@ -502,7 +502,7 @@ function OrderProducts() {
 
     const onChangeQuantityProductCart = (value, id) => {
         console.log(value + " " + id);
-        
+
         axios.put('http://localhost:8080/api/v1/counters/billDetails/' + id, {
             quantity: value
         })
@@ -587,8 +587,8 @@ function OrderProducts() {
             });
     }
 
-    const handleAddProductDetailsQrCode = async (barcode)  => {
-        
+    const handleAddProductDetailsQrCode = async (barcode) => {
+
         if (!idBill) {
             toast.error("Invalid or missing bill ID.");
             return;
@@ -599,10 +599,10 @@ function OrderProducts() {
             toast.success(response.data.message);
             updateDataDataCart();
             updateDataProductDetails();
-          } catch (error) {
+        } catch (error) {
             console.error('API error:', error);
-            toast.error(error.response.data.message);
-          }
+            toast.error(error.response.data.message||"Thất bại");
+        }
     }
 
 

@@ -71,7 +71,7 @@ function DefaultLayout({ children }) {
           <div className='flex justify-center content-center	mt-6 mb-6 pt-8 pb-8'>
             <img style={{
               width: '154px',
-            }} src='../../logo.png'></img>
+            }} src='../logo.png'></img>
           </div>
           <Menu style={{ width: '100%' }}></Menu>
         </Sider>

@@ -54,23 +54,37 @@ const OrderDataProvider = ({ children }) => {
         } else {
             setIntoMoney(money);
         }
-    }, [totalPrice, voucherMoney, shipMoney])
+    }, [totalPrice, voucherMoney, shipMoney, intoMoney])
 
 
     useEffect(() => {
+
         if (totalPrice <= 0 || voucher == null) {
             setVoucerMoney(0);
+            setVoucher(null);
+            return;
+        }
+        if (voucher?.orderMinValue > totalPrice) {
+            toast.error('Đơn hàng chưa đạt giá trị tối thiểu để áp dụng')
+            setVoucerMoney(0);
+            setVoucher(null);
             return;
         }
         //%
         if (voucher.discountType == DiscountType.GIAM_PHAN_TRAM) {
             const discount = totalPrice * voucher.value / 100;
-            setVoucerMoney(discount);
+            if (discount >= voucher.maxDiscountValue) {
+                setVoucerMoney(voucher.maxDiscountValue);
+
+            } else {
+                setVoucerMoney(discount);
+
+            }
         } else {
             setVoucerMoney(voucher.value);
         }
 
-    }, [voucher, totalPrice])
+    }, [voucher, totalPrice ])
 
     //Tiền trả kháhc
     useEffect(() => {
@@ -87,6 +101,7 @@ const OrderDataProvider = ({ children }) => {
         setLoadingContent(data);
     };
     const setDataVoucher = (data) => {
+    
         setVoucher(data);
     };
     const setDataIdBill = (data) => {
@@ -301,6 +316,7 @@ const OrderDataProvider = ({ children }) => {
     };
     const resetData = () => {
         console.log('reset data');
+        setVoucher(null);
         setCustomer(null)
         setIsDelivery(false)
         setIntoMoney(0);
