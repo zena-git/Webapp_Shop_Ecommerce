@@ -84,7 +84,7 @@ public class AddressController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseObject> delete( @PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
-        return addressService.delete(id);
+        return addressService.physicalDelete(id);
     }
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@Valid @RequestBody AddressRequest addressDto, BindingResult result, @PathVariable("id") Long id){

@@ -22,7 +22,7 @@ public interface IVoucherRepository extends IBaseReporitory<Voucher, Long> {
     @Query("SELECT b FROM Voucher b WHERE b.name = ?1 and b.deleted = false")
     Optional<Voucher> findByName(String name);
 
-    @Query("SELECT vc FROM Voucher vc WHERE vc.name like %:#{#keyWork['search']}% and vc.status like %:#{#keyWork['status']}% and vc.deleted = false")
+    @Query("SELECT vc FROM Voucher vc WHERE vc.name like %:#{#keyWork['search']}% and vc.status like %:#{#keyWork['status']}% and vc.deleted = false order by vc.createdDate desc ")
     Page<Voucher> findVoucherByKeyWorkAndDeletedFalse(Pageable pageable, Map<String,String> keyWork);
     @Query("select v from Voucher v join v.lstVoucherDetails vd where v.deleted = false and vd.deleted = false and vd.status = false and v.status = :status and vd.customer.id = :idCustomer")
     List<Voucher> findAllByIdCustomer(@Param("idCustomer") Long idCustomer, @Param("status") String status);

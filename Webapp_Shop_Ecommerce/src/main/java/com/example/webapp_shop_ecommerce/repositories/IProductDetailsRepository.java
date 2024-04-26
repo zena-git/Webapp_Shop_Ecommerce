@@ -47,19 +47,22 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.deleted = false and proDetail.product.status = '0' and proDetail.quantity >0 order by proDetail.lastModifiedDate desc ")
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable pageable);
 
-
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.id =:idPromotion ")
+    void updateProductDetailsPromotionActiveToNullByPromotion( @Param("idPromotion") Long idPromotion);
 
 
 
     //conjob
     @Transactional
     @Modifying
-    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.status != :status or p.promotionDetailsActive.deleted = true ")
+    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.status != :status and p.promotionDetailsActive.deleted = true ")
     void updateProductDetailsPromotionActiveToNull( @Param("status") String status);
 
     @Transactional
     @Modifying
-    @Query("UPDATE ProductDetails pd set pd.promotionDetailsActive = (SELECT pd2 FROM PromotionDetails pd2 WHERE pd2.productDetails.id = pd.id AND pd2.promotion.status = :status and pd2.promotion.deleted = false order by pd2.promotion.startDate desc LIMIT 1)")
+    @Query("UPDATE ProductDetails pd set pd.promotionDetailsActive = (SELECT pd2 FROM PromotionDetails pd2 WHERE pd2.productDetails.id = pd.id AND pd2.promotion.status = :status  and pd2.deleted = false  and pd2.promotion.deleted = false  order by pd2.promotion.startDate desc LIMIT 1)")
     void updateProductDetailsToPromotionDetailsWherePromotionToDangDienRa( @Param("status") String status);
 
 }

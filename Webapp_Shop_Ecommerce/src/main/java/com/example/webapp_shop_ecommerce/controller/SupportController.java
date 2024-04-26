@@ -19,6 +19,7 @@ import com.example.webapp_shop_ecommerce.service.*;
 import com.example.webapp_shop_ecommerce.service.Impl.MailServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.SupportSevice;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -169,7 +170,7 @@ public class SupportController {
     }
 
     @PostMapping("/customer")
-    public ResponseEntity<?> customerSave(@RequestBody CustomerSupportRequest CustomerDto, BindingResult result){
+    public ResponseEntity<?> customerSave(@Valid @RequestBody CustomerSupportRequest CustomerDto, BindingResult result){
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();
@@ -190,7 +191,7 @@ public class SupportController {
     }
 
     @PutMapping("/customer/{id}")
-    public ResponseEntity<?> customerUpadte(@RequestBody CustomerSupportRequest CustomerDto, BindingResult result, @PathVariable("id") Long id){
+    public ResponseEntity<?> customerUpadte(@Valid @RequestBody CustomerSupportRequest CustomerDto, BindingResult result, @PathVariable("id") Long id){
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();

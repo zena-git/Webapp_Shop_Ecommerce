@@ -23,7 +23,7 @@ public interface IPromotionRepository extends IBaseReporitory<Promotion, Long> {
     @Query("SELECT b FROM Promotion b WHERE b.name = ?1 and b.deleted = false")
     Optional<Promotion> findByName(String name);
 
-    @Query("SELECT p FROM Promotion p WHERE p.name like %:#{#keyWork['search']}% and p.status like %:#{#keyWork['status']}% and p.deleted = false")
+    @Query("SELECT p FROM Promotion p WHERE p.name like %:#{#keyWork['search']}% and p.status like %:#{#keyWork['status']}% and p.deleted = false order by p.createdDate desc ")
     Page<Promotion> findPromotionByKeyWorkAndDeletedFalse(Pageable pageable, @Param("keyWork") Map<String,String> keyWork);
 
     @Transactional
@@ -48,4 +48,8 @@ public interface IPromotionRepository extends IBaseReporitory<Promotion, Long> {
     @Modifying
     @Query("UPDATE Promotion p SET p.status = :status WHERE p.id = :id and p.deleted = false ")
     void disablePromotion(@Param("id") Long id, @Param("status") String status);
+
+
+    @Query("select p from Promotion p JOIN FETCH  p.lstPromotionDetails pd where pd.deleted = false  and p.id = :id")
+    Optional<Promotion> findByIdAndPromotionDetails(@Param("id") Long id);
 }

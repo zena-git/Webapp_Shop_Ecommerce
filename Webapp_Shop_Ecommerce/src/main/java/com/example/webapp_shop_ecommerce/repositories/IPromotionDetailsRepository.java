@@ -14,9 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface IPromotionDetailsRepository extends IBaseReporitory<PromotionDetails, Long> {
-    @Transactional
-    @Modifying
-    void deleteByPromotion(Promotion promotion);
 
     @Query("select pd from PromotionDetails pd where pd.deleted = false and pd.promotion.deleted = false and pd.promotion.status = '1' and pd.productDetails.id = :idProductDetails ORDER BY pd.lastModifiedDate DESC")
     Optional<PromotionDetails> findPromotionDetailsActiveProductDetail(@Param("idProductDetails") Long idProductDetails);
@@ -50,4 +47,11 @@ public interface IPromotionDetailsRepository extends IBaseReporitory<PromotionDe
     @Query("UPDATE PromotionDetails p SET p.deleted = false WHERE p.id =:id")
     void updateDeletedFalseById(@Param("id") Long id);
 // >>>>>>> origin/be_b
+
+    @Query("select pd from PromotionDetails pd where pd.promotion.id = :idPromotion")
+    List<PromotionDetails> findPromotionDetailsByPromotion(@Param("idPromotion") Long idPromotion);
+    @Modifying
+    @Transactional
+    @Query("delete PromotionDetails p WHERE p.productDetails.id NOT IN :ids")
+    void deletedFlagForNotInIds(@Param("ids") List<Long> ids);
 }

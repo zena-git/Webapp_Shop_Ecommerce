@@ -38,4 +38,7 @@ public interface IBillRepository extends IBaseReporitory<Bill, Long> {
     @Query("UPDATE Bill b set b.status = :newStatus where b.status = :oldStatus and b.createdDate <= :now")
     void updateBillChoThanhToanToHuy(@Param("now") LocalDateTime now, @Param("oldStatus") String oldStatus, @Param("newStatus") String newStatus);
 
+
+    @Query("select b from Bill b where b.createdDate <= :now and b.status = :status")
+    List<Bill> findAllBillChoThanhToan(@Param("now") LocalDateTime now, @Param("status") String status);
 }

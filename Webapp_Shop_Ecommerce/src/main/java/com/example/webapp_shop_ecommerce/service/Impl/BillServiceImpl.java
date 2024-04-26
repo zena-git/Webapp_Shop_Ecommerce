@@ -82,6 +82,26 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         if (lstIdCartDetails.size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
         }
+        if (billRequest.getVoucher() != null) {
+            Optional<VoucherDetails> voucherDetailsOpt = voucherDetailsService.findVoucherDetailsByCustomerAndVoucher(customer.getId(), billRequest.getVoucher());
+            if (voucherDetailsOpt.isEmpty()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy giảm giá có thể khách hàng chưa sở hữu hoặc đã sử dụng", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+            VoucherDetails voucherDetails = voucherDetailsOpt.get();
+            Voucher voucher = voucherDetails.getVoucher();
+
+            if (voucher.getQuantity() < 0) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng giảm giá đã hết vui lòng chọn giảm giá khác", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+            // compareTo returns âm thì big 1 < big 2
+            // compareTo returns bằng 0 thì big -1 = big 2
+            // compareTo returns dương thì big -1 > big 2
+            if ((billRequest.getTotalMoney().compareTo(voucher.getOrderMinValue()) < 0)) {
+                return new ResponseEntity<>(new ResponseObject("error", "Đơn hàng chưa đạt giá trị tối thiểu để dử dụng giảm giá này", 0, billRequest), HttpStatus.BAD_REQUEST);
+            }
+        }
+
+
         List<CartDetails> lstCartDetails = cartDetailsRepo.findAllById(lstIdCartDetails);
         for (CartDetails cartDetails : lstCartDetails) {
 
@@ -179,7 +199,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             VoucherDetails voucherDetails = voucherDetailsOpt.get();
             Voucher voucher = voucherDetails.getVoucher();
 
-            if (voucher.getQuantity() < 0) {
+            if (voucher.getQuantity() < 1) {
                 return new ResponseEntity<>(new ResponseObject("error", "Số lượng giảm giá đã hết vui lòng chọn giảm giá khác", 1, billDto), HttpStatus.BAD_REQUEST);
             }
             // compareTo returns âm thì big 1 < big 2
@@ -237,6 +257,25 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     public ResponseEntity<ResponseObject> buyBillClientGuest(BillRequest billRequest) throws UnsupportedEncodingException {
         if (billRequest.getLstCartDetails().size() == 0) {
             return new ResponseEntity<>(new ResponseObject("error", "Chon it nhat 1 san pham", 1, billRequest), HttpStatus.BAD_REQUEST);
+        }
+
+        if (billRequest.getVoucher() != null) {
+            Optional<VoucherDetails> voucherDetailsOpt = voucherDetailsService.findVoucherDetailsByCustomerAndVoucher(null, billRequest.getVoucher());
+            if (voucherDetailsOpt.isEmpty()) {
+                return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy giảm giá có thể khách hàng chưa sở hữu hoặc đã sử dụng", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+            VoucherDetails voucherDetails = voucherDetailsOpt.get();
+            Voucher voucher = voucherDetails.getVoucher();
+
+            if (voucher.getQuantity() < 1) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng giảm giá đã hết vui lòng chọn giảm giá khác", 1, billRequest), HttpStatus.BAD_REQUEST);
+            }
+            // compareTo returns âm thì big 1 < big 2
+            // compareTo returns bằng 0 thì big -1 = big 2
+            // compareTo returns dương thì big -1 > big 2
+            if ((billRequest.getTotalMoney().compareTo(voucher.getOrderMinValue()) < 0)) {
+                return new ResponseEntity<>(new ResponseObject("error", "Đơn hàng chưa đạt giá trị tối thiểu để dử dụng giảm giá này", 0, billRequest), HttpStatus.BAD_REQUEST);
+            }
         }
         for (CartDetails cartDetails : billRequest.getLstCartDetails()) {
             Optional<ProductDetails> poductDetailsOpt = productDetailsService.findByProductDetailWhereDeletedAndStatus(cartDetails.getProductDetails().getId(), TrangThai.HOAT_DONG.getLabel());
@@ -326,7 +365,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             VoucherDetails voucherDetails = voucherDetailsOpt.get();
             Voucher voucher = voucherDetails.getVoucher();
 
-            if (voucher.getQuantity() < 0) {
+            if (voucher.getQuantity() < 1) {
                 return new ResponseEntity<>(new ResponseObject("error", "Số lượng giảm giá đã hết vui lòng chọn giảm giá khác", 1, billDto), HttpStatus.BAD_REQUEST);
             }
             // compareTo returns âm thì big 1 < big 2
@@ -652,7 +691,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             VoucherDetails voucherDetails = voucherDetailsOpt.get();
             Voucher voucher = voucherDetails.getVoucher();
 
-            if (voucher.getQuantity() < 0) {
+            if (voucher.getQuantity() < 1) {
                 return new ResponseEntity<>(new ResponseObject("error", "Số lượng giảm giá đã hết vui lòng chọn giảm giá khác", 1, billDto), HttpStatus.BAD_REQUEST);
             }
             // compareTo returns âm thì big 1 < big 2
@@ -694,6 +733,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
         bill.setCodeBill(otp.get().getCodeBill());
         bill.setCustomer(otp.get().getCustomer());
         bill.setUser(otp.get().getUser());
+        bill.setVoucherMoney(voucherMoney);
         if(intoMoney.compareTo(BigDecimal.ZERO) < 0){
             bill.setIntoMoney(BigDecimal.ZERO);
         }
@@ -1298,6 +1338,22 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     @Override
     public Optional<Bill> findBillByCode(String codeBill) {
         return billRepo.findBillByCode(codeBill.trim());
+    }
+
+    @Override
+    public void autoUpdateBillChoThanhToanToHuy(LocalDateTime now, String choThanhToan, String daHuy) {
+        List<Bill> lstBill = billRepo.findAllBillChoThanhToan(now, choThanhToan);
+        lstBill.stream().map(bill -> {
+            bill.setStatus(daHuy);
+            bill.getLstBillDetails().stream().map(billDetails ->{
+                ProductDetails productDetails = billDetails.getProductDetails();
+                productDetails.setQuantity(productDetails.getQuantity() + billDetails.getQuantity());
+                productDetailsRepo.save(productDetails);
+                return billDetails;
+            }).collect(Collectors.toList());
+            update(bill);
+            return bill;
+        }).collect(Collectors.toList());
     }
 
 

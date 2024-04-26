@@ -26,5 +26,4 @@ public interface IProductDetailsService extends IBaseService<ProductDetails, Lon
     ResponseEntity<ResponseObject> updateAll(List<ProductDetailsRequest> lstProductDetails);
 
     Optional<ProductDetails> findByBarCode(String barCode);
-
 }

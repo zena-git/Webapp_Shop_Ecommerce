@@ -4,6 +4,7 @@ import com.example.webapp_shop_ecommerce.entity.Voucher;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.*;
+import com.example.webapp_shop_ecommerce.service.IBillService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +15,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class CronJob {
     //https://hocspringboot.net/2020/10/30/scheduled-annotation-trong-spring-boot/
     private TrangThaiGiamGia trangThaiGiamGia;
@@ -31,8 +33,10 @@ public class CronJob {
     @Autowired
     IBillRepository billRepo;
 
+    @Autowired
+    IBillService billService;
 
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void VoucherCronJob() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -75,9 +79,9 @@ public class CronJob {
     @Scheduled(cron = "0 59 23 * * ?")
     public void CancellingInvoice() {
         LocalDateTime now = LocalDateTime.now();
-        System.out.println("Giơ hien taại " + now.toString());
-        System.out.println("huy bill");
+        // Đặt giờ và phút thành 23:59
+        LocalDateTime specificTime = now.withHour(23).withMinute(59);
         //set Dang dien ra to huy
-        billRepo.updateBillChoThanhToanToHuy(now,TrangThaiBill.CHO_THANH_TOAN.getLabel(), TrangThaiBill.HUY.getLabel());
+        billService.autoUpdateBillChoThanhToanToHuy(specificTime,TrangThaiBill.CHO_THANH_TOAN.getLabel(), TrangThaiBill.HUY.getLabel());
     }
 }
