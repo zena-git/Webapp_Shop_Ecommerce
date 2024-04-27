@@ -89,7 +89,7 @@ function OrderBuy({ fetchAddBillNew }) {
 
     useEffect(() => {
         fillDateTableVoucher()
-    }, [lstDataVoucher,totalPrice])
+    }, [lstDataVoucher, totalPrice])
 
     const fillDateTableVoucher = () => {
         const dataTable = lstDataVoucher.map((item, index) => {
@@ -114,14 +114,14 @@ function OrderBuy({ fetchAddBillNew }) {
 
     const handleUseVoucher = useCallback((voucher) => {
         if (voucher?.orderMinValue > totalPrice) {
-             toast.error('Đơn hàng chưa đạt giá trị tối thiểu để áp dụng');
-             return;
-         }
+            toast.error('Đơn hàng chưa đạt giá trị tối thiểu để áp dụng');
+            return;
+        }
         setIsModalOpenVoucher(false);
         setDataVoucher(voucher);
-      }, [intoMoney, totalPrice]);
+    }, [intoMoney, totalPrice]);
 
-    const handleQuitUseVoucher = () => {  
+    const handleQuitUseVoucher = () => {
         setIsModalOpenVoucher(false);
         setDataVoucher(null)
         console.log("Bỏ sử dụng");
@@ -245,7 +245,7 @@ function OrderBuy({ fetchAddBillNew }) {
                             <div>
                                 <div>Tiền Hàng:</div>
                                 <div>Giảm Giá:</div>
-                                <div>Phí Vận Chuyên:</div>
+                                <div>Phí Vận Chuyển:</div>
                                 <div>Tổng Tiền:</div>
                             </div>
                             <div className='font-medium text-end'>

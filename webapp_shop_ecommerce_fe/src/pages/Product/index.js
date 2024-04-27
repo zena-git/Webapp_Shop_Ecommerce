@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Table, Radio, Select, Input, Space, Dropdown, Switch, Spin, Popconfirm, Tooltip, Modal } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Button, Table, Radio, Select, Input, Space, Dropdown, Switch, Spin, Popconfirm, Tooltip, Modal, Upload } from 'antd';
 import axios from 'axios';
 import { useDebounce } from '~/hooks';
 import { ToolOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, RedoOutlined, FilterOutlined } from '@ant-design/icons';
@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-
+import { UploadOutlined } from '@ant-design/icons';
 const columns = [
     {
         title: '#',
@@ -108,7 +108,7 @@ const columnsDeleted = [
     },
 ];
 const Product = () => {
-
+    const inputFileRef = useRef();
     const [modalVisible, setModalVisible] = useState(false);
     const [productIdToDelete, setProductIdToDelete] = useState(null);
 
@@ -136,6 +136,7 @@ const Product = () => {
     const [historyData, setHistoryData] = useState([]);
 
     const [open, setOpen] = useState(false);
+    const [openImportExcel, setOpenImportExcel] = useState(false);
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/v1/product', {
@@ -464,9 +465,9 @@ const Product = () => {
                 toast.error('Lỗi Recover Sản Phẩm.');
 
             }).finally(() => {
-                // setTimeout(() => {
-                //     setLoadingUpdate(false);
-                // }, 1000);
+                setTimeout(() => {
+                    setLoadingUpdate(false);
+                }, 500);
             });
     };
 
@@ -488,7 +489,53 @@ const Product = () => {
         setModalVisible(false);
         setProductIdToDelete(null);
     };
+    const [selectedFile, setSelectedFile] = useState(null);
 
+    const handleFileChange = (event) => {
+        console.log(event.target.files[0]);
+        setSelectedFile(event.target.files[0]);
+    };
+
+    const handleUpload = () => {
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            console.log(selectedFile);
+            setOpenImportExcel(false)
+            setLoadingUpdate(true)
+            axios.post('http://localhost:8080/api/v1/product/excell', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+                .then(response => {
+
+                    const data = response.data.message?.split("\n");
+                    console.log(data);
+                    for (let index = 0; index < data.length; index++) {
+                        if (index == data.length - 1) {
+                            toast.error(data[index]);
+                        } else {
+                            toast.success(data[index]);
+                        }
+
+                    }
+                    inputFileRef.current.value = '';
+                    setHistoryData(response.data)
+
+                    console.log('Đã tải lên thành công:', response.data.message);
+                })
+                .catch(error => {
+                    toast.error(error.response.data.message);
+                }).finally(() => {
+                    setTimeout(() => {
+                        setLoadingUpdate(false);
+                    }, 1000);
+                })
+        } else {
+            console.warn('Không có tệp nào được chọn.');
+        }
+    };
     return (
         <div className=''>
             <div>
@@ -568,8 +615,13 @@ const Product = () => {
                         <div className='text-[16px] font-semibold'>Danh Sách Sản Phẩm</div>
                     </div>
                     <div className='mb-6 mt-2' >
-                        <Button type="primary" onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
-                            Excell
+                        <Button type="primary" onClick={() => {
+                            setOpenImportExcel(true)
+                        }} >
+                            Import Excell
+                        </Button>
+                        <Button type="primary" className='ml-4' onClick={dowloadExcel} disabled={!hasSelected} loading={loading}>
+                            Export Excell
                         </Button>
                         <Button type="primary" onClick={() => setOpen(true)} className='ml-4'>
                             <DeleteOutlined />
@@ -588,6 +640,27 @@ const Product = () => {
                                     <Table columns={columnsDeleted} pagination={{
                                         pageSize: 5,
                                     }} dataSource={dataColumDeleted} />
+                                </div>
+                            </Modal>
+                        </>
+
+                        <>
+                            <Modal
+                                title="Import excel"
+                                open={openImportExcel}
+                                onOk={handleUpload}
+                                onCancel={() => setOpenImportExcel(false)}
+                                width={600}
+                            >
+                                <div className='mt-10 mb-10'>
+                                    {/* <label htmlFor="image-upload" className="label"> <Button icon={<UploadOutlined />}>Click to Upload</Button></label> */}
+                                    <input type="file"
+                                        id="image-upload"
+                                        accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                        onChange={handleFileChange}
+                                        ref={inputFileRef}
+
+                                    />
                                 </div>
                             </Modal>
                         </>
