@@ -157,6 +157,7 @@ export default function ListTable() {
                             axios.put(`${baseUrl}/user/${row.original.id}`, { ...row.original, status: e ? 0 : 1 }).then(res => {
                                 toast.success('Cập nhật thành công');
                                 pending = false;
+                                fillData();
                             }).catch(err => {
                                 pending = false;
                                 toast.error(err.response.data.message);

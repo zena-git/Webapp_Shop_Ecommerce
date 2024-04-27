@@ -35,7 +35,7 @@ function EditPage() {
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
     useEffect(() => {
-        axios.get(`${baseUrl}/product`).then(res => {
+        axios.get(`${baseUrlV3}/product`).then(res => {
             setListProduct(res.data);
             let temp = []
             res.data.forEach(product => {

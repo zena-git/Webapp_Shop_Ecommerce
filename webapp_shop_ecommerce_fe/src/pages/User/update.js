@@ -114,9 +114,10 @@ export default function Add() {
                         token: token
                     }
                 }).then(res => {
-                    let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451)
+                    let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451);
                     if (!listFilteredDistrict[0].NameExtension.includes(listDistricts[0].DistrictName)) {
                         setListDistricts(listFilteredDistrict);
+                        setAddDistrict(listFilteredDistrict[0]);
                         axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0]?.DistrictID}`, {
                             headers: {
                                 token: token

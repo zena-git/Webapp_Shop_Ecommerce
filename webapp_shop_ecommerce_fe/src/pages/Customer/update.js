@@ -423,6 +423,7 @@ export default function AddCustomer() {
     )
 
     const handleSubmitForm = (values) => {
+        console.log(birthDay.toDate())
         if (!pending) {
             if (values.fullName.trim().length == 0) {
                 toast.error('Nhập tên khách hàng');
@@ -446,7 +447,7 @@ export default function AddCustomer() {
                         id: add.id
                     }
                 })
-                const data = { ...values, birthDay: birthDay, gender: gender == '1', lstAddress: lstAddressData }
+                const data = { ...values, birthday: birthDay.toDate(), gender: gender == '1', lstAddress: lstAddressData }
                 setPending(true);
                 axios.put(`${baseUrlV3}/customer/${path.id}`, data).then(res => {
                     toast.success('cập nhật khách hàng thành công');
@@ -559,7 +560,7 @@ export default function AddCustomer() {
                                             <FormControl>
                                                 <>
                                                     <p>Ngày sinh</p>
-                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => setBirthday(birthDay)} />
+                                                    <DatePicker format={"DD-MM-YYYY"} maxDate={dayjs(new Date(), "DD-MM-YYYY")} value={birthDay} onChange={birthDay => { setBirthday(birthDay); console.log(birthDay) }} />
                                                 </>
                                             </FormControl>
                                             <FormMessage />
