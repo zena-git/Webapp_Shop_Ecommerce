@@ -57,4 +57,18 @@ public class Product extends BaseEntity{
     @JsonIgnore
     @OneToMany(mappedBy = "product")
     private Set<ProductDetails> lstProductDetails;
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", category=" + category +
+                ", brand=" + brand +
+                ", material=" + material +
+                ", style=" + style +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", description='" + description + '\'' +
+                ", status='" + status + '\'' ;
+    }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,9 +31,10 @@ Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, Map<String,Str
     Page<Product> findProductsClientAndDetailsNotDeleted(Pageable pageable, Map<String,String> keyWork);
     Optional<Product> findProductByIdAndDetailsNotDeleted(Long id,Map<String,String> keyWork);
 
-    ResponseEntity<Resource> generateBarcodes(@RequestParam("data") List<String> dataList) throws IOException;
+    ResponseEntity<Resource> generateBarcodes(List<String> dataList) throws IOException;
 
-    ResponseEntity<Resource> exportExcel(@RequestParam("data") List<String> dataList) throws IOException;
+    ResponseEntity<Resource> exportExcel(List<String> dataList) throws IOException;
+    ResponseEntity<?> importExcel(MultipartFile file) throws IOException;
     ResponseEntity<ResponseObject> updateStatus(ProductRequest request,Long idProduct);
     Page<Product> findProductsDeleted(Pageable pageable);
 

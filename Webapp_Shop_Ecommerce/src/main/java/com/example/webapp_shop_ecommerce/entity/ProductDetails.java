@@ -59,4 +59,21 @@ public class ProductDetails extends BaseEntity{
     @JsonIgnore
     private PromotionDetails promotionDetailsActive;
 
+    @Override
+    public String toString() {
+        return "ProductDetails{" +
+                "code='" + code + '\'' +
+                ", color=" + color +
+                ", size=" + size +
+                ", product=" + product +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", weight=" + weight +
+                ", barcode='" + barcode + '\'' +
+                ", status='" + status + '\'' +
+                ", lstPromotionDetails=" + lstPromotionDetails +
+                ", promotionDetailsActive=" + promotionDetailsActive +
+                '}';
+    }
 }

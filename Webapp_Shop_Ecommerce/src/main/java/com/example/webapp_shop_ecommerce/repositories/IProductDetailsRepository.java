@@ -39,6 +39,7 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
 
     boolean existsByCode(String code);
 
+    @Query("select pd from ProductDetails pd where pd.code = ?1 ")
     Optional<ProductDetails> findByBarcode(String bacode);
 
     @Query("select pd from ProductDetails pd where pd.deleted = false and pd.product.deleted = false and pd.id = :id and pd.product.status = :status")
@@ -64,5 +65,8 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
     @Modifying
     @Query("UPDATE ProductDetails pd set pd.promotionDetailsActive = (SELECT pd2 FROM PromotionDetails pd2 WHERE pd2.productDetails.id = pd.id AND pd2.promotion.status = :status  and pd2.deleted = false  and pd2.promotion.deleted = false  order by pd2.promotion.startDate desc LIMIT 1)")
     void updateProductDetailsToPromotionDetailsWherePromotionToDangDienRa( @Param("status") String status);
+    @Query("select pd from ProductDetails pd where pd.deleted = false and pd.product.id = :idProduct and pd.color.id = :idColor and pd.size.id = :idSize")
+    Optional<ProductDetails> findByProductDetailByProductAndSizeAndColor(@Param("idProduct") Long idProduct,@Param("idColor") Long idColor,@Param("idSize") Long idSize);
 
+    boolean existsByBarcode(String barcode);
 }
