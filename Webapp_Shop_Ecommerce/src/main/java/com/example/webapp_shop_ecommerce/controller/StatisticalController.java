@@ -14,13 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,38 +27,61 @@ public class StatisticalController {
 
     @GetMapping("/product/topsale")
     public ResponseEntity<?> findTopSale(
-            @RequestParam(value = "endDate", defaultValue = "-1") String endDate,
-            @RequestParam(value = "startDate", defaultValue = "-1") String startDate ) {
+            @RequestParam(value = "enddate") String endDateStr,
+            @RequestParam(value = "startdate") String startDateStr ) {
+
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
-        if (!Objects.equals(startDate, "-1") && !Objects.equals(endDate, "-1")) {
-            System.out.println("có data");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            startDateTime = LocalDateTime.parse(startDate.trim() + " 00:00:00", formatter);
-            endDateTime = LocalDateTime.parse(endDate.trim() + " 23:59:59", formatter);
-        }
 
-        return statisticalService.findTopSale(startDateTime,endDateTime);
+        if (startDateStr != null && endDateStr != null) {
+            System.out.println("Có dữ liệu");
+
+            // Chuyển đổi chuỗi ngày tháng thành đối tượng Instant
+            Instant startInstant = Instant.parse(startDateStr);
+            Instant endInstant = Instant.parse(endDateStr);
+
+            // Chuyển đổi Instant thành đối tượng LocalDateTime
+            startDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
+            endDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
+
+            // Đặt giờ, phút và giây của startDate thành 00:00:00
+            startDateTime = startDateTime.withHour(0).withMinute(0).withSecond(0);
+
+            // Đặt giờ, phút và giây của endDate thành 23:59:59
+            endDateTime = endDateTime.withHour(23).withMinute(59).withSecond(59);
+        }
+        return statisticalService.findTopSale(startDateTime, endDateTime);
     }
 
 
-    @GetMapping
+
+    @GetMapping("/revenue")
     public ResponseEntity<?> findStatistical(
-            @RequestParam(value = "endDate", defaultValue = "-1") String endDate,
-            @RequestParam(value = "startDate", defaultValue = "-1") String startDate ) {
+            @RequestParam(value = "enddate") String endDateStr,
+            @RequestParam(value = "startdate") String startDateStr ) {
+
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
-        Long days = null;
-        if (!Objects.equals(startDate, "-1") && !Objects.equals(endDate, "-1")) {
-            System.out.println("có data");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            startDateTime = LocalDateTime.parse(startDate.trim() + " 00:00:00", formatter);
-            endDateTime = LocalDateTime.parse(endDate.trim() + " 23:59:59", formatter);
-            Duration duration = Duration.between(startDateTime, endDateTime);
-            days = duration.toDays();
-            System.out.println("So ngay" + days);
+
+        if (startDateStr != null && endDateStr != null) {
+            System.out.println("Có dữ liệu");
+
+            // Chuyển đổi chuỗi ngày tháng thành đối tượng Instant
+            Instant startInstant = Instant.parse(startDateStr);
+            Instant endInstant = Instant.parse(endDateStr);
+
+            // Chuyển đổi Instant thành đối tượng LocalDateTime
+            startDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
+            endDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
+
+            // Đặt giờ, phút và giây của startDate thành 00:00:00
+            startDateTime = startDateTime.withHour(0).withMinute(0).withSecond(0);
+
+            // Đặt giờ, phút và giây của endDate thành 23:59:59
+            endDateTime = endDateTime.withHour(23).withMinute(59).withSecond(59);
         }
 
+        // Gọi phương thức từ service với các giá trị đã xác định
         return statisticalService.getAllStatistical(startDateTime, endDateTime);
     }
 }
