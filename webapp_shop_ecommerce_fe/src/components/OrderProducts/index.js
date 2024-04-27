@@ -195,7 +195,6 @@ function OrderProducts() {
     const [openAddProduct, setOpenAddProduct] = useState(false);
     const [openAddProductConfig, setOpenAddProductConfig] = useState(false);
 
-    const [isOpenModalQrcode, setIsOpenModalQrcode] = useState(false);
 
 
     const [dataColumProductDetails, setDataColumProductDetails] = useState([]);
@@ -238,7 +237,7 @@ function OrderProducts() {
                     <div className='flex flex-start'>
                         {data?.imageUrl && (
                             <div className='relative'>
-                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '120px' }}>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '120px', overflow: 'hidden' }}>
                                     {data.imageUrl.split("|").map((imageUrl, index) => (
                                         <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
                                     ))}
@@ -326,7 +325,7 @@ function OrderProducts() {
                         {data?.productDetails.imageUrl && (
                             <div className='relative'>
 
-                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px',  overflow: 'hidden' }}>
                                     {data.productDetails.imageUrl.split("|").map((imageUrl, index) => (
                                         <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
                                     ))}
@@ -422,7 +421,7 @@ function OrderProducts() {
                         <div className='flex'>
                             {data?.imageUrl && (
                                 <div className='relative'>
-                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px',  overflow: 'hidden' }}>
                                         {data.imageUrl.split("|").map((imageUrl, index) => (
                                             <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
                                         ))}
@@ -774,24 +773,14 @@ function OrderProducts() {
                                 }</h4>
                             </div>
                             <div>
-                                <div>
+                                <div className='flex'>
                                     <Button danger onClick={showDeleteAllConfirmCart} >Làm Mới</Button>
 
-                                    <Button className='ml-4' onClick={() => {
-                                        setIsOpenModalQrcode(true);
-                                    }}>QR Code</Button>
+                                    <BarcodeScanner idBill={bill?.id} handleAddProductDetailsQrCode={handleAddProductDetailsQrCode}></BarcodeScanner>
+
                                     <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
                                 </div>
-                                <>
-                                    <Modal width={700} title="Quét Barcode" open={isOpenModalQrcode} footer={null} onCancel={() => {
-                                        setIsOpenModalQrcode(false);
-                                    }}>
-                                        <div className='flex justify-center	'>
-                                            {/* <QRScanner></QRScanner> */}
-                                            <BarcodeScanner isOpenModalQrcode={isOpenModalQrcode} setIsOpenModalQrcode={setIsOpenModalQrcode} idBill={bill?.id} handleAddProductDetailsQrCode={handleAddProductDetailsQrCode}></BarcodeScanner>
-                                        </div>
-                                    </Modal>
-                                </>
+                            
 
 
                                 <>
