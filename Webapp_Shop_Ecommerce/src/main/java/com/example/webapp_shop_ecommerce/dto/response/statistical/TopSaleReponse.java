@@ -5,6 +5,4 @@ import java.util.Date;
 public interface TopSaleReponse {
     String getName();
     Integer getQuantity();
-
-    String getTime();
 }

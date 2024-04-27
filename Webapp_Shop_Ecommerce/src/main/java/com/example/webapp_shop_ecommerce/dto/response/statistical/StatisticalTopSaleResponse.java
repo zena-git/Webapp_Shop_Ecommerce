@@ -11,12 +11,4 @@ import java.util.List;
 public class StatisticalTopSaleResponse {
     private String time;
     private List<TopSaleReponse> product;
-
-    public StatisticalTopSaleResponse(Date time, List<TopSaleReponse> product) {
-        this.time = product.get(0).getTime();;
-        this.product = product;
-    }
-
-    public StatisticalTopSaleResponse() {
-    }
 }

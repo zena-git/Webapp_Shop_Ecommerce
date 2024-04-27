@@ -20,4 +20,6 @@ public class VoucherDetailsVoucherResponse {
     private CustomerResponse customer;
     private Boolean status;
     private LocalDateTime usedDate;
+
+    private boolean deleted;
 }

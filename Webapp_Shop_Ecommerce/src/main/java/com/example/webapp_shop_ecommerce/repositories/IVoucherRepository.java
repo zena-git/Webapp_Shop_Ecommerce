@@ -38,13 +38,13 @@ public interface IVoucherRepository extends IBaseReporitory<Voucher, Long> {
     @Query("UPDATE Voucher p SET p.status = :newStatus WHERE p.endDate <= :now AND p.status = :oldStatus and p.deleted = false ")
     void updateStatusToDaKetThuc(@Param("now") LocalDateTime now, @Param("oldStatus") String oldStatus, @Param("newStatus") String newStatus);
 
-    @Query("SELECT p FROM Voucher p WHERE  p.status = :type")
-    List<Voucher> findAllByDeleted(@Param("type") Integer type);
-
     @Transactional
     @Modifying
     @Query("UPDATE Voucher p SET p.status = :status WHERE p.id = :id and p.deleted = false ")
     void disableVoucher(@Param("id") Long id, @Param("status") String status);
+
+    @Query("SELECT p FROM Voucher p WHERE  p.deleted = :type")
+    List<Voucher> findAllByDeleted(@Param("type") Boolean type);
 
     @Query("SELECT p FROM Voucher p WHERE  p.id = :id AND p.deleted = true")
     Voucher findDeletedId(@Param("id") Long id);
@@ -53,4 +53,5 @@ public interface IVoucherRepository extends IBaseReporitory<Voucher, Long> {
     @Modifying
     @Query("UPDATE Voucher p SET p.deleted = false where p.id = :id")
     void updateRecover(@Param("id") Long id);
+
 }
