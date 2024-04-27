@@ -56,7 +56,7 @@ public class StatisticalServiceImpl implements IStatisticalService {
                 List<TopSaleReponse> lastWeeklyResult = statisticalRepo.getTopSaleDay(startDate, endDate);
                 ToppSaleResponse t = new ToppSaleResponse();
                 t.setProduct(lastWeeklyResult);
-                t.setTime("Tuần " + startDate.get(WeekFields.ISO.weekOfWeekBasedYear()) + " trong năm");
+                t.setTime("Tuần " + startDate.get(WeekFields.ISO.weekOfWeekBasedYear()));
                 resultList.add(t);
             }
         } else if (days > 56 && days < 730) {

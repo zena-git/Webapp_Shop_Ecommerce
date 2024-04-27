@@ -438,10 +438,10 @@ public class SupportSevice {
 //        }
 //    }
 
-    public String PrintInvoice(Long id) throws Exception {
+    public String PrintInvoice(String billCode) throws Exception {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
         Map<String, Object> props = new HashMap<>();
-        Bill b = billService.findById(id).get();
+        Bill b = billService.findBillByCode(billCode).get();
         props.put("invoiceDate", dateFormat.format(new Date()).toString());
         props.put("invoiceNumber", "1233");
         props.put("bill", b);

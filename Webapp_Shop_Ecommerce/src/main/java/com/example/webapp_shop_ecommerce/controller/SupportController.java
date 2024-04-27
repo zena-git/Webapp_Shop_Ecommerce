@@ -210,13 +210,14 @@ public class SupportController {
         return supportSevice.saveOrUpdateCustomer(CustomerDto,id);
     }
 
-    @GetMapping("/print/{id}")
-    public ResponseEntity<?> printInvoice(@PathVariable("id") Long id) throws Exception {
-        String output = supportSevice.PrintInvoice(id);
+    @GetMapping("/print/{code}")
+    public ResponseEntity<?> printInvoice(@PathVariable("code") String billCode) throws Exception {
+        String output = supportSevice.PrintInvoice(billCode);
         File file = new File(output);
         HttpHeaders headers = new HttpHeaders();
         String[] parts = output.split("/");
         String fileName = parts[parts.length - 1];
+        // inline là mở file trên trình duyệt, attach là tải file xuống
         headers.add("Content-Disposition", "inline; filename=" + fileName);
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
