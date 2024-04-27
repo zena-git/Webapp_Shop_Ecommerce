@@ -30,11 +30,11 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
             accessorKey: "id",
             header: "#",
             cell: ({ row }) => (
-                <div className="capitalize text-xl">{row.index + 1}</div>
+                <div className="capitalize text-xl text-center">{row.index + 1}</div>
             ),
         },
         {
-            accessorKey: "name",
+            accessorKey: "code",
             header: ({ column }) => {
                 return (
                     <div
@@ -47,6 +47,22 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
                 )
             },
             cell: ({ row }) => <div className="lowercase text-xl">{row.original.productDetails.code}</div>,
+        },
+        {
+            accessorKey: "name",
+            header: ({ column }) => {
+                return (
+                    <div
+                        className='flex items-center justify-center min-h-10'
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Tên sản phẩm
+                        <CaretSortIcon className="ml-2 h-4 w-4" />
+                    </div>
+                )
+            },
+            // @ts-ignore
+            cell: ({ row }) => <div className="lowercase text-xl">{row.original.productDetails.product.name}</div>,
         },
         {
             id: "type",

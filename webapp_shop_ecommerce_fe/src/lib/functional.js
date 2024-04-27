@@ -13,3 +13,18 @@ export function makeid() {
     }
     return result;
 }
+
+export const regex = /^(0[0-9]{9}|84[0-9]{9})$/;
+
+export const currentDate = () => {
+    let d = new Date();
+    d.setMinutes(0);
+    d.setHours(0);
+    d.setSeconds(0);
+    return d;
+}
+
+export const numberToPrice = (value) => {
+    const formattedAmount = Number.parseFloat(value.toString()).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return formattedAmount;
+}

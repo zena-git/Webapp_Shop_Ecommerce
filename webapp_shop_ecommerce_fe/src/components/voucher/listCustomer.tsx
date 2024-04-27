@@ -51,21 +51,16 @@ export default function ListTable({ listCustomer }: { listCustomer: CustomerResp
                 />
             ),
             cell: ({ row }) => (
-                <Checkbox
-                    disabled={selectedCustomer.find(value => value.id === row.getValue("id"))?.disable || false}
-                    checked={(selectedCustomer.find(value => value.id === row.getValue("id"))?.selected || false)}
-                    onChange={(value) => { dispatch(updateSelected({ id: row.getValue("id"), selected: !!value.target.checked })) }}
-                />
+                <div className='flex justify-center items-center'>
+                    <Checkbox
+                        disabled={selectedCustomer.find(value => value.id === row.original.id)?.disable || false}
+                        checked={(selectedCustomer.find(value => value.id === row.original.id)?.selected || false)}
+                        onChange={(value) => { dispatch(updateSelected({ id: row.original.id, selected: !!value.target.checked })) }}
+                    />
+                </div>
             ),
             enableSorting: false,
             enableHiding: false,
-        },
-        {
-            accessorKey: "id",
-            header: "id",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
-            ),
         },
         {
             accessorKey: "fullName",

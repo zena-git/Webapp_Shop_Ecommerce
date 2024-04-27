@@ -2,7 +2,7 @@ import { DatePicker, InputNumber, Button, Input, Radio } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
-import { baseUrl, makeid } from '~/lib/functional';
+import { baseUrl, makeid, baseUrlV3 } from '~/lib/functional';
 import { useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
@@ -31,7 +31,7 @@ function EditPage() {
     const [listProduct, setListProduct] = useState([]);
 
     useEffect(() => {
-        axios.get(`${baseUrl}/product`).then(res => {
+        axios.get(`${baseUrlV3}/product`).then(res => {
             setListProduct(res.data);
             dispatch(set({
                 value: {

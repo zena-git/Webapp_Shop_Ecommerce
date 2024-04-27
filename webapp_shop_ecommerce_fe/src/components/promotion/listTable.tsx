@@ -164,7 +164,9 @@ export default function ListTable() {
             accessorKey: "status",
             header: () => <div className="text-center">Trạng thái</div>,
             cell: ({ row }) => {
-                return <div className='flex justify-center'>{row.original.status == 0 ? <Tag className='' color='blue'>Sắp diễn ra</Tag> : row.original.status == 1 ? <Tag className='text-lg' color='blue'>Đang diễn ra</Tag> : row.original.status == 2 ? <Tag className='text-lg' color='yellow'>Đã kết thúc</Tag> : <Tag className='text-lg' color='red'>Đã hủy</Tag>}</div>
+                return <div className='flex justify-center'>{<Tag color={row.original.status == 0 ? "blue" : row.original.status == 1 ? "green" : row.original.status == 2 ? "gold" : "red"}>
+                    {row.original.status == 0 ? "Sắp diễn ra" : row.original.status == 1 ? "Đang diễn ra" : row.original.status == 2 ? "Đã kết thúc" : "Đã hủy"}
+                </Tag>}</div>
             },
         },
         {

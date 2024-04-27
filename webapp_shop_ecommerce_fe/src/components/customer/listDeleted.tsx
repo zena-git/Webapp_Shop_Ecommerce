@@ -42,11 +42,13 @@ export default function ListTable({ data }: { data: CustomerResponse[] }) {
                 />
             ),
             cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onChange={(value) => row.toggleSelected(!!value.target.checked)}
-                    aria-label="Select row"
-                />
+                <div className='flex justify-center items-center'>
+                    <Checkbox
+                        checked={row.getIsSelected()}
+                        onChange={(value) => row.toggleSelected(!!value.target.checked)}
+                        aria-label="Select row"
+                    />
+                </div>
             ),
             enableSorting: false,
             enableHiding: false,

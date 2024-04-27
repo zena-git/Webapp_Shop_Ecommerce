@@ -29,28 +29,24 @@ const { TextArea } = Input
 
 const formSchema = z.object({
     code: z.string().min(2, {
-        message: "mã tối thiểu phải có 2 ký tự",
+        message: "Mã tối thiểu phải có 2 ký tự",
     }),
     name: z.string().min(2, {
-        message: "tên tối thiểu phải có 2 ký tự",
+        message: "Tên tối thiểu phải có 2 ký tự",
     }),
-    value: z.number().min(1, {
-        message: "giá trị tối thiểu là 1 ký tự",
+    value: z.number({ invalid_type_error: 'giá trị giảm phải là số' }).min(1, {
+        message: "Giá trị tối thiểu là 1 ký tự",
     }),
     target_type: z.number({
-        required_error: "cần lựa chọn 1 loại hình thức",
+        required_error: "Cần lựa chọn 1 loại hình thức",
     }),
     discountType: z.number({
-        required_error: "cần lựa chọn 1 loại hình thức",
+        required_error: "Cần lựa chọn 1 loại hình thức",
     }),
     description: z.string(),
-    order_min_value: z.number().min(4, {
-        message: "phải có tối thiểu 4 ký tự"
-    }),
-    max_discount_value: z.number().min(4, {
-        message: "phải có tối thiểu 4 ký tự",
-    }),
-    usage_limit: z.number()
+    order_min_value: z.number({ invalid_type_error: 'Giá trị đơn tối thiểu phải là số' }),
+    max_discount_value: z.number({ invalid_type_error: 'Giá trị giảm tối đa phải là số' }),
+    usage_limit: z.number({ invalid_type_error: 'Số lượng phải là số' })
 })
 
 const VoucherPage = () => {
@@ -183,7 +179,7 @@ const VoucherPage = () => {
                                 <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
                                 <p className='ml-3 text-2xl font-semibold'>Thêm phiếu giảm giá</p>
                             </div>
-                            <div className='h-[2px] bg-slate-600 mt-1'></div>
+                            <div className='h-[2px] bg-slate-600 mt-1 mb-2'></div>
                             <Form {...form}>
                                 <form onSubmit={e => { e.preventDefault() }} className="space-y-6">
                                     <FormField
@@ -193,7 +189,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Mã phiếu giảm giá</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="code" {...field} />
+                                                    <Input placeholder="Mã" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -206,7 +202,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Tên phiếu giảm giá</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="name" {...field} />
+                                                    <Input placeholder="Tên" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -221,7 +217,7 @@ const VoucherPage = () => {
                                                 <FormItem>
                                                     <FormLabel>Gía trị giảm</FormLabel>
                                                     <FormControl>
-                                                        <InputNumber min={0} max={!discountType ? 100 : null} addonAfter={discountType ? "đ" : "%"} className='w-full' {...field} />
+                                                        <InputNumber min={1} max={!discountType ? 100 : null} addonAfter={discountType ? "đ" : "%"} className='w-full' {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -242,7 +238,7 @@ const VoucherPage = () => {
                                             )}
                                         />
                                     </div>
-                                    <div className='grid grid-cols-2'>
+                                    <div className='grid grid-cols-2 gap-5'>
                                         <FormField
                                             control={form.control}
                                             name="discountType"
@@ -308,18 +304,20 @@ const VoucherPage = () => {
                                         )}
                                     />
                                     <div className=''>
-                                        <p className='mt-1 text-xl font-semibold mb-2'>Đối tượng áp dụng</p>
-                                        <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
-                                            <Radio value={"0"}>Tất cả khách hàng</Radio>
-                                            <Radio value={"1"}>Khách hàng chỉ định</Radio>
-                                        </Radio.Group>
+                                        <FormLabel>Đối tượng áp dụng</FormLabel>
+                                        <div className='mt-2'>
+                                            <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
+                                                <Radio value={"0"}>Tất cả khách hàng</Radio>
+                                                <Radio value={"1"}>Khách hàng chỉ định</Radio>
+                                            </Radio.Group>
+                                        </div>
                                     </div>
 
                                     <div className='mt-1'>
-                                        <label>
-                                            <p className='mb-1 text-xl text-slate-600'>Ngày bắt đầu {"->"} ngày kết thúc</p>
+                                        <FormLabel>Ngày bắt đầu {"->"} Ngày kết thúc</FormLabel>
+                                        <div className='mt-3'>
                                             <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
-                                        </label>
+                                        </div>
                                     </div>
                                     <div className='flex gap-4'>
                                         <Button type="primary" onClick={() => { handleSubmitForm(form.getValues()) }}>Tạo voucher</Button>
