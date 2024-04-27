@@ -166,6 +166,7 @@ const VoucherPage = () => {
                             endDate: date[1].add(7, 'hour').toDate(),
                             lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
                         }).then(res => {
+                            toast.success('Cập nhật thành công')
                             setPending(false);
                             setTimeout(() => {
                                 navigate(`/discount/voucher/detail/${path.id}`)

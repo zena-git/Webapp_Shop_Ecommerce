@@ -29,24 +29,24 @@ const { TextArea } = Input
 
 const formSchema = z.object({
     code: z.string().min(2, {
-        message: "mã tối thiểu phải có 2 ký tự",
+        message: "Mã tối thiểu phải có 2 ký tự",
     }),
     name: z.string().min(2, {
-        message: "tên tối thiểu phải có 2 ký tự",
+        message: "Tên tối thiểu phải có 2 ký tự",
     }),
-    value: z.number().min(1, {
-        message: "giá trị tối thiểu là 1 ký tự",
+    value: z.number({ invalid_type_error: 'giá trị giảm phải là số' }).min(1, {
+        message: "Giá trị tối thiểu là 1 ký tự",
     }),
     target_type: z.number({
-        required_error: "cần lựa chọn 1 loại hình thức",
+        required_error: "Cần lựa chọn 1 loại hình thức",
     }),
     discountType: z.number({
-        required_error: "cần lựa chọn 1 loại hình thức",
+        required_error: "Cần lựa chọn 1 loại hình thức",
     }),
     description: z.string(),
-    order_min_value: z.number(),
-    max_discount_value: z.number(),
-    usage_limit: z.number()
+    order_min_value: z.number({ invalid_type_error: 'Giá trị đơn tối thiểu phải là số' }),
+    max_discount_value: z.number({ invalid_type_error: 'Giá trị giảm tối đa phải là số' }),
+    usage_limit: z.number({ invalid_type_error: 'Số lượng phải là số' })
 })
 
 const VoucherPage = () => {

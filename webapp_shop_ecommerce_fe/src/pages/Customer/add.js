@@ -424,9 +424,11 @@ export default function AddCustomer() {
                 axios.post(`${baseUrlV3}/customer`, data).then(res => {
                     toast.success('thêm khách hàng thành công');
                     form.reset();
-                    setPending(false);
                     setListAddress([]);
-                    navigate('/user/customer');
+                    setTimeout(() => {
+                        setPending(false);
+                        navigate('/user/customer');
+                    })
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
