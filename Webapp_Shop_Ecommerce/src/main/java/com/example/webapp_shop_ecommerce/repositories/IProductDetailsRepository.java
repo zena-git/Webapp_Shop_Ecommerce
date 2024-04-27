@@ -39,7 +39,7 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
 
     boolean existsByCode(String code);
 
-    @Query("select pd from ProductDetails pd where pd.code = ?1 ")
+    @Query("select pd from ProductDetails pd where pd.barcode = ?1 and pd.deleted = false and pd.product.deleted = false and pd.product.status ='0'")
     Optional<ProductDetails> findByBarcode(String bacode);
 
     @Query("select pd from ProductDetails pd where pd.deleted = false and pd.product.deleted = false and pd.id = :id and pd.product.status = :status")

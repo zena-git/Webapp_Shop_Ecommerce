@@ -18,11 +18,11 @@ public class RandomCodeGenerator {
         barcode.append(String.format("%05d", random.nextInt(100000)));
 
         // Tiếp theo là mã sản phẩm (5 chữ số)
-        barcode.append(String.format("%05d", random.nextInt(100000)));
+//        barcode.append(String.format("%05d", random.nextInt(100000)));
 
         // Tính chữ số kiểm tra (digit check)
         int sum = 0;
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 7; i++) {
             int digit = Character.getNumericValue(barcode.charAt(i));
             if (i % 2 == 0) {
                 sum += digit;

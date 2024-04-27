@@ -538,11 +538,11 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     public ResponseEntity<ResponseObject> countersAddProductBarcode(Long id, String barcode) {
         Optional<Bill> otp = billRepo.findById(id);
         if (otp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Id Hóa Đơn", 0, id), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Hóa Đơn", 0, id), HttpStatus.BAD_REQUEST);
         }
         Optional<ProductDetails> productDetailOtp = productDetailsRepo.findByBarcode(barcode);
         if (productDetailOtp.isEmpty()) {
-            return new ResponseEntity<>(new ResponseObject("error", "Không Tìm Thấy Sản Phẩm", 1, barcode), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseObject("error", "Không tìm thấy sản phẩm có thể sản phẩm đã bị xóa hoặc ngừng hoạt động", 1, barcode), HttpStatus.BAD_REQUEST);
         }
 
         Bill bill = otp.get();
