@@ -20,13 +20,11 @@ import com.example.webapp_shop_ecommerce.service.Impl.SupportSevice;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -213,21 +211,21 @@ public class SupportController {
 
     @GetMapping("/print/{code}")
     public ResponseEntity<?> printInvoice(@PathVariable("code") String billCode) throws Exception {
-        String output = supportSevice.PrintInvoice(billCode);
-        File file = new File(output);
-        HttpHeaders headers = new HttpHeaders();
-        String[] parts = output.split("/");
-        String fileName = parts[parts.length - 1];
-        // inline là mở file trên trình duyệt, attach là tải file xuống
-        headers.add("Content-Disposition", "inline; filename=" + fileName);
 
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+
+        byte[] pdfBytes  = supportSevice.PrintInvoice(billCode);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentType(MediaType.APPLICATION_PDF);
+//        headers.setContentDispositionFormData("attachment", billCode+".pdf");
+        headers.setContentDispositionFormData("inline", billCode + ".pdf");
+//        headers.setContentDisposition(ContentDisposition.inline().filename(billCode + ".pdf").build());
+//        headers.add("Content-Disposition", "inline; filename=" + fileName);
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/pdf"))
-                .body(resource);
+                .body(new ByteArrayResource(pdfBytes));
 
     }
 }

@@ -20,6 +20,7 @@ import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
 
+import com.itextpdf.text.pdf.BaseFont;
 import org.w3c.tidy.Tidy;
 import org.apache.catalina.User;
 import org.apache.commons.math3.analysis.function.Add;
@@ -30,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextFontResolver;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import static com.itextpdf.text.pdf.BaseFont.IDENTITY_H;
 
@@ -393,16 +395,16 @@ public class SupportSevice {
 
     }
 
-    public void generatePdfFromHtml(String htmlContent, String outputPath) throws Exception {
+    private byte[] generatePdfFromHtml(String html) throws Exception {
         ITextRenderer renderer = new ITextRenderer();
-        String xHtml = convertToXhtml(htmlContent);
+        renderer.setDocumentFromString(html);
+        // Phải sử dụng Flying Saucer để hiển thị các font phức tạp trong PDF
         renderer.getFontResolver().addFont("./font/Roboto-Light.ttf", IDENTITY_H, true);
-        renderer.setDocumentFromString(xHtml);
         renderer.layout();
-        try (OutputStream os = new FileOutputStream(outputPath)) {
-            renderer.createPDF(os);
-//            printDocument(outputPath);
-        }
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        renderer.createPDF(outputStream);
+        renderer.finishPDF();
+        return outputStream.toByteArray();
     }
 
 //    public void printDocument(String path) {
@@ -441,7 +443,7 @@ public class SupportSevice {
 //        }
 //    }
 
-    public String PrintInvoice(String billCode) throws Exception {
+    public byte[]  PrintInvoice(String billCode) throws Exception {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
         Map<String, Object> props = new HashMap<>();
         Bill b = billService.findBillByCode(billCode).get();
@@ -478,9 +480,8 @@ public class SupportSevice {
         Context context = new Context();
         context.setVariables(props);
         String html = templateEngine.process("invoice", context);
-        String outputF = "C:/"+ b.getCodeBill() + ".pdf";
-        generatePdfFromHtml(html, outputF);
-        return outputF;
+        byte[] pdfBytes = generatePdfFromHtml(html);
+        return pdfBytes;
     }
 
     private String convertToXhtml(String html) throws UnsupportedEncodingException {
