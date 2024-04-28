@@ -68,6 +68,8 @@ public class SupportSevice {
     IProductDetailsService productDetailsService;
 
     @Autowired
+    IProductDetailsRepository productDetailsRepo;
+    @Autowired
     IUsersService usersService;
 
     @Autowired
@@ -159,7 +161,7 @@ public class SupportSevice {
     }
 
     public ResponseEntity<?> findPromotionById(Long id){
-        Optional<Promotion> otp = promotionService.findById(id);
+        Optional<Promotion> otp = promotionService.findByIdAndPromotionDetails(id);
         if (otp.isEmpty()) {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
@@ -201,6 +203,7 @@ public class SupportSevice {
             return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy id " + id, 1, null), HttpStatus.BAD_REQUEST);
         }
         promotionRepo.disablePromotion(id, TrangThaiGiamGia.DA_HUY.getLabel());
+        productDetailsRepo.updateProductDetailsPromotionActiveToNullByPromotion(id);
         return new ResponseEntity<>(new ResponseObject("success","Thành công",0, id), HttpStatus.OK);
     }
 
@@ -475,7 +478,7 @@ public class SupportSevice {
         Context context = new Context();
         context.setVariables(props);
         String html = templateEngine.process("invoice", context);
-        String outputF = "E:/"+ b.getCodeBill() + ".pdf";
+        String outputF = "C:/"+ b.getCodeBill() + ".pdf";
         generatePdfFromHtml(html, outputF);
         return outputF;
     }

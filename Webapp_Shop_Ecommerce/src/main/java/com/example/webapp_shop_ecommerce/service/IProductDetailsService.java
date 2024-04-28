@@ -7,6 +7,7 @@ import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductDetailC
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -18,12 +19,11 @@ public interface IProductDetailsService extends IBaseService<ProductDetails, Lon
     Page<ProductDetails> findAllClientDeletedFalseAndStatusFalse(Long productId, Pageable page);
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable page);
     List<ProductDetails> findAllByProduct(Long productId);
-
+    Optional<ProductDetails> findByProductDetailWhereDeletedAndStatus(Long id,String status);
 
     ResponseEntity<ResponseObject> saveAll(List<ProductDetailsRequest> lstProductDetails);
 
     ResponseEntity<ResponseObject> updateAll(List<ProductDetailsRequest> lstProductDetails);
 
     Optional<ProductDetails> findByBarCode(String barCode);
-
 }

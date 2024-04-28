@@ -13,10 +13,12 @@ import com.example.webapp_shop_ecommerce.service.IProductService;
 import com.example.webapp_shop_ecommerce.ultiltes.GenBarcode;
 import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import com.example.webapp_shop_ecommerce.ultiltes.exportExcel.ExportProduct;
+import com.example.webapp_shop_ecommerce.ultiltes.exportExcel.ImportProduct;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -28,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -57,6 +60,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     IProductDetailsRepository productDetailsRepo;
     @Autowired
     ExportProduct exportProduct;
+
+    @Autowired
+    ImportProduct importProduct;
     @Autowired
     GenBarcode genBarcode;
     @Autowired
@@ -264,7 +270,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         }
 
         List<Long> idNumbers = dataList.stream().map(Long::valueOf).toList();
-        List<Product> lst = productRepo.findAllById(idNumbers);
+        List<Product> lst = productRepo.findAllProductDetailsById(idNumbers);
 
         if (lst.size() == 0) {
             return ResponseEntity.badRequest().body(new ByteArrayResource("Khong tim thay ID Product hop le".getBytes()));
@@ -294,6 +300,34 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
+
+    }
+
+    @Override
+    public ResponseEntity<?> importExcel(MultipartFile file) throws IOException {
+        if (file == null) {
+            return new ResponseEntity<>(new ResponseObject("error", "File không tồn tại", 0, null), HttpStatus.BAD_REQUEST);
+        }
+
+        // Kiểm tra phần mở rộng của tệp
+        String fileName = file.getOriginalFilename();
+        System.out.println(fileName);
+        // Lấy phần mở rộng của tên tệp
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+
+        // Kiểm tra nếu phần mở rộng là xls hoặc xlsx (tệp Excel)
+        if (!"xls".equalsIgnoreCase(fileExtension) && !"xlsx".equalsIgnoreCase(fileExtension)) {
+            return new ResponseEntity<>(new ResponseObject("error", "Tệp không phải là tệp Excel", 0, null), HttpStatus.BAD_REQUEST);
+        }
+
+        Map<String, Integer> output = importProduct.readExcel(file);
+        StringBuilder outputString = new StringBuilder();
+        outputString.append("Import thêm mới " + output.get("productCreate") + " sản phẩm, " + output.get("productDetailsCreate") + " chi tiết sản phẩm");
+        outputString.append("\n");
+        outputString.append("Import cập nhật " + output.get("productUpdate") + " sản phẩm, " + output.get("productDetailsUpdate") + " chi tiết sản phẩm");
+        outputString.append("\n");
+        outputString.append("Import lỗi " + output.get("error") + " bản ghi");
+        return new ResponseEntity<>(new ResponseObject("success", outputString.toString(), 0, null), HttpStatus.OK);
 
     }
 

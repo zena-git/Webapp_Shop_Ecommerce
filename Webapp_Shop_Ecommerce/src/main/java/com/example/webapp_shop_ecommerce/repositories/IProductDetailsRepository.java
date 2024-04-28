@@ -39,24 +39,34 @@ public interface IProductDetailsRepository extends IBaseReporitory<ProductDetail
 
     boolean existsByCode(String code);
 
+    @Query("select pd from ProductDetails pd where pd.barcode = ?1 and pd.deleted = false and pd.product.deleted = false and pd.product.status ='0'")
     Optional<ProductDetails> findByBarcode(String bacode);
+
+    @Query("select pd from ProductDetails pd where pd.deleted = false and pd.product.deleted = false and pd.id = :id and pd.product.status = :status")
+    Optional<ProductDetails> findByProductDetailWhereDeletedAndStatus(@Param("id") Long id,@Param("status") String status);
 
     @Query(value = "SELECT proDetail FROM ProductDetails proDetail where proDetail.product.deleted = false and proDetail.deleted = false and proDetail.product.status = '0' and proDetail.quantity >0 order by proDetail.lastModifiedDate desc ")
     Page<ProductDetails> findAllDeletedFalseAndStatusFalse(Pageable pageable);
 
-
+    @Transactional
+    @Modifying
+    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.id =:idPromotion ")
+    void updateProductDetailsPromotionActiveToNullByPromotion( @Param("idPromotion") Long idPromotion);
 
 
 
     //conjob
     @Transactional
     @Modifying
-    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.status != :status")
+    @Query("UPDATE ProductDetails p set p.promotionDetailsActive = null where p.promotionDetailsActive.promotion.status != :status and p.promotionDetailsActive.deleted = true ")
     void updateProductDetailsPromotionActiveToNull( @Param("status") String status);
 
     @Transactional
     @Modifying
-    @Query("UPDATE ProductDetails pd set pd.promotionDetailsActive = (SELECT pd2 FROM PromotionDetails pd2 WHERE pd2.productDetails.id = pd.id AND pd2.promotion.status = :status)")
+    @Query("UPDATE ProductDetails pd set pd.promotionDetailsActive = (SELECT pd2 FROM PromotionDetails pd2 WHERE pd2.productDetails.id = pd.id AND pd2.promotion.status = :status  and pd2.deleted = false  and pd2.promotion.deleted = false  order by pd2.promotion.startDate desc LIMIT 1)")
     void updateProductDetailsToPromotionDetailsWherePromotionToDangDienRa( @Param("status") String status);
+    @Query("select pd from ProductDetails pd where pd.deleted = false and pd.product.id = :idProduct and pd.color.id = :idColor and pd.size.id = :idSize")
+    Optional<ProductDetails> findByProductDetailByProductAndSizeAndColor(@Param("idProduct") Long idProduct,@Param("idColor") Long idColor,@Param("idSize") Long idSize);
 
+    boolean existsByBarcode(String barcode);
 }

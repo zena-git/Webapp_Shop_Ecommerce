@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductDetailConverter;
 import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
+import com.example.webapp_shop_ecommerce.ultiltes.RandomCodeGenerator;
 import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
     @Autowired
     RandomStringGenerator randomStringGenerator;
 
+    @Autowired
+    RandomCodeGenerator randomCodeGenerator;
+
     @Override
     public Page<ProductDetails> findAllByProductToPage(Long productId, Pageable page) {
         return repository.findAllByProductToPage(productId, page);
@@ -48,6 +52,11 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
     @Override
     public List<ProductDetails> findAllByProduct(Long productId) {
         return repository.findAllByProduct(productId);
+    }
+
+    @Override
+    public Optional<ProductDetails> findByProductDetailWhereDeletedAndStatus(Long id, String status) {
+        return repository.findByProductDetailWhereDeletedAndStatus(id, status);
     }
 
     @Override
@@ -73,7 +82,7 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                         entity.setCreatedDate(LocalDateTime.now());
                         entity.setLastModifiedDate(LocalDateTime.now());
                         entity.setLastModifiedBy("Admin");
-                        entity.setBarcode("BC" + randomStringGenerator.generateRandomString(6));
+                        entity.setBarcode( randomCodeGenerator.generateRandomBarcode());
                     }
                     return entity;
                 })

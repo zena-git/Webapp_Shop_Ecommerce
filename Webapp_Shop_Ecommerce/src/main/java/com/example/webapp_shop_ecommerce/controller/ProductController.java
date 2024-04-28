@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -185,6 +186,15 @@ public class ProductController {
 
         try {
             return productService.exportExcel(dataList);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @PostMapping(value = "/excell")
+    public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file)  {
+
+        try {
+            return productService.importExcel(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

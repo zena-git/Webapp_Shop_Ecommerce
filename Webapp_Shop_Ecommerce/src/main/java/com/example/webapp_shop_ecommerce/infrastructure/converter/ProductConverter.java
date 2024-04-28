@@ -46,10 +46,10 @@ public class ProductConverter {
              .category(category)
              .material(material)
              .style(style)
-             .imageUrl(request.getImageUrl())
-             .name(request.getName())
-             .description(request.getDescription())
-             .code(request.getCode())
+             .imageUrl(request.getImageUrl().trim())
+             .name(request.getName().trim())
+             .description(request.getDescription().trim())
+             .code(request.getCode().trim())
              .build();
     }
 }

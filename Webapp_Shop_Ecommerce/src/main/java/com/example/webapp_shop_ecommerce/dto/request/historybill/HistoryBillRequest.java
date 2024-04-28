@@ -21,5 +21,6 @@ public class HistoryBillRequest {
     private String type;
     @NotBlank(message = "Ghi chú không được để trống")
     @Size(min = 20, message = "Tối thiểu phải 20 kí tự.")
+    @Size(max = 200, message = "Tối đa 200 kí tự.")
     private String description;
 }

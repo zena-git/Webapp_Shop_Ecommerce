@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface IVoucherDetailsRepository extends IBaseReporitory<VoucherDetails, Long> {
     @Transactional
     @Modifying
-    @Query("update VoucherDetails vd set vd.deleted = true where vd.voucher = :voucher")
+    @Query("delete VoucherDetails vd where vd.voucher = :voucher")
     void deleteByVoucherTyleUpdate(@Param("voucher") Voucher voucher);
 
 

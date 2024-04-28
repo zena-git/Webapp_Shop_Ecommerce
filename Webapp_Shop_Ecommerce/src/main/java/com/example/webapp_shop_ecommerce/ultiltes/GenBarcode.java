@@ -26,6 +26,7 @@ public class GenBarcode {
                 // Tạo mã vạch
                 BitMatrix bitMatrix = null;
                 try {
+//                    bitMatrix = new MultiFormatWriter().encode(data.getBarcode(), BarcodeFormat.QR_CODE, 300, 300);
                     bitMatrix = new MultiFormatWriter().encode(data.getBarcode(), BarcodeFormat.CODE_128, 300, 100);
                 } catch (WriterException e) {
                     throw new RuntimeException(e);

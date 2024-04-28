@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +53,6 @@ public interface IBillService extends IBaseService<Bill, Long> {
 
 
 
-
+    void autoUpdateBillChoThanhToanToHuy( LocalDateTime now, String choThanhToan, String daHuy);
 
 }

@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.repositories;
 
 import com.example.webapp_shop_ecommerce.dto.response.statistical.StaticalProductResponse;
 import com.example.webapp_shop_ecommerce.dto.response.statistical.StatisticalReponse;
+import com.example.webapp_shop_ecommerce.dto.response.statistical.Top5ProductSellingReponse;
 import com.example.webapp_shop_ecommerce.dto.response.statistical.TopSaleReponse;
 import com.example.webapp_shop_ecommerce.dto.response.statistical.ToppSaleResponse;
 import com.example.webapp_shop_ecommerce.entity.Bill;
@@ -37,6 +38,11 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
             "where Bill.status ='4' group by time",
             nativeQuery = true)
     List<StatisticalReponse> getAllStatistical(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query(value = "SELECT product.image_url AS 'imageUrl', product.name , SUM(billdetails.quantity) AS 'quantity'FROM product JOIN productdetail ON product.id = productdetail.product_id JOIN billdetails ON productdetail.id = billdetails.product_detail_id GROUP BY product.name, product.image_url ORDER BY quantity DESC LIMIT 5", nativeQuery = true)
+    List<Top5ProductSellingReponse> getTop5ProductSelling();
+
+
 
 
     @Query(value = "SELECT COUNT(sub.completedOrders) AS completedOrders, SUM(sub.revenue) AS revenue " +
