@@ -17,10 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 @Repository
 public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
-//    @Query(value = "select Product.name, sum(BillDetails.quantity) as quantity, DATE(Bill.last_modified_date) AS 'time' from Bill join BillDetails on bill_id = Bill.id join ProductDetail on product_detail_id = ProductDetail.id join  Product on product_id = Product.id where Bill.status ='4'\n" +
-//            "group by Product.name, BillDetails.quantity,DATE(Bill.last_modified_date)",
-//    nativeQuery = true)
-//    List<TopSaleReponse> getAllTopSale();
 
     @Query(value = "select Product.name as name, sum(BillDetails.quantity) as quantity from Bill join BillDetails on bill_id = Bill.id join ProductDetail on product_detail_id = ProductDetail.id join  Product on product_id = Product.id " +
             "where Bill.status ='4' AND Bill.last_modified_date BETWEEN :startDate AND :endDate " +
@@ -28,21 +24,13 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
             nativeQuery = true)
     List<TopSaleReponse> getTopSaleDay(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
 
-//    @Query(value = "select Product.name, sum(BillDetails.quantity) as quantity, CASE WHEN TIMESTAMPDIFF(DAY, :startDate, :endDate) <= 14 THEN DATE(Bill.last_modified_date) WHEN TIMESTAMPDIFF(DAY, :startDate, :endDate) > 14 AND TIMESTAMPDIFF(DAY, :startDate, :endDate) <= 56 THEN WEEK(Bill.last_modified_date)  ELSE MONTH(Bill.last_modified_date) END AS time from Bill join BillDetails on bill_id = Bill.id join ProductDetail on product_detail_id = ProductDetail.id join  Product on product_id = Product.id " +
-//            "where Bill.status ='4' " +
-//            "group by Product.name,BillDetails.quantity ,time",
-//            nativeQuery = true)
-//    List<TopSaleReponse> getAllTopSale(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "select count(Bill.id) as completedOrders, sum(Bill.into_money) as revenue,  CASE WHEN TIMESTAMPDIFF(DAY, :startDate, :endDate) <= 14 THEN DATE(Bill.last_modified_date) WHEN TIMESTAMPDIFF(DAY, :startDate, :endDate) > 14 AND TIMESTAMPDIFF(DAY, :startDate, :endDate) <= 56 THEN WEEK(Bill.last_modified_date)  ELSE MONTH(Bill.last_modified_date) END AS time from Bill join BillDetails on bill_id = Bill.id join ProductDetail on product_detail_id = ProductDetail.id join  Product on product_id = Product.id " +
-            "where Bill.status ='4' group by time",
+    @Query(value = "select count(Bill.id) as completedOrders, sum(Bill.into_money) as revenue, 1 as time from Bill where Bill.status ='4' and Bill.last_modified_date between :startDate and :endDate",
             nativeQuery = true)
-    List<StatisticalReponse> getAllStatistical(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
+    StatisticalReponse getAllStatistical(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query(value = "SELECT product.image_url AS 'imageUrl', product.name , SUM(billdetails.quantity) AS 'quantity'FROM product JOIN productdetail ON product.id = productdetail.product_id JOIN billdetails ON productdetail.id = billdetails.product_detail_id GROUP BY product.name, product.image_url ORDER BY quantity DESC LIMIT 5", nativeQuery = true)
     List<Top5ProductSellingReponse> getTop5ProductSelling();
-
-
 
 
     @Query(value = "SELECT COUNT(sub.completedOrders) AS completedOrders, SUM(sub.revenue) AS revenue " +
@@ -72,9 +60,6 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
 
     @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
             "    FROM Bill\n" +
-            "    JOIN BillDetails ON bill_id = Bill.id\n" +
-            "    JOIN ProductDetail ON product_detail_id = ProductDetail.id\n" +
-            "    JOIN Product ON product_id = Product.id\n" +
             "    WHERE Bill.status ='4'\n" +
             "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 1",
             nativeQuery = true)
@@ -83,9 +68,6 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
 
     @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
             "    FROM Bill\n" +
-            "    JOIN BillDetails ON bill_id = Bill.id\n" +
-            "    JOIN ProductDetail ON product_detail_id = ProductDetail.id\n" +
-            "    JOIN Product ON product_id = Product.id\n" +
             "    WHERE Bill.status ='4'\n" +
             "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 2",
             nativeQuery = true)

@@ -64,8 +64,6 @@ public class StatisticalController {
         LocalDateTime endDateTime = null;
 
         if (startDateStr != null && endDateStr != null) {
-            System.out.println("Có dữ liệu");
-
             // Chuyển đổi chuỗi ngày tháng thành đối tượng Instant
             Instant startInstant = Instant.parse(startDateStr);
             Instant endInstant = Instant.parse(endDateStr);

@@ -2,27 +2,18 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.User.UserRequest;
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
-import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportRequest;
 import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.request.message.ResetPasswordRequest;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
-import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
-import com.example.webapp_shop_ecommerce.dto.response.color.ColorResponse;
-import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionResponse;
-import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.service.*;
-import com.example.webapp_shop_ecommerce.service.Impl.MailServiceImpl;
-import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.SupportSevice;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v3/")
@@ -49,9 +39,6 @@ public class SupportController {
     IVoucherService voucherService;
     @Autowired
     private ModelMapper mapper;
-
-    @Autowired
-    private OTPServiceImpl messageService;
 
     @Autowired
     private ICustomerService customerService;
@@ -167,12 +154,6 @@ public class SupportController {
 
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    @PostMapping("/customer/recoverpassword")
-    public ResponseEntity<?> recoverPassword(@RequestBody ResetPasswordRequest request){
-
-        return new ResponseEntity<>(messageService.sendNewPassword(request), HttpStatus.OK);
     }
 
     @PostMapping("/customer")
