@@ -3,6 +3,7 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 import com.example.webapp_shop_ecommerce.dto.request.User.UserRequest;
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportRequest;
+import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
 import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
@@ -20,7 +21,10 @@ import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
 
+import com.example.webapp_shop_ecommerce.ultiltes.RandomStringGenerator;
 import com.itextpdf.text.pdf.BaseFont;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.w3c.tidy.Tidy;
 import org.apache.catalina.User;
 import org.apache.commons.math3.analysis.function.Add;
@@ -45,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,6 +104,12 @@ public class SupportSevice {
 
     @Autowired
     private SpringTemplateEngine templateEngine;
+
+    @Autowired
+    private IClientService mailClientService;
+
+    @Autowired
+    private RandomStringGenerator randomStringGenerator;
 
     public ResponseEntity<ResponseObject> deleteAddress(Long id){
         return addressService.physicalDelete(id);
@@ -241,6 +252,7 @@ public class SupportSevice {
 
     public ResponseEntity<?> saveOrUpdateUser(UserRequest request){
         Optional<Users> userOtp = usersService.findById(request.getId());
+        String password = randomStringGenerator.generateRandomString(6);
         Users user = userOtp.orElse(new Users());
         user = mapper.map(request, Users.class);
         if (userOtp.isPresent()){
@@ -249,8 +261,31 @@ public class SupportSevice {
             usersService.update(user);
             return new ResponseEntity<>(new ResponseObject("success","Cập nhật thành công",0, request), HttpStatus.OK);
         }else {
-            usersService.createNew(user);
-            return new ResponseEntity<>(new ResponseObject("success","Thêm thành công",0, request), HttpStatus.OK);
+            // Lưu dữ liệu và thực hiện gửi email song song
+            CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
+                Users entity = new Users();
+                entity = mapper.map(request, Users.class);
+                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+                entity.setPassword(passwordEncoder.encode(password));
+                usersService.createNew(entity);
+                return new ResponseEntity<>(new ResponseObject("success","Thêm Mới Thành công",0, request), HttpStatus.OK);
+            });
+
+            // Khi tiến trình lưu dữ liệu hoàn thành, thực hiện gửi email
+            saveTask.thenAccept(resultEntity -> {
+                if (resultEntity.getStatusCode() == HttpStatus.OK) {
+                    CompletableFuture.runAsync(() -> {
+                        if (request.getEmail() != null) {
+                            MailInputDTO mailInput = new MailInputDTO();
+                            mailInput.setEmail(request.getEmail());
+                            mailInput.setPassword(password);
+                            mailInput.setName(request.getFullName());
+                            mailClientService.create(mailInput);
+                        }
+                    });
+                }
+            });
+            return saveTask.join();
         }
     }
 
@@ -327,24 +362,48 @@ public class SupportSevice {
     }
 
     public ResponseEntity<?> saveOrUpdateCustomer( CustomerSupportRequest customerDto, Long ...idCustomer){
+        String password = randomStringGenerator.generateRandomString(6);
         if (idCustomer.length <= 0){
-            Customer customer = new Customer();
-            customer = mapper.map(customerDto, Customer.class);
-            customer.setDeleted(false);
-            customer.setCreatedDate(LocalDateTime.now());
-            customer.setLastModifiedDate(LocalDateTime.now());
-            customer.setCreatedBy("Admin");
-            customer.setLastModifiedBy("Admin");
-            Customer customerReturn =  customerRepo.save(customer);
-            Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
-            lstAddressRequest.stream().map(addressRequest -> {
-                Address address = mapper.map(addressRequest, Address.class);
-                address.setId(null);
-                address.setCustomer(customerReturn);
-                addressService.createNew(address);
-                return addressRequest;
-            }).collect(Collectors.toList());
-            return new ResponseEntity<>(new ResponseObject("success","Thêm Mới Thành công",0, customerDto), HttpStatus.OK);
+            // Lưu dữ liệu và thực hiện gửi email song song
+            CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
+                Customer customer = new Customer();
+                customer = mapper.map(customerDto, Customer.class);
+                customer.setDeleted(false);
+                customer.setCreatedDate(LocalDateTime.now());
+                customer.setLastModifiedDate(LocalDateTime.now());
+                customer.setCreatedBy("Admin");
+                customer.setLastModifiedBy("Admin");
+                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+                customer.setPassword(passwordEncoder.encode(password));
+                Customer customerReturn =  customerRepo.save(customer);
+
+                Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
+                lstAddressRequest.forEach(addressRequest -> {
+                    Address address = mapper.map(addressRequest, Address.class);
+                    address.setId(null);
+                    address.setCustomer(customerReturn);
+                    addressService.createNew(address);
+                });
+
+                return new ResponseEntity<>(new ResponseObject("success","Thêm Mới Thành công",0, customerDto), HttpStatus.OK);
+            });
+
+            // Khi tiến trình lưu dữ liệu hoàn thành, thực hiện gửi email
+            saveTask.thenAccept(resultEntity -> {
+                if (resultEntity.getStatusCode() == HttpStatus.OK) {
+                    CompletableFuture.runAsync(() -> {
+                        if (customerDto.getEmail() != null) {
+                            MailInputDTO mailInput = new MailInputDTO();
+                            mailInput.setEmail(customerDto.getEmail());
+                            mailInput.setPassword(password);
+                            mailInput.setName(customerDto.getFullName());
+                            mailClientService.create(mailInput);
+                        }
+                    });
+                }
+            });
+
+            return saveTask.join();
         }else {
             Optional<Customer> customerOtp = customerRepo.findById(idCustomer[0]);
             if (customerOtp.isEmpty()){

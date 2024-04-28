@@ -355,4 +355,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
 
     }
 
+    @Override
+    public List<Product> findProductsAndDetailsNotDeleted() {
+        return repository.findProductsAndDetailsNotDeleted();
+    }
+
 }

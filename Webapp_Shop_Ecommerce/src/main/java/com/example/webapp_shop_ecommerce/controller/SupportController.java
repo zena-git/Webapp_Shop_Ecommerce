@@ -10,9 +10,11 @@ import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
 import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.color.ColorResponse;
+import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
 import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionResponse;
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThai;
 import com.example.webapp_shop_ecommerce.service.*;
 import com.example.webapp_shop_ecommerce.service.Impl.MailServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
@@ -31,7 +33,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,6 +59,9 @@ public class SupportController {
     private ICustomerService customerService;
     @Autowired
     private IClientService mailClientService;
+
+    @Autowired
+    IProductService productService;
     @DeleteMapping("/address/delete/{id}")
     public ResponseEntity<ResponseObject> deleteAddress(@PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
@@ -184,13 +191,7 @@ public class SupportController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, CustomerDto), HttpStatus.BAD_REQUEST);
         }
-        MailInputDTO mailInput = new MailInputDTO();
-        if(CustomerDto.getEmail() != null) {
-            mailInput.setEmail(CustomerDto.getEmail());
-            mailInput.setUsername("test");
-            mailInput.setMailxName("qqq");
-            mailClientService.create(mailInput);
-        }
+
         return supportSevice.saveOrUpdateCustomer(CustomerDto);
     }
 
@@ -211,9 +212,6 @@ public class SupportController {
 
     @GetMapping("/print/{code}")
     public ResponseEntity<?> printInvoice(@PathVariable("code") String billCode) throws Exception {
-
-
-
         byte[] pdfBytes  = supportSevice.PrintInvoice(billCode);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -227,5 +225,13 @@ public class SupportController {
                 .headers(headers)
                 .body(new ByteArrayResource(pdfBytes));
 
+    }
+
+
+    @GetMapping("/product")
+    public ResponseEntity<?> findProductAll() {
+        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted();
+        List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 }
