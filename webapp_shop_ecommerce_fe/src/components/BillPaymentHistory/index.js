@@ -61,13 +61,15 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
     TAO_DON_HANG: "-1",
     CHO_XAC_NHAN: "0",
     DA_XAC_NHAN: "1",
-    VAN_CHUYEN: "2",
-    DA_THANH_TOAN: "3",
+    CHO_GIA0: "2",
+    DANG_GIAO: "3",
     HOAN_THANH: "4",
-    HUY: "5",
-    TRA_HANG: "6",
+    DA_THANH_TOAN: "5",
+    HUY: "6",
+    TRA_HANG: "10",
     DANG_BAN: "7",
     CHO_THANH_TOAN: "8",
+    HOAN_TIEN: "9",
     NEW: "New",
   }
 
@@ -121,7 +123,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
         index: data?.index,
         tradingCode: data?.tradingCode,
         paymentAmount: <>
-          <span class="text-red-600 font-medium">{fixMoney(data.paymentAmount)}</span>
+          <span className="text-red-600 font-medium">{fixMoney(data.paymentAmount)}</span>
         </>,
         paymentMethod: <>
           <Tag color="#da7493"> {data.paymentMethod == "0" ? "Tiền mặt" : data.paymentMethod == "1" ? "Chuyển Khoản" : "Phương Thức Khác"}</Tag>
@@ -285,7 +287,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
           </Modal>
 
           {
-            bill?.status != TrangThaiBill.HUY && amountPaid < bill?.intoMoney && <Button danger onClick={() => {
+            bill?.status != TrangThaiBill.CHO_XAC_NHAN && bill?.status != TrangThaiBill.HUY && amountPaid < bill?.intoMoney && <Button danger onClick={() => {
               setIsModalOpenPayment(true)
             }}>Xác Nhận Thanh Toán</Button>
 
@@ -390,7 +392,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
         <Table dataSource={dataColumPaymentHistory} columns={columns} />
       </div>
       <div className='mt-2 mb-2 flex justify-end	mr-4'>
-        Số tiền đã thanh toán: <span class="text-rose-600 font-medium		">{fixMoney(amountPaid)}</span>
+        Số tiền đã thanh toán: <span className="text-rose-600 font-medium		">{fixMoney(amountPaid)}</span>
       </div>
     </>
   );

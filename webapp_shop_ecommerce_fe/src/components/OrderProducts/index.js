@@ -290,14 +290,23 @@ function OrderProducts() {
     }, [lstProductDetails])
 
     useEffect(() => {
-        const calculateTotalPrice = () => {
-            const total = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
-                return accumulator + (currentProduct.unitPrice * currentProduct.quantity);
-            }, 0);
-            setDataPriceCart(total);
-        };
+        console.log(lstProductDetailsCart);
+        const datacart = lstProductDetailsCart.map(data => {
+            return {
+                price:
+                    data?.productDetails?.promotionDetailsActive ?
+                        data?.productDetails?.price -
+                        (data?.productDetails?.promotionDetailsActive?.promotion?.value * data?.productDetails?.price / 100) :
+                        data?.productDetails?.price,
+                quantity: data?.quantity,
+            }
+        })
 
-        calculateTotalPrice();
+        const total = datacart.reduce((accumulator, currentProduct) => {
+            return accumulator + (currentProduct.price * currentProduct.quantity);
+        }, 0);
+        setDataPriceCart(total);
+
     }, [lstProductDetailsCart]);
 
     useEffect(() => {
@@ -322,9 +331,9 @@ function OrderProducts() {
                                     ))}
                                 </Carousel>
                                 {
-                                    data?.promotionDetailsActive &&
+                                    data?.productDetails.promotionDetailsActive &&
                                     <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
-                                        <span className='text-red-600 text-[12px]'>-{data?.promotionDetailsActive?.promotion.value}%</span>
+                                        <span className='text-red-600 text-[12px]'>-{data?.productDetails.promotionDetailsActive?.promotion.value}%</span>
                                     </div>
                                 }
                             </div>
@@ -341,18 +350,18 @@ function OrderProducts() {
                 </>,
                 price: <>
                     {
-                        data?.promotionDetailsActive ? (
-                            <div className='flex flex-col'>
+                        data?.productDetails?.promotionDetailsActive ? (
+                            <div className='flex flex-col	'>
                                 <span className='line-through text-slate-500	text-xl	'>
-                                    {fixMoney(data.productDetails.price)}
+                                    {fixMoney(data?.productDetails?.price)}
                                 </span>
-                                <span className='text-red-600'>
-                                    {fixMoney(data.unitPrice)}
+                                <span className='text-red-600	'>
+                                    {fixMoney(data?.productDetails?.price - (data?.productDetails?.promotionDetailsActive?.promotion?.value * data?.productDetails?.price / 100))}
                                 </span>
                             </div>
                         ) : (
                             <span>
-                                {fixMoney(data.unitPrice)}
+                                {fixMoney(data?.productDetails?.price)}
                             </span>)
                     }
                 </>,
@@ -361,11 +370,13 @@ function OrderProducts() {
                 quantity: <InputNumber
 
                     min={1}
-                    max={data.productDetails.quantity+data.quantity}
-                    value={data.quantity} // Sử dụng giá trị quantity như mặc định
+                    max={data?.productDetails?.quantity + data.quantity}
+                    value={data?.quantity} // Sử dụng giá trị quantity như mặc định
                     onChange={(value) => onChangeQuantityProductCart(value, data.id)} // Gọi hàm khi số lượng thay đổi
                 />,
-                totalMoney: fixMoney(data.unitPrice * data.quantity),
+                totalMoney: data?.productDetails?.promotionDetailsActive ?
+                    fixMoney((data?.productDetails?.price - (data?.productDetails?.promotionDetailsActive?.promotion?.value * data?.productDetails?.price / 100)) * data.quantity)
+                    : fixMoney(data?.productDetails?.price * data?.quantity),
                 action: <>
                     <Button danger className='border-none' onClick={() => { showDeleteConfirmCart(data.id) }} > <FontAwesomeIcon icon={faTrashCan}></FontAwesomeIcon></Button>
                 </>
@@ -490,7 +501,7 @@ function OrderProducts() {
 
     const onChangeQuantityProductCart = (value, id) => {
         console.log(value + " " + id);
-        
+
         axios.put('http://localhost:8080/api/v1/counters/billDetails/' + id, {
             quantity: value
         })

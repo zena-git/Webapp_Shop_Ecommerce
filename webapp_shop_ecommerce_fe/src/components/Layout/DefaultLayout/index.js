@@ -1,7 +1,7 @@
 import { Layout, theme, Button, Badge, Avatar } from 'antd';
 import Menu from '~/components/Menu';
-import React, { useState } from 'react';
-
+import React, { useState, useContext } from 'react';
+import { LoadingOutlined } from '@ant-design/icons';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -12,13 +12,14 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
+import { useOrderData } from '~/provider/OrderDataProvider';
 const { Header, Content, Footer, Sider } = Layout;
 const headerStyle = {
   color: 'black',
   backgroundColor: 'white',
   position: 'sticky',
   top: 0,
-  zIndex: 1,
+  zIndex: 2,
   width: '100%',
 
 
@@ -34,7 +35,7 @@ const siderStyle = {
   left: 0,
   top: 0,
   bottom: 0,
-  zIndex: '2',
+  zIndex: '3',
 };
 const contentStyle = {
   marginTop: '84px',
@@ -61,6 +62,7 @@ function DefaultLayout({ children }) {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  const { loadingContent, setDataLoadingContent } = useOrderData();
 
   return (
     <div >
@@ -98,7 +100,29 @@ function DefaultLayout({ children }) {
           </Header>
           <Content style={contentStyle}>
             {children}
+            <div >
+              {loadingContent && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    top: '0',
+                    left: '0',
+                    bottom: '0',
+                    right: '0',
+                    backgroundColor: 'rgba(146, 146, 146, 0.33)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1,
+                  }}
+                >
+                  <div  className='ml-[220px]'>
+                    <LoadingOutlined className='text-6xl text-rose-500	' />
+                  </div>
 
+                </div>
+              )}
+            </div>
           </Content>
           <Footer style={footerStyle}>
             <div className='font-medium	'>

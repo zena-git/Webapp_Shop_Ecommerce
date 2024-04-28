@@ -68,6 +68,14 @@ function OrderCustomer() {
         setIsModalOpen(true);
     };
     const handleOk = () => {
+        if (customerAdd?.fullName.trim().length == 0 ||
+            customerAdd?.phone.trim().length == 0 ||
+            customerAdd?.email.trim().length == 0
+        ) {
+            toast.error('Vui lòng điền đầy đủ thông tin');
+            return;
+        }
+
         axios.post('http://localhost:8080/api/v1/customer', customerAdd)
             .then((response) => {
                 toast.success(response.data.message);
@@ -246,17 +254,13 @@ function OrderCustomer() {
                                         <h5>Email</h5>
                                     </div>
                                     <div>
-                                        <div>{customer.fullName}</div>
-                                        <div>{customer.phone}</div>
-                                        <div>{customer.email}</div>
+                                        <div>{customer.fullName || 'khách hàng'}</div>
+                                        <div>{customer.phone || '0123456789'}</div>
+                                        <div>{customer.email || 'abc@abc.com'}</div>
                                     </div>
                                 </div>
 
                             </div>
-
-
-
-
                         </>
                     ) : (
                         <>
