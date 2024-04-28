@@ -28,7 +28,7 @@ export default function Table(table, flexRender, columns) {
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
-                                    className="px-6 py-4 whitespace-nowrap m-0"
+                                    className="px-6 py-4 whitespace-nowrap text-gray-500 m-0"
                                 >
                                     {flexRender(
                                         cell.column.columnDef.cell,
@@ -43,7 +43,7 @@ export default function Table(table, flexRender, columns) {
                     <tr>
                         <td
                             colSpan={columns.length}
-                            className="px-6 py-4 whitespace-nowrap text-xl text-gray-500 text-center"
+                            className="px-6 py-4 whitespace-nowrap text-gray-500 text-center"
                         >
                             Không có kết quả nào.
                         </td>
