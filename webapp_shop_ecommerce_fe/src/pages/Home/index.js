@@ -172,7 +172,7 @@ function Home() {
                     <div id='myDivx' className='w-full'></div>
                 </div>
                 <div className='px-2 w-full flex flex-col gap-4 bg-slate-100'>
-                    <p className='text-2xl font-semibold'>So sánh số liệu</p>
+                    <p className='text-2xl font-semibold mt-2'>So sánh số liệu</p>
                     <div className='flex justify-between px-[5%]'>
                         <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 0 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(0) }}>Tuần</div>
                         <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 1 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(1) }}>Tháng</div>
