@@ -135,14 +135,14 @@ function BillDetail() {
             const pdfUrl = URL.createObjectURL(pdfFile);
             // Mở chế độ xem in
             const printWindow = window.open(pdfUrl, '_blank');
-            printWindow.addEventListener('unload', function() {
+            printWindow.addEventListener('unload', function () {
                 window.focus();
             });
             printWindow.onload = function () {
                 printWindow.print();
             };
-          
-            
+
+
         } catch (error) {
             console.error('Error:', error);
         }
@@ -327,7 +327,7 @@ function BillDetail() {
                                         <Button type='primary' onClick={() => {
                                             setLoadingConfirmDelivery(true);
                                             axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
-                                                type: TrangThaiBill.VAN_CHUYEN,
+                                                type: TrangThaiBill.DANG_GIAO,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
                                                 setConfirmAcceptOrderDes("")
@@ -358,7 +358,7 @@ function BillDetail() {
                                 {
                                     bill && bill.status == TrangThaiBill.CHO_GIA0 && <Button danger onClick={() => {
                                         setIsModalOpenConfirmDelivery(true)
-                                    }}  >Vận Chuyển</Button>
+                                    }}  >Giao Hàng</Button>
                                 }
                             </div>
 
@@ -414,7 +414,7 @@ function BillDetail() {
                                 </Modal>
 
                                 {
-                                    bill && bill.status == TrangThaiBill.VAN_CHUYEN && <Button danger onClick={() => {
+                                    bill && bill.status == TrangThaiBill.DANG_GIAO && <Button danger onClick={() => {
                                         setIsModalOpenConfirmCompletion(true)
                                     }}  >Hoàn Thành</Button>
                                 }
