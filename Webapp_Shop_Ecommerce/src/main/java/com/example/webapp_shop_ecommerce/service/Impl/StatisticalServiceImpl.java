@@ -110,4 +110,27 @@ public class StatisticalServiceImpl implements IStatisticalService {
         List<StatisticalReponse> lst = statisticalRepo.getAllStatistical(startDate,endDate);
         return new ResponseEntity<>(lst, HttpStatus.OK);
     }
+    @Override
+    public ResponseEntity<?> getLastMonthStatistical() {
+        List<StatisticalReponse> lst = statisticalRepo.getLastMonthStatistical();
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getBeforeLastMonthStatistical() {
+        List<StatisticalReponse> lst = statisticalRepo.getBeforeLastMonthStatistical();
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getLastWeekStatistical() {
+        List<StatisticalReponse> lst = statisticalRepo.getLastWeekStatistical();
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getBeforeLastWeekStatistical() {
+        List<StatisticalReponse> lst = statisticalRepo.getBeforeLastWeekStatistical();
+        return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
 }

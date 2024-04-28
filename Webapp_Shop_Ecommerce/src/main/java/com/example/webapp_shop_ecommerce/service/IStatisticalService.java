@@ -8,4 +8,10 @@ import java.time.LocalDateTime;
 public interface IStatisticalService {
     ResponseEntity<?> findTopSale(LocalDateTime  startDate, LocalDateTime endDate);
     ResponseEntity<?> getAllStatistical(LocalDateTime  startDate, LocalDateTime endDate);
+
+    ResponseEntity<?> getLastMonthStatistical();
+    ResponseEntity<?> getBeforeLastMonthStatistical();
+
+    ResponseEntity<?> getLastWeekStatistical();
+    ResponseEntity<?> getBeforeLastWeekStatistical();
 }

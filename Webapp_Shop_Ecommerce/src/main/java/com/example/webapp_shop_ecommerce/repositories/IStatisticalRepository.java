@@ -39,5 +39,49 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
     List<StatisticalReponse> getAllStatistical(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
 
 
+    @Query(value = "SELECT COUNT(sub.completedOrders) AS completedOrders, SUM(sub.revenue) AS revenue " +
+            "FROM (SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue " +
+            "FROM Bill " +
+            "JOIN BillDetails ON bill_id = Bill.id " +
+            "JOIN ProductDetail ON product_detail_id = ProductDetail.id " +
+            "JOIN Product ON product_id = Product.id " +
+            "WHERE Bill.status ='4' " +
+            "AND Bill.last_modified_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) " +
+            "AND Bill.last_modified_date < NOW() " +
+            "GROUP BY Bill.id) AS sub",
+            nativeQuery = true)
+    List<StatisticalReponse> getLastMonthStatistical();
 
+    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue " +
+            "FROM Bill " +
+            "JOIN BillDetails ON bill_id = Bill.id " +
+            "JOIN ProductDetail ON product_detail_id = ProductDetail.id " +
+            "JOIN Product ON product_id = Product.id " +
+            "WHERE Bill.status ='4' " +
+            "AND Bill.last_modified_date >= DATE_SUB(DATE_SUB(NOW(), INTERVAL 30 DAY), INTERVAL 30 DAY) " +
+            "AND Bill.last_modified_date < DATE_SUB(NOW(), INTERVAL 30 DAY)",
+            nativeQuery = true)
+    List<StatisticalReponse> getBeforeLastMonthStatistical();
+
+
+    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
+            "    FROM Bill\n" +
+            "    JOIN BillDetails ON bill_id = Bill.id\n" +
+            "    JOIN ProductDetail ON product_detail_id = ProductDetail.id\n" +
+            "    JOIN Product ON product_id = Product.id\n" +
+            "    WHERE Bill.status ='4'\n" +
+            "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 1",
+            nativeQuery = true)
+    List<StatisticalReponse> getLastWeekStatistical();
+
+
+    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
+            "    FROM Bill\n" +
+            "    JOIN BillDetails ON bill_id = Bill.id\n" +
+            "    JOIN ProductDetail ON product_detail_id = ProductDetail.id\n" +
+            "    JOIN Product ON product_id = Product.id\n" +
+            "    WHERE Bill.status ='4'\n" +
+            "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 2",
+            nativeQuery = true)
+    List<StatisticalReponse> getBeforeLastWeekStatistical();
 }

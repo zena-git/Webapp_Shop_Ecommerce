@@ -84,4 +84,24 @@ public class StatisticalController {
         // Gọi phương thức từ service với các giá trị đã xác định
         return statisticalService.getAllStatistical(startDateTime, endDateTime);
     }
+
+    @GetMapping("/lastmonth")
+    public ResponseEntity<?> findLastMonthStatistical() {
+        return statisticalService.getLastMonthStatistical();
+    }
+
+    @GetMapping("/beforelastmonth")
+    public ResponseEntity<?> findBeforeLastMonthStatistical() {
+        return statisticalService.getBeforeLastMonthStatistical();
+    }
+
+    @GetMapping("/lastweek")
+    public ResponseEntity<?> findLastWeekStatistical() {
+        return statisticalService.getLastWeekStatistical();
+    }
+
+    @GetMapping("/beforelastweek")
+    public ResponseEntity<?> findBeforeLastWeekStatistical() {
+        return statisticalService.getBeforeLastWeekStatistical();
+    }
 }
