@@ -326,7 +326,7 @@ export default function AddCustomer() {
                     {
                         key: '1',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true); setDetail(row.original.detail) }}>
                                 <FaEdit />
                                 Cập nhật
                             </div>
@@ -660,7 +660,7 @@ export default function AddCustomer() {
                             </div>
                             <div>
                                 <p>Địa chỉ chi tiết</p>
-                                <TextArea placeholder="địa chỉ chi tiết" defaultValue={editAddress.detail} value={detail} onChange={e => { setDetail(e.target.value); handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
+                                <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
                             </div>
 
                             <div className='flex items-center gap-3'>

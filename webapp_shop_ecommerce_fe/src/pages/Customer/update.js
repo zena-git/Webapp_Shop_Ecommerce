@@ -67,6 +67,8 @@ const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function AddCustomer() {
     const [gender, setGender] = useState('0');
 
+    const [detail, setDetail] = useState('');
+
     const [pending, setPending] = useState(false);
     const [sorting, setSorting] = useState([])
     const [columnFilters, setColumnFilters] = useState([])
@@ -359,7 +361,7 @@ export default function AddCustomer() {
                     {
                         key: '1',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true); setDetail(row.original.detail) }}>
                                 <FaEdit />
                                 Cập nhật
                             </div>
@@ -423,7 +425,6 @@ export default function AddCustomer() {
     )
 
     const handleSubmitForm = (values) => {
-        console.log(birthDay.toDate())
         if (!pending) {
             if (values.fullName.trim().length == 0) {
                 toast.error('Nhập tên khách hàng');
@@ -484,12 +485,14 @@ export default function AddCustomer() {
             key: listAddress.length > 0 ? listAddress[listAddress.length - 1].key + 1 : 1,
             receiverName: "",
             phone: "",
+            detail: '',
             province: { id: '269', name: 'Lào Cai' },
             district: { id: '2264', name: 'Huyện Si Ma Cai' },
             commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
         }
         modalForm.reset();
         setEditAddress(newObject);
+        setDetail('');
         setListAddress(prev => [...prev, newObject])
         setIsModalOpen(true);
     }
@@ -674,7 +677,7 @@ export default function AddCustomer() {
                                     </div>
                                     <div>
                                         <p>Địa chỉ chi tiết</p>
-                                        <TextArea placeholder="địa chỉ chi tiết" value={editAddress.detail} onChange={e => { handleChangeReceiverDetail(editAddress.key, e.target.value) }} />
+                                        <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); handleChangeReceiverDetail(editAddress.key, e.target.value) }} />
                                     </div>
 
                                     <div className='flex items-center gap-3'>
