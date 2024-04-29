@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Button, Modal, Radio, Table, Input, Alert, Switch, InputNumber } from 'antd';
 import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
@@ -89,7 +89,7 @@ function OrderBuy({ fetchAddBillNew }) {
 
     useEffect(() => {
         fillDateTableVoucher()
-    }, [lstDataVoucher])
+    }, [lstDataVoucher, totalPrice])
 
     const fillDateTableVoucher = () => {
         const dataTable = lstDataVoucher.map((item, index) => {
@@ -106,23 +106,20 @@ function OrderBuy({ fetchAddBillNew }) {
                 maxDiscountValue: fixMoney(item.maxDiscountValue),
                 orderMinValue: fixMoney(item.orderMinValue),
                 endDate: dayjs(item.endDate).format('YYYY-MM-DD HH:mm:ss'),
-                action: <Button key={index} danger onClick={() => {
-                    handleUseVoucher(item)
-                }}>Chọn</Button>
+                action: <Button key={index} danger onClick={() => handleUseVoucher(item)}>Chọn</Button>
             }
         })
         setLsDtataTableVoucher(dataTable)
     }
 
-    const handleUseVoucher = (voucher) => {
-        setIsModalOpenVoucher(false);
-        if(voucher?.orderMinValue > intoMoney){
+    const handleUseVoucher = useCallback((voucher) => {
+        if (voucher?.orderMinValue > totalPrice) {
             toast.error('Đơn hàng chưa đạt giá trị tối thiểu để áp dụng');
             return;
         }
-        setDataVoucher(voucher)
-
-    }
+        setIsModalOpenVoucher(false);
+        setDataVoucher(voucher);
+    }, [intoMoney, totalPrice]);
 
     const handleQuitUseVoucher = () => {
         setIsModalOpenVoucher(false);
@@ -248,7 +245,7 @@ function OrderBuy({ fetchAddBillNew }) {
                             <div>
                                 <div>Tiền Hàng:</div>
                                 <div>Giảm Giá:</div>
-                                <div>Phí Vận Chuyên:</div>
+                                <div>Phí Vận Chuyển:</div>
                                 <div>Tổng Tiền:</div>
                             </div>
                             <div className='font-medium text-end'>

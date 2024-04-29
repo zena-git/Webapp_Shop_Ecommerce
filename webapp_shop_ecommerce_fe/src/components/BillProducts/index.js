@@ -386,7 +386,6 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const onChangeQuantityProductConfig = (value, id) => {
-
         const updatedProductDetails = lstBillDetailsConfig.map(productDetail => {
             if (productDetail.id === id) {
                 return {

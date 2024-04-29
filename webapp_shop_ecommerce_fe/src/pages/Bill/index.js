@@ -154,7 +154,7 @@ function Bill() {
 
   ];
 
-  
+
   const fetchDataBill = async () => {
 
     try {
@@ -179,15 +179,15 @@ function Bill() {
     const intervalId = setInterval(() => {
       console.log("goi api bill");
       fetchDataBill();
-  }, 30000); // 60000 milliseconds = 1 phút
-  
-  // Cleanup để tránh leak memory khi component bị unmount
-  return () => clearInterval(intervalId);
+    }, 30000); // 60000 milliseconds = 1 phút
+
+    // Cleanup để tránh leak memory khi component bị unmount
+    return () => clearInterval(intervalId);
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchDataBill();
-  },[status, billType, startDate, endDate, debounceSearch])
+  }, [status, billType, startDate, endDate, debounceSearch])
 
   useEffect(() => {
     const dataTable = lstBill?.filter(bill => {
@@ -298,7 +298,7 @@ function Bill() {
     console.log(e.target.value);
     setSearch(e.target.value);
   }
-  
+
   return (
     <>
       <div >

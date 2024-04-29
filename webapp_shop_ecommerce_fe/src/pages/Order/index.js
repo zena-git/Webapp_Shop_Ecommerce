@@ -35,6 +35,8 @@ function Order() {
   useEffect(() => {
     updateDataLstBill()
     updateDataProductDetails()
+    updateDataDataCart();
+    
   }, [])
 
   useEffect(() => {

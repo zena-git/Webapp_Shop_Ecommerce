@@ -1165,7 +1165,6 @@ function ProductAdd() {
                         <div className='text-[16px] font-semibold	'>Thuộc Tính Sản Phẩm</div>
                     </div>
 
-
                     <div className='grid grid-cols-2 gap-2 my-4'>
 
                         <div>

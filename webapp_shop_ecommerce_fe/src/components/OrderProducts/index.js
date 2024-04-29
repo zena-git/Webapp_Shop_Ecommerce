@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import BarcodeScanner from '../BarcodeScanner';
+import QRScanner from '../QRScanner';
 import { useDebounce } from '~/hooks';
 const { confirm } = Modal;
 const tagRender = (props) => {
@@ -194,7 +195,6 @@ function OrderProducts() {
     const [openAddProduct, setOpenAddProduct] = useState(false);
     const [openAddProductConfig, setOpenAddProductConfig] = useState(false);
 
-    const [isOpenModalQrcode, setIsOpenModalQrcode] = useState(false);
 
 
     const [dataColumProductDetails, setDataColumProductDetails] = useState([]);
@@ -237,7 +237,7 @@ function OrderProducts() {
                     <div className='flex flex-start'>
                         {data?.imageUrl && (
                             <div className='relative'>
-                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '120px' }}>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '100px', height: '120px', overflow: 'hidden' }}>
                                     {data.imageUrl.split("|").map((imageUrl, index) => (
                                         <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
                                     ))}
@@ -317,7 +317,7 @@ function OrderProducts() {
         console.log(data);
         const lstDataCustom = data.map((data, index) => {
             return {
-                key: data.id,
+                key: index,
                 id: data.id,
                 index: index + 1,
                 name: <>
@@ -325,7 +325,7 @@ function OrderProducts() {
                         {data?.productDetails.imageUrl && (
                             <div className='relative'>
 
-                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px',  overflow: 'hidden' }}>
                                     {data.productDetails.imageUrl.split("|").map((imageUrl, index) => (
                                         <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
                                     ))}
@@ -421,7 +421,7 @@ function OrderProducts() {
                         <div className='flex'>
                             {data?.imageUrl && (
                                 <div className='relative'>
-                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px' }}>
+                                    <Carousel dots={false} autoplay className='flex justify-center' autoplaySpeed={2000} style={{ width: '80px', height: '100px',  overflow: 'hidden' }}>
                                         {data.imageUrl.split("|").map((imageUrl, index) => (
                                             <img src={imageUrl} key={index} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={`Image ${index}`} />
                                         ))}
@@ -584,6 +584,24 @@ function OrderProducts() {
             .finally(() => {
                 setOpenAddProduct(false);
             });
+    }
+
+    const handleAddProductDetailsQrCode = async (barcode) => {
+
+        if (!idBill) {
+            toast.error("Invalid or missing bill ID.");
+            return;
+        }
+        try {
+            const response = await axios.post(`http://localhost:8080/api/v1/counters/${idBill}/product/barcode/${barcode}`);
+            console.log('API response:', response.data);
+            toast.success(response.data.message);
+            updateDataDataCart();
+            updateDataProductDetails();
+        } catch (error) {
+            console.error('API error:', error);
+            toast.error(error.response.data.message||"Thất bại");
+        }
     }
 
 
@@ -755,23 +773,14 @@ function OrderProducts() {
                                 }</h4>
                             </div>
                             <div>
-                                <div>
+                                <div className='flex'>
                                     <Button danger onClick={showDeleteAllConfirmCart} >Làm Mới</Button>
 
-                                    <Button className='ml-4' onClick={() => {
-                                        setIsOpenModalQrcode(true);
-                                    }}>QR Code</Button>
+                                    <BarcodeScanner idBill={bill?.id} handleAddProductDetailsQrCode={handleAddProductDetailsQrCode}></BarcodeScanner>
+
                                     <Button type='primary' className='ml-4' onClick={() => setOpenAddProduct(true)}><FontAwesomeIcon icon={faPlus} /> <span className='ml-2'>Thêm Sản Phẩm</span> </Button>
                                 </div>
-                                <>
-                                    <Modal width={700} title="Quét Barcode" open={isOpenModalQrcode} footer={null} onCancel={() => {
-                                        setIsOpenModalQrcode(false);
-                                    }}>
-                                        <div className='flex justify-center	'>
-                                            <BarcodeScanner isOpenModalQrcode={isOpenModalQrcode} setIsOpenModalQrcode={setIsOpenModalQrcode} idBill={bill?.id}></BarcodeScanner>
-                                        </div>
-                                    </Modal>
-                                </>
+                            
 
 
                                 <>

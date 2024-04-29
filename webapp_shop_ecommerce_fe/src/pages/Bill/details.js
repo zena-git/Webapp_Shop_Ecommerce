@@ -119,7 +119,67 @@ function BillDetail() {
         setIsModalOpenAddress(false);
     };
 
+    const handlePrintView = async () => {
+        try {
+            // Gọi API để lấy dữ liệu hóa đơn
+            const response = await axios.get(`http://localhost:8080/api/v3/print/${bill?.codeBill}`, {
+                responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
+            });
 
+            // Tạo một Blob từ dữ liệu PDF
+            const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+
+            // Tạo một URL tạm thời từ Blob
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Tạo một iframe ẩn để hiển thị PDF và chuẩn bị cho việc in
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = pdfUrl;
+            document.getElementById("printx").appendChild(iframe);
+
+            // Đợi cho PDF load xong trước khi gọi hộp thoại in
+            iframe.onload = function () {
+                iframe.contentWindow.print();
+                // Sau khi in, loại bỏ iframe khỏi DOM
+                // setTimeout(() => {
+                //     document.getElementById("printx").removeChild(iframe);
+                //     URL.revokeObjectURL(pdfUrl);
+                // }, 200);
+            };
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+
+
+    // const handlePrintView = async () => {
+    //     try {
+    //         // Gọi API để lấy dữ liệu hóa đơn
+    //         const response = await axios.get(`http://localhost:8080/api/v3/print/${bill?.codeBill}`, {
+    //             responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
+    //         });
+    //         // Đặt tên tệp Blob dựa trên bill.codeBill
+    //         const pdfBlobName = `${bill?.codeBill}.pdf`;
+
+    //         // Tạo một File từ dữ liệu PDF với tên là bill.codeBill
+    //         const pdfFile = new File([response.data], `${bill?.codeBill}.pdf`, { type: 'application/pdf' });
+
+    //         // Tạo URL tạm thời từ File
+    //         const pdfUrl = URL.createObjectURL(pdfFile);
+    //         // Mở chế độ xem in
+    //         const printWindow = window.open(pdfUrl, '_blank');
+    //         printWindow.addEventListener('unload', function () {
+    //             window.focus();
+    //         });
+    //         printWindow.onload = function () {
+    //             printWindow.print();
+    //         };
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //     }
+    // };
     return (
         <>
             <div className='max-w-full'>
@@ -198,7 +258,7 @@ function BillDetail() {
                                 </div>
                             )}
                         </Modal>
-                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.CHO_GIA0 || bill.status == TrangThaiBill.DANG_GIAO || bill.status == TrangThaiBill.HOAN_THANH) && bill?.billFormat == BillType.DELIVERY && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
+                        {bill && (bill.status == TrangThaiBill.DA_XAC_NHAN || bill.status == TrangThaiBill.CHO_GIA0 || bill.status == TrangThaiBill.DANG_GIAO) && bill?.billFormat == BillType.DELIVERY && <Button type='primary' onClick={() => { setIsModalOpenConfirmRollback(true) }}>Quay lại trạng thái trước</Button>}
                     </div>
 
                 </div>
@@ -439,7 +499,7 @@ function BillDetail() {
                             <div>
                                 {
                                     bill && (bill.status == TrangThaiBill.HOAN_THANH) && <Button onClick={() => {
-
+                                        handlePrintView()
                                     }} type="primary" danger className='ml-4'>
                                         In Hóa Đơn
                                     </Button>
@@ -615,8 +675,9 @@ function BillDetail() {
                     </div>
 
                 </div>
+                <div className='-z-50' id='printx'>
 
-
+                </div>
             </div>
             <ToastContainer />
 
