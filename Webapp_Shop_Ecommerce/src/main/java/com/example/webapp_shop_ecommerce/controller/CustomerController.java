@@ -92,14 +92,7 @@ public class CustomerController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, CustomerDto), HttpStatus.BAD_REQUEST);
         }
-        MailInputDTO mailInput = new MailInputDTO();
-        if(CustomerDto.getEmail() != null) {
-            mailInput.setEmail(CustomerDto.getEmail());
-            mailInput.setUsername("test");
-            mailInput.setMailxName("qqq");
-            mailClientService.create(mailInput);
-        }
-        return customerService.createNew(mapper.map(CustomerDto, Customer.class));
+        return customerService.save(CustomerDto);
     }
 
     @DeleteMapping("/{id}")

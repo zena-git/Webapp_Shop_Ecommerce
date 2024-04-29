@@ -59,7 +59,7 @@ public class UserController {
         return new ResponseEntity<>(brand, HttpStatus.OK);
     }
     @PostMapping()
-    public ResponseEntity<ResponseObject> add(@Valid @RequestBody UserRequest UserRequest, BindingResult result){
+    public ResponseEntity<?> add(@Valid @RequestBody UserRequest UserRequest, BindingResult result){
         if (result.hasErrors()) {
             // Xử lý lỗi validate ở đây
             StringBuilder errors = new StringBuilder();
@@ -69,9 +69,8 @@ public class UserController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, UserRequest), HttpStatus.BAD_REQUEST);
         }
-        Users users = mapper.map(UserRequest, Users.class);
-        users.setUsersRole(Roles.STAFF);
-        return usersService.createNew(users);
+
+        return usersService.save(UserRequest);
 
     }
 

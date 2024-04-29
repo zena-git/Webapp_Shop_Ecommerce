@@ -28,9 +28,9 @@ public class ClientServiceImpl implements IClientService {
             dataMail.setSubject("XÁC NHẬN TẠO MỚI THÔNG TIN NGƯỜI DÙNG");
 
             Map<String, Object> props = new HashMap<>();
-            props.put("name", sdi.getMailName());
-            props.put("username", sdi.getUsername());
-            props.put("password", generateRandomNumber(6));
+            props.put("name", sdi.getName());
+            props.put("email", sdi.getEmail());
+            props.put("password", sdi.getPassword());
             dataMail.setProps(props);
 
             mailService.sendHtmlMail(dataMail, "client");

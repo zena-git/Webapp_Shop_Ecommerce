@@ -2,30 +2,42 @@ package com.example.webapp_shop_ecommerce.controller;
 
 import com.example.webapp_shop_ecommerce.dto.request.User.UserRequest;
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
+import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerSupportRequest;
 import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.request.message.ResetPasswordRequest;
 import com.example.webapp_shop_ecommerce.dto.request.promotion.PromotionRequest;
+import com.example.webapp_shop_ecommerce.dto.request.voucher.VoucherRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
+import com.example.webapp_shop_ecommerce.dto.response.color.ColorResponse;
+import com.example.webapp_shop_ecommerce.dto.response.products.ProductResponse;
+import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionResponse;
+import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThai;
 import com.example.webapp_shop_ecommerce.service.*;
+import com.example.webapp_shop_ecommerce.service.Impl.MailServiceImpl;
+import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.SupportSevice;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.*;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v3/")
@@ -41,9 +53,15 @@ public class SupportController {
     private ModelMapper mapper;
 
     @Autowired
+    private OTPServiceImpl messageService;
+
+    @Autowired
     private ICustomerService customerService;
     @Autowired
     private IClientService mailClientService;
+
+    @Autowired
+    IProductService productService;
     @DeleteMapping("/address/delete/{id}")
     public ResponseEntity<ResponseObject> deleteAddress(@PathVariable("id") Long id){
         System.out.println("Delete ID: " + id);
@@ -156,6 +174,12 @@ public class SupportController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @PostMapping("/customer/recoverpassword")
+    public ResponseEntity<?> recoverPassword(@RequestBody ResetPasswordRequest request){
+
+        return new ResponseEntity<>(messageService.sendNewPassword(request), HttpStatus.OK);
+    }
+
     @PostMapping("/customer")
     public ResponseEntity<?> customerSave(@Valid @RequestBody CustomerSupportRequest CustomerDto, BindingResult result){
         if (result.hasErrors()) {
@@ -167,13 +191,7 @@ public class SupportController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, CustomerDto), HttpStatus.BAD_REQUEST);
         }
-        MailInputDTO mailInput = new MailInputDTO();
-        if(CustomerDto.getEmail() != null) {
-            mailInput.setEmail(CustomerDto.getEmail());
-            mailInput.setUsername("test");
-            mailInput.setMailxName("qqq");
-            mailClientService.create(mailInput);
-        }
+
         return supportSevice.saveOrUpdateCustomer(CustomerDto);
     }
 
@@ -194,21 +212,26 @@ public class SupportController {
 
     @GetMapping("/print/{code}")
     public ResponseEntity<?> printInvoice(@PathVariable("code") String billCode) throws Exception {
-        String output = supportSevice.PrintInvoice(billCode);
-        File file = new File(output);
+        byte[] pdfBytes  = supportSevice.PrintInvoice(billCode);
         HttpHeaders headers = new HttpHeaders();
-        String[] parts = output.split("/");
-        String fileName = parts[parts.length - 1];
-        // inline là mở file trên trình duyệt, attach là tải file xuống
-        headers.add("Content-Disposition", "inline; filename=" + fileName);
-
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentType(MediaType.APPLICATION_PDF);
+//        headers.setContentDispositionFormData("attachment", billCode+".pdf");
+        headers.setContentDispositionFormData("inline", billCode + ".pdf");
+//        headers.setContentDisposition(ContentDisposition.inline().filename(billCode + ".pdf").build());
+//        headers.add("Content-Disposition", "inline; filename=" + fileName);
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/pdf"))
-                .body(resource);
+                .body(new ByteArrayResource(pdfBytes));
 
+    }
+
+
+    @GetMapping("/product")
+    public ResponseEntity<?> findProductAll() {
+        List<Product> lstPro = productService.findProductsAndDetailsNotDeleted();
+        List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 }
