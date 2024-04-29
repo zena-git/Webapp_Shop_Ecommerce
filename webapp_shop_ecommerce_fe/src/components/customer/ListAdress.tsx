@@ -95,6 +95,15 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
                 </div>
             },
         },
+        {
+            accessorKey: "receiverPhone",
+            header: () => <div className="text-center">Đ/c chi tiết</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16 text-xl">
+                    {row.original.detail}
+                </div>
+            },
+        },
 
     ], []);
 

@@ -243,7 +243,7 @@ export default function Add() {
             if (!pending) {
                 const body = {
                     id: targetUser.id,
-                    birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()) : null,
+                    birthday: values.birthday ? new Date(dayjs(values.birthday).add(7, 'hour').toDate()) : null,
                     commune: addWard,
                     detail: values.detail,
                     district: addDistrict.DistrictName,

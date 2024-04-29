@@ -124,8 +124,8 @@ function EditPage() {
  
     return (
         <div>
-            <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
-                <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
+            <div className='w-full flex max-xl:flex-col p-5 gap-5 bg-white'>
+                <div className='w-2/5 max-xl:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
                     <div className='flex gap-2 items-center'>
                         <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='ml-3 text-2xl font-semibold'>Cập nhật đợt giảm giá</p>

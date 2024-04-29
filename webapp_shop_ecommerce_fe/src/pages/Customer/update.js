@@ -65,7 +65,7 @@ const modalFormSchema = z.object({
 
 const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function AddCustomer() {
-    const [gender, setGender] = useState('0');
+    const [gender, setGender] = useState(false);
 
     const [detail, setDetail] = useState('');
 
@@ -220,7 +220,6 @@ export default function AddCustomer() {
 
     const handleChangeReceiverName = (key, newValue) => {
         if (!key) return;
-        setEditAddress({ ...editAddress, receiverName: newValue })
         setListAddress(prev => {
             return prev.map(address => {
                 if (key && address.key == key) {
@@ -414,7 +413,7 @@ export default function AddCustomer() {
             values: {
                 codeCustomer: targetCustomer ? targetCustomer.codeCustomer : makeid(),
                 fullName: targetCustomer ? targetCustomer.fullName : "",
-                gender: targetCustomer ? targetCustomer.gender : "",
+                gender: targetCustomer ? targetCustomer.gender : false,
                 address: targetCustomer ? targetCustomer.address : "",
                 phone: targetCustomer ? targetCustomer.phone : "",
                 email: targetCustomer ? targetCustomer.email : "",
@@ -448,7 +447,7 @@ export default function AddCustomer() {
                         id: add.id
                     }
                 })
-                const data = { ...values, birthday: birthDay.toDate(), gender: gender == '1', lstAddress: lstAddressData }
+                const data = { ...values, birthday: birthDay.add(7, 'hour').toDate(), gender: gender, lstAddress: lstAddressData }
                 setPending(true);
                 axios.put(`${baseUrlV3}/customer/${path.id}`, data).then(res => {
                     toast.success('cập nhật khách hàng thành công');
@@ -574,8 +573,8 @@ export default function AddCustomer() {
                                 <div>
                                     <p className='mb-3 font-semibold'>Giới tính</p>
                                     <Radio.Group onChange={(e) => { setGender(e.target.value) }} value={gender}>
-                                        <Radio value={'0'}>Nam</Radio>
-                                        <Radio value={'1'}>Nữ</Radio>
+                                        <Radio value={false}>Nam</Radio>
+                                        <Radio value={true}>Nữ</Radio>
                                     </Radio.Group>
                                 </div>
                             </div>
@@ -587,7 +586,27 @@ export default function AddCustomer() {
                         <Button type="primary" onClick={() => { handleAddAddress(); }}>
                             Thêm địa chỉ mới
                         </Button>
-                        <Modal title="Điền thông tin" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
+                        <Modal
+                            title="Điền thông tin"
+                            open={isModalOpen}
+                            footer={[
+                                <Button key="submit" type='primary' onClick={() => {
+                                    if (editAddress.receiverName.trim().length == 0) {
+                                        toast.error('Nhập tên người nhận');
+                                    } else if (!regex.test(editAddress.phone)) {
+                                        toast.error('Sai định dạng số điện thoại');
+                                    } else {
+                                        setIsModalOpen(false);
+                                        handleChangeReceiverDetail(editAddress.key, detail);
+                                        handleChangeReceiverName(editAddress.key, editAddress.receiverName);
+                                        handleChangeReceiverPhone(editAddress.key, editAddress.phone);
+                                    }
+                                }}>
+                                    Ok
+                                </Button>
+                            ]}
+                            onCancel={() => { setIsModalOpen(false) }}
+                        >
                             <Form {...modalForm}>
                                 <form onSubmit={() => { }} className="space-y-8">
                                     <FormField
@@ -597,7 +616,7 @@ export default function AddCustomer() {
                                             <FormItem>
                                                 <FormLabel>Họ và tên</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value); }} />
+                                                    <Input {...field} value={editAddress.receiverName} onChange={e => { setEditAddress({ ...editAddress, receiverName: e.target.value }) }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -610,7 +629,7 @@ export default function AddCustomer() {
                                             <FormItem>
                                                 <FormLabel>Số điện thoại</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value); }} />
+                                                    <Input {...field} value={editAddress.phone} onChange={e => { setEditAddress({ ...editAddress, phone: e.target.value }) }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -677,7 +696,7 @@ export default function AddCustomer() {
                                     </div>
                                     <div>
                                         <p>Địa chỉ chi tiết</p>
-                                        <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); handleChangeReceiverDetail(editAddress.key, e.target.value) }} />
+                                        <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); }} />
                                     </div>
 
                                     <div className='flex items-center gap-3'>

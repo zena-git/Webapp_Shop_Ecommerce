@@ -112,9 +112,9 @@ function EditPage() {
 
     return (
         <div>
-            <div className='w-full flex max-lg:flex-col py-5 gap-5 bg-white'>
+            <div className='w-full flex max-xl:flex-col py-5 gap-5 bg-white'>
                 <ToastContainer />
-                <div className='flex flex-col gap-3 w-2/5 max-lg:w-full bg-slate-50 px-3 py-3 rounded-lg border border-slate-600'>
+                <div className='flex flex-col gap-3 w-2/5 max-xl:w-full bg-slate-50 px-3 py-3 rounded-lg border border-slate-600'>
                     <div className='flex gap-2 items-center'>
                         <div className='text-2xl cursor-pointer' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='ml-3 text-2xl font-semibold'>Thêm mới sự kiện giảm giá</p>

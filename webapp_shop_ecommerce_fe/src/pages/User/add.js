@@ -203,7 +203,7 @@ export default function Add() {
                     })
                 } else {
                     const body = {
-                        birthday: values.birthday ? new Date(dayjs(values.birthday).toDate()).toISOString() : null,
+                        birthday: values.birthday ? new Date(dayjs(values.birthday).add(7, 'hour').toDate()).toISOString() : null,
                         commune: addWard,
                         detail: values.detail,
                         district: addDistrict.DistrictName,
