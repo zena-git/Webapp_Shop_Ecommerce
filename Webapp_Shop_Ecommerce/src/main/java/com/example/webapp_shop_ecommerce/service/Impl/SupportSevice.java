@@ -365,6 +365,19 @@ public class SupportSevice {
         String password = randomStringGenerator.generateRandomString(6);
         if (idCustomer.length <= 0){
             // Lưu dữ liệu và thực hiện gửi email song song
+
+            Optional<Customer> validatePhone = customerService.findByPhone(customerDto.getPhone());
+            if(customerDto.getEmail() != null){
+                Optional<Customer> validateEmail = customerService.findByEmail(customerDto.getEmail());
+                if(validateEmail.isPresent()){
+                    return new ResponseEntity<>(new ResponseObject("error","Email đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+                }
+            }
+
+            if(validatePhone.isPresent()){
+                return new ResponseEntity<>(new ResponseObject("error","Số điện thoại đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+            }
+
             CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
                 Customer customer = new Customer();
                 customer = mapper.map(customerDto, Customer.class);
@@ -410,6 +423,18 @@ public class SupportSevice {
                 return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy khách hàng " + idCustomer[0], 1, null), HttpStatus.BAD_REQUEST);
             }
             Customer customer = customerOtp.get();
+            if(!customer.getPhone().equals(customerDto.getPhone())){
+                Optional<Customer> validatePhone = customerService.findByPhone(customerDto.getPhone());
+                if(validatePhone.isPresent()){
+                    return new ResponseEntity<>(new ResponseObject("error","Số điện thoại đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+                }
+            }
+            if(!customer.getEmail().equals(customerDto.getEmail())){
+                Optional<Customer> validateEmail = customerService.findByEmail(customerDto.getEmail());
+                if(validateEmail.isPresent()){
+                    return new ResponseEntity<>(new ResponseObject("error","Email đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+                }
+            }
             Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
             Set<Address> lstAddress =  customer.getLstAddress();
 

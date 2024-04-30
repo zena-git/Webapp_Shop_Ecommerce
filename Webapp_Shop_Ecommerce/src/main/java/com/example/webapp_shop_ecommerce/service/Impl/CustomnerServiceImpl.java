@@ -54,6 +54,11 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
     }
 
     @Override
+    public  Optional<Customer> findByEmail(String email){
+        return repository.findCustomerByEmail(email);
+    }
+
+    @Override
     public Boolean updatePassword(Long id, String newPassword) {
         try {
             repository.updateCustomerPassword(id, newPassword);

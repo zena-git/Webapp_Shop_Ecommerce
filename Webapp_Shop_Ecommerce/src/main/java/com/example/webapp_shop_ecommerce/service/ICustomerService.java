@@ -15,6 +15,8 @@ public interface ICustomerService extends IBaseService<Customer, Long> {
 
     Optional<Customer> findByPhone(String phone);
 
+    Optional<Customer> findByEmail(String phone);
+
     Boolean updatePassword(Long id, String newPassword);
 
     ResponseEntity<?> save(CustomerRequest request);

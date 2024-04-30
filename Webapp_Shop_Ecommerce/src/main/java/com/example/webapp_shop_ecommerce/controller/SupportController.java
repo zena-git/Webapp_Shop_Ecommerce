@@ -16,8 +16,6 @@ import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThai;
 import com.example.webapp_shop_ecommerce.service.*;
-import com.example.webapp_shop_ecommerce.service.Impl.MailServiceImpl;
-import com.example.webapp_shop_ecommerce.service.Impl.OTPServiceImpl;
 import com.example.webapp_shop_ecommerce.service.Impl.SupportSevice;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -51,9 +49,6 @@ public class SupportController {
     IVoucherService voucherService;
     @Autowired
     private ModelMapper mapper;
-
-    @Autowired
-    private OTPServiceImpl messageService;
 
     @Autowired
     private ICustomerService customerService;
@@ -174,11 +169,11 @@ public class SupportController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping("/customer/recoverpassword")
-    public ResponseEntity<?> recoverPassword(@RequestBody ResetPasswordRequest request){
-
-        return new ResponseEntity<>(messageService.sendNewPassword(request), HttpStatus.OK);
-    }
+//    @PostMapping("/customer/recoverpassword")
+//    public ResponseEntity<?> recoverPassword(@RequestBody ResetPasswordRequest request){
+//
+//        return new ResponseEntity<>(messageService.sendNewPassword(request), HttpStatus.OK);
+//    }
 
     @PostMapping("/customer")
     public ResponseEntity<?> customerSave(@Valid @RequestBody CustomerSupportRequest CustomerDto, BindingResult result){
@@ -231,6 +226,13 @@ public class SupportController {
     @GetMapping("/product")
     public ResponseEntity<?> findProductAll() {
         List<Product> lstPro = productService.findProductsAndDetailsNotDeleted();
+        List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
+        return new ResponseEntity<>(resultDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam(value = "keyword") String keyword ){
+        List<Product> lstPro = productService.searchProduct(keyword);
         List<ProductResponse> resultDto  = lstPro.stream().map(pro -> mapper.map(pro, ProductResponse.class)).collect(Collectors.toList());
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }

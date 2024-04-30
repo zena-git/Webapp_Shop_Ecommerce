@@ -10,6 +10,6 @@ public class Authentication {
     @Autowired
     ICustomerService customerService;
     public Customer getCustomer() {
-        return customerService.findById(Long.valueOf(1)).get();
+        return customerService.findById(Long.valueOf(5)).get();
     }
 }

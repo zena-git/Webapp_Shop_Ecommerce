@@ -360,4 +360,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         return repository.findProductsAndDetailsNotDeleted();
     }
 
+    @Override
+    public List<Product> searchProduct(String keyword){
+        return repository.findProductByName(keyword);
+    }
+
 }
