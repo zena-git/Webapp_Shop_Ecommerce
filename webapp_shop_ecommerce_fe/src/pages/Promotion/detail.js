@@ -34,21 +34,21 @@ function Detail() {
                 <div className='h-[2px] bg-slate-600'></div>
                 <div className='my-3'>
                     <div className='grid grid-cols-2 grid-rows-2 grid-flow-row gap-2'>
-                        <p className='text-xl font-semibold text-slate-800'>Mã chương trình giảm giá: </p>
-                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.code}</p>
-                        <p className='text-xl font-semibold text-slate-800'>Tên chương trình:</p>
-                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.name}</p>
-                        <p className='text-xl font-semibold text-slate-800'>Giá trị giảm: </p>
-                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.value}%</p>
-                        <p className='text-xl font-semibold text-slate-800'>Trạng thái:</p>
+                        <p className='text-2xl font-semibold text-slate-800'>Mã chương trình giảm giá: </p>
+                        <p className='text-2xl font-semibold text-slate-800'>{targetPromotion?.code}</p>
+                        <p className='text-2xl font-semibold text-slate-800'>Tên chương trình:</p>
+                        <p className='text-2xl font-semibold text-slate-800'>{targetPromotion?.name}</p>
+                        <p className='text-2xl font-semibold text-slate-800'>Giá trị giảm: </p>
+                        <p className='text-2xl font-semibold text-slate-800'>{targetPromotion?.value}%</p>
+                        <p className='text-2xl font-semibold text-slate-800'>Trạng thái:</p>
                         {targetPromotion && <p>
                             <Tag color={targetPromotion.status == 0 ? "blue" : targetPromotion.status == 1 ? "green" : targetPromotion.status == 2 ? "gold" : "red"}>
                                 {targetPromotion.status == 0 ? "Sắp diễn ra" : targetPromotion.status == 1 ? "Đang diễn ra" : targetPromotion.status == 2 ? "Đã kết thúc" : "Đã hủy"}
                             </Tag>
                         </p>
                         }
-                        <p className='text-xl font-semibold text-slate-800'>Ngày hoạt động:</p>
-                        <p className='text-xl font-semibold text-slate-800'>{targetPromotion?.startDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.startDate.split("T")[0] + " đến " + targetPromotion?.endDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.endDate.split("T")[0]}</p>
+                        <p className='text-2xl font-semibold text-slate-800'>Ngày hoạt động:</p>
+                        <p className='text-2xl font-semibold text-slate-800'>{targetPromotion?.startDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.startDate.split("T")[0] + " đến " + targetPromotion?.endDate.split("T")[1].split(".")[0] + " : " + targetPromotion?.endDate.split("T")[0]}</p>
                     </div>
                 </div>
             </div>

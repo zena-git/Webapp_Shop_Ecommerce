@@ -17,7 +17,7 @@ import { set, updateSelected, toggleChildren } from '../../redux/features/promot
 import { useDispatch } from "react-redux";
 import Table from '../../components/ui/table'
 import { ReduceString } from '../../lib/functional'
-
+import HexToColor from '../../ultils/HexToColorName'
 export default function ListTable({ data }) {
     const [sorting, setSorting] = useState([])
     const [columnFilters, setColumnFilters] = useState([])
@@ -272,7 +272,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return <div className="text-center flex justify-center font-medium max-h-16 text-xl">
-                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
+                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split("|")[0]}></img> : "không có"}
                 </div>
             },
         },
@@ -291,7 +291,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             cell: ({ row }) => {
 
                 return <div className='flex justify-center items-center'>
-                    <div className={`text-center font-medium rounded-md py-2 text-slate-200 text-xl max-w-32 px-4`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
+                    <div className={`text-center font-medium rounded-md py-2 text-slate-200 text-xl max-w-32 px-4`} style={{ backgroundColor: row.original.color.name }}>{HexToColor(row.original.color.name)}</div>
                 </div>
             },
         },

@@ -8,14 +8,14 @@ import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { useAppSelector } from '~/redux/storage';
 import ReduxProvider from '~/redux/provider'
 import { useDispatch } from 'react-redux';
-import { set } from '~/redux/features/promotion-selected-item'
+import { set, toggleAll, deselectAll } from '~/redux/features/promotion-selected-item'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
 
 const { TextArea } = Input
 const { RangePicker } = DatePicker
 
-function EditPage() { 
+function EditPage() {
     const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState(makeid());
@@ -23,7 +23,7 @@ function EditPage() {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
 
-    const [PromotionType, setPromotionType] = useState("0");
+    const [PromotionType, setPromotionType] = useState("1");
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -53,7 +53,15 @@ function EditPage() {
         });
     }, [])
 
-    const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
+    const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected);
+
+    useEffect(() => {
+        if (PromotionType == "0") {
+            dispatch(toggleAll());
+        } else {
+            dispatch(deselectAll());
+        }
+    }, [PromotionType, dispatch])
 
     const handleSubmitForm = () => {
         if (!pending) {
@@ -108,7 +116,7 @@ function EditPage() {
 
     useEffect(() => {
         console.log(listSelectedProduct)
-    },[listSelectedProduct]);
+    }, [listSelectedProduct]);
 
     return (
         <div>
@@ -138,7 +146,7 @@ function EditPage() {
                     </label>
                     <label>
                         <p className='mb-1 text-xl text-slate-600'>Đối tượng áp dụng</p>
-                        <Radio.Group name="radiogroup" defaultValue={"0"} value={PromotionType} onChange={e => setPromotionType(e.target.value)}>
+                        <Radio.Group name="radiogroup" defaultValue={"1"} value={PromotionType} onChange={e => setPromotionType(e.target.value)}>
                             <Radio value={"0"}>Tất cả sản phẩm</Radio>
                             <Radio value={"1"}>Sản phẩm chỉ định</Radio>
                         </Radio.Group>

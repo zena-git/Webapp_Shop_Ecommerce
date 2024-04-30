@@ -33,7 +33,9 @@ import {
 import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
 import Table from '../../components/ui/table';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
+const { confirm } = Modal;
 const { TextArea } = Input;
 dayjs.extend(customParseFormat);
 
@@ -101,26 +103,32 @@ export default function AddCustomer() {
                 }
             }).then(resp => {
                 setListWards(resp.data.data);
-                setListAddress(prev => {
-                    return prev.map(target => {
-                        if ((key && target.key == key) || (id && target.id == id)) {
-                            let prov = listProvince.find(province => province.ProvinceID == value);
-                            setEditAddress({
-                                ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
-                                district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
-                                commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
-                            })
-                            return {
-                                ...target,
-                                province: { id: prov.ProvinceID, name: prov.ProvinceName },
-                                district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
-                                commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
-                            }
-                        } else {
-                            return target
-                        }
-                    })
+                let prov = listProvince.find(province => province.ProvinceID == value);
+                setEditAddress({
+                    ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                    district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                    commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
                 })
+                // setListAddress(prev => {
+                //     return prev.map(target => {
+                //         if ((key && target.key == key) || (id && target.id == id)) {
+                //             let prov = listProvince.find(province => province.ProvinceID == value);
+                //             setEditAddress({
+                //                 ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                //                 district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                //                 commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
+                //             })
+                //             return {
+                //                 ...target,
+                //                 province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                //                 district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                //                 commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
+                //             }
+                //         } else {
+                //             return target
+                //         }
+                //     })
+                // })
             })
 
         })
@@ -134,26 +142,32 @@ export default function AddCustomer() {
             }
         }).then(res => {
             setListWards(res.data.data);
-            setListAddress(prev => {
-                return prev.map(target => {
-                    if ((key && target.key == key) || (id && target.id == id)) {
-                        let dist = listDistricts.find(district => district.DistrictID == value)
-                        setEditAddress({
-                            ...editAddress,
-                            district: { id: dist.DistrictID, name: dist.DistrictName },
-                            commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
-                        })
-                        return {
-                            ...target,
-                            district: { id: dist.DistrictID, name: dist.DistrictName },
-                            commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
-                        }
-                    }
-                    else {
-                        return target
-                    }
-                });
+            let dist = listDistricts.find(district => district.DistrictID == value)
+            setEditAddress({
+                ...editAddress,
+                district: { id: dist.DistrictID, name: dist.DistrictName },
+                commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
             })
+            // setListAddress(prev => {
+            //     return prev.map(target => {
+            //         if ((key && target.key == key) || (id && target.id == id)) {
+            //             let dist = listDistricts.find(district => district.DistrictID == value)
+            //             setEditAddress({
+            //                 ...editAddress,
+            //                 district: { id: dist.DistrictID, name: dist.DistrictName },
+            //                 commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
+            //             })
+            //             return {
+            //                 ...target,
+            //                 district: { id: dist.DistrictID, name: dist.DistrictName },
+            //                 commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
+            //             }
+            //         }
+            //         else {
+            //             return target
+            //         }
+            //     });
+            // })
         })
     }
 
@@ -224,22 +238,32 @@ export default function AddCustomer() {
         }
     }
 
-    const Remove = ({ key, id }) => {
+    const Remove = ({ key }) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
             if (defaultAddress == key && q.length > 0) {
                 setDefaultAddress(q[0].id || q[0].key);
             }
             setListAddress(q);
-        } else if (id) {
-            axios.delete(`${baseUrl}/address/${id}`)
-            let x = listAddress.filter(target => id != target.id)
-            if (defaultAddress == id && x.length > 0) {
-                setDefaultAddress(x[0].id || x[0].key);
-            }
-            setListAddress(x);
         }
     }
+
+    const showDeleteConfirm = (key) => {
+        confirm({
+            title: 'Bạn có muốn hủy không',
+            icon: <ExclamationCircleFilled />,
+            content: '',
+            okText: 'Có',
+            okType: 'danger',
+            cancelText: 'Không',
+            onOk() {
+                Remove({ key: key })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
     const columns = useMemo(() => [
         {
@@ -334,7 +358,7 @@ export default function AddCustomer() {
                     {
                         key: '3',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.key) }}>
                                 <FaTrash />
                                 Xóa
                             </div>
@@ -427,7 +451,7 @@ export default function AddCustomer() {
                     setTimeout(() => {
                         setPending(false);
                         navigate('/user/customer');
-                    })
+                    }, 2000)
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -469,7 +493,6 @@ export default function AddCustomer() {
         setDetail("");
         modalForm.reset();
         setEditAddress(newObject);
-        setListAddress(prev => [...prev, newObject])
         setIsModalOpen(true);
     }
 
@@ -578,14 +601,28 @@ export default function AddCustomer() {
                                 toast.error('Sai định dạng số điện thoại');
                             } else {
                                 setIsModalOpen(false);
-                                handleChangeReceiverDetail(editAddress.key, detail);
-                                handleChangeReceiverName(editAddress.key, editAddress.receiverName);
-                                handleChangeReceiverPhone(editAddress.key, editAddress.phone);
+                                setListAddress(prev => {
+                                    if (prev.find(target => target.key == editAddress.key)) {
+                                        let t = prev.map(add => {
+                                            if (add.key == editAddress.key) {
+                                                return { ...editAddress, detail: detail };
+                                            } else {
+                                                return add;
+                                            }
+                                        })
+
+                                        return t;
+                                    } else {
+                                        return [...prev, editAddress]
+                                    }
+
+                                });
                             }
                         }}>
                             Ok
                         </Button>
                     ]}
+                    onCancel={() => { setIsModalOpen(false) }}
                 >
                     <Form {...modalForm}>
                         <form onSubmit={() => { }} className="space-y-8">

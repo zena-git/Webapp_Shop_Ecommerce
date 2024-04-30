@@ -29,11 +29,11 @@ export default function CustomerDetail() {
                 </div>
                 <div className='h-[3px] bg-slate-600'></div>
                 <div className="grid grid-cols-2 gap-3">
-                    <p className="text-xl font-semibold text-slate-800">Tên khách hàng: {targetCustomer?.fullName}</p>
-                    <p className="text-xl font-semibold text-slate-800">Ngày sinh: {targetCustomer?.birthday || "Không có"}</p>
-                    <p className="text-xl font-semibold text-slate-800">Giới tính: {targetCustomer && targetCustomer.gender ? "Nữ" : "Nam"}</p>
-                    <p className="text-xl font-semibold text-slate-800">SDT: {targetCustomer?.phone}</p>
-                    <p className="text-xl font-semibold text-slate-800">Email: {targetCustomer?.email}</p>
+                    <p className="text-2xl font-semibold text-slate-800">Tên khách hàng: {targetCustomer?.fullName}</p>
+                    <p className="text-2xl font-semibold text-slate-800">Ngày sinh: {targetCustomer?.birthday?.split("T")[0] || "Không có"}</p>
+                    <p className="text-2xl font-semibold text-slate-800">Giới tính: {targetCustomer && targetCustomer.gender ? "Nữ" : "Nam"}</p>
+                    <p className="text-2xl font-semibold text-slate-800">SDT: {targetCustomer?.phone}</p>
+                    <p className="text-2xl font-semibold text-slate-800">Email: {targetCustomer?.email}</p>
                 </div>
             </div>
             <div className="bg-white shadow-lg rounded-md p-3">

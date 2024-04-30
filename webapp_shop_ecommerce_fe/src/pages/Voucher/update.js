@@ -66,6 +66,8 @@ const VoucherPage = () => {
 
     const [pending, setPending] = useState(false);
 
+    const [detail, setDetail] = useState('');
+
     useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
     }, [])
@@ -79,6 +81,7 @@ const VoucherPage = () => {
                 setTargetVoucher(res.data);
                 setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
                 setDiscountType(res.data.discountType == "0");
+                setDetail(res.data.detail);
                 res.data.lstVoucherDetails.map(detail => {
                     dispatch(updateSelected({ id: Number.parseInt(detail.customer.id), selected: true, disable: detail.status }))
                 })
@@ -143,7 +146,7 @@ const VoucherPage = () => {
                         setPending(false);
                         setTimeout(() => {
                             navigate(`/discount/voucher/detail/${path.id}`)
-                        }, 200)
+                        }, 2000)
                     }).catch(err => {
                         toast.error(err.response.data.message);
                         setPending(false);
@@ -160,7 +163,7 @@ const VoucherPage = () => {
                             quantity: values.usage_limit,
                             discountType: discountType ? 0 : 1,
                             maxDiscountValue: discountType ? values.value : values.max_discount_value,
-                            description: values.description,
+                            description: detail,
                             orderMinValue: values.order_min_value,
                             startDate: date[0].add(7, 'hour').toDate(),
                             endDate: date[1].add(7, 'hour').toDate(),
@@ -195,7 +198,7 @@ const VoucherPage = () => {
                         <div className='bg-white p-5 shadow-lg flex flex-col gap-3 w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
                                 <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
-                                <p className='ml-3 text-2xl font-semibold'>Cập nhật phiếu giảm giá</p>
+                                <p className='ml-3 text-2xl font-semibold'>Cập nhật voucher</p>
                             </div>
                             <div className='h-[2px] bg-slate-600'></div>
                             <Form {...form}>
@@ -205,7 +208,7 @@ const VoucherPage = () => {
                                         name="code"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Mã phiếu giảm giá</FormLabel>
+                                                <FormLabel>Mã voucher</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="code" {...field} />
                                                 </FormControl>
@@ -218,7 +221,7 @@ const VoucherPage = () => {
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Tên phiếu giảm giá</FormLabel>
+                                                <FormLabel>Tên voucher</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="name" {...field} />
                                                 </FormControl>
@@ -317,7 +320,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Mô tả</FormLabel>
                                                 <FormControl>
-                                                    <TextArea value={targetVoucher.description} onChange={e => setTargetVoucher(prev => { return { ...prev, description: e.target.value } })} placeholder="mô tả" {...field} />
+                                                    <TextArea value={detail} onChange={e => setDetail(e.target.value)} placeholder="mô tả" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
