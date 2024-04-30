@@ -558,7 +558,7 @@ function BillDetail() {
 
                     <div className='pt-4'>
                         <Descriptions>
-                            <Descriptions.Item label={<span className='font-medium text-black'>Tên Khách Hàng</span>}>{bill?.customer?.fullName}</Descriptions.Item>
+                            <Descriptions.Item label={<span className='font-medium text-black'>Tên Khách Hàng</span>}>{bill?.customer ? bill?.customer?.fullName : "Khách lẻ"}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Tên Người Nhận</span>}>{bill?.receiverName}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Số Điện Thoại</span>}>{bill?.receiverPhone}</Descriptions.Item>
                             <Descriptions.Item label={<span className='font-medium text-black'>Loại</span>}> {bill?.billFormat == "0" ? <Tag color="#87d068">Online</Tag> : bill?.billFormat == "1" ? <Tag color="#108ee9">Offline</Tag> : bill?.billFormat == "2" ? <Tag color="#2db7f5">Giao Hàng</Tag> : "Khác"} </Descriptions.Item>
@@ -617,8 +617,8 @@ function BillDetail() {
 
                                 </div>
                                 <div className='font-medium text-end'>
-                                    <div>{bill?.lstVoucherDetails[0].voucher.code}</div>
-                                    <div>{bill?.lstVoucherDetails[0].voucher.name}</div>
+                                    <div>{bill?.lstVoucherDetails[0]?.voucher?.code}</div>
+                                    <div>{bill?.lstVoucherDetails[0]?.voucher?.name}</div>
                                 </div>
                             </div>
                         </div>

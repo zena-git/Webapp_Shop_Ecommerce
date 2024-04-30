@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
-
+import { useOrderData } from '~/provider/OrderDataProvider';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Result } from 'antd';
@@ -13,7 +13,7 @@ function PaymentIpn() {
     const [isStatus, setIsStatus] = useState("-1");
     const [subTitle, setsubTitle] = useState("Vui Lòng Chờ Trong Giây Lát !");
     const [countdown, setCountdown] = useState();
-
+    const { loadingContent,setDataLoadingContent } = useOrderData();
     const vnpTxnRef = searchParams.get('vnp_TxnRef');
     const vnpPayDate = searchParams.get('vnp_PayDate');
     const transactionNo = searchParams.get('vnp_TransactionNo');
@@ -52,7 +52,7 @@ function PaymentIpn() {
             }
         )
             .then(response => {
-                toast.success(response.data.message)
+                toast.success("Xác Thực Thành Công")
                 console.log(response.data.message);
                 setIsStatus('0')
                 setCountdown(15);
@@ -66,7 +66,41 @@ function PaymentIpn() {
 
             });
     }
+    const handlePrintView = async () => {
+        setDataLoadingContent(true)
+       
+        try {
+            // Gọi API để lấy dữ liệu hóa đơn
+            const response = await axios.get(`http://localhost:8080/api/v3/print/${vnpTxnRef}`, {
+                responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
+            });
 
+            setTimeout(() => {
+                setDataLoadingContent(false)
+            }, [1000]);
+            // Đặt tên tệp Blob dựa trên bill.codeBill
+            const pdfBlobName = `${vnpTxnRef}.pdf`;
+
+            // Tạo một File từ dữ liệu PDF với tên là bill.codeBill
+            const pdfFile = new File([response.data], `${vnpTxnRef}.pdf`, { type: 'application/pdf' });
+
+            // Tạo URL tạm thời từ File
+            const pdfUrl = URL.createObjectURL(pdfFile);
+            // Mở chế độ xem in
+            const printWindow = window.open(pdfUrl, '_blank');
+            printWindow.addEventListener('unload', function () {
+                window.focus();
+            });
+            printWindow.onload = function () {
+                printWindow.print();
+            };
+
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+       
+    };
     return (
         <>
 
@@ -84,10 +118,13 @@ function PaymentIpn() {
                     }
                     subTitle={subTitle}
                     extra={[
-                        <Button type="primary" key="console">
-                            Trả Lại
-                        </Button>,
-                        <Button key="buy">In Hóa Đơn</Button>,
+                        <Link to="/order">
+                            <Button type="primary" key="console">
+                                Trở Lại
+                            </Button>
+                        </Link>,
+
+                        <Button key="buy" onClick={handlePrintView}>In Hóa Đơn</Button>,
                     ]}
                 />
             </div>
