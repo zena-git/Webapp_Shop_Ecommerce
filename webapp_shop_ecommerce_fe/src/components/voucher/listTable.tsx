@@ -352,12 +352,12 @@ export default function ListTable() {
                     </div>
                 </div>
                 <div className='flex gap-5 items-center my-4 justify-between pr-2'>
-                    <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" type="primary">Thêm phiếu giảm giá</Button>
+                    <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" type="primary">Thêm voucher</Button>
                     {/* {Recover()} */}
                 </div>
             </div>
             <div className="rounded-md border border-slate-800 shadow-md flex flex-col gap-3 mt-4 bg-white p-3">
-                <h4>Danh sách phiếu giảm giá</h4>
+                <h4>Danh sách voucher</h4>
                 <div className='h-[2px] bg-slate-600'></div>
                 {Table(table, flexRender, columns)}
             </div>

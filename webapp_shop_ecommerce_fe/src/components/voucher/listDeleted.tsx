@@ -79,7 +79,7 @@ export default function ListTable({ data }: { data: any }) {
                         className='flex items-center justify-center min-h-10'
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Tên phiếu giảm giá
+                        Tên voucher
                         <CaretSortIcon className="ml-2 h-4 w-4" />
                     </div>
                 )

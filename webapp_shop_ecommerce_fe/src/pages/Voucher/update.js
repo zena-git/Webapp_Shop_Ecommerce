@@ -179,14 +179,13 @@ const VoucherPage = () => {
                             setPending(false);
                         })
                     } else {
-                        toast({ title: 'chưa chọn khách hàng nào' })
                         toast.error("chưa chọn khách hàng nào")
                     }
                 }
             }
 
         } else {
-            toast.error('Chỉ phiếu giảm giá chưa diễn ra có thể chỉnh sửa')
+            toast.error('Chỉ voucher chưa diễn ra có thể chỉnh sửa')
         }
     }
 
