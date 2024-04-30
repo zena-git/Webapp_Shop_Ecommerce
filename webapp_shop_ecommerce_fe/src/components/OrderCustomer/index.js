@@ -81,7 +81,7 @@ function OrderCustomer() {
             toast.error('Email không hợp lệ');
             return;
         }
-    
+
         // Kiểm tra định dạng số điện thoại
         const phoneRegex = /^[0-9]{10,11}$/;
         if (!phoneRegex.test(customerAdd.phone.trim())) {
@@ -99,13 +99,14 @@ function OrderCustomer() {
                     gender: true,
                     birthday: dayjs(new Date('1990-01-01'))?.format("YYYY-MM-DD"),
                 })
+                setIsModalOpen(false);
+
             })
             .catch((error) => {
                 toast.error(error.response.data.message);
 
             });
 
-        setIsModalOpen(false);
     };
     const handleCancel = () => {
         setIsModalOpen(false);
