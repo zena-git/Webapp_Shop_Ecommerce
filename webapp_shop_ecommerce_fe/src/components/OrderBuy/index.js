@@ -4,12 +4,14 @@ import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill1, faCreditCard, faTicket } from '@fortawesome/free-solid-svg-icons';
-import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
+import { SearchOutlined } from '@ant-design/icons';
 import { fixMoney } from '~/ultils/fixMoney';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { toast } from 'react-toastify';
+import { useDebounce } from '~/hooks';
+
 dayjs.extend(customParseFormat);
 const { confirm } = Modal
 function OrderBuy({ fetchAddBillNew }) {
@@ -19,6 +21,9 @@ function OrderBuy({ fetchAddBillNew }) {
     const [isModalOpenVoucher, setIsModalOpenVoucher] = useState(false);
     const [lstDataVoucher, setLstDataVoucher] = useState([]);
     const [lstDataTableVoucher, setLsDtataTableVoucher] = useState([]);
+    const [search, setSearch] = useState('');
+    const debounceSearch = useDebounce(search.trim(), 500)
+
     const DiscountType = {
         GIAM_TRUC_TIEP: '0',
         GIAM_PHAN_TRAM: "1",
@@ -85,14 +90,25 @@ function OrderBuy({ fetchAddBillNew }) {
 
     useEffect(() => {
         fetchDataVoucher();
-    }, [customer])
+    }, [customer, debounceSearch])
 
     useEffect(() => {
-        fillDateTableVoucher()
+        const dataTable = lstDataVoucher?.filter(voucher => {
+            // Lọc theo tên ,phone
+            if (debounceSearch &&
+              !(voucher?.name?.toLowerCase().includes(debounceSearch.toLowerCase()) ||
+              voucher?.code?.toLowerCase().includes(debounceSearch.toLowerCase())
+              )) {
+              return false;
+            }
+     
+            return true;
+          })
+        fillDateTableVoucher(dataTable)
     }, [lstDataVoucher, totalPrice])
 
-    const fillDateTableVoucher = () => {
-        const dataTable = lstDataVoucher.map((item, index) => {
+    const fillDateTableVoucher = (data) => {
+        const dataTable = data.map((item, index) => {
             return {
                 key: index,
                 //idVoucher Detail
@@ -162,6 +178,10 @@ function OrderBuy({ fetchAddBillNew }) {
             },
         });
     };
+    const handleInputSearch = (e) => {
+        console.log(e.target.value);
+        setSearch(e.target.value);
+      }
     return (
         <>
             <div className="">
@@ -193,7 +213,7 @@ function OrderBuy({ fetchAddBillNew }) {
                                                 Giảm Giá {voucher?.discountType == 1 ?
                                                     voucher?.value + "%" :
                                                     fixMoney(voucher?.value)
-                                                } Cho Đơn Hàng
+                                                } Cho Đơn Hàng {fixMoney(voucher?.orderMinValue)}
                                             </span>
                                         </div>
                                     </>
@@ -202,6 +222,12 @@ function OrderBuy({ fetchAddBillNew }) {
                         }
 
                         <Modal footer={null} width={1000} title="Chọn phiếu giảm giá" open={isModalOpenVoucher} onOk={handleOkVoucher} onCancel={handleCancelVoucher}>
+                            <div className='mt-10 mb-8 w-1/3'>
+                                <Input allowClear placeholder="Tìm kiếm giảm giá" prefix={<SearchOutlined />} 
+                                value={search} onChange={handleInputSearch}
+                                 />
+
+                            </div>
                             <div>
                                 <Table dataSource={lstDataTableVoucher} columns={columnsVoucher} />;
                             </div>
@@ -250,7 +276,7 @@ function OrderBuy({ fetchAddBillNew }) {
                             </div>
                             <div className='font-medium text-end'>
                                 <div>{fixMoney(totalPrice)}</div>
-                                <div>{fixMoney(voucherMoney)}</div>
+                                <div>- {fixMoney(voucherMoney)}</div>
                                 <div>{fixMoney(shipMoney)}</div>
                                 <div className='text-rose-600	'>{fixMoney(intoMoney)}</div>
                             </div>

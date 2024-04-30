@@ -612,13 +612,13 @@ function BillDetail() {
                             <div className='flex justify-between'>
                                 <div>
 
-                                    {/* <div>Mã Giảm Giá:</div>
-                                    <div>Phiếu Giảm Giá:</div> */}
+                                    <div>Mã Giảm Giá:</div>
+                                    <div>Phiếu Giảm Giá:</div>
 
                                 </div>
                                 <div className='font-medium text-end'>
-                                    {/* <div>abc</div>
-                                    <div>abc</div> */}
+                                    <div>{bill?.lstVoucherDetails[0].voucher.code}</div>
+                                    <div>{bill?.lstVoucherDetails[0].voucher.name}</div>
                                 </div>
                             </div>
                         </div>
@@ -633,7 +633,7 @@ function BillDetail() {
                                 </div>
                                 <div className='font-medium text-end'>
                                     <div>{fixMoney(bill?.totalMoney)}</div>
-                                    <div>{fixMoney(bill?.voucherMoney)}</div>
+                                    <div>- {fixMoney(bill?.voucherMoney)}</div>
                                     <div>{fixMoney(bill?.shipMoney)}</div>
                                     <div className='text-rose-600	'>{fixMoney(bill?.intoMoney)}</div>
                                 </div>

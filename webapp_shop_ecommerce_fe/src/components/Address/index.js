@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Checkbox, Radio, Space, Input, Select } from 'antd';
+import { Button, Checkbox, Radio, Space, Input, Select, InputNumber } from 'antd';
 import axios from "axios";
 import { useSaleData } from '~/provider/OrderDataProvider';
 import { ToastContainer, toast } from 'react-toastify';
@@ -171,12 +171,32 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
             ...address,
             customer: customer.id,
         }
+        console.log(dataAddress);
+        if ( dataAddress.commune === undefined 
+            || dataAddress.detail === undefined  
+            || dataAddress.district === undefined 
+            || dataAddress.province === undefined 
+            || dataAddress.receiverName === undefined 
+            || dataAddress.receiverPhone === undefined 
+        ) {
+            toast.error('Vui lòng nhập đủ thông tin giao hàng');
+            return;
+        }
+    
+        // Kiểm tra định dạng số điện thoại
+        const phoneRegex = /^[0-9]{10,11}$/;
+        if (!phoneRegex.test(dataAddress.receiverPhone.trim())) {
+            toast.error('Số điện thoại không hợp lệ');
+            return;
+        }
+
         // console.log(address);
         if (address?.id == null) {
             axios.post('http://localhost:8080/api/v1/address', dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();
+                    goBack();
 
                 })
                 .catch((error) => {
@@ -187,13 +207,13 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();
+                    goBack();
 
                 })
                 .catch((error) => {
                     toast.error(error.response.data.message);
                 })
         }
-        goBack();
     };
     return (
         <>
@@ -211,7 +231,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                     </div>
                     <div className='flex'>
                         <div className='mb-4 w-full'>
-                            <div className='mb-2'><span className='text-3xl	text-rose-600 mr-2'>*</span>Số Điện Thoại</div>
+                            <div className='mb-2 W-full'><span className='text-3xl	text-rose-600 mr-2'>*</span>Số Điện Thoại</div>
                             <Input placeholder="Số Điện Thoại" value={address?.receiverPhone} onChange={(e) => {
                                 setAddress({
                                     ...address,
@@ -263,7 +283,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                             }} />
                     </div>
                     <div className='mt-6 mb-10'>
-                        <Checkbox value={address?.defaultAddress}  onChange={(e) => {
+                        <Checkbox value={address?.defaultAddress} checked={address?.defaultAddress} onChange={(e) => {
                             setAddress({
                                 ...address,
                                 defaultAddress: e.target.checked

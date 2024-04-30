@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Modal, Radio, Tag, Input, Select } from 'antd';
+import { Button, Modal, Radio, Tag, Input, Select, InputNumber } from 'antd';
 import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -69,8 +69,8 @@ function AddressDelivery() {
     useEffect(() => {
         if (customer !== null && isDelivery) {
             console.log(lstAddress);
-            lstAddress.map(address =>{
-                if(address?.defaultAddress){
+            lstAddress.map(address => {
+                if (address?.defaultAddress) {
                     setAddress(address)
                     setCheckValueAddress(address.id);
                 }
@@ -84,13 +84,13 @@ function AddressDelivery() {
 
     useEffect(() => {
         const address = {
-            receiverName: receiverName,
-            receiverPhone: receiverPhone,
-            detail: details,
-            commune: labelWard,
-            district: labelDistrict,
-            province: labelProvince,
-            description: description
+            receiverName: receiverName || "",
+            receiverPhone: receiverPhone || "",
+            detail: details || "",
+            commune: labelWard || "",
+            district: labelDistrict || "",
+            province: labelProvince || "",
+            description: description || ""
         }
         setDataAddressBill(address)
     }, [receiverName, receiverPhone, details, labelProvince, labelDistrict, labelDistrict, labelWard, address, description])
@@ -138,7 +138,7 @@ function AddressDelivery() {
             console.log(response.data);
             setLstAddress(response.data.lstAddress);
             // Kiểm tra và thiết lập giá trị kiểm tra
-           
+
         } catch (error) {
             console.error(error);
         }
@@ -289,7 +289,7 @@ function AddressDelivery() {
         }, 0);
 
         const weightProduct = lstProductDetailsCart.reduce((accumulator, currentProduct) => {
-            return accumulator +(currentProduct.productDetails.weight * currentProduct.quantity);
+            return accumulator + (currentProduct.productDetails.weight * currentProduct.quantity);
         }, 0);
 
         if (valueDistrict != null) {
@@ -321,7 +321,7 @@ function AddressDelivery() {
                     console.log(error.response.data);
                 })
         }
-    }, [valueDistrict, lstProductDetailsCart])
+    }, [valueDistrict, lstProductDetailsCart,serviceId])
 
     //Lấy Thời Gian Giao Hàng Dự Kiến
     useEffect(() => {
@@ -350,7 +350,7 @@ function AddressDelivery() {
                     console.log(error.response.data);
                 })
         }
-    }, [valueDistrict, valueWard])
+    }, [valueDistrict, valueWard, serviceId])
 
     const handleChangeProvince = (value) => {
         if (value) {

@@ -299,6 +299,12 @@ function Bill() {
     setSearch(e.target.value);
   }
 
+
+  const handelClear = () => {
+    setSearch("");
+
+  }
+
   return (
     <>
       <div >
@@ -316,7 +322,7 @@ function Bill() {
           <div className='flex'>
             <div className='w-1/2 pl-10 pr-10 '>
               <div className='flex flex-col mt-4'>
-                <Input placeholder="Nhập mã hóa đơn hoặc số điện thoại" prefix={<SearchOutlined />} value={search} onChange={handleInputSearch} />
+                <Input allowClear  placeholder="Nhập mã hóa đơn hoặc số điện thoại" prefix={<SearchOutlined />} value={search} onChange={handleInputSearch} />
               </div>
               <div className='flex flex-col mt-4'>
                 <label>Ngày Tạo</label>
@@ -325,7 +331,7 @@ function Bill() {
             </div>
             <div className='w-1/2 pl-10 pr-10 grid grid-cols-1 content-between'>
               <div className=' mt-4 '>
-                <Button>Export Excel</Button>
+                {/* <Button onClick={handelClear}>Làm Mới</Button> */}
               </div>
               <div className=' mt-4 ml-4'>
                 <label>Loại</label>

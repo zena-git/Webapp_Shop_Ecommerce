@@ -293,7 +293,7 @@ function ProductDetail() {
 
             const sortedDataTable = [...response.data.lstProductDetails].sort((a, b) => a.color.id - b.color.id);
 
-            const dataTable = sortedDataTable.map((data, index) => {
+            const data = sortedDataTable.map((data, index) => {
                 let product = {
                     key: data.id,
                     index: index + 1,
@@ -323,6 +323,19 @@ function ProductDetail() {
                 setInputValueMax(highestPriceProduct.price);
                 setCheckPrice(false);
             }
+
+            const dataTable = data?.filter(product => {
+                if (valueColor &&
+                    !(product?.color.name == (valueColor))) {
+                    return false;
+                }
+                if (valueSize &&
+                    !(product?.size.name == (valueSize))) {
+                    return false;
+                }
+
+                return true;
+            })
 
             setDataColum(dataTable);
         } catch (error) {
@@ -511,7 +524,7 @@ function ProductDetail() {
                         column={4}
                     />
                 </div>
-               
+
             </div>
 
             <div className='bg-white p-4 mt-4 mb-10 shadow-lg'>
@@ -578,7 +591,7 @@ function ProductDetail() {
                         <Button type="primary" disabled={!hasSelected} loading={loading} onClick={dowloadBarcode}>
                             BarCode
                         </Button>
-                        <Link to={`/product/update/${id}`}> <Button type="primary">Update Sản Phẩm</Button></Link>
+                        <Link to={`/product/update/${id}`}> <Button type="primary">Cập Nhật Sản Phẩm</Button></Link>
                     </div>
 
                     <Form form={form} component={false}>

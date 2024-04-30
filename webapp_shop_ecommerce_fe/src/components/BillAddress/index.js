@@ -346,6 +346,22 @@ function BillAddress({ bill, handleCancelAddress, fetchDataBill, lstBillDetails 
             description: address.description
         };
         console.log(addressBill);
+        if (addressBill?.receiverName?.trim().length == 0 ||
+            addressBill?.receiverPhone?.trim().length == 0 ||
+            addressBill?.receiverProvince?.trim().length == 0 ||
+            addressBill?.receiverDistrict?.trim().length == 0 ||
+            addressBill?.receiverCommune?.trim().length == 0 ||
+            addressBill?.receiverDetails?.trim().length == 0
+        ) {
+            toast.error("Không được để trống địa chỉ quan trọng")
+            return;
+        }
+
+        const phoneRegex = /^[0-9]{10,11}$/;
+        if (!phoneRegex.test(addressBill?.receiverPhone?.trim())) {
+            toast.error('Số điện thoại không hợp lệ');
+            return;
+        }
         axios.put(`http://localhost:8080/api/v1/bill/${bill.id}/address`, addressBill)
             .then((response) => {
                 fetchDataBill()

@@ -141,6 +141,10 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
   }
 
   const handleConfigPaymentHistory = () => {
+    if (paymentHistory?.paymentAmount <= 0) {
+      toast.error("Số tiền thanh toán phải lớn hơn 0")
+      return;
+    }
     axios.post(` http://localhost:8080/api/v1/bill/${bill?.id}/payment`, paymentHistory)
       .then(response => {
         toast.success(response.data.message)
@@ -167,6 +171,10 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
       ...paymentHistory,
       type: "1",
       paymentAmount: moneyReturn
+    }
+    if (moneyReturn <= 0) {
+      toast.error("Số tiền hoàn tiền phải lớn hơn 0")
+      return;
     }
 
     axios.post(` http://localhost:8080/api/v1/bill/${bill?.id}/payment`, dataPayment)

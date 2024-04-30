@@ -68,6 +68,7 @@ function OrderCustomer() {
         setIsModalOpen(true);
     };
     const handleOk = () => {
+        console.log(customerAdd);
         if (customerAdd?.fullName.trim().length == 0 ||
             customerAdd?.phone.trim().length == 0 ||
             customerAdd?.email.trim().length == 0
@@ -75,7 +76,18 @@ function OrderCustomer() {
             toast.error('Vui lòng điền đầy đủ thông tin');
             return;
         }
-
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(customerAdd.email.trim())) {
+            toast.error('Email không hợp lệ');
+            return;
+        }
+    
+        // Kiểm tra định dạng số điện thoại
+        const phoneRegex = /^[0-9]{10,11}$/;
+        if (!phoneRegex.test(customerAdd.phone.trim())) {
+            toast.error('Số điện thoại không hợp lệ');
+            return;
+        }
         axios.post('http://localhost:8080/api/v1/customer', customerAdd)
             .then((response) => {
                 toast.success(response.data.message);

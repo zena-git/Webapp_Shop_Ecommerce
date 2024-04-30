@@ -81,10 +81,16 @@ const OrderDataProvider = ({ children }) => {
 
             }
         } else {
-            setVoucerMoney(voucher.value);
+            if (voucher.value >= totalPrice) {
+                setVoucerMoney(totalPrice);
+
+            } else {
+                setVoucerMoney(voucher.value);
+
+            }
         }
 
-    }, [voucher, totalPrice ])
+    }, [voucher, totalPrice])
 
     //Tiền trả kháhc
     useEffect(() => {
@@ -101,7 +107,7 @@ const OrderDataProvider = ({ children }) => {
         setLoadingContent(data);
     };
     const setDataVoucher = (data) => {
-    
+
         setVoucher(data);
     };
     const setDataIdBill = (data) => {
@@ -254,6 +260,12 @@ const OrderDataProvider = ({ children }) => {
         }
         let returnUrl = window.location.origin;
         if (isDelivery) {
+            console.log(addressBill);
+            if (addressBill == null) {
+                toast.error('Vui Lòng Nhập Đủ Thông Tin Giao Hàng')
+                return;
+            }
+
             if (addressBill?.receiverName.trim().length == 0 ||
                 addressBill?.receiverPhone.trim().length == 0 ||
                 addressBill?.detail.trim().length == 0 ||
@@ -264,6 +276,15 @@ const OrderDataProvider = ({ children }) => {
                 toast.error('Vui Lòng Nhập Đủ Thông Tin Giao Hàng')
                 return;
             }
+
+            // Kiểm tra định dạng số điện thoại
+            const phoneRegex = /^[0-9]{10,11}$/;
+            if (!phoneRegex.test(addressBill.receiverPhone.trim())) {
+                toast.error('Số điện thoại không hợp lệ');
+                return;
+            }
+
+
         }
 
 

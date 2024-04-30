@@ -143,10 +143,10 @@ const Product = () => {
             params: {
                 status: valueRadio,
                 search: debounceSearch,
-                category: valueCategory,
-                material: valueMaterial,
-                brand: valueBrand,
-                style: valueStyle,
+                category: '',
+                material: '',
+                brand: '',
+                style: '',
             }
         })
             .then(function (response) {
@@ -198,8 +198,29 @@ const Product = () => {
                     return product
                 });
 
+                const dataTable = data?.filter(product => {
+                    if (valueCategory &&
+                        !(product?.category == (valueCategory))) {
+                        return false;
+                    }
+                    if (valueMaterial &&
+                        !(product?.material == (valueMaterial))) {
+                        return false;
+                    }
 
-                setDataColum(data);
+                    if (valueStyle &&
+                        !(product?.style == (valueStyle))) {
+                        return false;
+                    }
+                    if (valueBrand &&
+                        !(product?.brand == (valueBrand))) {
+                        return false;
+                    }
+
+                    return true;
+                })
+
+                setDataColum(dataTable);
             })
             .catch(function (error) {
                 // handle error
