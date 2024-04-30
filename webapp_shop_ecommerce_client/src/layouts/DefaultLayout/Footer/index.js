@@ -46,18 +46,17 @@ function Footer() {
                         </div>
                         <div className={styles.contactContainer}>
                             <Link to={"/"}>Về chúng tôi</Link>
-                            <Link to={"/"}>cửa hàng</Link>
+                            <Link to={"/"}>Cửa hàng</Link>
                             <Link to={"/"}>Liên hệ</Link>
                             <Link to={"/"}>Điều kiện và điều khoản</Link>
                             <Link to={"/"}>Tuyển dụng</Link>
                         </div>
                     </div>
-
                     <div className={styles.infomationContainer}>
                         <div className={styles.row}>
                             <div className={styles.col1}>
                                 <p className={styles.footerDes}>CÔNG TY TNHH LOLITA ALICE</p>
-                                <p className={styles.footerDes}>GPKD số 0313980043 do Sở Kế hoạch và Đầu tư TP Hồ Chí Minh cấp ngày 25/08/2016</p>
+                                <p className={styles.footerDes}>GPKD số 0313980043 do Sở Kế hoạch và Đầu tư TP Hà Nội cấp ngày 25/03/2024</p>
                             </div>
                             <div className={styles.col2}>
                                 <Link to={"/"}>
