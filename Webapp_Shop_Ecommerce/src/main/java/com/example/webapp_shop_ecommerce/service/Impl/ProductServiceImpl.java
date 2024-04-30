@@ -6,6 +6,7 @@ import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.Product;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductConverter;
+import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.repositories.IProductRepository;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
@@ -60,7 +61,8 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
     IProductDetailsRepository productDetailsRepo;
     @Autowired
     ExportProduct exportProduct;
-
+    @Autowired
+    private Authentication authentication;
     @Autowired
     ImportProduct importProduct;
     @Autowired
@@ -108,9 +110,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             entity.setId(null);
             entity.setDeleted(false);
             entity.setStatus("0");
-            entity.setCreatedBy("Admin");
+            entity.setCreatedBy(authentication.getUsers().getFullName());
             entity.setCreatedDate(LocalDateTime.now());
-            entity.setLastModifiedBy("Admin");
+            entity.setLastModifiedBy(authentication.getUsers().getFullName());
             entity.setLastModifiedDate(LocalDateTime.now());
         } else {
             Long id = idProduct[0];
@@ -122,7 +124,7 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             entity = otp.orElse(null);
             entity = productConverter.convertRequestToEntity(request);
             entity.setId(id);
-            entity.setLastModifiedBy("Admin");
+            entity.setLastModifiedBy(authentication.getUsers().getFullName());
             entity.setStatus("0");
             entity.setLastModifiedDate(LocalDateTime.now());
             entity.setDeleted(false);
@@ -173,9 +175,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
             entity.setId(null);
             entity.setDeleted(false);
             entity.setStatus("0");
-            entity.setCreatedBy("Admin");
+            entity.setCreatedBy(authentication.getUsers().getFullName());
             entity.setCreatedDate(LocalDateTime.now());
-            entity.setLastModifiedBy("Admin");
+            entity.setLastModifiedBy(authentication.getUsers().getFullName());
             entity.setLastModifiedDate(LocalDateTime.now());
         Product product = productRepo.save(entity);
         if (product != null) {

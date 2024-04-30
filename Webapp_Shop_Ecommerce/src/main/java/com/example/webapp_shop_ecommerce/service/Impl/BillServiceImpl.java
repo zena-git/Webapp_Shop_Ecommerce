@@ -208,8 +208,15 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             if ((totalMoney.compareTo(voucher.getOrderMinValue()) < 0)) {
                 return new ResponseEntity<>(new ResponseObject("error", "Đơn hàng chưa đạt giá trị tối thiểu để dử dụng giảm giá này", 0, billRequest), HttpStatus.BAD_REQUEST);
             }
-            if (DiscountType.GIAM_TRUC_TIEP.equals(voucher.getDiscountType())) {
-                voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+            if (DiscountType.GIAM_TRUC_TIEP.getLabel().equalsIgnoreCase(voucher.getDiscountType())) {
+                // compareTo returns âm thì big 1 < big 2
+                // compareTo returns bằng 0 thì big -1 = big 2
+                // compareTo returns dương thì big -1 > big 2
+                if (totalMoney.compareTo(new BigDecimal(Float.toString(voucher.getValue()))) < 0){
+                    voucherMoney = totalMoney;
+                }else {
+                    voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+                }
             } else {
                 voucherMoney = totalMoney.multiply(new BigDecimal(Float.toString(voucher.getValue()))).divide(new BigDecimal("100"));
             }
@@ -374,8 +381,15 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             if ((totalMoney.compareTo(voucher.getOrderMinValue()) < 0)) {
                 return new ResponseEntity<>(new ResponseObject("error", "Đơn hàng chưa đạt giá trị tối thiểu để dử dụng giảm giá này", 0, billRequest), HttpStatus.BAD_REQUEST);
             }
-            if (DiscountType.GIAM_TRUC_TIEP.equals(voucher.getDiscountType())) {
-                voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+            if (DiscountType.GIAM_TRUC_TIEP.getLabel().equalsIgnoreCase(voucher.getDiscountType())) {
+                // compareTo returns âm thì big 1 < big 2
+                // compareTo returns bằng 0 thì big -1 = big 2
+                // compareTo returns dương thì big -1 > big 2
+                if (totalMoney.compareTo(new BigDecimal(Float.toString(voucher.getValue()))) < 0){
+                    voucherMoney = totalMoney;
+                }else {
+                    voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+                }
             } else {
                 voucherMoney = totalMoney.multiply(new BigDecimal(Float.toString(voucher.getValue()))).divide(new BigDecimal("100"));
             }
@@ -700,8 +714,15 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             if ((totalMoney.compareTo(voucher.getOrderMinValue()) < 0)) {
                 return new ResponseEntity<>(new ResponseObject("error", "Đơn hàng chưa đạt giá trị tối thiểu để dử dụng giảm giá này", 0, id), HttpStatus.BAD_REQUEST);
             }
-            if (DiscountType.GIAM_TRUC_TIEP.equals(voucher.getDiscountType())) {
-                voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+            if (DiscountType.GIAM_TRUC_TIEP.getLabel().equalsIgnoreCase(voucher.getDiscountType())) {
+                // compareTo returns âm thì big 1 < big 2
+                // compareTo returns bằng 0 thì big -1 = big 2
+                // compareTo returns dương thì big -1 > big 2
+                if (totalMoney.compareTo(new BigDecimal(Float.toString(voucher.getValue()))) < 0){
+                    voucherMoney = totalMoney;
+                }else {
+                    voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+                }
             } else {
                 voucherMoney = totalMoney.multiply(new BigDecimal(Float.toString(voucher.getValue()))).divide(new BigDecimal("100"));
             }
@@ -711,6 +732,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             if ((voucherMoney.compareTo(voucher.getMaxDiscountValue()) > 0)) {
                 voucherMoney = voucher.getMaxDiscountValue();
             }
+
+
             voucherDetails.setBill(otp.get());
             voucher.setQuantity(voucher.getQuantity() -1);
             voucherDetails.setStatus(true);
@@ -1024,8 +1047,16 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             if (voucherDetailsOpt.isPresent()) {
                 VoucherDetails voucherDetails = voucherDetailsOpt.get();
                 Voucher voucher = voucherDetails.getVoucher();
-                if (DiscountType.GIAM_TRUC_TIEP.equals(voucher.getDiscountType())) {
-                    voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+                if (DiscountType.GIAM_TRUC_TIEP.getLabel().equalsIgnoreCase(voucher.getDiscountType())) {
+                    // compareTo returns âm thì big 1 < big 2
+                    // compareTo returns bằng 0 thì big -1 = big 2
+                    // compareTo returns dương thì big -1 > big 2
+                    if (new BigDecimal(insuranceValue).compareTo(new BigDecimal(Float.toString(voucher.getValue()))) < 0){
+                        voucherMoney = new BigDecimal(insuranceValue);
+                    }else {
+                        voucherMoney = new BigDecimal(Float.toString(voucher.getValue()));
+                    }
+
                 } else {
                     voucherMoney = BigDecimal.valueOf(insuranceValue).multiply(new BigDecimal(Float.toString(voucher.getValue()))).divide(new BigDecimal("100"));
                 }
@@ -1260,12 +1291,18 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
                 && historyBillRequest.getType().equalsIgnoreCase(TrangThaiBill.DA_XAC_NHAN.getLabel())
         ){
             Set<BillDetails> lstBillDetails = bill.getLstBillDetails();
-            lstBillDetails.stream().map(entity -> {
-                ProductDetails pd = entity.getProductDetails();
-                pd.setQuantity(pd.getQuantity() - entity.getQuantity());
+            for (BillDetails billDetails : lstBillDetails) {
+                ProductDetails pd = billDetails.getProductDetails();
+                if (pd.getQuantity() <= billDetails.getQuantity()){
+                    return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm "+pd.getProduct().getName()+" Không Đủ", 1, billDetails), HttpStatus.BAD_REQUEST);
+                }
+
+                if (pd.getQuantity() <= 0){
+                    return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm "+pd.getProduct().getName()+" Không Đang Nhỏ Hơn 0", 1, billDetails), HttpStatus.BAD_REQUEST);
+                }
+                pd.setQuantity(pd.getQuantity() - billDetails.getQuantity());
                 productDetailsRepo.save(pd);
-                return entity;
-            }).collect(Collectors.toList());
+            }
         }
 
         HistoryBill historyBill = mapper.map(historyBillRequest, HistoryBill.class);

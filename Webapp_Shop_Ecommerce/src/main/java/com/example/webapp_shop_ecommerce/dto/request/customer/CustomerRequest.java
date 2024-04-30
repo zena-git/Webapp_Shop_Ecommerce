@@ -28,6 +28,6 @@ public class CustomerRequest {
     @Size(max = 20, message = "Sđt quá dài. Hãy nhập sđt ngắn hơn.")
     private String phone;
     @NotBlank(message = "Không được để trống email")
-    @Size(max = 100, message = "Emailquá dài. Hãy nhập email ngắn hơn.")
+    @Size(max = 100, message = "Email quá dài. Hãy nhập email ngắn hơn.")
     private String email;
 }

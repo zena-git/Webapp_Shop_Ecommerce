@@ -46,10 +46,10 @@ public class AddressServiceImpl extends BaseServiceImpl<Address, Long, IAddressR
         address.setCustomer(customer);
         address.setId(null);
         address.setDeleted(false);
-        address.setCreatedBy("Admin");
+        address.setCreatedBy(authentication.getUsers().getFullName());
         address.setCreatedDate(LocalDateTime.now());
         address.setLastModifiedDate(LocalDateTime.now());
-        address.setLastModifiedBy("Admin");
+        address.setLastModifiedBy(authentication.getUsers().getFullName());
 
         if (request.isDefaultAddress()){
             address.setDefaultAddress(true);

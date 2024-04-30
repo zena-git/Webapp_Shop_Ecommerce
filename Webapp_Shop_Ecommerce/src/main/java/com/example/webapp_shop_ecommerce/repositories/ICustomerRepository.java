@@ -1,6 +1,7 @@
 package com.example.webapp_shop_ecommerce.repositories;
 
 import com.example.webapp_shop_ecommerce.entity.Customer;
+import com.example.webapp_shop_ecommerce.entity.Users;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,4 +42,9 @@ public interface ICustomerRepository extends IBaseReporitory<Customer, Long> {
     @Modifying
     @Query("UPDATE Customer p SET p.deleted = false where p.id = :id")
     void updateRecover(@Param("id") Long id);
+
+    Optional<Customer> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+    boolean existsByPhone(String phone);
 }

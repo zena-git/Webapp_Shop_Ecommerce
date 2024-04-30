@@ -8,6 +8,7 @@ import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillRes
 import com.example.webapp_shop_ecommerce.dto.response.paymentHistory.PaymentHistoryResponse;
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsResponse;
+import com.example.webapp_shop_ecommerce.dto.response.voucherDetails.VoucherDetailsShowResponse;
 import com.example.webapp_shop_ecommerce.entity.BillDetails;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
 import com.example.webapp_shop_ecommerce.entity.PaymentHistory;
@@ -61,7 +62,7 @@ public class BillShowResponse {
     private UserResponse user;
 
 //    Set<BillDetailsBillResponse> lstBillDetails;
-//    Set<VoucherDetailsResponse> lstVoucherDetails;
+    Set<VoucherDetailsShowResponse> lstVoucherDetails;
     Set<HistoryBillResponse> lstHistoryBill;
     Set<PaymentHistoryResponse> lstPaymentHistory;
 

@@ -18,6 +18,7 @@ import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
+import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.*;
 import com.example.webapp_shop_ecommerce.service.*;
 
@@ -110,7 +111,8 @@ public class SupportSevice {
 
     @Autowired
     private RandomStringGenerator randomStringGenerator;
-
+    @Autowired
+    private Authentication authentication;
     public ResponseEntity<ResponseObject> deleteAddress(Long id){
         return addressService.physicalDelete(id);
     }
@@ -130,7 +132,7 @@ public class SupportSevice {
 
         if (addressOtp.isPresent()){
             address.setLastModifiedDate(LocalDateTime.now());
-            address.setLastModifiedBy("Admin");
+            address.setLastModifiedBy(authentication.getUsers().getFullName());
             address.setDeleted(addressOtp.get().getDeleted());
             address.setCustomer(addressOtp.get().getCustomer());
         }else {
@@ -138,9 +140,9 @@ public class SupportSevice {
                 return new ResponseEntity<>(new ResponseObject("error","Không tìm thấy customer",0, request), HttpStatus.BAD_REQUEST);
             }
             address.setCustomer(optCustomer.orElseGet(null));
-            address.setCreatedBy("Admin");
+            address.setCreatedBy(authentication.getUsers().getFullName());
             address.setLastModifiedDate(LocalDateTime.now());
-            address.setLastModifiedBy("Admin");
+            address.setLastModifiedBy(authentication.getUsers().getFullName());
             address.setCreatedDate(LocalDateTime.now());
             address.setDeleted(false);
         }
@@ -362,6 +364,12 @@ public class SupportSevice {
     }
 
     public ResponseEntity<?> saveOrUpdateCustomer( CustomerSupportRequest customerDto, Long ...idCustomer){
+        if (customerRepo.existsByEmail(customerDto.getEmail())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
+        if (customerRepo.existsByPhone(customerDto.getPhone())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
         String password = randomStringGenerator.generateRandomString(6);
         if (idCustomer.length <= 0){
             // Lưu dữ liệu và thực hiện gửi email song song
@@ -371,8 +379,8 @@ public class SupportSevice {
                 customer.setDeleted(false);
                 customer.setCreatedDate(LocalDateTime.now());
                 customer.setLastModifiedDate(LocalDateTime.now());
-                customer.setCreatedBy("Admin");
-                customer.setLastModifiedBy("Admin");
+                customer.setCreatedBy(authentication.getUsers().getFullName());
+                customer.setLastModifiedBy(authentication.getUsers().getFullName());
                 PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
                 customer.setPassword(passwordEncoder.encode(password));
                 Customer customerReturn =  customerRepo.save(customer);
@@ -561,8 +569,8 @@ public class SupportSevice {
 //            customer.setDeleted(false);
 //            customer.setCreatedDate(LocalDateTime.now());
 //            customer.setLastModifiedDate(LocalDateTime.now());
-//            customer.setCreatedBy("Admin");
-//            customer.setLastModifiedBy("Admin");
+//            customer.setCreatedBy(authentication.getUsers().getFullName());
+//            customer.setLastModifiedBy(authentication.getUsers().getFullName());
 //            Customer customerReturn =  customerRepo.save(customer);
 //            Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
 //            lstAddressRequest.stream().map(addressRequest -> {

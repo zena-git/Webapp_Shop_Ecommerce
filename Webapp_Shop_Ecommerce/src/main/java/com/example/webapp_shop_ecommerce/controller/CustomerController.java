@@ -8,6 +8,7 @@ import com.example.webapp_shop_ecommerce.dto.response.historybill.HistoryBillRes
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.HistoryBill;
+import com.example.webapp_shop_ecommerce.repositories.ICustomerRepository;
 import com.example.webapp_shop_ecommerce.service.IClientService;
 import com.example.webapp_shop_ecommerce.service.ICustomerService;
 import jakarta.validation.Valid;
@@ -46,7 +47,7 @@ public class CustomerController {
     private ICustomerService customerService;
 
     @Autowired
-    private IClientService mailClientService;
+    private ICustomerRepository customerRepo;
 
     @GetMapping
     public ResponseEntity<?> findProductAll(@RequestParam(value = "page", defaultValue = "-1") Integer page,
@@ -92,6 +93,13 @@ public class CustomerController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, CustomerDto), HttpStatus.BAD_REQUEST);
         }
+        if (customerRepo.existsByEmail(CustomerDto.getEmail())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, CustomerDto), HttpStatus.BAD_REQUEST);
+        }
+        if (customerRepo.existsByPhone(CustomerDto.getPhone())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, CustomerDto), HttpStatus.BAD_REQUEST);
+        }
+
         return customerService.save(CustomerDto);
     }
 
@@ -110,6 +118,12 @@ public class CustomerController {
             }
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
+        if (customerRepo.existsByEmail(customerDto.getEmail())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
+        if (customerRepo.existsByPhone(customerDto.getPhone())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
         }
         Customer customer = null;
         Optional<Customer>  otp = customerService.findById(id);

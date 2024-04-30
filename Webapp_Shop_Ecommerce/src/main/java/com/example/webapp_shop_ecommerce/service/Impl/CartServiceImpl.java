@@ -57,10 +57,10 @@ public class CartServiceImpl extends BaseServiceImpl<Cart, Long, ICartRepository
             newCart.setCustomer(customer);
             newCart.setId(null);
             newCart.setDeleted(false);
-            newCart.setCreatedBy("Admin");
+            newCart.setCreatedBy(authentication.getUsers().getFullName());
             newCart.setCreatedDate(LocalDateTime.now());
             newCart.setLastModifiedDate(LocalDateTime.now());
-            newCart.setLastModifiedBy("Admin");
+            newCart.setLastModifiedBy(authentication.getUsers().getFullName());
            Cart cartNew =  cartRepo.save(newCart);
            cart = Optional.ofNullable(cartNew);
             System.out.println("Tao cart moi");

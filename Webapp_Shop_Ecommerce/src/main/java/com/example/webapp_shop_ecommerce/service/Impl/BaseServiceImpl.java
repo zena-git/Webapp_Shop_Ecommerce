@@ -2,6 +2,7 @@ package com.example.webapp_shop_ecommerce.service.Impl;
 
 
 import com.example.webapp_shop_ecommerce.entity.BaseEntity;
+import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.IBaseReporitory;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.service.IBaseService;
@@ -20,7 +21,8 @@ import java.util.Optional;
 public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R extends IBaseReporitory<E ,ID>>
         implements IBaseService<E, ID> {
     protected R repository;
-
+    @Autowired
+    private Authentication authentication;
     @Autowired
     public void setRepository(R repository) {
         this.repository = repository;
@@ -30,10 +32,10 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
 
         entity.setId(null);
         entity.setDeleted(false);
-        entity.setCreatedBy("Admin");
+        entity.setCreatedBy(authentication.getUsers().getFullName());
         entity.setCreatedDate(LocalDateTime.now());
         entity.setLastModifiedDate(LocalDateTime.now());
-        entity.setLastModifiedBy("Admin");
+        entity.setLastModifiedBy(authentication.getUsers().getFullName());
         repository.save(entity);
         return new ResponseEntity<>(new ResponseObject("success", "Thêm Mới Thành Công", 0, entity), HttpStatus.CREATED);
     }
@@ -42,7 +44,7 @@ public class BaseServiceImpl<E extends BaseEntity, ID extends Serializable, R ex
     public ResponseEntity<ResponseObject> update(E entity) {
         if (entity != null) {
             entity.setLastModifiedDate(LocalDateTime.now());
-            entity.setLastModifiedBy("Admin");
+            entity.setLastModifiedBy(authentication.getUsers().getFullName());
             entity.setDeleted(false);
             repository.save(entity);
             return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Thành Công", 0, entity), HttpStatus.OK);

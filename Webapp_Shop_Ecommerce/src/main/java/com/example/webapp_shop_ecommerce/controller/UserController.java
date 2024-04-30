@@ -5,6 +5,7 @@ import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.entity.Users;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.Roles;
+import com.example.webapp_shop_ecommerce.repositories.IUsersRepository;
 import com.example.webapp_shop_ecommerce.service.IUsersService;
 import com.example.webapp_shop_ecommerce.service.Impl.UsersServiceImpl;
 import jakarta.validation.Valid;
@@ -30,7 +31,8 @@ public class UserController {
     @Autowired
     private IUsersService usersService;
 
-
+    @Autowired
+    IUsersRepository usersRepo;
 
     @GetMapping
     public ResponseEntity<?> findAll(
@@ -69,7 +71,12 @@ public class UserController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, UserRequest), HttpStatus.BAD_REQUEST);
         }
-
+        if (usersRepo.existsByEmail(UserRequest.getEmail())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, UserRequest), HttpStatus.BAD_REQUEST);
+        }
+        if (usersRepo.existsByPhone(UserRequest.getPhone())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, UserRequest), HttpStatus.BAD_REQUEST);
+        }
         return usersService.save(UserRequest);
 
     }
@@ -85,7 +92,12 @@ public class UserController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, UserRequest), HttpStatus.BAD_REQUEST);
         }
-
+        if (usersRepo.existsByEmail(UserRequest.getEmail())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, UserRequest), HttpStatus.BAD_REQUEST);
+        }
+        if (usersRepo.existsByPhone(UserRequest.getPhone())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, UserRequest), HttpStatus.BAD_REQUEST);
+        }
         Optional<Users> opt = usersService.findById(id);
         if (opt.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, UserRequest), HttpStatus.BAD_REQUEST);

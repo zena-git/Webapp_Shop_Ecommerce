@@ -38,6 +38,8 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
 
     @Autowired
     private ModelMapper mapper;
+    @Autowired
+    private Authentication authentication;
     @Override
     public List<Customer> findByNameAndPhone(String keyWord) {
         return repository.findByNameAndPhone(keyWord);
@@ -74,8 +76,8 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
             customer.setDeleted(false);
             customer.setCreatedDate(LocalDateTime.now());
             customer.setLastModifiedDate(LocalDateTime.now());
-            customer.setCreatedBy("Admin");
-            customer.setLastModifiedBy("Admin");
+            customer.setCreatedBy(authentication.getUsers().getFullName());
+            customer.setLastModifiedBy(authentication.getUsers().getFullName());
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
             customer.setPassword(passwordEncoder.encode(password));
             Customer customerReturn =  repository.save(customer);

@@ -35,6 +35,13 @@ public class UsersServiceImpl extends BaseServiceImpl<Users, Long, IUsersReposit
 
     @Override
     public ResponseEntity<?> save(UserRequest request) {
+        if (repository.existsByEmail(request.getEmail())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, request), HttpStatus.BAD_REQUEST);
+        }
+        if (repository.existsByPhone(request.getPhone())) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, request), HttpStatus.BAD_REQUEST);
+        }
+
         String password = randomStringGenerator.generateRandomString(6);
         CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
             Users entity = new Users();

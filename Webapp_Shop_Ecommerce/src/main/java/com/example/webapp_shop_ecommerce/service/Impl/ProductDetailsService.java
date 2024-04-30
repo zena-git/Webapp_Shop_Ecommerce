@@ -4,6 +4,7 @@ import com.example.webapp_shop_ecommerce.dto.request.productdetails.ProductDetai
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.ProductDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.converter.ProductDetailConverter;
+import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.IProductDetailsRepository;
 import com.example.webapp_shop_ecommerce.service.IProductDetailsService;
 import com.example.webapp_shop_ecommerce.ultiltes.RandomCodeGenerator;
@@ -33,7 +34,8 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
 
     @Autowired
     RandomCodeGenerator randomCodeGenerator;
-
+    @Autowired
+    private Authentication authentication;
     @Override
     public Page<ProductDetails> findAllByProductToPage(Long productId, Pageable page) {
         return repository.findAllByProductToPage(productId, page);
@@ -78,10 +80,10 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                         entity.setId(null);
                         entity.setDeleted(false);
                         entity.setStatus("0");
-                        entity.setCreatedBy("Admin");
+                        entity.setCreatedBy(authentication.getUsers().getFullName());
                         entity.setCreatedDate(LocalDateTime.now());
                         entity.setLastModifiedDate(LocalDateTime.now());
-                        entity.setLastModifiedBy("Admin");
+                        entity.setLastModifiedBy(authentication.getUsers().getFullName());
                         entity.setBarcode( randomCodeGenerator.generateRandomBarcode());
                     }
                     return entity;
@@ -114,7 +116,7 @@ public class ProductDetailsService extends BaseServiceImpl<ProductDetails, Long,
                             if (entity != null) {
                                 entity.setPromotionDetailsActive(productDetails.getPromotionDetailsActive());
                                 entity.setLastModifiedDate(LocalDateTime.now());
-                                entity.setLastModifiedBy("Admin");
+                                entity.setLastModifiedBy(authentication.getUsers().getFullName());
                                 entity.setDeleted(productDetails.getDeleted());
                                 entity.setStatus(productDetails.getStatus());
                                 entity.setId(productDetailsDto.getId());

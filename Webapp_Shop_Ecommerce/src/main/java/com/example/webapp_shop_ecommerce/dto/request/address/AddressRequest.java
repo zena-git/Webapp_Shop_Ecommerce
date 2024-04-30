@@ -23,7 +23,7 @@ public class AddressRequest {
     @Size(max = 200, message = "Tên người nhận quá dài. Hãy nhập tên ngắn hơn.")
     private String receiverName;
     @NotBlank(message = "Không được để trống sđt người nhận")
-    @Size(max = 20, message = "Sđt người nhận quá dài. Hãy nhập sđt ngắn hơn.")
+    @Size(min = 10, max = 10, message = "Số điện thoại phải có 10 chữ số.")
     private String receiverPhone;
     @NotBlank(message = "Không được để trống chi tiết")
     @Size(max = 200, message = "Chi tiết người nhận quá dài. Hãy nhập chi tiết ngắn hơn.")

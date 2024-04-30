@@ -36,7 +36,7 @@ public class CronJob {
     @Autowired
     IBillService billService;
 
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void VoucherCronJob() {
 
         LocalDateTime now = LocalDateTime.now();

@@ -7,6 +7,7 @@ import com.example.webapp_shop_ecommerce.entity.Promotion;
 import com.example.webapp_shop_ecommerce.entity.Voucher;
 import com.example.webapp_shop_ecommerce.entity.VoucherDetails;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
+import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.repositories.ICustomerRepository;
 import com.example.webapp_shop_ecommerce.repositories.IVoucherDetailsRepository;
 import com.example.webapp_shop_ecommerce.repositories.IVoucherRepository;
@@ -34,7 +35,8 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
     private ICustomerRepository customerRepo;
     @Autowired
     private IVoucherDetailsRepository voucherDetailsRepo;
-
+    @Autowired
+    private Authentication authentication;
     @Override
     public Page<Voucher> findVoucherByKeyWorkAndDeletedFalse(Pageable pageable, Map<String, String> keyWork) {
         return repository.findVoucherByKeyWorkAndDeletedFalse(pageable, keyWork);
@@ -50,10 +52,10 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
         Voucher entity = mapper.map(voucherRequest, Voucher.class);
         entity.setId(null);
         entity.setDeleted(false);
-        entity.setCreatedBy("Admin");
+        entity.setCreatedBy(authentication.getUsers().getFullName());
         entity.setCreatedDate(LocalDateTime.now());
         entity.setLastModifiedDate(LocalDateTime.now());
-        entity.setLastModifiedBy("Admin");
+        entity.setLastModifiedBy(authentication.getUsers().getFullName());
         entity.setStatus(TrangThaiGiamGia.SAP_DIEN_RA.getLabel());
         //check ngay start;
         if (true) {
@@ -77,10 +79,10 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
                     voucherDetails.setCustomer(customer);
                     voucherDetails.setId(null);
                     voucherDetails.setDeleted(false);
-                    voucherDetails.setCreatedBy("Admin");
+                    voucherDetails.setCreatedBy(authentication.getUsers().getFullName());
                     voucherDetails.setCreatedDate(LocalDateTime.now());
                     voucherDetails.setLastModifiedDate(LocalDateTime.now());
-                    voucherDetails.setLastModifiedBy("Admin");
+                    voucherDetails.setLastModifiedBy(authentication.getUsers().getFullName());
                     voucherDetails.setStatus(false);
                     return voucherDetails;
                 }
@@ -139,10 +141,10 @@ public class VoucherServiceImpl extends BaseServiceImpl<Voucher, Long, IVoucherR
                     voucherDetails.setCustomer(customer);
                     voucherDetails.setId(null);
                     voucherDetails.setDeleted(false);
-                    voucherDetails.setCreatedBy("Admin");
+                    voucherDetails.setCreatedBy(authentication.getUsers().getFullName());
                     voucherDetails.setCreatedDate(LocalDateTime.now());
                     voucherDetails.setLastModifiedDate(LocalDateTime.now());
-                    voucherDetails.setLastModifiedBy("Admin");
+                    voucherDetails.setLastModifiedBy(authentication.getUsers().getFullName());
                     voucherDetails.setStatus(false);
                     return voucherDetails;
                 }

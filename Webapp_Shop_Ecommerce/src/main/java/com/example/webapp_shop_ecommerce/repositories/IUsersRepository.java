@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IUsersRepository extends IBaseReporitory<Users, Long> {
@@ -23,4 +24,9 @@ public interface IUsersRepository extends IBaseReporitory<Users, Long> {
 
     @Query("SELECT p FROM Users p")
     List<Users> findAllByDeletedAll();
+
+    Optional<Users> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+    boolean existsByPhone(String phone);
 }
