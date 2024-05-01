@@ -36,16 +36,16 @@ function Order() {
     updateDataLstBill()
     updateDataProductDetails()
     updateDataDataCart();
-    
+
   }, [])
 
   useEffect(() => {
-      if (lstBill.length == 0 && checkBill) {
-          fetchAddBillNew()
-          setCheckBill(false)
-      }else{
-        setCheckBill(true)
-      }
+    if (lstBill.length == 0 && checkBill) {
+      fetchAddBillNew()
+      setCheckBill(false)
+    } else {
+      setCheckBill(true)
+    }
   }, [lstBill])
   useEffect(() => {
 
@@ -59,13 +59,13 @@ function Order() {
     if (lst.length > 0) {
       setActiveKeyBill(lst[0].key);
       setDataIdBill(lst[0].key)
-    }else{
+    } else {
       setDataIdBill(null)
       setActiveKeyBill(null);
-      
+
     }
     setBillNews(lst);
-   
+
   }, [lstBill]);
 
   const onChange = (key, label) => {
@@ -157,6 +157,8 @@ function Order() {
           <div className='w-2/5'>
             <OrderBuy fetchAddBillNew={fetchAddBillNew}></OrderBuy>
           </div>
+        </div>
+        <div className='-z-50' id='printx'>
         </div>
       </div>
       <ToastContainer />

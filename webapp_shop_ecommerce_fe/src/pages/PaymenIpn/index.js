@@ -13,7 +13,7 @@ function PaymentIpn() {
     const [isStatus, setIsStatus] = useState("-1");
     const [subTitle, setsubTitle] = useState("Vui Lòng Chờ Trong Giây Lát !");
     const [countdown, setCountdown] = useState();
-    const { loadingContent,setDataLoadingContent } = useOrderData();
+    const { loadingContent, setDataLoadingContent } = useOrderData();
     const vnpTxnRef = searchParams.get('vnp_TxnRef');
     const vnpPayDate = searchParams.get('vnp_PayDate');
     const transactionNo = searchParams.get('vnp_TransactionNo');
@@ -56,6 +56,7 @@ function PaymentIpn() {
                 console.log(response.data.message);
                 setIsStatus('0')
                 setCountdown(15);
+                handlePrintView()
 
             })
             .catch(error => {
@@ -116,9 +117,13 @@ function PaymentIpn() {
                     }
                     subTitle={subTitle}
                     extra={[
-                        <Button type="primary" key="console">
-                            Trả Lại
-                        </Button>,
+                        <Link to="/order">
+
+                            <Button type="primary" key="console">
+                                Trở Lại
+                            </Button>
+                        </Link>
+                        ,
                         <Button key="buy" onClick={() => { handlePrintView() }}>In Hóa Đơn</Button>,
                     ]}
                 />

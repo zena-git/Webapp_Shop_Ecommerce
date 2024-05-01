@@ -20,12 +20,14 @@ import BillProducts from '~/components/BillProducts';
 import BillProductsBack from '~/components/BillProductsBack';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { useOrderData } from '~/provider/OrderDataProvider';
 dayjs.extend(customParseFormat);
 function BillDetail() {
     const { id } = useParams();
     const [bill, setBill] = useState(null);
     const [lstBillDetails, setLstBillDetails] = useState([]);
     const [lstBillDetailsReturn, setLstBillDetailsReturn] = useState([]);
+    const { setDataLoadingContent  } = useOrderData();
 
     const TrangThaiBill = {
         TAT_CA: '',
@@ -120,12 +122,15 @@ function BillDetail() {
     };
 
     const handlePrintView = async () => {
+        setDataLoadingContent(true)
         try {
             // Gọi API để lấy dữ liệu hóa đơn
             const response = await axios.get(`http://localhost:8080/api/v3/print/${bill?.codeBill}`, {
                 responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
             });
-
+            setTimeout(() => {
+                setDataLoadingContent(false)
+            }, 1000);
             // Tạo một Blob từ dữ liệu PDF
             const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
 

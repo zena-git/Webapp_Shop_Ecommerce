@@ -251,7 +251,38 @@ const OrderDataProvider = ({ children }) => {
 
             })
     }, [idBill]);
+    const handlePrintView = async (codeBill) => {
+        try {
+            // Gọi API để lấy dữ liệu hóa đơn
+            const response = await axios.get(`http://localhost:8080/api/v3/print/${codeBill}`, {
+                responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
+            });
 
+            // Tạo một Blob từ dữ liệu PDF
+            const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
+
+            // Tạo một URL tạm thời từ Blob
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+
+            // Tạo một iframe ẩn để hiển thị PDF và chuẩn bị cho việc in
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = pdfUrl;
+            document.getElementById("printx").appendChild(iframe);
+
+            // Đợi cho PDF load xong trước khi gọi hộp thoại in
+            iframe.onload = function () {
+                iframe.contentWindow.print();
+                // Sau khi in, loại bỏ iframe khỏi DOM
+                // setTimeout(() => {
+                //     document.getElementById("printx").removeChild(iframe);
+                //     URL.revokeObjectURL(pdfUrl);
+                // }, 200);
+            };
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
     const handlePaymentBill = () => {
 
         let status = '4';
@@ -320,9 +351,11 @@ const OrderDataProvider = ({ children }) => {
                     window.location.href = response.data.data;
                 } else {
                     console.log(response.data);
+                    handlePrintView(response?.data?.data?.codeBill)
                     toast.success(response.data.message);
                     updateDataLstBill();
                     resetData();
+
                 }
 
             })
