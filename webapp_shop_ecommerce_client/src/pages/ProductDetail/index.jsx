@@ -59,7 +59,7 @@ function ProductDetail() {
                 console.log(res.data);
                 const lstProductDetails = res.data;
                 const imageUrl = lstProductDetails.map((img) => {
-                    return img.imageUrl.split('|');
+                    return img?.imageUrl?.split('|') || [];
                 })
                 setNameProduct(res.data[0].product.name);
                 setDataSlider(imageUrl.flat())
@@ -176,7 +176,7 @@ function ProductDetail() {
             return;
         }
 
-        if(productDetails?.quantity == 0) {
+        if (productDetails?.quantity == 0) {
             toast.error("Sản phẩm đã hết hàng")
             return;
         }
@@ -209,7 +209,7 @@ function ProductDetail() {
             toast.error("Vui lòng chọn sản phẩm")
             return;
         }
-        if(productDetails?.quantity == 0) {
+        if (productDetails?.quantity == 0) {
             toast.error("Sản phẩm đã hết hàng")
             return;
         }
@@ -253,7 +253,7 @@ function ProductDetail() {
             return;
         }
 
-        if(productDetails?.quantity == 0) {
+        if (productDetails?.quantity == 0) {
             toast.error("Sản phẩm đã hết hàng")
             return;
         }
@@ -457,8 +457,8 @@ function ProductDetail() {
 
                                         {
                                             quantityStock > 0 ?
-                                            <span className="ml-8">{quantityStock} sản phẩm có sẵn</span>:
-                                            <span className="ml-8">Sản phẩm hết hàng</span>
+                                                <span className="ml-8">{quantityStock} sản phẩm có sẵn</span> :
+                                                <span className="ml-8">Sản phẩm hết hàng</span>
                                         }
                                     </div>
 
