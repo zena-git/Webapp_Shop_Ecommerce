@@ -171,7 +171,7 @@ function AddressDelivery() {
 
             })
             .catch((error) => {
-                console.log(error.response.data);
+                console.log(error);
             })
 
     }, [])
@@ -208,7 +208,7 @@ function AddressDelivery() {
 
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
 
         }
@@ -243,7 +243,7 @@ function AddressDelivery() {
                     }
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
 
 
@@ -273,7 +273,7 @@ function AddressDelivery() {
                     console.log(response.data.data[0].service_id);
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
         }
     }, [valueDistrict])
@@ -318,10 +318,15 @@ function AddressDelivery() {
                     setDataShipMoney(response.data.data.total)
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    setDataShipMoney(34000)
+                    console.log("Không lấy được phí ship đã fill phí mặc định");
+                    console.log(error);
                 })
+        }else{
+            console.log("valueDistrict");
+            console.log(valueDistrict);
         }
-    }, [valueDistrict, lstProductDetailsCart])
+    }, [valueDistrict, lstProductDetailsCart, serviceId])
 
     //Lấy Thời Gian Giao Hàng Dự Kiến
     useEffect(() => {
@@ -347,10 +352,10 @@ function AddressDelivery() {
                     console.log(response.data.data);
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
         }
-    }, [valueDistrict, valueWard])
+    }, [valueDistrict, serviceId, valueWard])
 
     const handleChangeProvince = (value) => {
         if (value) {

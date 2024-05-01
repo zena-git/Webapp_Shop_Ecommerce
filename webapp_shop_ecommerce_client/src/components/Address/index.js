@@ -6,6 +6,7 @@ import DataContext from "~/DataContext";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import InnerAddres from '~/components/Address/InnerAddres';
+import { toast } from 'react-toastify';
 function Address() {
     const { isAccount, setAddressBillClient, customer, addressBill, dataCheckout, totalPrice, setDataShipMoney } = useContext(DataContext);
 
@@ -73,7 +74,8 @@ function Address() {
                     setDataProvince(lstProvince)
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    // toast.error("Không thể call api giao hàng ")
+                    console.log(error);
                 })
         }
 
@@ -111,7 +113,7 @@ function Address() {
 
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
 
         }
@@ -145,7 +147,7 @@ function Address() {
                     }
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
 
 
@@ -175,7 +177,7 @@ function Address() {
                     console.log(response.data.data[0].service_id);
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error);
                 })
         }
     }, [valueDistrict])
@@ -217,10 +219,12 @@ function Address() {
                     setDataShipMoney(response.data.data.total)
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    setDataShipMoney(34000)
+                    console.log("Không lấy được phí ship đã fill phí mặc định");
+                    console.log(error);
                 })
         }
-    }, [valueDistrict, dataCheckout])
+    }, [dataCheckout,serviceId,valueDistrict])
 
     useEffect(() => {
         const foundProvince = dataProvince.find(item => item.label === addressBill?.province);

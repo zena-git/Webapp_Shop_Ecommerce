@@ -257,9 +257,13 @@ const DataProvider = ({ children }) => {
         console.log(addressBill);
         console.log(dataCheckout);
         let returnUrl = window.location.origin;
-
+        if (addressBill == null) {
+            toast.error("Vui lòng chọn địa chỉ giao hàng")
+            return;
+        }
+     
         const dataBill = {
-            shipMoney: shipMoney,
+            shipMoney: shipMoney!=0?shipMoney:34000,
             totalMoney: totalPrice,
             paymentMethod: paymentMethods,
             voucherMoney: voucherMoney,
