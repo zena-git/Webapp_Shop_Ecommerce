@@ -49,7 +49,6 @@ function Home() {
     return (
         <>
             <div>
-
                 <Carousel autoplay
                     autoplaySpeed={2400}
                     style={{
@@ -88,7 +87,7 @@ function Home() {
 
                     <div className="slider-container">
                         <div className="text-center	">
-                            <div className="text-4xl font-bold text-gray-900 mb-4 mt-10">Sản phẩm nổi bật</div>
+                            <div className="text-6xl font-sans font-bold text-gray-900 my-10">Sản phẩm nổi bật</div>
                         </div>
                         <Slider {...settings}>
                             {
@@ -145,6 +144,24 @@ function Home() {
                         </Slider>
                     </div>
                 </div>
+            </div>
+            <div className="grid grid-cols-4 gap-6 my-[8%]">
+                <div></div>
+                <div className="flex flex-col gap-4 text-center mr-8">
+                    <img className="min-h-[240px] aspect-auto" src="/Layer 1.png" />
+                    <p className="uppercase text-[25px] text-red-600 font-bold">Hotline hỗ trợ</p>
+                    <p className="font-semibold text-[15px] text-slate-600">Liên hệ hotline: để nhận được tư vấn và hỗ trợ</p>
+                </div>
+                <div className="flex flex-col gap-4 text-center ml-8">
+                    <img className="min-h-[240px] aspect-auto" src="/Layer 12.png" />
+                    <p className="uppercase text-[25px] text-red-600 font-bold">Dễ dàng thanh toán</p>
+                    <p className="font-semibold text-[15px] text-slate-600">Thanh toán tiền mặt khi nhận hàng, chuyển khoản VNPay,...</p>
+                </div>
+                <div></div>
+            </div>
+            <div className="text-center px-14 mt-[8%]">
+                <p className="text-6xl font-sans font-bold text-slate-700 my-10 italic">Bộ sưu tập</p>
+                <p className="font-sans text-slate-600 text-[18px] font-semibold">Lolita Alice luôn hướng đến xây dựng một hệ sinh thái thời trang có tính ứng dụng cao với đa dạng mẫu mã sản phẩm. Với mục tiêu ấy, Lolita Alice phát triển và cho ra mắt các bộ sưu tập với các màu sắc, kiểu dáng phù hợp với mọi phong cách, giúp chị em dễ dàng trong việc mix & match và tự tạo nên các phong cách thời trang riêng biệt, ấn tượng cho riêng mình.</p>
             </div>
         </>
     );

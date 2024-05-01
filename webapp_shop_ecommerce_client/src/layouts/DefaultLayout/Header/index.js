@@ -5,13 +5,56 @@ import { FaUser } from "react-icons/fa6";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { TbSearch } from "react-icons/tb";
 import { Badge, Drawer } from "antd";
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback, useEffect } from "react";
 import { Button, Dropdown, Space, Input } from 'antd';
 import DataContext from "~/DataContext";
 import { AudioOutlined } from '@ant-design/icons';
+import axios from "axios";
+import { fixMoney } from "~/extension/fixMoney";
+
 const { Search } = Input;
+
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
 function Header() {
-    const onSearch = (value, _e, info) => console.log(info?.source, value);
+
+    const [searchValue, setSearchValue] = useState('');
+    const [searchResult, setSearchResult] = useState([])
+    const onSearch = (value, _e, info) => {
+        console.log(value)
+        setSearchValue(value);
+    }
+
+    const debouncedSearchValue = useDebounce(searchValue, 500);
+
+    useEffect(() => {
+        if (debouncedSearchValue.trim().length > 0) {
+            axios.get(`http://localhost:8080/api/v3/search?keyword=${debouncedSearchValue}`)
+                .then(res => {
+                    setSearchResult(res.data);
+                })
+                .catch(error => {
+                    console.log(error)
+                });
+        } else {
+            setSearchResult([])
+        }
+    }, [debouncedSearchValue]);
+
     const suffix = (
         <AudioOutlined
             style={{
@@ -53,7 +96,7 @@ function Header() {
                     <div style={{
                         borderBottom: "none"
                     }}>
-                        <img src="/logoLolita.png" alt="Logo Lolita" style={{ width: "30%", height: "30%" }} />
+                        <img src="/logo.png" alt="Logo Lolita" style={{ width: "30%", height: "30%" }} />
 
                     </div>
                 }
@@ -73,6 +116,55 @@ function Header() {
 
                     }}
                 />
+                <div className="flex gap-4 mt-12 w-full overflow-x-auto">
+                    {searchResult.map((product, index) => {
+                        return <div key={index} className="pb-8">
+                            <Link to={"/product/" + product.id} style={{
+                                textDecoration: 'none',
+                                color: 'black'
+                            }}>
+                                <div className=" w-[240px] shadow-md rounded-md h-[420px]
+                    hover:shadow-xl hover:bg-gray-100 transition duration-300 ease-in-out hover:scale-125
+                    ">
+                                    <div className="relative">
+                                        <img className="rounded-t-md" src={product.imageUrl} style={{ width: '100%', height: '320px', objectFit: 'cover' }} alt={`Image ${index}`} />
+
+                                        {
+                                            product?.promotionDetailsActive ? <div className="absolute top-0 right-0">
+                                                <span className="px-4 bg-rose-500 text-white text-2xl">- {product?.promotionDetailsActive?.promotion?.value}%</span>
+                                            </div> : <div></div>
+                                        }
+
+                                    </div>
+
+                                    <div className="px-6 py-4">
+                                        <div className="mt-2 h-[50px]">
+                                            <p className="overflow-wrap break-word font-medium	">{product.name.length > 30 ? product.name.substring(0, 30) + '...' : product.name}</p>
+                                        </div>
+                                        <div className="flex justify-end	">
+
+                                            {
+                                                product?.promotionDetailsActive ?
+                                                    <div className="flex items-center	">
+                                                        <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(product.price)}</span>
+                                                        <span className="ml-2 text-rose-500 text-2xl font-medium	">{
+                                                            fixMoney(product.price -
+                                                                (product.price * product.promotionDetailsActive.promotion.value / 100))}</span>
+                                                    </div> :
+                                                    <div>
+                                                        <span className="text-rose-500 text-2xl font-medium	">{fixMoney(product.price)}</span>
+                                                    </div>
+                                            }
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </Link>
+                        </div>
+                    })}
+                </div>
             </Drawer>
 
             <div className="shadow-lg" style={{
