@@ -11,6 +11,8 @@ import Address from "~/pages/Address";
 import Product from "~/pages/Product";
 import OrderInvoice from "~/pages/OrderInvoice";
 import NotificationOrder from "~/pages/NotificationOrder";
+import Login from "~/pages/Login";
+import RegisterPage from "~/pages/Register";
 const publicRouter = [
 
 ];
@@ -30,6 +32,8 @@ const privateRouter = [
     { path: '/address', component: Address },
     { path: '/address', component: Address },
     { path: '/notificationOrder', component: NotificationOrder },
+    { path: '/login', component: Login },
+    { path: '/register', component: RegisterPage },
 
 ];
 

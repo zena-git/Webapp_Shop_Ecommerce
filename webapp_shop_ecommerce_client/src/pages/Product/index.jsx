@@ -132,21 +132,23 @@ function HomeProduct() {
     useEffect(() => {
         filterProduct()
     }, [valueCategory, valueStyle, valueBrand, valueMaterial, priceRange])
+
     const onChangeCategory = (value) => {
         setValueCategory(value);
     };
     const [current, setCurrent] = useState(1);
+
     const onChange = (page) => {
-        console.log(page);
         setCurrent(page);
     };
-    const itemsPerPage = 10;
-    const totalPage = Math.ceil(lstProduct.length / itemsPerPage);
+
+    const itemsPerPage = 2;
 
     // Lấy dữ liệu cho trang hiện tại
     const start = (current - 1) * itemsPerPage;
     const end = start + itemsPerPage;
     const currentProductList = lstProduct.slice(start, end);
+
     return (
         <>
             <div className="flex">
@@ -256,7 +258,7 @@ function HomeProduct() {
 
                     <div className="w-12/12	grid grid-cols-4 gap-4">
                         {
-                            lstProduct?.map((product, index) => {
+                            currentProductList?.map((product, index) => {
                                 return (
                                     <div key={index} className="ml-2 mr-2 mt-12">
                                         <Link to={"/product/" + product.id} style={{
@@ -307,8 +309,8 @@ function HomeProduct() {
                             })
                         }
                     </div>
-                    <div className="flex mt-20">
-                        <Pagination current={current} onChange={onChange} total={lstProduct.length} />
+                    <div className="flex mt-20 justify-center">
+                        <Pagination current={current} pageSize={itemsPerPage} onChange={onChange} total={lstProduct?.length} />
                     </div>
                 </div>
 
