@@ -376,7 +376,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
             </Modal>
 
             {
-              bill?.status == TrangThaiBill.HUY && amountPaid >= bill?.intoMoney && <Button danger onClick={() => {
+              (bill?.status == TrangThaiBill.HUY && amountPaid >= bill?.intoMoney) && <Button danger onClick={() => {
                 setIsModalOpenPaymentReturn(true)
               }}>Hoàn Tiền</Button>
             }

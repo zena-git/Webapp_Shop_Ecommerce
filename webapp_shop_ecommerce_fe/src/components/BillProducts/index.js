@@ -656,7 +656,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
                                         data?.promotionDetailsActive &&
                                         <div className='absolute top-0 right-0 pl-2 pr-2 flex  bg-yellow-400	'>
 
-                                            <span className='text-red-600 text-[12px]'>{data?.promotionDetailsActive?.promotionValue == null ? "Giảm giá" : "- " + data?.promotionDetailsActive?.promotionValue + " %"}</span>
+                                            <span className='text-red-600 text-[12px]'>{data?.promotionDetailsActive == null ? "Giảm giá" : "- " + data?.promotionDetailsActive?.promotion?.value + "%"}</span>
                                         </div>
                                     }
                                 </div>
