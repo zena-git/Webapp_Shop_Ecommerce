@@ -92,10 +92,10 @@ public class UserController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, UserRequest), HttpStatus.BAD_REQUEST);
         }
-        if (usersRepo.existsByEmail(UserRequest.getEmail())) {
+        if (usersRepo.existsByEmailAndIdNot(UserRequest.getEmail(),id)) {
             return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, UserRequest), HttpStatus.BAD_REQUEST);
         }
-        if (usersRepo.existsByPhone(UserRequest.getPhone())) {
+        if (usersRepo.existsByPhoneAndIdNot(UserRequest.getPhone(),id)) {
             return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, UserRequest), HttpStatus.BAD_REQUEST);
         }
         Optional<Users> opt = usersService.findById(id);

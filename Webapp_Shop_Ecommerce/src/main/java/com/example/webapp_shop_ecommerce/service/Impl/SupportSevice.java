@@ -364,14 +364,15 @@ public class SupportSevice {
     }
 
     public ResponseEntity<?> saveOrUpdateCustomer( CustomerSupportRequest customerDto, Long ...idCustomer){
-        if (customerRepo.existsByEmail(customerDto.getEmail())) {
-            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
-        }
-        if (customerRepo.existsByPhone(customerDto.getPhone())) {
-            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
-        }
+
         String password = randomStringGenerator.generateRandomString(6);
         if (idCustomer.length <= 0){
+            if (customerRepo.existsByEmail(customerDto.getEmail())) {
+                return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+            }
+            if (customerRepo.existsByPhone(customerDto.getPhone())) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+            }
             // Lưu dữ liệu và thực hiện gửi email song song
             CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
                 Customer customer = new Customer();
@@ -416,6 +417,12 @@ public class SupportSevice {
             Optional<Customer> customerOtp = customerRepo.findById(idCustomer[0]);
             if (customerOtp.isEmpty()){
                 return new ResponseEntity<>(new ResponseObject("Fail", "Không tìm thấy khách hàng " + idCustomer[0], 1, null), HttpStatus.BAD_REQUEST);
+            }
+            if (customerRepo.existsByEmailAndIdNot(customerDto.getEmail(),idCustomer[0])) {
+                return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+            }
+            if (customerRepo.existsByPhoneAndIdNot(customerDto.getPhone(),idCustomer[0])) {
+                return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
             }
             Customer customer = customerOtp.get();
             Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();

@@ -119,18 +119,18 @@ public class CustomerController {
             // Xử lý lỗi validate ở đây, ví dụ: trả về ResponseEntity.badRequest()
             return new ResponseEntity<>(new ResponseObject("error", errors.toString(), 1, customerDto), HttpStatus.BAD_REQUEST);
         }
-        if (customerRepo.existsByEmail(customerDto.getEmail())) {
-            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
-        }
-        if (customerRepo.existsByPhone(customerDto.getPhone())) {
-            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
-        }
+
         Customer customer = null;
         Optional<Customer>  otp = customerService.findById(id);
         if (otp.isEmpty()){
             return new ResponseEntity<>(new ResponseObject("Fail", "Không Thấy ID", 1, customerDto), HttpStatus.BAD_REQUEST);
         }
-
+        if (customerRepo.existsByEmailAndIdNot(customerDto.getEmail(),id)) {
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
+        if (customerRepo.existsByPhoneAndIdNot(customerDto.getPhone(),id)) {
+            return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
         if (otp.isPresent()){
             customer = customerService.findById(id).orElseThrow(IllegalArgumentException::new);
             customer = mapper.map(customerDto, Customer.class);

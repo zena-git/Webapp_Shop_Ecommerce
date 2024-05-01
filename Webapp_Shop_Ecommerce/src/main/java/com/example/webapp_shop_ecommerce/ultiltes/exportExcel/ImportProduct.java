@@ -430,9 +430,9 @@ public class ImportProduct {
                             break;
                         case columnImage:
                             String image = Objects.toString(cellValue, "null");
-                            if (image == null && image.isEmpty()) {
-                                continue;
-                            }
+//                            if (image == null && image.isEmpty()) {
+//                                continue;
+//                            }
                             productDetails.setImageUrl(image);
                             break;
                         case columnSize:
