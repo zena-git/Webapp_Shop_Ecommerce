@@ -64,8 +64,6 @@ public class StatisticalController {
         LocalDateTime endDateTime = null;
 
         if (startDateStr != null && endDateStr != null) {
-            System.out.println("Có dữ liệu");
-
             // Chuyển đổi chuỗi ngày tháng thành đối tượng Instant
             Instant startInstant = Instant.parse(startDateStr);
             Instant endInstant = Instant.parse(endDateStr);
@@ -85,8 +83,23 @@ public class StatisticalController {
         return statisticalService.getAllStatistical(startDateTime, endDateTime);
     }
 
-    @GetMapping("/top5selling")
-    public ResponseEntity<?> findTop5Selling() {
-        return statisticalService.getTop5ProductSelling();
+    @GetMapping("/lastmonth")
+    public ResponseEntity<?> findLastMonthStatistical() {
+        return statisticalService.getLastMonthStatistical();
+    }
+
+    @GetMapping("/beforelastmonth")
+    public ResponseEntity<?> findBeforeLastMonthStatistical() {
+        return statisticalService.getBeforeLastMonthStatistical();
+    }
+
+    @GetMapping("/lastweek")
+    public ResponseEntity<?> findLastWeekStatistical() {
+        return statisticalService.getLastWeekStatistical();
+    }
+
+    @GetMapping("/beforelastweek")
+    public ResponseEntity<?> findBeforeLastWeekStatistical() {
+        return statisticalService.getBeforeLastWeekStatistical();
     }
 }

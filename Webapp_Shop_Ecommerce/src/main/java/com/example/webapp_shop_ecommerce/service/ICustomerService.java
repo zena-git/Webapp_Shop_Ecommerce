@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.service;
 
+import com.example.webapp_shop_ecommerce.dto.request.authentication.AuthenticationRegisterRequest;
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.entity.Customer;
@@ -15,8 +16,11 @@ public interface ICustomerService extends IBaseService<Customer, Long> {
 
     Optional<Customer> findByPhone(String phone);
 
+    Optional<Customer> findByEmail(String phone);
+
     Boolean updatePassword(Long id, String newPassword);
 
     ResponseEntity<?> save(CustomerRequest request);
+    ResponseEntity<?> registerClient(AuthenticationRegisterRequest request);
 
 }

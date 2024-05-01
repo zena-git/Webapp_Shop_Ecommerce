@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.service.Impl;
 
+import com.example.webapp_shop_ecommerce.dto.request.authentication.AuthenticationRegisterRequest;
 import com.example.webapp_shop_ecommerce.dto.request.authentication.AuthenticationRequest;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
 import com.example.webapp_shop_ecommerce.dto.response.authentication.AuthenticationResponse;
@@ -9,6 +10,7 @@ import com.example.webapp_shop_ecommerce.jwt.JwtTokenProvider;
 import com.example.webapp_shop_ecommerce.repositories.ICustomerRepository;
 import com.example.webapp_shop_ecommerce.repositories.IUsersRepository;
 import com.example.webapp_shop_ecommerce.service.IAuthenticationService;
+import com.example.webapp_shop_ecommerce.service.ICustomerService;
 import com.example.webapp_shop_ecommerce.service.IUsersService;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private IUsersRepository usersRepo;
     @Autowired
     private ICustomerRepository customerRepo;
+    @Autowired
+    ICustomerService customerService;
     @Autowired
     PasswordEncoder passwordEncoder;
 
@@ -59,7 +63,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         }
         Customer customer = customerOptional.get();
         boolean authenticated = passwordEncoder.matches(request.getPassword(), customer.getPassword());
-
+        System.out.println(authenticated);
         if (!authenticated){
             return new ResponseEntity<>(new ResponseObject("error", "Mật khẩu không chính xác", 1, request), HttpStatus.BAD_REQUEST);
         }
@@ -67,6 +71,18 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 
         return new ResponseEntity<>(new ResponseObject("success", "Thành công", 1, new AuthenticationResponse(token, authenticated)), HttpStatus.OK);
 
+    }
+
+    @Override
+    public ResponseEntity<?> authenticateClientRegister(AuthenticationRegisterRequest request) {
+        if (customerRepo.existsByEmail(request.getEmail())){
+            return new ResponseEntity<>(new ResponseObject("error", "Email đã có trong hệ thống. Hãy sử dụng email khác", 1, request), HttpStatus.BAD_REQUEST);
+        }
+        if (customerRepo.existsByPhone(request.getPhone())){
+            return new ResponseEntity<>(new ResponseObject("error", "SĐT này đã có trong hệ thống.. Hãy sử dụng sđt khác", 1, request), HttpStatus.BAD_REQUEST);
+        }
+
+        return customerService.registerClient(request);
     }
 
 

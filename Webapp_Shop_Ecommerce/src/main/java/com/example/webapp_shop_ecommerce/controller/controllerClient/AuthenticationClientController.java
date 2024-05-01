@@ -1,5 +1,6 @@
 package com.example.webapp_shop_ecommerce.controller.controllerClient;
 
+import com.example.webapp_shop_ecommerce.dto.request.authentication.AuthenticationRegisterRequest;
 import com.example.webapp_shop_ecommerce.dto.request.authentication.AuthenticationRequest;
 import com.example.webapp_shop_ecommerce.service.IAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,11 @@ public class AuthenticationClientController {
     @PostMapping("/login")
     ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
         return authenticationService.authenticateClient(request);
+    }
+
+    @PostMapping("/register")
+    ResponseEntity<?> authenticateRegister(@RequestBody AuthenticationRegisterRequest request) {
+        return authenticationService.authenticateClientRegister(request);
     }
 }
 

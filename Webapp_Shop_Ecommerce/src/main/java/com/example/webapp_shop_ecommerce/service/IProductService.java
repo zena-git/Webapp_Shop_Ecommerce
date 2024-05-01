@@ -41,4 +41,6 @@ Page<Product> findProductsAndDetailsNotDeleted(Pageable pageable, Map<String,Str
     ResponseEntity<ResponseObject> productRecover(Long idProduct);
 
     List<Product> findProductsAndDetailsNotDeleted();
+
+    List<Product> searchProduct(String keyword);
 }

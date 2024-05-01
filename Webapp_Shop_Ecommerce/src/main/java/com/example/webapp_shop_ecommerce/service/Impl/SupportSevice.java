@@ -374,6 +374,19 @@ public class SupportSevice {
                 return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
             }
             // Lưu dữ liệu và thực hiện gửi email song song
+
+            Optional<Customer> validatePhone = customerService.findByPhone(customerDto.getPhone());
+            if(customerDto.getEmail() != null){
+                Optional<Customer> validateEmail = customerService.findByEmail(customerDto.getEmail());
+                if(validateEmail.isPresent()){
+                    return new ResponseEntity<>(new ResponseObject("error","Email đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+                }
+            }
+
+            if(validatePhone.isPresent()){
+                return new ResponseEntity<>(new ResponseObject("error","Số điện thoại đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+            }
+
             CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
                 Customer customer = new Customer();
                 customer = mapper.map(customerDto, Customer.class);
@@ -425,6 +438,18 @@ public class SupportSevice {
                 return new ResponseEntity<>(new ResponseObject("error", "Số điện thoại đã có trong hệ thống. Hãy sử dụng số điện thoại khác", 1, customerDto), HttpStatus.BAD_REQUEST);
             }
             Customer customer = customerOtp.get();
+            if(!customer.getPhone().equals(customerDto.getPhone())){
+                Optional<Customer> validatePhone = customerService.findByPhone(customerDto.getPhone());
+                if(validatePhone.isPresent()){
+                    return new ResponseEntity<>(new ResponseObject("error","Số điện thoại đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+                }
+            }
+            if(!customer.getEmail().equals(customerDto.getEmail())){
+                Optional<Customer> validateEmail = customerService.findByEmail(customerDto.getEmail());
+                if(validateEmail.isPresent()){
+                    return new ResponseEntity<>(new ResponseObject("error","Email đã tồn tại",0, customerDto), HttpStatus.BAD_REQUEST);
+                }
+            }
             Set<AddressRequest> lstAddressRequest = customerDto.getLstAddress();
             Set<Address> lstAddress =  customer.getLstAddress();
 
@@ -531,6 +556,7 @@ public class SupportSevice {
             customer.setFullName("Guest");
             props.put("customer", customer);
         }
+        props.put("billCode", b.getCodeBill());
         props.put("receiverName", b.getReceiverName());
         props.put("receiverPhone", b.getReceiverPhone());
         props.put("billDetails", b.getLstBillDetails());
@@ -545,15 +571,15 @@ public class SupportSevice {
                 .map(BillDetails::getDiscount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
+        props.put("billStatus", b.getStatus());
         props.put("NetTotal", totalNetTotal);
-
         props.put("Discount", totalDiscount);
-        props.put("Total", totalNetTotal.add(totalDiscount.negate()));
+        props.put("Ship", b.getShipMoney());
+        props.put("Total", totalNetTotal.add(totalDiscount.add(b.getShipMoney()).negate()));
 
         Context context = new Context();
         context.setVariables(props);
-        String html = templateEngine.process("invoice", context);
+        String html = templateEngine.process("newinvoice", context);
         byte[] pdfBytes = generatePdfFromHtml(html);
         return pdfBytes;
     }

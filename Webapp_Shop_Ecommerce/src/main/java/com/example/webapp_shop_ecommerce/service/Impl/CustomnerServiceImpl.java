@@ -1,6 +1,7 @@
 package com.example.webapp_shop_ecommerce.service.Impl;
 
 import com.example.webapp_shop_ecommerce.dto.request.address.AddressRequest;
+import com.example.webapp_shop_ecommerce.dto.request.authentication.AuthenticationRegisterRequest;
 import com.example.webapp_shop_ecommerce.dto.request.customer.CustomerRequest;
 import com.example.webapp_shop_ecommerce.dto.request.mail.MailInputDTO;
 import com.example.webapp_shop_ecommerce.dto.response.ResponseObject;
@@ -56,6 +57,11 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
     }
 
     @Override
+    public  Optional<Customer> findByEmail(String email){
+        return repository.findCustomerByEmail(email);
+    }
+
+    @Override
     public Boolean updatePassword(Long id, String newPassword) {
         try {
             repository.updateCustomerPassword(id, newPassword);
@@ -102,6 +108,38 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
                         mailInput.setEmail(request.getEmail());
                         mailInput.setPassword(password);
                         mailInput.setName(request.getFullName());
+                        mailClientService.create(mailInput);
+                    }
+                });
+            }
+        });
+
+        return saveTask.join();
+    }
+
+    @Override
+    public ResponseEntity<?> registerClient(AuthenticationRegisterRequest request) {
+        // Lưu dữ liệu và thực hiện gửi email song song
+        CompletableFuture<ResponseEntity<?>> saveTask = CompletableFuture.supplyAsync(() -> {
+            Customer customer = new Customer();
+            customer.setEmail(request.getEmail());
+            customer.setPhone(request.getPhone());
+            customer.setFullName(request.getCustomerName());
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+            customer.setPassword(passwordEncoder.encode(request.getPassword()));
+            createNew(customer);
+            return new ResponseEntity<>(new ResponseObject("success","Tạo Tài Khoản Thành công",0, request), HttpStatus.OK);
+        });
+
+        // Khi tiến trình lưu dữ liệu hoàn thành, thực hiện gửi email
+        saveTask.thenAccept(resultEntity -> {
+            if (resultEntity.getStatusCode() == HttpStatus.OK) {
+                CompletableFuture.runAsync(() -> {
+                    if (request.getEmail() != null) {
+                        MailInputDTO mailInput = new MailInputDTO();
+                        mailInput.setEmail(request.getEmail());
+                        mailInput.setPassword(request.getPassword());
+                        mailInput.setName(request.getCustomerName());
                         mailClientService.create(mailInput);
                     }
                 });
