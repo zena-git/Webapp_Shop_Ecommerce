@@ -90,21 +90,12 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         Product entity = new Product();
         if (entity != null && idProduct.length <= 0) {
             //create
-            Optional<Product> otp = findByName(request.getName());
-            if (otp.isPresent()) {
-                return new ResponseEntity<>(new ResponseObject("error", "Tên sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
+            if (repository.existsByCode(request.getCode())) {
+                return new ResponseEntity<>(new ResponseObject("error", "Mã sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
             }
             entity = productConverter.convertRequestToEntity(request);
             if (entity==null) {
                 return new ResponseEntity<>(new ResponseObject("error", "Không được để trống hoặc null", 1, request), HttpStatus.BAD_REQUEST);
-            }
-
-            if (entity.getCode() !=null){
-                if (repository.existsByCode(entity.getCode())){
-                    return new ResponseEntity<>(new ResponseObject("error", "Mã đã có trong hệ thống", 1, request), HttpStatus.BAD_REQUEST);
-                }
-            }else {
-                entity.setCode("PD"+randomStringGenerator.generateRandomString(6));
             }
 
             entity.setId(null);
@@ -117,6 +108,9 @@ public class ProductServiceImpl extends BaseServiceImpl<Product, Long, IProductR
         } else {
             Long id = idProduct[0];
             System.out.println("Update ID: " +id);
+            if (repository.existsByCodeAndIdNot(request.getCode(), id)) {
+                return new ResponseEntity<>(new ResponseObject("error", "Mã sản phẩm đã tồn tại", 1, request), HttpStatus.BAD_REQUEST);
+            }
             Optional<Product> otp = productRepo.findById(id);
             if (otp.isEmpty()) {
                 return new ResponseEntity<>(new ResponseObject("error", "Không Thấy ID", 1, request), HttpStatus.BAD_REQUEST);

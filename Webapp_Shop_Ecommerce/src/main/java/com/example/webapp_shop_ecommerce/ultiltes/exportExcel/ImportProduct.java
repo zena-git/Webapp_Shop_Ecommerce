@@ -107,11 +107,12 @@ public class ImportProduct {
         Integer productUpdate = 0;
         Integer productDetailsCreate = 0;
         Integer productDetailsUpdate = 0;
+        Integer error = 0;
 
         Iterator<Row> rowIterator = sheet.iterator();
         Product product = readHeader(rowIterator);
         if (product == null) {
-            output.put("error", 1);
+            output.put("error", ++error);
             output.put("productCreate", productCreate);
             output.put("productUpdate", productUpdate);
             output.put("productDetailsCreate", productDetailsCreate);
@@ -128,11 +129,11 @@ public class ImportProduct {
         for (ProductDetails productDetails : lstProductDetails){
             System.out.println(productDetails.toString());
         }
-        Optional<Product> productOpt = productRepo.findByName(product.getName());
+        Optional<Product> productOpt = productRepo.findByCode(product.getCode());
 
         if (productOpt.isPresent()) {
             Product productDb = productOpt.get();
-            productDb.setCode(product.getCode());
+            productDb.setName(product.getName());
             productDb.setBrand(product.getBrand());
             productDb.setCategory(product.getCategory());
             productDb.setMaterial(product.getMaterial());
@@ -166,32 +167,46 @@ public class ImportProduct {
                 }
             }
         }else {
-            if (productRepo.existsByCode(product.getCode())) {
-                product.setCode("P"+randomStringGenerator.generateRandomString(6));
-            }
+
             product.setDeleted(false);
             product.setCreatedBy("System");
             product.setCreatedDate(LocalDateTime.now());
             product.setLastModifiedBy("System");
             product.setLastModifiedDate(LocalDateTime.now());
-            Product productReturn = productRepo.save(product);
-            productCreate++;
-            for (ProductDetails productDetails :lstProductDetails){
-                if (productDetailsRepo.existsByCode(productDetails.getCode())) {
-                    productDetails.setCode("PD"+randomStringGenerator.generateRandomString(6));
-                }
-                if (productDetailsRepo.existsByBarcode(productDetails.getBarcode())) {
-                    productDetails.setBarcode(randomCodeGenerator.generateRandomBarcode());
-                }
-                productDetails.setProduct(productReturn);
-                productDetailsService.createNew(productDetails);
-                productDetailsCreate++;
+            if (lstProductDetails.size() == 0){
+                error++;
+            }else {
+                Product productReturn = productRepo.save(product);
+                productCreate++;
+                for (ProductDetails productDetails :lstProductDetails){
+                    Optional<ProductDetails> productDetailsOpt = productDetailsRepo.findByProductDetailByProductAndSizeAndColor(productReturn.getId(), productDetails.getColor().getId(), productDetails.getSize().getId());
+                    if (productDetailsOpt.isPresent()){
+                        ProductDetails entity =  productDetailsOpt.get();
+                        entity.setQuantity(entity.getQuantity() + productDetails.getQuantity());
+                        productDetailsService.update(entity);
+                        productDetailsUpdate++;
+
+                    }else{
+                        if (productDetailsRepo.existsByCode(productDetails.getCode())) {
+                            productDetails.setCode("PD"+randomStringGenerator.generateRandomString(6));
+                        }
+                        if (productDetailsRepo.existsByBarcode(productDetails.getBarcode())) {
+                            productDetails.setBarcode(randomCodeGenerator.generateRandomBarcode());
+                        }
+                        productDetails.setProduct(productReturn);
+                        productDetailsService.createNew(productDetails);
+                        productDetailsCreate++;
+                    }
 
 
+
+                }
             }
+
+
         }
 
-        output.put("error", 0);
+        output.put("error", error);
         output.put("productCreate", productCreate);
         output.put("productUpdate", productUpdate);
         output.put("productDetailsCreate", productDetailsCreate);

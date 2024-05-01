@@ -52,7 +52,7 @@ public class GenBarcode {
                 byte[] imageData = barcodeBaos.toByteArray();
 
                 // Thêm hình ảnh vào tệp ZIP
-                ZipEntry entry = new ZipEntry(data.getBarcode() + ".png");
+                ZipEntry entry = new ZipEntry(data.getProduct().getCode()+"_"+data.getBarcode() + ".png");
                 zipOut.putNextEntry(entry);
                 zipOut.write(imageData);
                 zipOut.closeEntry();

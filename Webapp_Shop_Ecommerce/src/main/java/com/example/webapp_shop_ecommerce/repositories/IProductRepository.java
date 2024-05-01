@@ -17,7 +17,8 @@ import java.util.Optional;
 public interface IProductRepository extends IBaseReporitory<Product, Long> {
     @Query("SELECT pro FROM Product pro WHERE pro.name = ?1 and pro.deleted = false")
     Optional<Product> findByName(String name);
-
+    @Query("SELECT pro FROM Product pro WHERE pro.code = ?1")
+    Optional<Product> findByCode(String code);
 
     @Query("SELECT pro FROM Product pro WHERE pro.id = ?1 and pro.deleted = false")
     Optional<Product> findProductDetailsById(Long id);
@@ -39,6 +40,8 @@ public interface IProductRepository extends IBaseReporitory<Product, Long> {
     @Query("SELECT pro FROM Product pro LEFT JOIN FETCH pro.lstProductDetails pd WHERE pro.id = :id and pd.color.name like %:#{#keyWork['color']}% and pd.size.name like %:#{#keyWork['size']}% and pd.price BETWEEN :#{#keyWork['min']} and :#{#keyWork['max']} and pro.deleted = false and pd.deleted = false")
     Optional<Product> findProductByIdAndDetailsNotDeleted(@Param("id") Long id,@Param("keyWork") Map<String,String> keyWork);
     boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
+
 
     @Transactional
     @Modifying
