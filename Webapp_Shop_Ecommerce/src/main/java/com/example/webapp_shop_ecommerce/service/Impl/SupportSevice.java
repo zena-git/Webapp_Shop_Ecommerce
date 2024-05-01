@@ -541,6 +541,7 @@ public class SupportSevice {
             customer.setFullName("Guest");
             props.put("customer", customer);
         }
+        props.put("billCode", b.getCodeBill());
         props.put("receiverName", b.getReceiverName());
         props.put("receiverPhone", b.getReceiverPhone());
         props.put("billDetails", b.getLstBillDetails());
@@ -555,15 +556,15 @@ public class SupportSevice {
                 .map(BillDetails::getDiscount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
+        props.put("billStatus", b.getStatus());
         props.put("NetTotal", totalNetTotal);
-
         props.put("Discount", totalDiscount);
-        props.put("Total", totalNetTotal.add(totalDiscount.negate()));
+        props.put("Ship", b.getShipMoney());
+        props.put("Total", totalNetTotal.add(totalDiscount.add(b.getShipMoney()).negate()));
 
         Context context = new Context();
         context.setVariables(props);
-        String html = templateEngine.process("invoice", context);
+        String html = templateEngine.process("newinvoice", context);
         byte[] pdfBytes = generatePdfFromHtml(html);
         return pdfBytes;
     }

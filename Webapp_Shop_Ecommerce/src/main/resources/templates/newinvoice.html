@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Hóa Đơn</title>
+    <meta http-equiv="Content-Type" content="text/html, charset=utf-8" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900"
+        rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 62.5%;
+            font-family: 'Roboto', 'Times New Roman', Times, serif;
+        }
+
+        body {
+            font-size: 1.6rem;
+            background-color: #f6f4f3;
+            width: 100%;
+            position: relative;
+        }
+
+        .main {
+            width: 100vw;
+            max-width: calc(100% - 48px);
+            margin: 0 auto;
+            padding: 20px 0;
+            min-height: 100vh;
+            background-image: url('https://res.cloudinary.com/dgxbxvkso/image/upload/v1714506426/bvnyj9norrisq2h6lcne.png');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .line {
+            border-bottom: 4px dashed black;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+
+        table .line {
+            border-bottom: 2px dashed black;
+        }
+
+        td,
+        th {
+            padding: 12px 0px;
+        }
+
+        td {
+            background-color: #ffffffb8;
+        }
+
+        .font-bold{
+            font-weight: 700;
+        }
+
+        .flex{
+            display: flex;
+        }
+
+        .basis-1/4{
+            flex-basis: 25%;
+        }
+        .basis-1/2{
+            flex-basis: 50%;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .text-[6.8rem]{
+            font-size: 6.8rem;
+        }
+
+        .text-[1.8rem]{
+            font-size: 1.8rem;
+        }
+
+        .grid-cols{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .justify-end{
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .w-full{
+            width: 100%;
+        }
+
+        .totalx{
+            margin-top: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="flex flex-row line">
+            <div class="basis-1/4">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=Hd-12312313"/>
+            </div>
+            <div class="basis-1/2">
+                <div>
+                    <h1 class="text-center text-[6.8rem] font-bold">Lolita Alice</h1>
+                    <div>
+                        <p class="text-center text-[1.8rem] font-medium">Địa Chỉ: 13 phố Trịnh Văn Bô, phường Phương
+                            Canh,
+                            quận
+                            Nam Từ Liêm, TP Hà Nội</p>
+                        <p class="text-center text-[1.8rem] font-medium">Số Điện Thoại: 0123456789</p>
+                        <p class="text-center text-[1.8rem] font-medium">Email: lolitaalice.obj@gmail.com</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class="basis-1/4">
+            </div>
+        </div>
+
+        <div class="line">
+            <div>
+                <p class="text-center text-[3.4rem] font-bold">Hóa Đơn Bán Hàng</p>
+                <p class="text-center text-[1.8rem] font-medium" th:text="${'Ngày tạo: ' + invoiceDate}"></p>
+                <p class="text-center text-[1.8rem] font-medium" th:text="${'Mã Hóa Đơn: ' + billCode}"></p>
+            </div>
+
+            <div>
+                <p class="text-[1.8rem] font-bold">Khách Hàng: <span class="font-medium" th:text="${bill.receiverName != null ? bill.receiverName : 'Khách lẻ'}"></span> </p>
+                <p class="text-[1.8rem] font-medium">Địa Chỉ: <span class="font-medium" th:text="${bill.receiverDetails != null ? (bill.receiverDetails + ', ' + bill.receiverCommune + ', ' + bill.receiverDistrict + ', ' + bill.receiverProvince) : 'N/A'}"></span> </p>
+                <p class="text-[1.8rem] font-medium">Điện Thoại: <span class="font-medium" th:text="${receiverPhone}"></span></p>
+                <p class="text-[1.8rem] font-bold">Người Lập Phiếu: <span class="font-medium">Admin</span> </p>
+            </div>
+        </div>
+
+        <div class="w-full">
+            <div class="my-6">
+                <p class="text-center text-[2rem] font-bold">Danh Sách Sản Phẩm</p>
+            </div>
+            <table class="w-full font-medium table-auto">
+                <thead class="text-center bg-gray-300">
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Đơn Giá</th>
+                        <th>Số Lượng</th>
+                        <th>Thành Tiền</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr th:each="billDetail, iterStat : ${billDetails}">
+                        <td th:text="${iterStat.count}"></td>
+                        <td th:text="${billDetail.getProductDetails.getProduct.getName + '[ ' +  billDetail.getProductDetails.getColor.getName + ' - ' + billDetail.getProductDetails.getSize.getName + ' ]'}"></td>
+                        <td th:text="${billDetail.getOriginalPrice + 'đ'}"></td>
+                        <td th:text="${billDetail.getQuantity}"></td>
+                        <td th:text="${billDetail.getOriginalPrice*billDetail.getQuantity + 'đ'}"></td>
+                        <td th:text="${billStatus}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="width: 100%; display: flex; flex-direction: row;">
+            <div style="">
+                <p class="text-[1.8rem] font-medium">Tổng Tiền: <span class="font-medium" th:text="${NetTotal + 'đ'}"></span></p>
+                <p class="text-[1.8rem] font-medium">Giảm Giá: <span class="font-medium" th:text="${Discount + 'đ'}"></span></p>
+                <p class="text-[1.8rem] font-medium">Phí Giao Hàng: <span class="font-medium" th:text="${Ship + 'đ'}"></span></p>
+                <p class="text-[1.8rem] font-medium">Tổng Tiền Cần Thanh Toán: <span class="font-medium" th:text="${Total + 'đ'}"></span></p>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
