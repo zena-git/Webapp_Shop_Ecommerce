@@ -178,16 +178,21 @@ export default function ListTable() {
                     {
                         key: '1',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/promotion/update/${row.getValue('id')}`) }}>
-                                <FaEdit />
-                                Cập nhật
-                            </div>
+                            <>
+                                {
+                                    row.original.status == 0 &&
+                                    <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/promotion/update/${row.original.id}`) }}>
+                                        <FaEdit />
+                                        Cập nhật
+                                    </div>
+                                }
+                            </>
                         ),
                     },
                     {
                         key: '2',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/promotion/detail/${row.getValue('id')}`) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/promotion/detail/${row.original.id}`) }}>
                                 <FaEye />
                                 Chi tiết
                             </div>

@@ -202,10 +202,15 @@ export default function ListTable() {
                     {
                         key: '1',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}>
-                                <FaEdit />
-                                Cập nhật
-                            </div>
+                            <>
+                                {
+                                    row.original.status == '0' &&
+                                    <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}>
+                                        <FaEdit />
+                                        Cập nhật
+                                    </div>
+                                }
+                            </>
                         ),
                     },
                     {
