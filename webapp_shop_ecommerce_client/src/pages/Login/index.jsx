@@ -3,7 +3,8 @@ import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@a
 import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -18,10 +19,10 @@ export default function LoginPage() {
 
         } else {
             const data = {
-                username: username,
+                email: username,
                 password: password
             }
-            axios.post('', data).then(res => {
+            axios.post('http://localhost:8080/api/v2/login', data).then(res => {
                 toast.success('Đăng nhập thành công');
                 setTimeout(() => {
                     navigate('/')
@@ -46,6 +47,7 @@ export default function LoginPage() {
                     <Button type="primary" onClick={() => { handleSubmit() }}>Đăng nhập</Button>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     )
 }

@@ -2,7 +2,8 @@ import { Pagination, Slider, Checkbox, Input, Button } from "antd";
 import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, PhoneOutlined, MailOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from "axios";
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function RegisterPage() {
                 password: password,
             }
 
-            axios.post('', data).then(res => {
+            axios.post('http://localhost:8080/api/v2/register', data).then(res => {
                 toast.success('Đăng ký thành công');
                 setTimeout(() => {
                     navigate('/login')
