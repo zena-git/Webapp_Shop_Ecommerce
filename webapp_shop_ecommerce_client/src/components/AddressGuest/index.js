@@ -12,7 +12,7 @@ import './AddressGress.css';
 dayjs.extend(customParseFormat);
 const { TextArea } = Input;
 function AddressGress() {
-    const { setAddressBillClient, dataCheckout, setDataShipMoney ,totalPrice } = useContext(DataContext);
+    const { setAddressBillClient, dataCheckout, setDataShipMoney, totalPrice } = useContext(DataContext);
 
 
     const [lstAddress, setLstAddress] = useState([]);
@@ -60,7 +60,7 @@ function AddressGress() {
             description: description
         }
         setAddressBillClient(address)
-    }, [receiverName, receiverPhone,email, details, labelProvince, labelDistrict, labelDistrict, labelWard, address, description])
+    }, [receiverName, receiverPhone, email, details, labelProvince, labelDistrict, labelDistrict, labelWard, address, description])
 
 
     useEffect(() => {
@@ -252,7 +252,7 @@ function AddressGress() {
         if (dataCheckout.length <= 0) {
             return;
         }
-    
+
         const weightProduct = dataCheckout.reduce((accumulator, currentProduct) => {
             return accumulator + (currentProduct.productDetails.weight * currentProduct.quantity);
         }, 0);
@@ -286,7 +286,7 @@ function AddressGress() {
                     console.log(error.response.data);
                 })
         }
-    }, [valueDistrict, dataCheckout])
+    }, [valueDistrict, valueProvince, dataCheckout])
 
     //Lấy Thời Gian Giao Hàng Dự Kiến
     useEffect(() => {
@@ -315,7 +315,7 @@ function AddressGress() {
                     console.log(error.response.data);
                 })
         }
-    }, [valueDistrict, valueWard])
+    }, [valueDistrict, valueProvince])
 
     const handleChangeProvince = (value) => {
         if (value) {

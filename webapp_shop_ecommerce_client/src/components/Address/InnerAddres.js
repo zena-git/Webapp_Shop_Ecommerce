@@ -170,12 +170,30 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
             ...address,
             customer: customer.id,
         }
-        // console.log(address);
+        console.log(dataAddress);
+        if (dataAddress.commune === undefined ||
+            dataAddress.province === undefined ||
+            dataAddress.district === undefined ||
+            dataAddress.commune === undefined ||
+            dataAddress.detail === undefined ||
+            dataAddress.receiverName === undefined ||
+            dataAddress.receiverPhone === undefined
+        ) {
+            toast.error('Vui lòng nhập đầy đủ thông tin');
+            return;
+        }
+        // Kiểm tra định dạng số điện thoại
+        const phoneRegex = /^[0-9]{10,11}$/;
+        if (!phoneRegex.test(dataAddress.receiverPhone.trim())) {
+            toast.error('Số điện thoại không hợp lệ');
+            return;
+        }
         if (address?.id == null) {
             axios.post('http://localhost:8080/api/v1/address', dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();
+                    goBack();
 
                 })
                 .catch((error) => {
@@ -186,13 +204,13 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();
+                    goBack();
 
                 })
                 .catch((error) => {
                     toast.error(error.response.data.message);
                 })
         }
-        goBack();
     };
     return (
         <>

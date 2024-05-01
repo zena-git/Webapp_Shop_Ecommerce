@@ -7,15 +7,16 @@ import { useState, useEffect, useContext } from "react";
 import DataContext from "~/DataContext";
 import { Spin } from 'antd';
 import { ToastContainer, toast } from 'react-toastify';
+import { Link, useParams, useNavigate } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 function CheckOut() {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const { setAddressBillClient, loadingBuy, deleteData, dataCheckout, isAccount } = useContext(DataContext);
-    // useEffect(() => {
-    //     if (dataCheckout.length == 0) {
-    //         navigate('/cart');
-    //     }
-    // }, [dataCheckout])
+    useEffect(() => {
+        if (dataCheckout.length == 0) {
+            navigate('/cart');
+        }
+    }, [dataCheckout])
 
     useEffect(() => {
         setAddressBillClient();

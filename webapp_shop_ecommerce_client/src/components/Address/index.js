@@ -268,6 +268,7 @@ function Address() {
     };
 
     const handleOkAddress = () => {
+        setDataShipMoney(0)
         const address = lstAddress.find(address => {
             return address.id === checkValueAddress;
         });

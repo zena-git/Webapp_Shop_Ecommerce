@@ -7,6 +7,8 @@ import { faMoneyBill1, faCreditCard, faTicket } from '@fortawesome/free-solid-sv
 import { fixMoney } from '~/ultils/fixMoney';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import DataContext from "~/DataContext";
+import { useDebounce } from '~/hooks';
+import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
@@ -17,7 +19,8 @@ function Buy() {
     const [isModalOpenVoucher, setIsModalOpenVoucher] = useState(false);
     const [lstDataVoucher, setLstDataVoucher] = useState([]);
     const [lstDataTableVoucher, setLstDataTableVoucher] = useState([]);
-
+    const [search, setSearch] = useState('');
+    const debounceSearch = useDebounce(search.trim(), 500)
     const DiscountType = {
         GIAM_TRUC_TIEP: '0',
         GIAM_PHAN_TRAM: "1",
@@ -84,14 +87,25 @@ function Buy() {
 
     useEffect(() => {
         fetchDataVoucher();
-    }, [customer])
+    }, [customer, debounceSearch])
     useEffect(() => {
-        fillDateTableVoucher()
+        const dataTable = lstDataVoucher?.filter(voucher => {
+            // Lọc theo tên ,phone
+            if (debounceSearch &&
+              !(voucher?.name?.toLowerCase().includes(debounceSearch.toLowerCase()) ||
+              voucher?.code?.toLowerCase().includes(debounceSearch.toLowerCase())
+              )) {
+              return false;
+            }
+     
+            return true;
+          })
+        fillDateTableVoucher(dataTable)
         setDataVoucher(null)
-    }, [lstDataVoucher])
+    }, [lstDataVoucher, totalPrice])
 
-    const fillDateTableVoucher = () => {
-        const dataTable = lstDataVoucher.map((item, index) => {
+    const fillDateTableVoucher = (data) => {
+        const dataTable = data.map((item, index) => {
             return {
                 key: index,
                 //idVoucher Detail
@@ -156,6 +170,11 @@ function Buy() {
             },
         });
     };
+
+    const handleInputSearch = (e) => {
+        console.log(e.target.value);
+        setSearch(e.target.value);
+      }
     return (
         <>
             <div className='shadow-md px-6 py-4 bg-white	'>
@@ -196,6 +215,12 @@ function Buy() {
                         }
 
                         <Modal footer={null} width={1000} title="Chọn phiếu giảm giá" open={isModalOpenVoucher} onOk={handleOkVoucher} onCancel={handleCancelVoucher}>
+                        <div className='mt-10 mb-8 w-1/3'>
+                                <Input allowClear placeholder="Tìm kiếm giảm giá" prefix={<SearchOutlined />} 
+                                value={search} onChange={handleInputSearch}
+                                 />
+
+                            </div>
                             <div>
                                 <Table dataSource={lstDataTableVoucher} columns={columnsVoucher} />;
                             </div>
@@ -213,8 +238,8 @@ function Buy() {
 
                         <Radio.Group onChange={handleRadioChange} defaultValue="0" size="large" style={{ width: '100%' }} buttonStyle="solid" radioButtonStyle="none">
                             <div className='flex justify-between'>
-                                <Radio.Button className='text-center ' style={{ width: '48%' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2 text-xl'>Thanh toán khi nhận hàng</span> </Radio.Button>
-                                <Radio.Button className='text-center' style={{ width: '48%' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2 text-xl'>Chuyển khoản VNPay</span> </Radio.Button>
+                                <Radio.Button className='text-center ' style={{ width: '48%', borderRadius: '0px' }} value="0"><FontAwesomeIcon icon={faMoneyBill1}></FontAwesomeIcon> <span className='ml-2 text-xl'>Thanh toán khi nhận hàng</span> </Radio.Button>
+                                <Radio.Button className='text-center' style={{ width: '48%', borderRadius: '0px' }} value="1"><FontAwesomeIcon icon={faCreditCard}></FontAwesomeIcon> <span className='ml-2 text-xl'>Chuyển khoản VNPay</span> </Radio.Button>
                             </div>
                             {/* <Radio.Button className='text-center mt-4' style={{ width: '100%' }} value="2">Tiền Mặt & Chuyển khoản</Radio.Button> */}
                         </Radio.Group>

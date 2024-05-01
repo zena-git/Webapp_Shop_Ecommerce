@@ -50,14 +50,20 @@ const DataProvider = ({ children }) => {
             const discount = totalPrice * voucher.value / 100;
             setVoucherMoney(discount);
         } else {
-            setVoucherMoney(voucher.value);
+            if (voucher.value >= totalPrice) {
+                setVoucherMoney(totalPrice);
+
+            } else {
+                setVoucherMoney(voucher.value);
+
+            }
         }
 
     }, [voucher, totalPrice])
 
 
     useEffect(() => {
-       
+
         const money = totalPrice - voucherMoney + shipMoney;
 
 
@@ -145,17 +151,17 @@ const DataProvider = ({ children }) => {
             return data.find(cartDetail => cartDetail.id === id);
         }).filter(cartDetail => cartDetail !== undefined)
 
-        const price = lstCartDetail.reduce((acc, item) => acc + (item.quantity*item.price), 0);
+        const price = lstCartDetail.reduce((acc, item) => acc + (item.quantity * item.price), 0);
         // console.log(lstCartDetail);
 
         setTotalPrice(price || 0)
-    }, [data,checkedList])
+    }, [data, checkedList])
     const setTotalPaymentMoney = (lstId) => {
 
         const lstCartDetail = lstId.map((id) => {
             return data.find(cartDetail => cartDetail.id === id);
         })
-        const totalMoney = lstCartDetail.reduce((acc, item) => acc + (item.quantity*item.price), 0);
+        const totalMoney = lstCartDetail.reduce((acc, item) => acc + (item.quantity * item.price), 0);
         console.log(totalMoney);
         setTotalPrice(totalMoney)
     };
@@ -170,7 +176,7 @@ const DataProvider = ({ children }) => {
                     const dataCart = res.data.lstCartDetails.sort((a, b) => a.id - b.id).map(data => {
                         let price = data?.productDetails?.promotionDetailsActive == null ?
                             data?.productDetails.price :
-                            (data?.productDetails.price -(data.productDetails.price * data.productDetails.promotionDetailsActive.promotion.value / 100))
+                            (data?.productDetails.price - (data.productDetails.price * data.productDetails.promotionDetailsActive.promotion.value / 100))
 
                         return {
                             ...data,
@@ -310,7 +316,7 @@ const DataProvider = ({ children }) => {
                     if (res.data.status == "redirect") {
                         window.location.href = res.data.data;
                     } else {
-                        navigate('/notificationOrder?bill=' +  res.data.data.codeBill + '&&status=' + res.data.errCode);
+                        navigate('/notificationOrder?bill=' + res.data.data.codeBill + '&&status=' + res.data.errCode);
                         toast.success('Đặt Hàng Thành Công')
                     }
                     setDataCheckout([]);
@@ -331,7 +337,7 @@ const DataProvider = ({ children }) => {
                 })
         }
 
-    }, [addressBill, paymentMethods, voucher,dataCheckout, shipMoney,]);
+    }, [addressBill, paymentMethods, voucher, dataCheckout, shipMoney,]);
 
 
     // thêm giỏ hàng

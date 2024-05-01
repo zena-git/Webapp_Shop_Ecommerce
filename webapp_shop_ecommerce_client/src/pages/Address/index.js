@@ -206,7 +206,6 @@ function Address() {
             ...address,
             customer: customer.id,
         }
-        setIsModalOpen(false);
         // console.log(address);
         if (address?.id == null) {
             axios.post('http://localhost:8080/api/v1/address', dataAddress)
@@ -214,18 +213,21 @@ function Address() {
                     toast.success(response.data.message);
                     fetchDataLstAddress();
                     setAddress();
+                    setIsModalOpen(false);
 
                 })
                 .catch((error) => {
                     toast.error(error.response.data.message);
                 })
         } else {
-            
+
             axios.put('http://localhost:8080/api/v1/address/' + address.id, dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     fetchDataLstAddress();
                     setAddress();
+                    setIsModalOpen(false);
+
                 })
                 .catch((error) => {
                     toast.error(error.response.data.message);
@@ -372,7 +374,7 @@ function Address() {
                             </div>
                         </div>
                         <div className='flex justify-end mt-10'>
-                            <Button  onClick={handleCancel}>Thoát</Button>
+                            <Button onClick={handleCancel}>Thoát</Button>
                             <Button className='ml-4' type='primary' onClick={handleOkAddress}>Hoàn Tất</Button>
                         </div>
                     </Modal>
