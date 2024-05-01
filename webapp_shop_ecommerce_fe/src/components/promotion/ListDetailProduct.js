@@ -1,4 +1,4 @@
-import { Tag, Checkbox, Button } from 'antd/lib'
+import { Tag, Checkbox, Button, Input } from 'antd/lib'
 import { useState, useEffect, useMemo } from "react"
 import {
     CaretSortIcon,
@@ -16,6 +16,8 @@ import { useAppSelector } from '../../redux/storage'
 import { set, updateSelected, toggleChildren } from '../../redux/features/promotion-selected-item'
 import { useDispatch } from "react-redux";
 import Table from '../../components/ui/table'
+import { ReduceString } from '../../lib/functional'
+import HexToColor from '../../ultils/HexToColorName'
 export default function ListTable({ data }) {
     const [sorting, setSorting] = useState([])
     const [columnFilters, setColumnFilters] = useState([])
@@ -84,7 +86,7 @@ export default function ListTable({ data }) {
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="lowercase text-xl">{row.getValue("name")}</div>,
+            cell: ({ row }) => <div className="lowercase text-xl">{ReduceString({ string: row.original.name, maxLength: 20 })}</div>,
         },
         {
             accessorKey: "image",
@@ -138,6 +140,9 @@ export default function ListTable({ data }) {
         <>
             <div className="w-full">
                 <div className="rounded-md border">
+                    <div className='my-3'>
+                        <Input placeholder='Tìm kiếm theo tên' onChange={e => { table.getColumn("name").setFilterValue(e.target.value) }} />
+                    </div>
                     <table className="min-w-full border">
                         <thead className='ant-table-thead'>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -206,8 +211,7 @@ export default function ListTable({ data }) {
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
                     <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
+
                     </div>
                     <div className="space-x-2">
                         <Button
@@ -268,7 +272,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             header: () => <div className="text-center">Ảnh</div>,
             cell: ({ row }) => {
                 return <div className="text-center flex justify-center font-medium max-h-16 text-xl">
-                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split(" | ")[0]}></img> : "không có"}
+                    {row.original.imageUrl ? <img className="w-16 aspect-square" src={row.original.imageUrl.split("|")[0]}></img> : "không có"}
                 </div>
             },
         },
@@ -287,7 +291,7 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             cell: ({ row }) => {
 
                 return <div className='flex justify-center items-center'>
-                    <div className={`text-center font-medium rounded-md py-2 text-slate-200 text-xl max-w-32 px-4`} style={{ backgroundColor: row.original.color.name }}>{row.original.color.name}</div>
+                    <div className={`text-center font-medium rounded-md py-2 text-slate-200 text-xl max-w-32 px-4`} style={{ backgroundColor: row.original.color.name }}>{HexToColor(row.original.color.name)}</div>
                 </div>
             },
         },

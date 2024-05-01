@@ -33,7 +33,9 @@ import {
 import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
 import Table from '../../components/ui/table';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 
+const { confirm } = Modal;
 const { TextArea } = Input;
 dayjs.extend(customParseFormat);
 
@@ -44,7 +46,7 @@ const formSchema = z.object({
     fullName: z.string().min(2, {
         message: "tên tối thiểu 2 ký tự",
     }),
-    gender: z.number(),
+    gender: z.boolean(),
     address: z.string(),
     phone: z.string(),
     email: z.string().email({}),
@@ -73,7 +75,7 @@ export default function AddCustomer() {
 
     const [defaultAddress, setDefaultAddress] = useState(1);
 
-    const [gender, setGender] = useState('0');
+    const [gender, setGender] = useState(false);
     const [detail, setDetail] = useState("");
 
     useEffect(() => {
@@ -101,26 +103,32 @@ export default function AddCustomer() {
                 }
             }).then(resp => {
                 setListWards(resp.data.data);
-                setListAddress(prev => {
-                    return prev.map(target => {
-                        if ((key && target.key == key) || (id && target.id == id)) {
-                            let prov = listProvince.find(province => province.ProvinceID == value);
-                            setEditAddress({
-                                ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
-                                district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
-                                commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
-                            })
-                            return {
-                                ...target,
-                                province: { id: prov.ProvinceID, name: prov.ProvinceName },
-                                district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
-                                commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
-                            }
-                        } else {
-                            return target
-                        }
-                    })
+                let prov = listProvince.find(province => province.ProvinceID == value);
+                setEditAddress({
+                    ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                    district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                    commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
                 })
+                // setListAddress(prev => {
+                //     return prev.map(target => {
+                //         if ((key && target.key == key) || (id && target.id == id)) {
+                //             let prov = listProvince.find(province => province.ProvinceID == value);
+                //             setEditAddress({
+                //                 ...editAddress, province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                //                 district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                //                 commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
+                //             })
+                //             return {
+                //                 ...target,
+                //                 province: { id: prov.ProvinceID, name: prov.ProvinceName },
+                //                 district: { id: listFilteredDistrict[0].DistrictID, name: listFilteredDistrict[0].DistrictName },
+                //                 commune: { id: resp.data.data[0].WardCode, name: resp.data.data[0].WardName }
+                //             }
+                //         } else {
+                //             return target
+                //         }
+                //     })
+                // })
             })
 
         })
@@ -134,26 +142,32 @@ export default function AddCustomer() {
             }
         }).then(res => {
             setListWards(res.data.data);
-            setListAddress(prev => {
-                return prev.map(target => {
-                    if ((key && target.key == key) || (id && target.id == id)) {
-                        let dist = listDistricts.find(district => district.DistrictID == value)
-                        setEditAddress({
-                            ...editAddress,
-                            district: { id: dist.DistrictID, name: dist.DistrictName },
-                            commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
-                        })
-                        return {
-                            ...target,
-                            district: { id: dist.DistrictID, name: dist.DistrictName },
-                            commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
-                        }
-                    }
-                    else {
-                        return target
-                    }
-                });
+            let dist = listDistricts.find(district => district.DistrictID == value)
+            setEditAddress({
+                ...editAddress,
+                district: { id: dist.DistrictID, name: dist.DistrictName },
+                commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
             })
+            // setListAddress(prev => {
+            //     return prev.map(target => {
+            //         if ((key && target.key == key) || (id && target.id == id)) {
+            //             let dist = listDistricts.find(district => district.DistrictID == value)
+            //             setEditAddress({
+            //                 ...editAddress,
+            //                 district: { id: dist.DistrictID, name: dist.DistrictName },
+            //                 commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
+            //             })
+            //             return {
+            //                 ...target,
+            //                 district: { id: dist.DistrictID, name: dist.DistrictName },
+            //                 commune: { id: res.data.data[0].WardCode, name: res.data.data[0].WardName }
+            //             }
+            //         }
+            //         else {
+            //             return target
+            //         }
+            //     });
+            // })
         })
     }
 
@@ -179,12 +193,11 @@ export default function AddCustomer() {
 
     const navigate = useNavigate();
 
-    const handleChangeReceiverName = (key, newValue, id) => {
-        if (!key && !id) return;
-        setEditAddress({ ...editAddress, receiverName: newValue })
+    const handleChangeReceiverName = (key, newValue) => {
+        if (!key) return;
         setListAddress(prev => {
             return prev.map(address => {
-                if ((key && address.key == key) || (id && address.id == id)) {
+                if (key && address.key == key) {
                     return { ...address, receiverName: newValue };
                 }
                 return address;
@@ -209,12 +222,12 @@ export default function AddCustomer() {
         }
     }
 
-    const handleChangeReceiverDetail = (key, newValue, id) => {
-        if (!key && !id) return;
+    const handleChangeReceiverDetail = (key, newValue) => {
+        if (!key) return;
         try {
             setListAddress(prev => {
                 return prev.map(address => {
-                    if ((key && address.key == key) || (id && address.id == id)) {
+                    if (key && address.key == key) {
                         return { ...address, detail: newValue };
                     }
                     return address;
@@ -225,22 +238,32 @@ export default function AddCustomer() {
         }
     }
 
-    const Remove = ({ key, id }) => {
+    const Remove = ({ key }) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
             if (defaultAddress == key && q.length > 0) {
                 setDefaultAddress(q[0].id || q[0].key);
             }
             setListAddress(q);
-        } else if (id) {
-            axios.delete(`${baseUrl}/address/${id}`)
-            let x = listAddress.filter(target => id != target.id)
-            if (defaultAddress == id && x.length > 0) {
-                setDefaultAddress(x[0].id || x[0].key);
-            }
-            setListAddress(x);
         }
     }
+
+    const showDeleteConfirm = (key) => {
+        confirm({
+            title: 'Bạn có muốn hủy không',
+            icon: <ExclamationCircleFilled />,
+            content: '',
+            okText: 'Có',
+            okType: 'danger',
+            cancelText: 'Không',
+            onOk() {
+                Remove({ key: key })
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    };
 
     const columns = useMemo(() => [
         {
@@ -326,7 +349,7 @@ export default function AddCustomer() {
                     {
                         key: '1',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { setEditAddress(row.original); setIsModalOpen(true); setDetail(row.original.detail) }}>
                                 <FaEdit />
                                 Cập nhật
                             </div>
@@ -335,7 +358,7 @@ export default function AddCustomer() {
                     {
                         key: '3',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { Remove({ key: row.original.key }) }}>
+                            <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.key) }}>
                                 <FaTrash />
                                 Xóa
                             </div>
@@ -382,7 +405,7 @@ export default function AddCustomer() {
                 codeCustomer: makeid(),
                 fullName: "",
                 birthDay: birthDay,
-                gender: "",
+                gender: false,
                 address: "",
                 phone: "",
                 email: "",
@@ -419,7 +442,7 @@ export default function AddCustomer() {
                         id: add.id
                     }
                 })
-                const data = { ...values, birthday: birthDay, password: makeid(), gender: gender == '1', lstAddress: lstAddressData }
+                const data = { ...values, birthday: birthDay.add(7, 'hour'), password: makeid(), gender: gender, lstAddress: lstAddressData }
                 setPending(true);
                 axios.post(`${baseUrlV3}/customer`, data).then(res => {
                     toast.success('thêm khách hàng thành công');
@@ -428,7 +451,7 @@ export default function AddCustomer() {
                     setTimeout(() => {
                         setPending(false);
                         navigate('/user/customer');
-                    })
+                    }, 2000)
                 }).catch(err => {
                     setPending(false);
                     toast.error(err.response.data.message)
@@ -470,7 +493,6 @@ export default function AddCustomer() {
         setDetail("");
         modalForm.reset();
         setEditAddress(newObject);
-        setListAddress(prev => [...prev, newObject])
         setIsModalOpen(true);
     }
 
@@ -549,8 +571,8 @@ export default function AddCustomer() {
                                 <div>
                                     <p className='mb-3 font-semibold'>Giới tính</p>
                                     <Radio.Group onChange={(e) => { setGender(e.target.value) }} value={gender}>
-                                        <Radio value={'0'}>Nam</Radio>
-                                        <Radio value={'1'}>Nữ</Radio>
+                                        <Radio value={false}>Nam</Radio>
+                                        <Radio value={true}>Nữ</Radio>
                                     </Radio.Group>
                                 </div>
                             </div>
@@ -569,7 +591,39 @@ export default function AddCustomer() {
                         Thêm địa chỉ mới
                     </Button>
                 </div>
-                <Modal title="Điền thông tin" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { setIsModalOpen(false) }}>
+                <Modal title="Điền thông tin"
+                    open={isModalOpen}
+                    footer={[
+                        <Button key="submit" type='primary' onClick={() => {
+                            if (editAddress.receiverName.trim().length == 0) {
+                                toast.error('Nhập tên người nhận');
+                            } else if (!regex.test(editAddress.phone)) {
+                                toast.error('Sai định dạng số điện thoại');
+                            } else {
+                                setIsModalOpen(false);
+                                setListAddress(prev => {
+                                    if (prev.find(target => target.key == editAddress.key)) {
+                                        let t = prev.map(add => {
+                                            if (add.key == editAddress.key) {
+                                                return { ...editAddress, detail: detail };
+                                            } else {
+                                                return add;
+                                            }
+                                        })
+
+                                        return t;
+                                    } else {
+                                        return [...prev, editAddress]
+                                    }
+
+                                });
+                            }
+                        }}>
+                            Ok
+                        </Button>
+                    ]}
+                    onCancel={() => { setIsModalOpen(false) }}
+                >
                     <Form {...modalForm}>
                         <form onSubmit={() => { }} className="space-y-8">
                             <FormField
@@ -579,7 +633,7 @@ export default function AddCustomer() {
                                     <FormItem>
                                         <FormLabel>Họ và tên</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={editAddress.receiverName} onChange={e => { handleChangeReceiverName(editAddress.key, e.target.value, editAddress.id); }} />
+                                            <Input {...field} value={editAddress.receiverName} onChange={e => { setEditAddress({ ...editAddress, receiverName: e.target.value }) }} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -592,7 +646,7 @@ export default function AddCustomer() {
                                     <FormItem>
                                         <FormLabel>Số điện thoại</FormLabel>
                                         <FormControl>
-                                            <Input {...field} value={editAddress.phone} onChange={e => { handleChangeReceiverPhone(editAddress.key, e.target.value, editAddress.id); }} />
+                                            <Input {...field} value={editAddress.phone} onChange={e => { setEditAddress({ ...editAddress, phone: e.target.value }) }} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -660,11 +714,11 @@ export default function AddCustomer() {
                             </div>
                             <div>
                                 <p>Địa chỉ chi tiết</p>
-                                <TextArea placeholder="địa chỉ chi tiết" defaultValue={editAddress.detail} value={detail} onChange={e => { setDetail(e.target.value); handleChangeReceiverDetail(editAddress.key, e.target.value, editAddress.id) }} />
+                                <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); }} />
                             </div>
 
                             <div className='flex items-center gap-3'>
-                                <Checkbox checked={defaultAddress == editAddress.id || defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.id || editAddress.key) }} />
+                                <Checkbox checked={defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.key) }} />
                                 <p>Đặt làm địa chỉ mặc định</p>
                             </div>
                         </form>

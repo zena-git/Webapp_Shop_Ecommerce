@@ -12,11 +12,41 @@ function Home() {
     const [date, setDate] = useState([dayjs(currentDate()), dayjs(currentDate())])
     const [revenueData, setRevenueData] = useState([])
     const [topSale, setTopSale] = useState([])
+    const [thisData, setThisData] = useState();
+    const [beforeData, setBeforeData] = useState()
+    const [type, setType] = useState(1);
+
+    useEffect(() => {
+        if (type == 0) {
+            axios.get(`${baseUrl}/statistical/lastweek`).then(res => {
+                setThisData(res.data[0]);
+            })
+            axios.get(`${baseUrl}/statistical/beforelastweek`).then(res => {
+                setBeforeData(res.data[0]);
+            })
+        } else if (type == 1) {
+            axios.get(`${baseUrl}/statistical/lastmonth`).then(res => {
+                setThisData(res.data[0]);
+            })
+            axios.get(`${baseUrl}/statistical/beforelastmonth`).then(res => {
+                setBeforeData(res.data[0]);
+            })
+        } else if (type == 2) {
+
+        }
+    }, [type])
 
     useEffect(() => {
         if (date) {
             axios.get(`${baseUrl}/statistical/revenue?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
-                setRevenueData(res.data);
+                setRevenueData(res.data.map(r => {
+                    if (r.revenue == null) {
+                        return { ...r, revenue: 0 };
+                    }else{
+                        return r;
+                    }
+                }
+                ));
             })
             axios.get(`${baseUrl}/statistical/product/topsale?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
                 const dates = res.data.map(entry => entry.time + ".");
@@ -52,6 +82,26 @@ function Home() {
             })
         }
     }, [date])
+
+    const Calculate = () => {
+        let t = beforeData && beforeData.revenue !== null && beforeData.revenue !== 0 && thisData ?
+            ((thisData.revenue - beforeData.revenue) / beforeData.revenue * 100).toFixed(2) + '%' :
+            beforeData && beforeData.revenue === 0 ? '0%' : 'N/A'
+
+        return <div className={`${t != 'N/A' ? t > 0 ? 'text-red-500' : 'text-emerald-500' : 'text-blue-500'}`}>
+            {t}
+        </div>
+    }
+
+    const CalculateOrder = () => {
+        let t = beforeData && beforeData.completedOrders !== null && beforeData.completedOrders !== 0 && thisData ?
+            ((thisData.completedOrders - beforeData.completedOrders) / beforeData.completedOrders * 100).toFixed(2) + '%' :
+            beforeData && beforeData.completedOrders === 0 ? '0%' : 'N/A'
+
+        return <div className={`${t != 'N/A' ? t > 0 ? 'text-red-500' : 'text-emerald-500' : 'text-blue-500'}`}>
+            {t}
+        </div>
+    }
 
     return (
         <div className='flex flex-col gap-5'>
@@ -103,50 +153,62 @@ function Home() {
                     />
                 </div>
             </div>
-            <div className='grid grid-cols-1 xl:grid-cols-2 min-h-96 bg-white shadow-lg p-6'>
-                <div className='px-2'>
-                    <p className='text-2xl font-semibold mb-3 text-center'>Doanh thu</p>
-                    <ResponsiveContainer width={'100%'} height={400}>
-                        {/* <BarChart data={revenueData}>
-                            <XAxis dataKey={'time'} />
-                            <CartesianGrid strokeDasharray={"5 5"} />
-                            <Tooltip content={data => {return <div className='bg-white p-2'>Doanh thu: {data.payload[0] && numberToPrice(data.payload[0].value)}</div>}}/>
-                            <Bar fill='#fc23ca' stroke='#ff23ca' dataKey={'revenue'} />
-                        </BarChart> */}
-                        <AreaChart width={730} height={250} data={revenueData}
-                            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="time" />
-                            <YAxis />
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <Tooltip content={data => { return <div className='bg-white p-2'>Doanh thu: {data.payload[0] && numberToPrice(data.payload[0].value)}</div> }} />
-                            <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="#82ca9d" />
-                        </AreaChart>
-                    </ResponsiveContainer>
-
-                </div>
+            <div className='min-h-96 bg-white shadow-lg p-6'>
                 <div className='px-2'>
                     <p className='text-2xl font-semibold mb-3 text-center'>Danh sách sản phẩm bán ra</p>
                     <div id='myDivx' className='w-full'></div>
-                    {/* <ResponsiveContainer width={'100%'} height={400}>
-                        <BarChart data={topSale}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="time" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            {
-                                topSale[0]?.product.map((product, index) => (
-                                    <Bar dataKey={`product[${index}].quantity`} name={product.name} fill={`rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`} />
-                                ))
-                            }
-                        </BarChart>
-                    </ResponsiveContainer> */}
+                </div>
+                <div className='grid grid-cols-2 max-xl:grid-cols-1'>
+                    <div className='px-2 w-full flex flex-col gap-4 bg-slate-100'>
+                        <p className='text-2xl font-semibold mt-2'>So sánh số liệu</p>
+                        <div className='flex justify-between px-[5%]'>
+                            <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 0 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(0) }}>Tuần</div>
+                            <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 1 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(1) }}>Tháng</div>
+                        </div>
+                        <div className='flex flex-col gap-4 px-4 py-2 bg-slate-50'>
+                            <p className='text-2xl font-semibold'>Doanh thu</p>
+                            <div className='grid grid-cols-3'>
+                                <div>
+                                    {beforeData ? numberToPrice(beforeData.revenue || 0) : numberToPrice(0)}
+                                </div>
+                                <div>
+                                    {thisData ? numberToPrice(thisData.revenue || 0) : numberToPrice(0)}
+                                </div>
+                                {Calculate()}
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-4 px-4 py-2 bg-slate-50'>
+                            <p className='text-2xl font-semibold'>Đơn hàng hoàn thành</p>
+                            <div className='grid grid-cols-3'>
+                                <div>
+                                    {beforeData ? beforeData.completedOrders : 0}
+                                </div>
+                                <div>
+                                    {thisData ? thisData.completedOrders : 0}
+                                </div>
+                                {CalculateOrder()}
+                            </div>
+                        </div>
+                    </div>
+                    <div className='px-2'>
+                        <p className='text-2xl font-semibold mb-3 text-center'>Doanh thu</p>
+                        <ResponsiveContainer width={'100%'} height={400}>
+                            <AreaChart width={730} height={250} data={revenueData}
+                                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="time" />
+                                <YAxis />
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <Tooltip content={data => { return <div className='bg-white p-2'>Doanh thu: {data.payload[0] && numberToPrice(data.payload[0].value)}</div> }} />
+                                <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="#82ca9d" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
             </div>
         </div >

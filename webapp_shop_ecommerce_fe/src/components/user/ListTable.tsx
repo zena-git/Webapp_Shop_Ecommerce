@@ -154,7 +154,7 @@ export default function ListTable() {
                     <Switch checkedChildren="Đang làm việc" disabled={pending} unCheckedChildren="Đã nghỉ việc" defaultChecked={row.original.status == 0} onChange={e => {
                         if (!pending) {
                             pending = true;
-                            axios.put(`${baseUrl}/user/${row.original.id}`, { ...row.original, status: e ? 0 : 1 }).then(res => {
+                            axios.put(`${baseUrl}/user/${row.original.id}/status`, { ...row.original, status: e ? 0 : 1 }).then(res => {
                                 toast.success('Cập nhật thành công');
                                 pending = false;
                                 fillData();

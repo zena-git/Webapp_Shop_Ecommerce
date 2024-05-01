@@ -443,6 +443,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }
 
     const handleChangeQuantity = (value, id) => {
+
         if (value == null) {
             return;
         }
@@ -474,6 +475,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     };
 
     const handleDeleteProduct = (id) => {
+
         const idBill = bill?.id;
         if (idBill == null) {
             toast.error("Invalid or missing bill ID.");

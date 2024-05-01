@@ -63,9 +63,11 @@ const VoucherPage = () => {
 
     const dispatch = useDispatch();
 
+    const [detail, setDetail] = useState('');
+
     useEffect(() => {
         dispatch(set({ value: { selected: [] } }))
-    }, [])
+    }, [dispatch])
 
     useEffect(() => {
         axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
@@ -85,7 +87,7 @@ const VoucherPage = () => {
                 order_min_value: 0,
                 target_type: 0,
                 usage_limit: 0,
-                value: 0
+                value: 1
             },
             mode: 'all'
         }
@@ -146,7 +148,7 @@ const VoucherPage = () => {
                         discountType: discountType ? 0 : 1,
                         maxDiscountValue: discountType ? values.value : values.max_discount_value,
                         orderMinValue: values.order_min_value,
-                        description: values.description,
+                        description: detail,
                         startDate: date[0].add(7, 'hour').toDate(),
                         endDate: date[1].add(7, 'hour').toDate(),
                         lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
@@ -177,7 +179,7 @@ const VoucherPage = () => {
                         <div className='px-3 py-5 h-fit bg-white shadow-lg gap-2 flex flex-col w-5/12 max-xl:w-full'>
                             <div className='flex gap-2 items-center'>
                                 <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/voucher') }}><IoArrowBackSharp /></div>
-                                <p className='ml-3 text-2xl font-semibold'>Thêm phiếu giảm giá</p>
+                                <p className='ml-3 text-2xl font-semibold'>Thêm voucher</p>
                             </div>
                             <div className='h-[2px] bg-slate-600 mt-1 mb-2'></div>
                             <Form {...form}>
@@ -187,7 +189,7 @@ const VoucherPage = () => {
                                         name="code"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Mã phiếu giảm giá</FormLabel>
+                                                <FormLabel>Mã voucher</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Mã" {...field} />
                                                 </FormControl>
@@ -200,7 +202,7 @@ const VoucherPage = () => {
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Tên phiếu giảm giá</FormLabel>
+                                                <FormLabel>Tên voucher</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Tên" {...field} />
                                                 </FormControl>
@@ -297,7 +299,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Mô tả</FormLabel>
                                                 <FormControl>
-                                                    <TextArea placeholder="mô tả" {...field} />
+                                                    <TextArea placeholder="mô tả" value={detail} onChange={e => setDetail(e.target.value)} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

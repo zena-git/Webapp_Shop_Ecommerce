@@ -72,7 +72,7 @@ export default function ListTable() {
         if (filterValue == null) {
             return true;
         }
-        return dayjs(row.original.startDate).toDate() > filterValue.toDate();
+        return dayjs(row.original.startDate).toDate() >= filterValue.toDate();
     };
 
     const customEndDateFilter = (
@@ -83,7 +83,7 @@ export default function ListTable() {
         if (filterValue == null) {
             return true;
         }
-        return dayjs(row.original.endDate).toDate() < filterValue.toDate();
+        return dayjs(row.original.endDate).toDate() <= filterValue.toDate();
     };
 
     const showDeleteConfirm = (id) => {
@@ -202,10 +202,15 @@ export default function ListTable() {
                     {
                         key: '1',
                         label: (
-                            <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}>
-                                <FaEdit />
-                                Cập nhật
-                            </div>
+                            <>
+                                {
+                                    row.original.status == '0' &&
+                                    <div className='flex gap-2 items-center' onClick={() => { navigate(`/discount/voucher/update/${row.original.id}`) }}>
+                                        <FaEdit />
+                                        Cập nhật
+                                    </div>
+                                }
+                            </>
                         ),
                     },
                     {
@@ -346,26 +351,22 @@ export default function ListTable() {
                     <div>
                         <p className='mb-3 font-semibold text-xl'>Khoảng ngày</p>
                         <RangePicker placeholder={["Ngày bắt đầu", "Ngày kết thúc"]} className='w-2/3' onChange={value => {
-                            table.getColumn("startDate").setFilterValue(value ? value[0] : null);
-                            table.getColumn("endDate").setFilterValue(value ? value[1] : null)
+                            table.getColumn("startDate").setFilterValue(value ? value[0].hour(0).minute(0).second(0) : null);
+                            table.getColumn("endDate").setFilterValue(value ? value[1].hour(23).minute(59).second(59) : null)
                         }} />
                     </div>
                 </div>
                 <div className='flex gap-5 items-center my-4 justify-between pr-2'>
-                    <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" type="primary">Thêm phiếu giảm giá</Button>
+                    <Button onClick={() => { navigate('/discount/voucher/add') }} variant="outline" type="primary">Thêm voucher</Button>
                     {/* {Recover()} */}
                 </div>
             </div>
             <div className="rounded-md border border-slate-800 shadow-md flex flex-col gap-3 mt-4 bg-white p-3">
-                <h4>Danh sách phiếu giảm giá</h4>
+                <h4>Danh sách voucher</h4>
                 <div className='h-[2px] bg-slate-600'></div>
                 {Table(table, flexRender, columns)}
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-xl text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
                 <div className="space-x-2">
                     <Button
                         variant="outline"

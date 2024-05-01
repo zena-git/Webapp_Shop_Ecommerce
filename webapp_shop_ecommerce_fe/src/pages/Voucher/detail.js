@@ -26,7 +26,7 @@ export default function VoucherDetail() {
     useEffect(() => {
         if (!path.id) return;
         axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
-            setTargetVoucher({...res.data, lstVoucherDetails: res.data.lstVoucherDetails.filter(target => !target.deleted)});
+            setTargetVoucher({ ...res.data, lstVoucherDetails: res.data.lstVoucherDetails.filter(target => !target.deleted) });
         })
     }, [path])
 
@@ -40,8 +40,8 @@ export default function VoucherDetail() {
                 <Button type="primary" variant="outline" onClick={() => { navigate(`/discount/voucher/update/${targetVoucher.id}`) }}>Chỉnh sửa</Button>
             </div>
             <div className='h-[2px] bg-slate-600'></div>
-            <div className="grid grid-cols-2 grid-rows-2 grid-flow-row gap-2 bg-slate-50 p-6 rounded-md shadow-lg">
-                <p className="text-2xl font-semibold text-slate-800">Tên Voucher:</p>
+            <div className="grid grid-cols-2 grid-rows-2 grid-flow-row gap-3 bg-slate-50 p-6 pt-2 rounded-md shadow-lg">
+                <p className="text-2xl font-semibold text-slate-800">Tên voucher:</p>
                 <p className="text-2xl font-semibold text-slate-800">{targetVoucher?.name}</p>
                 <p className="text-2xl font-semibold text-slate-800">Mã voucher:</p>
                 <p className="text-2xl font-semibold text-slate-800">{targetVoucher?.code}</p>
@@ -57,6 +57,10 @@ export default function VoucherDetail() {
                 <p className="text-2xl font-semibold text-slate-800"><Tag
                     color={targetVoucher?.status == "0" ? "blue" : targetVoucher?.status == "1" ? "green" : targetVoucher?.status == "2" ? "gold" : "red"}
                 >{targetVoucher?.status == 0 ? 'Sắp diễn ra' : targetVoucher.status == 1 ? 'Đang diễn ra' : targetVoucher.status == 2 ? 'Đã kết thúc' : 'Đã hủy'}</Tag></p>
+                <p className="text-2xl font-semibold text-slate-800">Ngày bắt đầu:</p>
+                <p className="text-2xl font-semibold text-slate-800">{targetVoucher?.startDate?.split("T")[1].split(".")[0] + " " + targetVoucher?.startDate?.split("T")[0].split(".")[0]}</p>
+                <p className="text-2xl font-semibold text-slate-800">Ngày kết thúc:</p>
+                <p className="text-2xl font-semibold text-slate-800">{targetVoucher?.endDate?.split("T")[1].split(".")[0] + " " + targetVoucher?.endDate?.split("T")[0].split(".")[0]}</p>
             </div>
             <div className="bg-slate-50 p-6 rounded-md shadow-lg flex flex-col gap-2">
                 <p>Danh sách khách hàng</p>

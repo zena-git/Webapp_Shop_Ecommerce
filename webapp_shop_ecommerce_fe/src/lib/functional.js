@@ -15,6 +15,16 @@ export function makeid() {
 }
 
 export const regex = /^(0[0-9]{9}|84[0-9]{9})$/;
+export function ReduceString({ string, maxLength }) {
+    if (!string) {
+        return '';
+    }
+    if (string.length > maxLength) {
+        return string.substring(0, maxLength) + '...';
+    } else {
+        return string;
+    }
+}
 
 export const currentDate = () => {
     let d = new Date();

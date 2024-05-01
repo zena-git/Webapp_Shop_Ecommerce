@@ -36,7 +36,7 @@ function PaymentIpn() {
             } else {
                 // Redirect after countdown ends
                 console.log("Chuyển hướng");
-                navigate('/order')
+                // navigate('/order')
             }
         }
 
@@ -67,40 +67,38 @@ function PaymentIpn() {
             });
     }
     const handlePrintView = async () => {
-        setDataLoadingContent(true)
-       
         try {
             // Gọi API để lấy dữ liệu hóa đơn
             const response = await axios.get(`http://localhost:8080/api/v3/print/${vnpTxnRef}`, {
                 responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
             });
 
-            setTimeout(() => {
-                setDataLoadingContent(false)
-            }, [1000]);
-            // Đặt tên tệp Blob dựa trên bill.codeBill
-            const pdfBlobName = `${vnpTxnRef}.pdf`;
+            // Tạo một Blob từ dữ liệu PDF
+            const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
 
-            // Tạo một File từ dữ liệu PDF với tên là bill.codeBill
-            const pdfFile = new File([response.data], `${vnpTxnRef}.pdf`, { type: 'application/pdf' });
+            // Tạo một URL tạm thời từ Blob
+            const pdfUrl = URL.createObjectURL(pdfBlob);
 
-            // Tạo URL tạm thời từ File
-            const pdfUrl = URL.createObjectURL(pdfFile);
-            // Mở chế độ xem in
-            const printWindow = window.open(pdfUrl, '_blank');
-            printWindow.addEventListener('unload', function () {
-                window.focus();
-            });
-            printWindow.onload = function () {
-                printWindow.print();
+            // Tạo một iframe ẩn để hiển thị PDF và chuẩn bị cho việc in
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = pdfUrl;
+            document.getElementById("printx").appendChild(iframe);
+
+            // Đợi cho PDF load xong trước khi gọi hộp thoại in
+            iframe.onload = function () {
+                iframe.contentWindow.print();
+                // Sau khi in, loại bỏ iframe khỏi DOM
+                // setTimeout(() => {
+                //     document.getElementById("printx").removeChild(iframe);
+                //     URL.revokeObjectURL(pdfUrl);
+                // }, 200);
             };
-
-
         } catch (error) {
             console.error('Error:', error);
         }
-       
     };
+
     return (
         <>
 
@@ -118,15 +116,15 @@ function PaymentIpn() {
                     }
                     subTitle={subTitle}
                     extra={[
-                        <Link to="/order">
-                            <Button type="primary" key="console">
-                                Trở Lại
-                            </Button>
-                        </Link>,
-
-                        <Button key="buy" onClick={handlePrintView}>In Hóa Đơn</Button>,
+                        <Button type="primary" key="console">
+                            Trả Lại
+                        </Button>,
+                        <Button key="buy" onClick={() => { handlePrintView() }}>In Hóa Đơn</Button>,
                     ]}
                 />
+            </div>
+            <div className='-z-50' id='printx'>
+
             </div>
 
             <ToastContainer />

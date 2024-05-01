@@ -8,7 +8,7 @@ import { useAppSelector } from '~/redux/storage';
 import axios from 'axios';
 import { baseUrl, baseUrlV3 } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
-import { set, toggleChildren } from '~/redux/features/promotion-selected-item'
+import { set, toggleChildren, toggleAll, deselectAll } from '~/redux/features/promotion-selected-item'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
 const { TextArea } = Input
@@ -65,7 +65,8 @@ function EditPage() {
                     const t = res.data.find(product => {
                         return product.lstProductDetails.find(productDetail => productDetail.id == detail.productDetails.id)
                     })
-                    dispatch(toggleChildren({ id: detail.productDetails.id, parentId: t.id, value: !detail.deleted }))
+                    dispatch(toggleChildren({ id: detail.productDetails.id, parentId: t.id, value: !detail.deleted }));
+
                 })
             });
         });
@@ -121,11 +122,27 @@ function EditPage() {
             toast.error('Chỉ sự kiện giảm giá chưa diễn ra có thể chỉnh sửa');
         }
     }
- 
+
+    useEffect(() => {
+        if (PromotionType == "0") {
+            dispatch(toggleAll());
+        } else {
+            dispatch(deselectAll());
+        }
+    }, [PromotionType, dispatch])
+
+    useEffect(() => {
+        if (listSelectedProduct.every(target => target.selected)) {
+            setPromotionType("0");
+        } else {
+            setPromotionType("1");
+        }
+    }, [listSelectedProduct])
+
     return (
         <div>
-            <div className='w-full flex max-lg:flex-col p-5 gap-5 bg-white'>
-                <div className='w-2/5 max-lg:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
+            <div className='w-full flex max-xl:flex-col p-5 gap-5 bg-white'>
+                <div className='w-2/5 max-xl:w-full flex flex-col gap-2 bg-slate-50 border rounded-md shadow-lg p-3'>
                     <div className='flex gap-2 items-center'>
                         <div className='text-2xl cursor-pointer flex items-center' onClick={() => { navigate('/discount/promotion') }}><IoArrowBackSharp /></div>
                         <p className='ml-3 text-2xl font-semibold'>Cập nhật đợt giảm giá</p>

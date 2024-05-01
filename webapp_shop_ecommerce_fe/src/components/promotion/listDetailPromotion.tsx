@@ -18,6 +18,7 @@ import {
 } from "@tanstack/react-table"
 import { PromotionDetailResponse } from "~/lib/type"
 import Table from '../../components/ui/table'
+import HexToColor from '../../ultils/HexToColorName'
 
 export default function ListTable({ data, value }: { data: PromotionDetailResponse[], value: number }) {
     const [sorting, setSorting] = useState<SortingState>([])
@@ -66,6 +67,16 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
         },
         {
             id: "type",
+            header: () => <div className="text-center">Hình ảnh</div>,
+            cell: ({ row }) => {
+                return <div className='text-center text-xl'>
+                    <img src={row.original.productDetails.imageUrl.split("|")[0]} className='h-36' />
+
+                </div>
+            },
+        },
+        {
+            id: "type",
             header: () => <div className="text-center">Giá bán gốc</div>,
             cell: ({ row }) => {
                 return <div className='text-center text-xl'>
@@ -83,11 +94,20 @@ export default function ListTable({ data, value }: { data: PromotionDetailRespon
             },
         },
         {
-            id: "price",
-            header: () => <div className="text-center">Phân loại</div>,
+            id: "size",
+            header: () => <div className="text-center">Kích cỡ</div>,
             cell: ({ row }) => {
                 return <div className='text-center text-xl'>
-                    {"[ " + row.original.productDetails.color.name + " - " + row.original.productDetails.size.name + " ]"}
+                    {row.original.productDetails.size.name}
+                </div>
+            },
+        },
+        {
+            id: "color",
+            header: () => <div className="text-center">Màu sắc</div>,
+            cell: ({ row }) => {
+                return <div className='flex justify-center items-center'>
+                    <div className={`text-center font-medium rounded-md py-2 text-xl max-w-32 px-4`} style={{ backgroundColor: row.original.productDetails.color.name }}>{HexToColor(row.original.productDetails.color.name)}</div>
                 </div>
             },
         },

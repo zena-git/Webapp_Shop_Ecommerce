@@ -95,6 +95,15 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
                 </div>
             },
         },
+        {
+            accessorKey: "receiverPhone",
+            header: () => <div className="text-center">Đ/c chi tiết</div>,
+            cell: ({ row }) => {
+                return <div className="text-center font-medium max-h-16 text-xl">
+                    {row.original.detail}
+                </div>
+            },
+        },
 
     ], []);
 
@@ -125,8 +134,7 @@ export default function ListTable({ data }: { data: AdressResponse[] }) {
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
                     <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
+
                     </div>
                     <div className="space-x-2">
                         <Button

@@ -56,7 +56,7 @@ export default function ListTable({ data }: { data: VoucherDetailResponse[] }) {
             header: () => <div className="text-center">Ngày sử dụng</div>,
             cell: ({ row }) => {
                 return <div className='text-center text-xl'>
-                    {row.original.usedDate ? row.original.usedDate.toString().split("T")[0] + " - " + row.original.usedDate.toString().split("T")[1] : "Chưa sử dụng"}
+                    {row.original.usedDate ? row.original.usedDate.toString().split("T")[1].split(".")[0] + " " + row.original.usedDate.toString().split("T")[0] : "Chưa sử dụng"}
                 </div>
             },
         },
@@ -65,7 +65,7 @@ export default function ListTable({ data }: { data: VoucherDetailResponse[] }) {
             header: () => <div className="text-center">Trạng thái hóa đơn</div>,
             cell: ({ row }) => {
                 return <div className="text-center font-medium max-h-16 text-xl">
-                    {row.original.bill ? row.original.bill.status : "Chưa sử dụng"}
+                    {row.original.usedDate ? row.original.status ? "Đã hoàn thành" : "Chưa hoàn thành" : "Chưa sử dụng"}
                 </div>
             },
         },
