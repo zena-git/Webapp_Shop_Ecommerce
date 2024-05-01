@@ -316,27 +316,27 @@ function ProductDetail() {
             });
 
             if (checkPrice) {
-                const highestPriceProduct = dataTable.reduce((maxPriceProduct, currentProduct) => {
+                const highestPriceProduct = data.reduce((maxPriceProduct, currentProduct) => {
                     return currentProduct.price > maxPriceProduct.price ? currentProduct : maxPriceProduct;
-                }, dataTable[0]);
+                }, data[0]);
                 console.log("setMaxx");
-                setInputValueMax(highestPriceProduct.price);
+                setInputValueMax(highestPriceProduct?.price);
                 setCheckPrice(false);
             }
 
             const dataTable = data?.filter(product => {
                 if (valueColor &&
-                    !(product?.color.name == (valueColor))) {
+                    !(product?.color?.name == (valueColor))) {
                     return false;
                 }
                 if (valueSize &&
-                    !(product?.size.name == (valueSize))) {
+                    !(product?.size?.name == (valueSize))) {
                     return false;
                 }
 
                 return true;
             })
-
+            console.log(dataTable);
             setDataColum(dataTable);
         } catch (error) {
             console.error(error);
@@ -534,7 +534,7 @@ function ProductDetail() {
 
                 <div className='grid grid-cols-4 gap-4 my-4'>
                     <div>
-                        <label>Loại</label>
+                        <label>Màu Sắc</label>
                         <Select className="w-full mt-4" placeholder="Chọn Màu Sắc"
 
 

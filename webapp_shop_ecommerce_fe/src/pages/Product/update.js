@@ -1131,7 +1131,7 @@ function ProductUpdate() {
                         <div className='w-3/4	'>
                             <div>
                                 <label>Mã Sản Phẩm</label>
-                                <Input className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
+                                <Input disabled className="my-4" placeholder="Nhập Mã Sản Phẩm" value={valueCodeProduct} onChange={e => setValueCodeProduct(e.target.value)} />
                             </div>
 
                             <div>
