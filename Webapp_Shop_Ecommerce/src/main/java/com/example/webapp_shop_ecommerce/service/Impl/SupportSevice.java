@@ -16,6 +16,7 @@ import com.example.webapp_shop_ecommerce.dto.response.promotion.PromotionSupport
 import com.example.webapp_shop_ecommerce.dto.response.user.UserResponse;
 import com.example.webapp_shop_ecommerce.dto.response.voucher.VoucherResponse;
 import com.example.webapp_shop_ecommerce.entity.*;
+import com.example.webapp_shop_ecommerce.infrastructure.enums.BillType;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiBill;
 import com.example.webapp_shop_ecommerce.infrastructure.enums.TrangThaiGiamGia;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
@@ -498,7 +499,7 @@ public class SupportSevice {
         ITextRenderer renderer = new ITextRenderer();
         renderer.setDocumentFromString(html);
         // Phải sử dụng Flying Saucer để hiển thị các font phức tạp trong PDF
-        renderer.getFontResolver().addFont("./font/Roboto-Light.ttf", IDENTITY_H, true);
+        renderer.getFontResolver().addFont("./font/Roboto-Medium.ttf", IDENTITY_H, true);
         renderer.layout();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         renderer.createPDF(outputStream);
@@ -557,25 +558,27 @@ public class SupportSevice {
             props.put("customer", customer);
         }
         props.put("billCode", b.getCodeBill());
-        props.put("receiverName", b.getReceiverName());
-        props.put("receiverPhone", b.getReceiverPhone());
+        props.put("receiverName", b.getBillFormat().equalsIgnoreCase(BillType.OFFLINE.getLabel())?
+                b.getCustomer()!=null?
+                        b.getCustomer().getFullName():null:b.getReceiverName());
+        props.put("receiverPhone", b.getBillFormat().equalsIgnoreCase(BillType.OFFLINE.getLabel())?
+                b.getCustomer()!=null?
+                        b.getCustomer().getPhone():null
+                :b.getReceiverPhone());
         props.put("billDetails", b.getLstBillDetails());
 
         Set<BillDetails> billDetails = b.getLstBillDetails();
+        int totalQuantity = billDetails.stream()
+                .mapToInt(billDetails1 -> billDetails1.getQuantity()) // Lấy ra số lượng từ mỗi BillDetail
+                .sum();
 
-        BigDecimal totalNetTotal = billDetails.stream()
-                .map(billDetail -> billDetail.getUnitPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalDiscount = billDetails.stream()
-                .map(BillDetails::getDiscount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         props.put("billStatus", b.getStatus());
-        props.put("NetTotal", totalNetTotal);
-        props.put("Discount", totalDiscount);
+        props.put("NetTotal", b.getTotalMoney());
+        props.put("Discount", b.getVoucherMoney());
         props.put("Ship", b.getShipMoney());
-        props.put("Total", totalNetTotal.add(totalDiscount.add(b.getShipMoney()).negate()));
+        props.put("Total", b.getIntoMoney());
+        props.put("Quantity", totalQuantity);
 
         Context context = new Context();
         context.setVariables(props);

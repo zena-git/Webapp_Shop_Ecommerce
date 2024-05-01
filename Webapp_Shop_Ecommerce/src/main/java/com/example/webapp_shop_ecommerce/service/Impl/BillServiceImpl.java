@@ -798,7 +798,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             paymentHistoryService.createNew(paymentHistory);
         }
 
-        return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, billDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ResponseObject("success", "Đặt Hàng Thành Công", 0, bill), HttpStatus.CREATED);
 
     }
 

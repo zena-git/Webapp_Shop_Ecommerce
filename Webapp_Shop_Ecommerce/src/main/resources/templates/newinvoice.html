@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-
+<html xmlns:th="http://www.thymeleaf.org" xmlns:thsec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -20,13 +19,13 @@
         }
 
         html {
-            font-size: 62.5%;
+            font-size: 128%;
             font-family: 'Roboto', 'Times New Roman', Times, serif;
         }
 
         body {
             font-size: 1.6rem;
-            background-color: #f6f4f3;
+            background-color: #ffffff;
             width: 100%;
             position: relative;
         }
@@ -37,18 +36,17 @@
             margin: 0 auto;
             padding: 20px 0;
             min-height: 100vh;
-            background-image: url('https://res.cloudinary.com/dgxbxvkso/image/upload/v1714506426/bvnyj9norrisq2h6lcne.png');
             background-repeat: no-repeat;
             background-position: center;
         }
 
         .line {
-            border-bottom: 4px dashed black;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
+            border-bottom: 2px dashed black;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
         }
 
-        table .line {
+        .line_table {
             border-bottom: 2px dashed black;
         }
 
@@ -62,30 +60,34 @@
         }
 
         .font-bold{
-            font-weight: 700;
+            font-weight: 500;
         }
-
+        .font-medium{
+            font-weight: 400;
+        }
         .flex{
             display: flex;
         }
 
-        .basis-1/4{
+        .basis-1_4{
             flex-basis: 25%;
         }
-        .basis-1/2{
+        .basis-1_2{
             flex-basis: 50%;
         }
         .text-center{
             text-align: center;
         }
-        .text-[6.8rem]{
+        .text-6_8rem{
             font-size: 6.8rem;
         }
 
-        .text-[1.8rem]{
-            font-size: 1.8rem;
+        .text-1_8rem{
+            font-size:100rem;
         }
-
+        .text-2rem{
+            font-size: 2rem;
+        }
         .grid-cols{
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -106,84 +108,108 @@
             display: flex;
             justify-content: flex-end;
         }
+
     </style>
 </head>
 
 <body>
     <div class="main">
-        <div class="flex flex-row line">
-            <div class="basis-1/4">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=Hd-12312313"/>
+        <div class="flex flex-row line" style="display: flex;">
+            <div >
             </div>
-            <div class="basis-1/2">
+            <div>
+                 <div style="float: left; width: 25%">
+                     <img style="width: 80px" th:src="@{'https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=' + ${billCode}}"/>
+                 </div>
+                <div style="float: left; width: 50%;text-align: center;">
+                    <img style="width: 280px" th:src="@{'https://res.cloudinary.com/dgxbxvkso/image/upload/v1714591609/ozq04apcpnhwfyjodsfe.png'}"/>
+                </div>
+                <div style="float: left; width: 25%">
+                </div>
+                <div style="clear: both"></div>
+
+            </div>
+            <div >
                 <div>
-                    <h1 class="text-center text-[6.8rem] font-bold">Lolita Alice</h1>
+<!--                    <div class="logo" style="text-align: center; margin-bottom: 10px">-->
+<!--                        <img style="width: 280px" th:src="@{'https://res.cloudinary.com/dgxbxvkso/image/upload/v1714591609/ozq04apcpnhwfyjodsfe.png'}"/>-->
+<!--                    </div>-->
                     <div>
-                        <p class="text-center text-[1.8rem] font-medium">Địa Chỉ: 13 phố Trịnh Văn Bô, phường Phương
+                        <p class="text-center text-1_8rem font-medium">13 phố Trịnh Văn Bô, phường Phương
                             Canh,
                             quận
                             Nam Từ Liêm, TP Hà Nội</p>
-                        <p class="text-center text-[1.8rem] font-medium">Số Điện Thoại: 0123456789</p>
-                        <p class="text-center text-[1.8rem] font-medium">Email: lolitaalice.obj@gmail.com</p>
+                        <p class="text-center text-1_8rem font-medium">Số Điện Thoại: 0123456789</p>
+                        <p class="text-center text-1_8rem font-medium">Email: lolitaalice.obj@gmail.com</p>
                     </div>
                 </div>
 
             </div>
-            <div class="basis-1/4">
+            <div style="flex-basis: 25%;">
             </div>
         </div>
 
         <div class="line">
             <div>
-                <p class="text-center text-[3.4rem] font-bold">Hóa Đơn Bán Hàng</p>
-                <p class="text-center text-[1.8rem] font-medium" th:text="${'Ngày tạo: ' + invoiceDate}"></p>
-                <p class="text-center text-[1.8rem] font-medium" th:text="${'Mã Hóa Đơn: ' + billCode}"></p>
+                <p class="text-center font-bold" style="font-size: 24px">Hóa Đơn Bán Hàng</p>
+                <p class="text-center text-1_8rem font-medium" th:text="${'Ngày tạo: ' + invoiceDate}"></p>
+                <p class="text-center text-1_8rem font-medium" th:text="${'Mã Hóa Đơn: ' + billCode}"></p>
             </div>
 
             <div>
-                <p class="text-[1.8rem] font-bold">Khách Hàng: <span class="font-medium" th:text="${bill.receiverName != null ? bill.receiverName : 'Khách lẻ'}"></span> </p>
-                <p class="text-[1.8rem] font-medium">Địa Chỉ: <span class="font-medium" th:text="${bill.receiverDetails != null ? (bill.receiverDetails + ', ' + bill.receiverCommune + ', ' + bill.receiverDistrict + ', ' + bill.receiverProvince) : 'N/A'}"></span> </p>
-                <p class="text-[1.8rem] font-medium">Điện Thoại: <span class="font-medium" th:text="${receiverPhone}"></span></p>
-                <p class="text-[1.8rem] font-bold">Người Lập Phiếu: <span class="font-medium">Admin</span> </p>
+                <p class="text-1_8rem font-bold">Khách Hàng: <span class="font-medium" th:text="${receiverName != null ? receiverName : 'Khách lẻ'}"></span> </p>
+                <p class="text-1_8rem font-medium">Địa Chỉ: <span class="font-medium" th:text="${bill.receiverDetails != null ? (bill.receiverDetails + ', ' + bill.receiverCommune + ', ' + bill.receiverDistrict + ', ' + bill.receiverProvince) : 'N/A'}"></span> </p>
+                <p class="text-1_8rem font-medium">Điện Thoại: <span class="font-medium" th:text="${receiverPhone != null ? receiverPhone : 'N/A'}"></span></p>
+                <p class="text-1_8rem font-bold">Người Lập Phiếu: <span class="font-medium" th:text="${bill.createdBy}"></span> </p>
             </div>
         </div>
 
         <div class="w-full">
             <div class="my-6">
-                <p class="text-center text-[2rem] font-bold">Danh Sách Sản Phẩm</p>
+                <p class="text-center text-2rem font-bold" style="font-size: 20px; margin-bottom: 6px">Danh Sách Sản Phẩm</p>
             </div>
-            <table class="w-full font-medium table-auto">
-                <thead class="text-center bg-gray-300">
-                    <tr>
-                        <th>STT</th>
-                        <th>Tên Sản Phẩm</th>
-                        <th>Đơn Giá</th>
-                        <th>Số Lượng</th>
-                        <th>Thành Tiền</th>
-                        <th>Trạng Thái</th>
+            <table class="w-full " style="border-bottom: 2px dashed black">
+                <thead class="text-center" style="background-color: rgb(209 213 219);">
+                    <tr >
+                        <th class="font-bold">STT</th>
+                        <th class="font-bold">Tên Sản Phẩm</th>
+                        <th class="font-bold">Đơn Giá</th>
+                        <th class="font-bold">Số Lượng</th>
+                        <th class="font-bold">Thành Tiền</th>
+<!--                        <th class="font-bold">Trạng Thái</th>-->
                     </tr>
                 </thead>
-                <tbody class="text-center">
-                    <tr th:each="billDetail, iterStat : ${billDetails}">
+                <tbody class="text-center" >
+                    <tr th:each="billDetail, iterStat : ${billDetails}" >
                         <td th:text="${iterStat.count}"></td>
-                        <td th:text="${billDetail.getProductDetails.getProduct.getName + '[ ' +  billDetail.getProductDetails.getColor.getName + ' - ' + billDetail.getProductDetails.getSize.getName + ' ]'}"></td>
-                        <td th:text="${billDetail.getOriginalPrice + 'đ'}"></td>
+                        <td th:text="${billDetail.getProductDetails.getProduct.getName + ' [ ' +  billDetail.getProductDetails.getColor.getName + ' - ' + billDetail.getProductDetails.getSize.getName + ' ]'}"></td>
+                        <td th:text="${#numbers.formatDecimal(billDetail.getUnitPrice, 0, 0, 'COMMA')} + ' đ'"></td>
                         <td th:text="${billDetail.getQuantity}"></td>
-                        <td th:text="${billDetail.getOriginalPrice*billDetail.getQuantity + 'đ'}"></td>
-                        <td th:text="${billStatus}"></td>
+                        <td th:text="${#numbers.formatDecimal(billDetail.getUnitPrice*billDetail.getQuantity, 0, 0, 'COMMA')} + ' đ'"></td>
+<!--                        <td th:text="${billStatus}"></td>-->
                     </tr>
                 </tbody>
             </table>
+            <div style="text-align: end; margin-top: 4px">Tổng số lượng: <span th:text="${Quantity}" ></span> sản phẩm</div>
+        </div>
+        <div style="margin-top: 14px">
+            <div style="float: left; width: 200px; height: 200px">
+                <div>Tổng Tiền Hàng: </div>
+                <div>Giảm Giá: </div>
+                <div>Phí Giao Hàng: </div>
+                <div>Tổng Tiền Hóa Đơn:</div>
+            </div>
+            <div style="float: left">
+                <div><span class="font-medium" th:text="${#numbers.formatDecimal(NetTotal, 0, 0, 'COMMA')} + ' đ'"></span></div>
+                <div><span class="font-medium" th:text="${#numbers.formatDecimal(Discount, 0, 0, 'COMMA')} + ' đ'"></span></div>
+                <div><span class="font-medium" th:text="${#numbers.formatDecimal(Ship, 0, 0, 'COMMA')} + ' đ'" ></span></div>
+                <div><span class="font-medium" th:text="${#numbers.formatDecimal(Total, 0, 0, 'COMMA')} + ' đ'"></span></div>
+            </div>
+            <div style="clear: both"></div>
+            <p style="text-align: center; margin-top: 4px; ">--------------------------- Cảm ơn quý khách đã mua hàng ---------------------------</p>
+
         </div>
 
-        <div style="width: 100%; display: flex; flex-direction: row;">
-            <div style="">
-                <p class="text-[1.8rem] font-medium">Tổng Tiền: <span class="font-medium" th:text="${NetTotal + 'đ'}"></span></p>
-                <p class="text-[1.8rem] font-medium">Giảm Giá: <span class="font-medium" th:text="${Discount + 'đ'}"></span></p>
-                <p class="text-[1.8rem] font-medium">Phí Giao Hàng: <span class="font-medium" th:text="${Ship + 'đ'}"></span></p>
-                <p class="text-[1.8rem] font-medium">Tổng Tiền Cần Thanh Toán: <span class="font-medium" th:text="${Total + 'đ'}"></span></p>
-            </div>
-        </div>
 
     </div>
 </body>

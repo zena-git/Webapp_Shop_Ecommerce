@@ -7,10 +7,13 @@ import com.example.webapp_shop_ecommerce.dto.response.customer.CustomerResponse;
 import com.example.webapp_shop_ecommerce.entity.Customer;
 import com.example.webapp_shop_ecommerce.infrastructure.security.Authentication;
 import com.example.webapp_shop_ecommerce.service.ICustomerService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +36,14 @@ public class ProfileClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody CustomerRequest customerDto, @PathVariable("id") Long id){
-        System.out.println("Update ID: " + id);
+    public ResponseEntity<?> updateProduct(@Valid @RequestBody CustomerRequest customerDto, BindingResult result, @PathVariable("id") Long id){
+
+        if (result.hasErrors()) {
+            // Lấy lỗi đầu tiên
+            FieldError firstError = result.getFieldError();
+            // Trả về ResponseEntity.badRequest() với lỗi đầu tiên
+            return new ResponseEntity<>(new ResponseObject("error", firstError.getDefaultMessage(), 1, customerDto), HttpStatus.BAD_REQUEST);
+        }
         Customer customer = null;
         Optional<Customer> otp = customerService.findById(id);
         if (otp.isEmpty()){
