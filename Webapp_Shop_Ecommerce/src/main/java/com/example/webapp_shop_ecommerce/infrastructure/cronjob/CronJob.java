@@ -49,7 +49,7 @@ public class CronJob {
 
     }
 
-//    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
+    @Scheduled(fixedRate = 6000) // Chạy mỗi phút (1 phút = 60000 milliseconds)
     public void PromotionCronJob() {
         LocalDateTime now = LocalDateTime.now();
         //set Dang dien ra
@@ -70,11 +70,13 @@ public class CronJob {
         // Lấy thời gian hiện tại
         LocalDateTime now = LocalDateTime.now();
 
-        // Đặt giờ và phút thành 23:59
-        LocalDateTime specificTime = now.withHour(23).withMinute(59);
+        // Đặt giờ và phút thành hom nay 0:0
+        LocalDateTime specificTime = now.withHour(0).withMinute(0);
 
         System.out.println("Thời gian hiện tại: " + now);
         System.out.println("Thời gian cấu hình: " + specificTime);
+        billService.autoUpdateBillChoThanhToanToHuy(specificTime,TrangThaiBill.CHO_THANH_TOAN.getLabel(), TrangThaiBill.HUY.getLabel());
+
     }
     @Scheduled(cron = "0 59 23 * * ?")
     public void CancellingInvoice() {

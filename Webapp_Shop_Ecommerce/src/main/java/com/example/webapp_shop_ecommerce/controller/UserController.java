@@ -114,5 +114,20 @@ public class UserController {
         return usersService.delete(id);
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ResponseObject> updateStatus(@RequestBody UserRequest UserRequest, @PathVariable Long id){
+
+        Optional<Users> opt = usersService.findById(id);
+        if (opt.isEmpty()){
+            return new ResponseEntity<>(new ResponseObject("Fail", "Không Tìm Thấy ID", 1, UserRequest), HttpStatus.BAD_REQUEST);
+        }
+
+        Users user = opt.get();
+        user = mapper.map(UserRequest, Users.class);
+        user.setId(opt.get().getId());
+        user.setUsersRole(Roles.STAFF);
+        return usersService.update(user);
+    }
+
 
 }

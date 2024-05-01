@@ -3,98 +3,142 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Document</title>
   <meta http-equiv="Content-Type" content="text/html, charset=utf-8" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900" rel="stylesheet" />
+<!--  <link rel="preconnect" href="https://fonts.googleapis.com" />-->
+<!--  <link rel="preconnect" href="https://fonts.gstatic.com" />-->
+<!--  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900" rel="stylesheet" />-->
   <style>
-    *,
-    ::before,
-    ::after {
+    * {
       box-sizing: border-box;
-      border-width: 0;
-      border-style: solid;
-      border-color: #e5e7eb;
-    }
-
-    ::before,
-    ::after {
-      --tw-content: '';
+      margin: 0;
+      padding: 0;
     }
 
     html {
-      line-height: 1.5;
-      -webkit-text-size-adjust: 100%;
-      -moz-tab-size: 4;
-      tab-size: 4;
-      font-family: "Roboto", sans-serif;
+      font-size: 62.5%;
+      font-family: 'Roboto', 'Times New Roman', Times, serif;
     }
 
     body {
-      margin: 0;
-      padding: 5%;
-      line-height: inherit;
-    }
-
-    hr {
-      height: 0;
-      color: inherit;
-      border-top-width: 1px;
-    }
-
-    abbr:where([title]) {
-      -webkit-text-decoration: underline dotted;
-      text-decoration: underline dotted;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      font-size: inherit;
-      font-weight: inherit;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: inherit;
-    }
-
-    b,
-    strong {
-      font-weight: bolder;
-    }
-
-    code,
-    kbd,
-    samp,
-    pre {
-      font-size: 1em;
-    }
-
-    small {
-      font-size: 80%;
-    }
-
-    sub,
-    sup {
-      font-size: 75%;
-      line-height: 0;
+      font-size: 1.6rem;
+      background-color: white;
+      width: 100%;
       position: relative;
-      vertical-align: baseline;
     }
 
-    sub {
-      bottom: -0.25em;
+    .main {
+      width: 1280px;
+      max-width: calc(100% - 48px);
+      margin: 0 auto;
+      padding: 20px 0;
+      min-height: 100vh;
+      background-image: url('https://res.cloudinary.com/dgxbxvkso/image/upload/v1714506426/bvnyj9norrisq2h6lcne.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-color: white;
     }
 
-    sup {
-      top: -0.5em;
+    .line {
+      border-bottom: 4px dashed black;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+    }
+
+    table .line {
+      border-bottom: 2px dashed black;
+    }
+
+    td,
+    th {
+      padding: 12px 0px;
+    }
+
+    td {
+      background-color: #ffffffb8;
+    }
+
+
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-row {
+      flex-direction: row;
+    }
+
+
+    .basis14 {
+      flex-basis: 25%;
+    }
+
+    .basis12 {
+      flex-basis: 50%;
+    }
+
+    .textcenter {
+      text-align: center;
+    }
+
+    .text68rem {
+      font-size: 6.8rem;
+    }
+
+    .text18rem {
+      font-size: 1.8rem;
+    }
+
+    .text34rem {
+      font-size: 3.4rem;
+    }
+
+    .text2rem {
+      font-size: 2rem;
+    }
+
+    .fontbold {
+      font-weight: bold;
+    }
+
+    .fontmedium {
+      font-weight: 500;
+    }
+
+    .wfull {
+      width: 100%;
+    }
+
+    .my6 {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tableauto {
+      width: 100%;
+      table-layout: auto;
+    }
+
+    .bggray300 {
+      background-color: #e5e7eb;
+    }
+
+    .textend {
+      text-align: end;
+    }
+
+    .ml10 {
+      margin-left: 2.5rem;
+    }
+
+    .mt12 {
+      margin-top: 3rem;
+    }
+
+    .justifyend {
+      justify-content: flex-end;
     }
 
     table {
@@ -102,521 +146,103 @@
       border-color: inherit;
       border-collapse: collapse;
     }
-
-    button,
-    input,
-    optgroup,
-    select,
-    textarea {
-      margin: 0;
-      padding: 0;
-    }
-
-    button,
-    select {
-      text-transform: none;
-    }
-
-    button,
-    [type='button'],
-    [type='reset'],
-    [type='submit'] {
-      appearance: button;
-      -webkit-appearance: button;
-      background-color: transparent;
-      background-image: none;
-    }
-
-    :-moz-focusring {
-      outline: auto;
-    }
-
-    :-moz-ui-invalid {
-      box-shadow: none;
-    }
-
-    progress {
-      vertical-align: baseline;
-    }
-
-    ::-webkit-inner-spin-button,
-    ::-webkit-outer-spin-button {
-      height: auto;
-    }
-
-    [type='search'] {
-      appearance: textfield;
-      -webkit-appearance: textfield;
-      outline-offset: -2px;
-    }
-
-    ::-webkit-search-decoration {
-      -webkit-appearance: none;
-    }
-
-    ::-webkit-file-upload-button {
-      -webkit-appearance: button;
-      font: inherit;
-    }
-
-    summary {
-      display: list-item;
-    }
-
-    blockquote,
-    dl,
-    dd,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    hr,
-    figure,
-    p,
-    pre {
-      margin: 0;
-    }
-
-    fieldset {
-      margin: 0;
-      padding: 0;
-    }
-
-    legend {
-      padding: 0;
-    }
-
-    ol,
-    ul,
-    menu {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    dialog {
-      padding: 0;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      opacity: 1;
-      color: #9ca3af;
-    }
-
-    button,
-    [role="button"] {
-      cursor: pointer;
-    }
-
-    :disabled {
-      cursor: default;
-    }
-
-    img,
-    svg,
-    video,
-    canvas,
-    audio,
-    iframe,
-    embed,
-    object {
-      display: block;
-    }
-
-    img,
-    video {
-      max-width: 100%;
-      height: auto;
-    }
-
-    [hidden] {
-      display: none;
-    }
-
-    .fixed {
-      position: fixed;
-    }
-
-    .bottom-0 {
-      bottom: 0px;
-    }
-
-    .left-0 {
-      left: 0px;
-    }
-
-    .table {
-      display: table;
-    }
-
-    .h-12 {
-      height: 3rem;
-    }
-
-    .w-1\/2 {
-      width: 50%;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .w-70 {
-      width: 70%;
-    }
-
-    .flex-grow {
-      flex-grow: 0;
-    }
-
-    .border-collapse {
-      border-collapse: collapse;
-    }
-
-    .border-spacing-0 {
-      --tw-border-spacing-x: 0px;
-      --tw-border-spacing-y: 0px;
-      border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y);
-    }
-
-    .max-w-[30%]{
-      max-width: 30%;
-    }
-
-    .whitespace-nowrap {
-      white-space: nowrap;
-    }
-
-    .border-b {
-      border-bottom-width: 1px;
-    }
-
-    .border-b-2 {
-      border-bottom-width: 2px;
-    }
-
-    .border-r {
-      border-right-width: 1px;
-    }
-
-    .border-main {
-      border-color: #5c6ac4;
-    }
-
-    .bg-main {
-      background-color: #5c6ac4;
-    }
-
-    .bg-slate-100 {
-      background-color: #f1f5f9;
-    }
-
-    .p-3 {
-      padding: 0.75rem;
-    }
-
-    .px-14 {
-      padding-left: 3.5rem;
-      padding-right: 3.5rem;
-    }
-
-    .px-2 {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-
-    .py-10 {
-      padding-top: 2.5rem;
-      padding-bottom: 2.5rem;
-    }
-
-    .py-3 {
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
-    }
-
-    .py-4 {
-      padding-top: 1rem;
-      padding-bottom: 1rem;
-    }
-
-    .py-6 {
-      padding-top: 1.5rem;
-      padding-bottom: 1.5rem;
-    }
-
-    .mb-12{
-      margin-bottom: 12rem;
-    }
-
-    .pb-3 {
-      padding-bottom: 0.75rem;
-    }
-
-    .pl-2 {
-      padding-left: 0.5rem;
-    }
-
-    .pl-3 {
-      padding-left: 0.75rem;
-    }
-
-    .pl-4 {
-      padding-left: 1rem;
-    }
-
-    .pr-3 {
-      padding-right: 0.75rem;
-    }
-
-    .pr-4 {
-      padding-right: 1rem;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .text-right {
-      text-align: right;
-    }
-
-    .align-top {
-      vertical-align: top;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-      line-height: 1.25rem;
-    }
-
-    .text-xs {
-      font-size: 0.75rem;
-      line-height: 1rem;
-    }
-
-    .font-bold {
-      font-weight: 700;
-    }
-
-    .italic {
-      font-style: italic;
-    }
-
-    .text-main {
-      color: #5c6ac4;
-    }
-
-    .text-neutral-600 {
-      color: #525252;
-    }
-
-    .text-neutral-700 {
-      color: #404040;
-    }
-
-    .text-slate-300 {
-      color: #cbd5e1;
-    }
-
-    .text-slate-400 {
-      color: #94a3b8;
-    }
-
-    .text-white {
-      color: #fff;
-    }
-
-    .ml-8{
-      margin-left: 2rem;
-    }
-
-    @page {
-      margin: 0;
-    }
-
-    @media print {
-      body {
-        print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
-      }
-    }
-
-    .main-title{
-      text-align: center;
-      color: rgb(224, 56, 93);
-      font-size: 40px;
-      font-weight: 1500;
-      margin: 20px 0px;
-    }
-    .mb-12{
-      margin: 0 0 30px 0;
-    }
-
-    .mt-12{
-      margin: 30px 0 0 0;
-    }
   </style>
 </head>
 <body>
-<div>
-  <div class="py-4">
-    <div class="px-14 py-6 mb-12">
-      <table class="w-full border-collapse border-spacing-0">
-        <tbody>
-        <tr>
-          <td class="w-full align-top">
-            <div>
-              <img src='https://drive.google.com/uc?id=1uAkWD6Ga--dk5VcB0r3gmZ2j0M9PrKgv&amp;export=download' class="h-12 w-24"/>
-            </div>
-          </td>
-
-          <td class="align-top">
-            <div class="text-sm">
-              <table class="border-collapse border-spacing-0">
-                <tbody>
-                <tr>
-                  <td class="border-r pr-4">
-                    <div class="px-2">
-                      <p class="whitespace-nowrap text-slate-400 text-left">Ngày tạo</p>
-                      <p class="whitespace-nowrap font-bold text-main text-right" th:text="${invoiceDate}"></p>
-                    </div>
-                  </td>
-                  <td class="">
-                    <div class="">
-                      <p class="whitespace-nowrap text-slate-400">Hóa đơn số</p>
-                      <p class="whitespace-nowrap font-bold text-main text-right" th:text="${invoiceNumber}"></p>
-                    </div>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+<div class="main">
+  <div class="flex flex-row line">
+    <div class="basis14">
+<!--      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Hd-12312313">-->
     </div>
+    <div class="basis12">
+      <div>
+        <h1 class="textcenter text68rem fontbold">Lolita Alice</h1>
+        <div>
+          <p class="textcenter text18rem fontmedium">Địa Chỉ: 13 phố Trịnh Văn Bô, phường Phương
+            Canh,
+            quận
+            Nam Từ Liêm, TP Hà Nội</p>
+          <p class="textcenter text18rem fontmedium">Số Điện Thoại: 0123456789</p>
+          <p class="textcenter text18rem fontmedium">Email: lolitaalice.obj@gmail.com</p>
+        </div>
+      </div>
 
-    <div class="main-title">
-      <h1>HÓA ĐƠN BÁN HÀNG</h1>
     </div>
-
-    <div class="bg-slate-100 px-14 py-6 text-sm mb-12">
-      <table class="w-full border-collapse border-spacing-0">
-        <tbody>
-        <tr>
-          <td class="w-1/2 align-top">
-            <div class="text-sm text-neutral-600">
-              <p class="font-bold">Lolita Alice</p>
-              <p>Hotline: 012345678</p>
-              <p>Email: lolitaalice@gmail.com</p>
-            </div>
-          </td>
-          <td class="w-1/2 align-top text-right">
-            <div class="text-sm text-neutral-600">
-              <p th:text="${bill.receiverName != null ? bill.receiverName : 'Khách lẻ'}"></p>
-              <p th:text="${bill.receiverPhone != null ? bill.receiverPhone : 'N/A'}"></p>
-              <p th:text="${bill.receiverDetails != null ? (bill.receiverDetails + ', ' + bill.receiverCommune + ', ' + bill.receiverDistrict + ', ' + bill.receiverProvince) : 'N/A'}"></p>
-            </div>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="px-14 py-10 text-sm text-neutral-700 mt-12">
-      <table class="w-full border-collapse border-spacing-0">
-        <thead>
-        <tr class="bg-purple-400">
-          <td class="border-b-2 border-main pb-3 pl-3 text-left font-bold text-main">#</td>
-          <td class="border-b-2 border-main pb-3 pl-2 text-left font-bold text-main">Tên sản phẩm</td>
-          <td class="border-b-2 border-main pb-3 pl-2 text-center font-bold text-main">Phân loại</td>
-          <td class="border-b-2 border-main pb-3 pl-2 text-center font-bold text-main">Giá</td>
-          <td class="border-b-2 border-main pb-3 pl-2 text-center font-bold text-main">Chiết khấu</td>
-          <td class="border-b-2 border-main pb-3 pl-2 text-center font-bold text-main">Số lượng</td>
-          <td class="border-b-2 border-main pb-3 pl-2 pr-3 text-right font-bold text-main">Thành tiền</td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="billDetail, iterStat : ${billDetails}">
-          <td class="border-b py-3 pl-3 text-left" th:text="${iterStat.count}"></td>
-          <td class="border-b py-3 pl-3 text-left" th:text="${billDetail.getProductDetails.getProduct.getName}"></td>
-          <td class="border-b py-3 pl-2 text-center" th:text="${billDetail.getProductDetails.getColor.getName + ' - ' + billDetail.getProductDetails.getSize.getName}"></td>
-          <td class="border-b py-3 pl-2 text-center" th:text="${billDetail.getOriginalPrice + 'đ'}"></td>
-          <td class="border-b py-3 pl-2 text-center" th:text="${billDetail.getDiscount + 'đ'}"></td>
-          <td class="border-b py-3 pl-2 text-center" th:text="${billDetail.getQuantity}"></td>
-          <td class="border-b py-3 pl-2 pr-3 text-right" th:text="${billDetail.getUnitPrice*billDetail.getQuantity + 'đ'}"></td>
-        </tr>
-        <th:block th:if="${billDetails == null or billDetails.size() < 5}">
-          <!-- Tạo danh sách giả lập với độ dài cần thiết -->
-          <th:block th:with="dummySize=${5 - (billDetails != null ? billDetails.size() : 0)}">
-            <!-- Lặp qua danh sách giả lập dummySize để tạo ra 5 <tr> với các <td> trống -->
-            <th:block th:each="dummyIndex : ${#numbers.sequence(1, dummySize)}">
-              <tr>
-                <td class="border-b py-3 pl-3 text-left"></td>
-                <td class="border-b py-3 pl-3 text-left"></td>
-                <td class="border-b py-3 pl-2 text-center"></td>
-                <td class="border-b py-3 pl-2 text-center"></td>
-                <td class="border-b py-3 pl-2 text-center"></td>
-                <td class="border-b py-3 pl-2 text-center"></td>
-                <td class="border-b py-3 pl-2 pr-3 text-right"></td>
-              </tr>
-            </th:block>
-          </th:block>
-        </th:block>
-        <tr>
-          <td colspan="7">
-            <table class="w-full border-collapse border-spacing-0">
-              <tbody>
-              <tr>
-                <td class="w-70"></td>
-                <td class="flex-grow">
-                  <table class="w-full border-collapse border-spacing-0">
-                    <tbody>
-                    <tr>
-                      <td class="border-b p-3">
-                        <div class="whitespace-nowrap text-slate-400">Tổng tiền: </div>
-                      </td>
-                      <td class="border-b p-3 text-right">
-                        <div class="whitespace-nowrap font-bold text-main px-2" th:text="${NetTotal + 'đ'}"></div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="p-3">
-                        <div class="whitespace-nowrap text-slate-400">Khấu trừ: </div>
-                      </td>
-                      <td class="p-3 text-right">
-                        <div class="whitespace-nowrap font-bold text-main px-2" th:text="${Discount + 'đ'}"></div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="bg-main p-3">
-                        <div class="whitespace-nowrap font-bold text-white">Thành tiền: </div>
-                      </td>
-                      <td class="bg-main p-3 text-right">
-                        <div class="whitespace-nowrap font-bold text-white px-2" th:text="${Total + 'đ'}"></div>
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+    <div class="basis14">
     </div>
   </div>
+
+  <div class="line">
+    <div>
+      <p class="textcenter text34rem fontbold">Hóa Đơn Bán Hàng</p>
+      <p class="textcenter text18rem fontmedium">Ngày: 12/12/2020</p>
+      <p class="textcenter text18rem fontmedium">Mã Hóa Đơn: Hd-12312313</p>
+    </div>
+
+    <div>
+      <p class="text18rem fontbold">Khách Hàng: <span class="fontmedium">Khách Lẻ</span> </p>
+      <p class="text18rem fontmedium">Địa Chỉ: <span class="fontmedium">13 phố Trịnh Văn Bô, phường
+                        Phương Canh,
+                        quận Nam Từ Liêm, TP Hà Nộ</span> </p>
+      <p class="text18rem fontmedium">Điện Thoại: <span class="fontmedium">09123456789</span></p>
+      <p class="text18rem fontbold">Người Lập Phiếu: <span class="fontmedium">Khách Lẻ</span> </p>
+    </div>
+  </div>
+
+  <div class="wfull">
+    <div class="my6">
+      <p class="textcenter text2rem fontbold">Danh Sách Sản Phẩm</p>
+    </div>
+    <table class="wfull fontmedium tableauto">
+      <thead class="textcenter bggray300">
+      <tr>
+        <th>STT</th>
+        <th>Tên Sản Phẩm</th>
+        <th>Đơn Giá</th>
+        <th>Số Lượng</th>
+        <th>Thành Tiền</th>
+        <th>Trạng Thái</th>
+      </tr>
+      </thead>
+      <tbody class="textcenter">
+      <tr class="line">
+        <td>1</td>
+        <td>Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1</td>
+        <td>100.000</td>
+        <td>1</td>
+        <td>100.000</td>
+        <td>Đã Giao</td>
+      </tr>
+      <tr class="line">
+        <td>1</td>
+        <td>Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1</td>
+        <td>100.000</td>
+        <td>1</td>
+        <td>100.000</td>
+        <td>Đã Giao</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wfull mt12">
+    <div class="flex justifyend">
+      <div>
+        <p class="text18rem fontmedium">Tổng Tiền:</p>
+        <p class="text18rem fontmedium">Giảm Giá:</p>
+        <p class="text18rem fontmedium">Phí Giao Hàng:</p>
+        <p class="text18rem fontmedium">Tổng Tiền Cần Thanh Toán:</p>
+      </div>
+      <div class="ml10 textend">
+        <p class="text18rem fontbold">100.000 đ</p>
+        <p class="text18rem fontbold">100.000 đ</p>
+        <p class="text18rem fontbold">100.000 đ</p>
+        <p class="text18rem fontbold">100.000.000 đ</p>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 </body>
 </html>

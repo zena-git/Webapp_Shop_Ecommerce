@@ -108,11 +108,17 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             Optional<ProductDetails> productDetailsOtp = productDetailsService.findByProductDetailWhereDeletedAndStatus(cartDetails.getProductDetails().getId(), TrangThai.HOAT_DONG.getLabel());
             if (productDetailsOtp.isEmpty()){
                 cartDetailsRepo.delete(cartDetails);
-                return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm " + cartDetails.getProductDetails().getProduct().getName() + " đã ngừng bán hoặc đã bị xóa khỏi cửa hàng", 1, billRequest), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ResponseObject("error", "Sản phẩm " + cartDetails.getProductDetails().getProduct().getName() + " đã ngừng bán hoặc đã bị xóa khỏi cửa hàng", 1, cartDetails), HttpStatus.BAD_REQUEST);
             }
 
             ProductDetails productDetails = productDetailsOtp.get();
             if (cartDetails.getQuantity() > productDetails.getQuantity()) {
+                if (productDetails.getQuantity() >0) {
+                    cartDetails.setQuantity(productDetails.getQuantity());
+                    cartDetailsRepo.save(cartDetails);
+                }else {
+                    cartDetailsRepo.delete(cartDetails);
+                }
                 return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ", 1, billRequest), HttpStatus.BAD_REQUEST);
             }
         }
@@ -293,7 +299,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 
             ProductDetails productDetails = poductDetailsOpt.get();
             if (cartDetails.getQuantity() > productDetails.getQuantity()) {
-                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ chỉ còn " + productDetails.getQuantity(), 001, billRequest), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ResponseObject("error", "Số lượng sản phẩm " + productDetails.getProduct().getName() + " trong kho không đủ chỉ còn " + productDetails.getQuantity(), 001, cartDetails), HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -765,7 +771,8 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             bill.setBillFormat(BillType.DELIVERY.getLabel());
             bill.setStatus(TrangThaiBill.DA_XAC_NHAN.getLabel());
             historyBillService.addHistoryBill(bill, TrangThaiBill.DA_XAC_NHAN.getLabel(), "");
-        } else {
+        }
+        if (!billDto.getIsDelivery() && billDto.getPaymentMethod().equalsIgnoreCase(PaymentMethod.TIEN_MAT.getLabel())){
             historyBillService.addHistoryBill(bill, TrangThaiBill.HOAN_THANH.getLabel(), "");
             bill.setStatus(TrangThaiBill.HOAN_THANH.getLabel());
         }
@@ -1380,18 +1387,17 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
     @Override
     public void autoUpdateBillChoThanhToanToHuy(LocalDateTime now, String choThanhToan, String daHuy) {
         List<Bill> lstBill = billRepo.findAllBillChoThanhToan(now, choThanhToan);
-        lstBill.stream().map(bill -> {
-            bill.setStatus(daHuy);
-            bill.getLstBillDetails().stream().map(billDetails ->{
+        for (Bill bill : lstBill) {
+            bill.setStatus(TrangThaiBill.HUY.getLabel());
+            List<BillDetails> lstBillDetail = billDetailsRepo.findAllByBill(bill);
+            for (BillDetails billDetails : lstBillDetail) {
                 ProductDetails productDetails = billDetails.getProductDetails();
                 productDetails.setQuantity(productDetails.getQuantity() + billDetails.getQuantity());
                 productDetailsRepo.save(productDetails);
-                return billDetails;
-            }).collect(Collectors.toList());
+            }
             update(bill);
-            return bill;
-        }).collect(Collectors.toList());
+            historyBillService.addHistoryBill(bill, TrangThaiBill.HUY.getLabel(), "Tự Động Hủy Bởi Hệ Thống");
+        }
+
     }
-
-
 }

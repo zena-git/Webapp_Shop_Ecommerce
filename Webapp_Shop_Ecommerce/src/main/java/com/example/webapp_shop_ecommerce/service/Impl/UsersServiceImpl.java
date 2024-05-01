@@ -30,7 +30,7 @@ public class UsersServiceImpl extends BaseServiceImpl<Users, Long, IUsersReposit
     private RandomStringGenerator randomStringGenerator;
     @Override
     public List<Users> findAllByDeletedAll() {
-        return repository.findAllByDeletedAll();
+        return repository.findAllByDeletedAll(Roles.STAFF);
     }
 
     @Override
