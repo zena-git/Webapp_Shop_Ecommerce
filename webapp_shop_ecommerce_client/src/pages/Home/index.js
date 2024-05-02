@@ -98,123 +98,127 @@ function Home() {
 
                 </Carousel>
                 <div >
-
-                    <div className="slider-container">
-                        <div className="text-center	">
-                            <div className="text-6xl font-sans font-bold text-gray-900 my-10">Sản phẩm nổi bật</div>
-                        </div>
-                        <Slider {...settings}>
-                            {
-                                lstProduct?.map((product, index) => {
-                                    return (
-                                        <div key={index} className="pb-8">
-                                            <Link to={"/product/" + product.id} style={{
-                                                textDecoration: 'none',
-                                                color: 'black'
-                                            }}>
-                                                <div className=" w-[240px] shadow-md rounded-md h-[420px]
+                    {
+                        lstProduct.length != 0 && <div className="slider-container">
+                            <div className="text-center	">
+                                <div className="text-6xl font-sans font-bold text-gray-900 my-10">Sản phẩm nổi bật</div>
+                            </div>
+                            <Slider {...settings}>
+                                {
+                                    lstProduct?.map((product, index) => {
+                                        return (
+                                            <div key={index} className="pb-8">
+                                                <Link to={"/product/" + product?.id} style={{
+                                                    textDecoration: 'none',
+                                                    color: 'black'
+                                                }}>
+                                                    <div className=" w-[240px] shadow-md rounded-md h-[420px]
                                         hover:shadow-xl hover:bg-gray-100 transition duration-300 ease-in-out hover:scale-125
                                         ">
-                                                    <div className="relative">
-                                                        <img className="rounded-t-md" src={product.imageUrl} style={{ width: '100%', height: '320px', objectFit: 'cover' }} alt={`Image ${index}`} />
-
-                                                        {
-                                                            product?.promotionDetailsActive ? <div className="absolute top-0 right-0">
-                                                                <span className="px-4 bg-rose-500 text-white text-2xl">- {product?.promotionDetailsActive?.promotion?.value}%</span>
-                                                            </div> : <div></div>
-                                                        }
-
-                                                    </div>
-
-                                                    <div className="px-6 py-4">
-                                                        <div className="mt-2 h-[50px]">
-                                                            <p className="overflow-wrap break-word font-medium	">{product.name.length > 30 ? product.name.substring(0, 30) + '...' : product.name}</p>
-                                                        </div>
-                                                        <div className="flex justify-end	">
+                                                        <div className="relative">
+                                                            <img className="rounded-t-md" src={product?.imageUrl} style={{ width: '100%', height: '320px', objectFit: 'cover' }} alt={`Image ${index}`} />
 
                                                             {
-                                                                product?.promotionDetailsActive ?
-                                                                    <div className="flex items-center	">
-                                                                        <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(product.price)}</span>
-                                                                        <span className="ml-2 text-rose-500 text-2xl font-medium	">{
-                                                                            fixMoney(product.price -
-                                                                                (product.price * product.promotionDetailsActive.promotion.value / 100))}</span>
-                                                                    </div> :
-                                                                    <div>
-                                                                        <span className="text-rose-500 text-2xl font-medium	">{fixMoney(product.price)}</span>
-                                                                    </div>
+                                                                product?.promotionDetailsActive ? <div className="absolute top-0 right-0">
+                                                                    <span className="px-4 bg-rose-500 text-white text-2xl">- {product?.promotionDetailsActive?.promotion?.value}%</span>
+                                                                </div> : <div></div>
                                                             }
 
                                                         </div>
 
-                                                    </div>
+                                                        <div className="px-6 py-4">
+                                                            <div className="mt-2 h-[50px]">
+                                                                <p className="overflow-wrap break-word font-medium	">{product?.name?.length > 30 ? product?.name?.substring(0, 30) + '...' : product.name}</p>
+                                                            </div>
+                                                            <div className="flex justify-end	">
 
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    )
-                                })
-                            }
-                        </Slider>
-                    </div>
-                    <div className="slider-container">
-                        <div className="text-center	">
-                            <div className="text-6xl font-sans font-bold text-gray-900 my-10">Sản phẩm bán chạy</div>
+                                                                {
+                                                                    product?.promotionDetailsActive ?
+                                                                        <div className="flex items-center	">
+                                                                            <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(product?.price)}</span>
+                                                                            <span className="ml-2 text-rose-500 text-2xl font-medium	">{
+                                                                                fixMoney(product?.price -
+                                                                                    (product?.price * product.promotionDetailsActive.promotion.value / 100))}</span>
+                                                                        </div> :
+                                                                        <div>
+                                                                            <span className="text-rose-500 text-2xl font-medium	">{fixMoney(product.price)}</span>
+                                                                        </div>
+                                                                }
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </Slider>
                         </div>
-                        <div className="w-full flex justify-between	">
-                            {
-                                lstTopSale?.map((product, index) => {
-                                    return (
-                                        <div key={index} className="pb-8">
-                                            <Link to={"/product/" + product.id} style={{
-                                                textDecoration: 'none',
-                                                color: 'black'
-                                            }}>
-                                                <div className=" w-[240px] shadow-md rounded-md h-[420px]
+                    }
+                    {/* {
+                        lstTopSale.length != 0 && <div className="slider-container">
+                            <div className="text-center	">
+                                <div className="text-6xl font-sans font-bold text-gray-900 my-10">Sản phẩm bán chạy</div>
+                            </div>
+                            <div className="w-full flex justify-between	">
+                                {
+                                    lstTopSale?.map((product, index) => {
+                                        return (
+                                            <div key={index} className="pb-8">
+                                                <Link to={"/product/" + product?.id} style={{
+                                                    textDecoration: 'none',
+                                                    color: 'black'
+                                                }}>
+                                                    <div className=" w-[240px] shadow-md rounded-md h-[420px]
                                         hover:shadow-xl hover:bg-gray-100 transition duration-300 ease-in-out hover:scale-125
                                         ">
-                                                    <div className="relative">
-                                                        <img className="rounded-t-md" src={product.imageUrl} style={{ width: '100%', height: '320px', objectFit: 'cover' }} alt={`Image ${index}`} />
-
-                                                        {
-                                                            product?.promotionDetailsActive ? <div className="absolute top-0 right-0">
-                                                                <span className="px-4 bg-rose-500 text-white text-2xl">- {product?.promotionDetailsActive?.promotion?.value}%</span>
-                                                            </div> : <div></div>
-                                                        }
-
-                                                    </div>
-
-                                                    <div className="px-6 py-4">
-                                                        <div className="mt-2 h-[50px]">
-                                                            <p className="overflow-wrap break-word font-medium	">{product.name.length > 30 ? product.name.substring(0, 30) + '...' : product.name}</p>
-                                                        </div>
-                                                        <div className="flex justify-end	">
+                                                        <div className="relative">
+                                                            <img className="rounded-t-md" src={product?.imageUrl} style={{ width: '100%', height: '320px', objectFit: 'cover' }} alt={`Image ${index}`} />
 
                                                             {
-                                                                product?.promotionDetailsActive ?
-                                                                    <div className="flex items-center	">
-                                                                        <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(product.price)}</span>
-                                                                        <span className="ml-2 text-rose-500 text-2xl font-medium	">{
-                                                                            fixMoney(product.price -
-                                                                                (product.price * product.promotionDetailsActive.promotion.value / 100))}</span>
-                                                                    </div> :
-                                                                    <div>
-                                                                        <span className="text-rose-500 text-2xl font-medium	">{fixMoney(product.price)}</span>
-                                                                    </div>
+                                                                product?.promotionDetailsActive ? <div className="absolute top-0 right-0">
+                                                                    <span className="px-4 bg-rose-500 text-white text-2xl">- {product?.promotionDetailsActive?.promotion?.value}%</span>
+                                                                </div> : <div></div>
                                                             }
 
                                                         </div>
 
-                                                    </div>
+                                                        <div className="px-6 py-4">
+                                                            <div className="mt-2 h-[50px]">
+                                                                <p className="overflow-wrap break-word font-medium	">{product?.name?.length > 30 ? product?.name.substring(0, 30) + '...' : product?.name}</p>
+                                                            </div>
+                                                            <div className="flex justify-end	">
 
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    )
-                                })
-                            }
+                                                                {
+                                                                    product?.promotionDetailsActive ?
+                                                                        <div className="flex items-center	">
+                                                                            <span className="text-gray-400	text-xl line-through font-medium">{fixMoney(product?.price)}</span>
+                                                                            <span className="ml-2 text-rose-500 text-2xl font-medium	">{
+                                                                                fixMoney(product?.price -
+                                                                                    (product?.price * product?.promotionDetailsActive?.promotion?.value / 100))}</span>
+                                                                        </div> :
+                                                                        <div>
+                                                                            <span className="text-rose-500 text-2xl font-medium	">{fixMoney(product?.price)}</span>
+                                                                        </div>
+                                                                }
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        )
+                                    })
+                                }
+                            </div>
                         </div>
-                    </div>
+                    } */}
+
                 </div>
             </div>
             <div className="grid grid-cols-4 gap-6 my-[8%]">
