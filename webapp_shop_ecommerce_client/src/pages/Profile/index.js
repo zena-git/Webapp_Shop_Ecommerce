@@ -38,6 +38,7 @@ const Profile = () => {
     };
 
     const handleCustomers = () => {
+        
         axiosIns.put('/api/v2/profile/' + customer.id, customer)
             .then(res => {
                 console.log(res);

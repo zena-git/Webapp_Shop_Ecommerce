@@ -14,13 +14,19 @@ export default function LoginPage() {
 
     const handleSubmit = () => {
         if (username.trim().length == 0) {
-
+            toast.error('Vui lòng nhập email');
         } else if (password.trim().length == 0) {
+            toast.error('Vui lòng nhập password');
 
         } else {
             const data = {
                 email: username,
                 password: password
+            }
+            const usernames =/\S+@\S+\.\S+/;
+            if (!usernames.test(username.trim())) {
+                toast.error('Email không hợp lệ');
+                return;
             }
             axios.post('http://localhost:8080/api/v2/login', data).then(res => {
                 toast.success('Đăng nhập thành công');

@@ -38,7 +38,16 @@ export default function RegisterPage() {
                 gender: gender,
                 birthday: birthday,
             }
-
+            const usernames =/\S+@\S+\.\S+/;
+            if (!usernames.test(email.trim())) {
+                toast.error('Email không hợp lệ');
+                return;
+            }
+            const phoneRegex = /^[0-9]{10,11}$/;
+            if (!phoneRegex.test(phone.trim())) {
+                toast.error('Số điện thoại không hợp lệ');
+                return;
+            }
             axios.post('http://localhost:8080/api/v2/register', data).then(res => {
                 toast.success('Đăng ký thành công');
                 setTimeout(() => {

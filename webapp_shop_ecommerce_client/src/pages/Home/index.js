@@ -161,7 +161,7 @@ function Home() {
                         <div className="text-center	">
                             <div className="text-6xl font-sans font-bold text-gray-900 my-10">Sản phẩm bán chạy</div>
                         </div>
-                        <div className="w-full flex gap-10 px-[10%]">
+                        <div className="w-full flex justify-between	">
                             {
                                 lstTopSale?.map((product, index) => {
                                     return (
