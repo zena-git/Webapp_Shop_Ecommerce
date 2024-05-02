@@ -284,9 +284,6 @@ export default function AddCustomer() {
     const Remove = (key) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
-            if (defaultAddress == key && q.length > 0) {
-                setDefaultAddress(q[0].key);
-            }
             setListAddress(q);
         }
     }
@@ -300,7 +297,7 @@ export default function AddCustomer() {
             okType: 'danger',
             cancelText: 'Không',
             onOk() {
-                Remove({ key: key })
+                Remove(key)
             },
             onCancel() {
                 console.log('Cancel');
@@ -636,7 +633,7 @@ export default function AddCustomer() {
                                             if (prev.find(target => target.key == editAddress.key)) {
                                                 let t = prev.map(add => {
                                                     if (add.key == editAddress.key) {
-                                                        return { ...editAddress, detail: detail };
+                                                        return { ...editAddress, };
                                                     } else {
                                                         return add;
                                                     }
@@ -743,8 +740,21 @@ export default function AddCustomer() {
                                         />
                                     </div>
                                     <div>
-                                        <p>Địa chỉ chi tiết</p>
-                                        <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); }} />
+                                        <FormField
+                                            control={modalForm.control}
+                                            name="detail"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Địa chỉ chi tiết</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} value={editAddress.detail} onChange={e => { setEditAddress({ ...editAddress, detail: e.target.value }) }} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        {/* <p>Địa chỉ chi tiết</p>
+                                        <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); }} /> */}
                                     </div>
 
                                     <div className='flex items-center gap-3'>

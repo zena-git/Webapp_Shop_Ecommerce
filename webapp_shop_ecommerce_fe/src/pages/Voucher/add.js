@@ -131,7 +131,7 @@ const VoucherPage = () => {
                     discountType: discountType ? 0 : 1,
                     maxDiscountValue: discountType ? values.value : values.max_discount_value,
                     orderMinValue: values.order_min_value,
-                    description: values.description,
+                    description: detail,
                     startDate: date[0].add(7, 'hour').toDate(),
                     endDate: date[1].add(7, 'hour').toDate(),
                     lstCustomer: listCustomer.map(val => { return val.id })

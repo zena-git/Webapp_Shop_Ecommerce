@@ -241,9 +241,6 @@ export default function AddCustomer() {
     const Remove = ({ key }) => {
         if (key) {
             let q = listAddress.filter(target => key != target.key)
-            if (defaultAddress == key && q.length > 0) {
-                setDefaultAddress(q[0].id || q[0].key);
-            }
             setListAddress(q);
         }
     }
@@ -270,7 +267,7 @@ export default function AddCustomer() {
             accessorKey: "key",
             header: "Mặc định",
             cell: ({ row }) => (<div className='flex justify-center'>
-                <Checkbox checked={defaultAddress == row.original.id || defaultAddress == row.original.key} onClick={() => { setDefaultAddress(row.original.id || row.original.key) }} />
+                <Checkbox checked={defaultAddress == row.original.key} onClick={() => { if (defaultAddress == row.original.key) { setDefaultAddress(null) } else { setDefaultAddress(row.original.key) } }} />
             </div>
             ),
         },
@@ -487,9 +484,6 @@ export default function AddCustomer() {
             district: { id: '2264', name: 'Huyện Si Ma Cai' },
             commune: { id: '90816', name: 'Thị Trấn Si Ma Cai' }
         }
-        if (listAddress == 0) {
-            setDefaultAddress(1);
-        }
         setDetail("");
         modalForm.reset();
         setEditAddress(newObject);
@@ -601,11 +595,12 @@ export default function AddCustomer() {
                                 toast.error('Sai định dạng số điện thoại');
                             } else {
                                 setIsModalOpen(false);
+                                console.log(detail)
                                 setListAddress(prev => {
                                     if (prev.find(target => target.key == editAddress.key)) {
                                         let t = prev.map(add => {
                                             if (add.key == editAddress.key) {
-                                                return { ...editAddress, detail: detail };
+                                                return { ...editAddress };
                                             } else {
                                                 return add;
                                             }
@@ -713,12 +708,25 @@ export default function AddCustomer() {
                                 />
                             </div>
                             <div>
-                                <p>Địa chỉ chi tiết</p>
-                                <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { setDetail(e.target.value); }} />
+                                <FormField
+                                    control={modalForm.control}
+                                    name="detail"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Địa chỉ chi tiết</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} value={editAddress.detail} onChange={e => { setEditAddress({ ...editAddress, detail: e.target.value }) }} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {/* <p></p>
+                                <TextArea placeholder="địa chỉ chi tiết" value={detail} onChange={e => { console.log(e.target.value); setDetail(e.target.value); }} /> */}
                             </div>
 
                             <div className='flex items-center gap-3'>
-                                <Checkbox checked={defaultAddress == editAddress.key} onClick={() => { setDefaultAddress(editAddress.key) }} />
+                                <Checkbox checked={defaultAddress == editAddress.key} onClick={() => { if (defaultAddress == editAddress.key) { setDefaultAddress(null) } else { setDefaultAddress(editAddress.key) } }} />
                                 <p>Đặt làm địa chỉ mặc định</p>
                             </div>
                         </form>

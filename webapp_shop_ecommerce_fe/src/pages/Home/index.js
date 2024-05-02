@@ -5,13 +5,12 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl, currentDate, numberToPrice } from '../../lib/functional'
 import Plotly from 'plotly.js-dist'
-import AxiosIns from '../../lib/auth'
 
 const { RangePicker } = DatePicker;
 
 function Home() {
 
-    const [date, setDate] = useState([dayjs(currentDate()), dayjs(currentDate())])
+    const [date, setDate] = useState([dayjs(currentDate()).add(-7, 'day'), dayjs(currentDate())])
     const [revenueData, setRevenueData] = useState([])
     const [topSale, setTopSale] = useState([])
     const [thisData, setThisData] = useState();
@@ -21,26 +20,18 @@ function Home() {
 
     useEffect(() => {
         if (type == 0) {
-            AxiosIns.get(`v1/statistical/lastweek`).then(res => {
-                if (res.data) {
-                    setThisData(res.data[0]);
-                }
+            axios.get(`${baseUrl}/statistical/lastweek`).then(res => {
+                setThisData(res.data[0]);
             })
-            AxiosIns.get(`v1/statistical/beforelastweek`).then(res => {
-                if (res.data) {
-                    setBeforeData(res.data[0]);
-                }
+            axios.get(`${baseUrl}/statistical/beforelastweek`).then(res => {
+                setBeforeData(res.data[0]);
             })
         } else if (type == 1) {
-            AxiosIns.get(`v1/statistical/lastmonth`).then(res => {
-                if (res.data) {
-                    setThisData(res.data[0]);
-                }
+            axios.get(`${baseUrl}/statistical/lastmonth`).then(res => {
+                setThisData(res.data[0]);
             })
-            AxiosIns.get(`v1/statistical/beforelastmonth`).then(res => {
-                if (res.data) {
-                    setBeforeData(res.data[0]);
-                }
+            axios.get(`${baseUrl}/statistical/beforelastmonth`).then(res => {
+                setBeforeData(res.data[0]);
             })
         } else if (type == 2) {
 
@@ -49,24 +40,23 @@ function Home() {
 
     useEffect(() => {
         if (date) {
-            AxiosIns.get(`v1/statistical/top?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
+            axios.get(`${baseUrl}/statistical/top?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
                 console.log(res)
                 if (res.data) {
                     setTop(res.data);
                 }
             })
-            AxiosIns.get(`v1/statistical/revenue?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
-                if (res.data) {
-                    setRevenueData(res.data.map(r => {
-                        if (r.revenue == null) {
-                            return { ...r, revenue: 0 };
-                        } else {
-                            return r;
-                        }
-                    }));
+            axios.get(`${baseUrl}/statistical/revenue?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
+                setRevenueData(res.data.map(r => {
+                    if (r.revenue == null) {
+                        return { ...r, revenue: 0 };
+                    } else {
+                        return r;
+                    }
                 }
+                ));
             })
-            AxiosIns.get(`/v1/statistical/product/topsale?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
+            axios.get(`${baseUrl}/statistical/product/topsale?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
                 if (res.data) {
                     const dates = res.data.map(entry => entry.time + ".");
                     console.log(dates);
@@ -253,7 +243,7 @@ function Home() {
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
 

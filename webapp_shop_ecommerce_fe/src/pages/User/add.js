@@ -322,7 +322,7 @@ export default function Add() {
                             </div>
                         </div>
                         <div className="flex-grow flex flex-col gap-2 bg-white shadow-lg rounded-md p-5">
-                            <div className='flex justify-between items-center'>
+                            {/* <div className='flex justify-between items-center'>
                                 <p className='text-2xl font-bold'>Thông tin chi tiết</p>
                                 <Button type="primary" onClick={() => setIsModalOpen(true)}>
                                     Quét mã QR
@@ -339,7 +339,7 @@ export default function Add() {
                                     />
                                     <p>{webScan && webScan.text}</p>
                                 </Modal>
-                            </div>
+                            </div> */}
                             <div className='bg-slate-600 h-[2px]'></div>
                             <div className='flex flex-col gap-3'>
                                 <div className='grid grid-cols-2 gap-3 items-center'>

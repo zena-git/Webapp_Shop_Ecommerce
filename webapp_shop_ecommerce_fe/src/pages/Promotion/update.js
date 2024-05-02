@@ -26,7 +26,7 @@ function EditPage() {
     const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState("");
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState(1);
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
     const [PromotionType, setPromotionType] = useState("0");
@@ -126,8 +126,6 @@ function EditPage() {
     useEffect(() => {
         if (PromotionType == "0") {
             dispatch(toggleAll());
-        } else {
-            dispatch(deselectAll());
         }
     }, [PromotionType, dispatch])
 

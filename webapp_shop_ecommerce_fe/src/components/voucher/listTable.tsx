@@ -226,7 +226,7 @@ export default function ListTable() {
                         key: '3',
                         label: (
                             <>
-                                {row.original.status != "4" ? <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
+                                {row.original.status == "0" || row.original.status == "1" ? <div className='flex gap-2 items-center' onClick={() => { showDeleteConfirm(row.original.id) }}>
                                     <FaTrash />
                                     Hủy
                                 </div> : <></>}
