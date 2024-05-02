@@ -46,7 +46,7 @@ export default function ListTable() {
     const selectedCustomer = useAppSelector((state) => state.voucherDeletedReducer.value.selected)
 
     const fillData = () => {
-        AxiosIns.get(`v3/customer`).then(res => { setListCustomer(res.data) })
+        AxiosIns.get(`v1/customer`).then(res => { setListCustomer(res.data) })
     }
 
     const fillDeletedData = () => {

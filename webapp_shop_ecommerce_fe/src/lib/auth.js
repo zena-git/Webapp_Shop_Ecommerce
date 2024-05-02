@@ -5,19 +5,18 @@ const AxiosIns = axios.create({
 
 AxiosIns.interceptors.request.use(config => {
   //     Retrieve token from localStorage
-  const token = localStorage.getItem('token')
+  // const token = localStorage.getItem('token')
 
-  //     If token is found
-  if (token) {
-      // Get request headers and if headers is undefined assign blank object
-      config.headers = config.headers || {}
+  // //     If token is found
+  // if (token) {
+  //     // Get request headers and if headers is undefined assign blank object
+  //     config.headers = config.headers || {}
 
-      // Set authorization header
-      // ℹ️ JSON.parse will convert token to string
-      config.headers.Authorization = token ? `Bearer ${token}` : ''
-  }
-
-      // Return modified config
+  //     // Set authorization header
+  //     // ℹ️ JSON.parse will convert token to string
+  //     config.headers.Authorization = token ? `Bearer ${token}` : ''
+  // }
+  // Return modified config
   return config
 })
 

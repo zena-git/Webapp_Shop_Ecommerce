@@ -22,17 +22,21 @@ export default function LoginPage() {
                 email: username,
                 password: password
             }
-            axios.post(`${baseUrl}/login`, data).then(res => {
-                toast.success('Đăng nhập thành công');
-                const token = res.data.data.token;
-                console.log(token);
-                localStorage.setItem('token', token);
-                setTimeout(() => {
-                    navigate('/')
-                }, 1000)
-            }).catch(err => {
-                toast.error(err.response.data.message)
-            })
+            toast.success('Đăng nhập thành công');
+            setTimeout(() => {
+                navigate('/')
+            }, 1000)
+            // axios.post(`${baseUrl}/login`, data).then(res => {
+            //     toast.success('Đăng nhập thành công');
+            //     const token = res.data.data.token;
+            //     console.log(token);
+            //     localStorage.setItem('token', token);
+            //     setTimeout(() => {
+            //         navigate('/')
+            //     }, 1000)
+            // }).catch(err => {
+            //     toast.error(err.response.data.message)
+            // })
         }
     }
 

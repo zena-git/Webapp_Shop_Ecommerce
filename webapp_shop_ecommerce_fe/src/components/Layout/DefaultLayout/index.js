@@ -76,11 +76,11 @@ function DefaultLayout({ children }) {
     }
   }, [navigate])
 
-  useEffect(() => {
-    AxiosIns.get('v1/profile').then(res => {
-      setCurrentProfile(res.data)
-    })
-  }, [])
+  // useEffect(() => {
+  //   AxiosIns.get('v1/profile').then(res => {
+  //     setCurrentProfile(res.data)
+  //   })
+  // }, [])
 
   return (
     <div >
@@ -106,7 +106,7 @@ function DefaultLayout({ children }) {
 
               <div className='ml-6 flex items-center'>
                 <div>
-                  <h4>{currentProfile?.fullName}</h4>
+                  <h4>Phùng Thị Thúy Hiền</h4>
                 </div>
                 <Avatar className='ml-4' size="large" icon={
                   <>

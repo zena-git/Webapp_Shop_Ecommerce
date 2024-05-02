@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, NavLink } from "react-router-dom";
 import {
   AppstoreOutlined,
   TruckOutlined,
@@ -51,9 +51,9 @@ const items = [
   ]),
   // getItem(<Link to="/">Trả Hàng</Link>, '14', <TruckOutlined />),
   getItem(
-    <div onClick={() => { localStorage.removeItem("token"); window.location.reload() }} target="_blank" rel="noopener noreferrer">
+    <Link to={'/login'}>
       Đăng Xuất
-    </div>,
+    </Link>,
     'link',
     <LinkOutlined />,
   ),
