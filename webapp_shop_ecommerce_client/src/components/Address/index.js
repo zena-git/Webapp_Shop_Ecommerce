@@ -225,7 +225,7 @@ function Address() {
                     console.log(error);
                 })
         }
-    }, [dataCheckout,serviceId,valueDistrict])
+    }, [dataCheckout, serviceId, valueDistrict])
 
     useEffect(() => {
         const foundProvince = dataProvince.find(item => item.label === addressBill?.province);
@@ -296,13 +296,15 @@ function Address() {
                 <div className='box_address-body'>
 
                     <div className='address_body-name'>
-                        <span>{addressBill?.receiverName}</span>
-                        <span>({addressBill?.receiverPhone})</span>
+                        <span>{addressBill && addressBill?.receiverName}</span>
+                        <span>{addressBill && addressBill?.receiverPhone}</span>
                     </div>
 
                     <div>
-                        <span>{addressBill?.detail + ' , ' + addressBill?.commune + ' , ' + addressBill?.district + ' , ' + addressBill?.province}
-                        </span>
+                        {
+                            addressBill && <span>{addressBill?.detail + ' , ' + addressBill?.commune + ' , ' + addressBill?.district + ' , ' + addressBill?.province}
+                            </span>
+                        }
                     </div>
                     <div className='address_body-btn' onClick={showModal}>
                         Thay Đổi

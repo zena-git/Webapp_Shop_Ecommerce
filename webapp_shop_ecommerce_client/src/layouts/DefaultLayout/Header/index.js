@@ -229,7 +229,7 @@ function Header() {
                                     listStyle: "none"
                                 }}>
                                     <li className={styles.navContainer} style={{
-                                        marginLeft: "100px"
+                                        marginLeft: "30px"
                                     }}>
                                         <Link to={"/"} >Trang chủ</Link>
                                     </li>
@@ -248,7 +248,8 @@ function Header() {
                         <div style={{
                             display: "flex",
                             flexDirection: "row",
-                            padding: "0 15px"
+                            padding: "0 15px",
+                            alignItems: 'center'
                         }}>
                             <div style={{
                                 display: "flex",
@@ -296,7 +297,8 @@ function Header() {
                             <div style={{
                                 display: "flex",
                                 flexDirection: "row",
-                                marginRight: "28px"
+                                marginRight: "28px",
+                                alignItems: 'center'
                             }}>
 
                                 <span onClick={() => {
