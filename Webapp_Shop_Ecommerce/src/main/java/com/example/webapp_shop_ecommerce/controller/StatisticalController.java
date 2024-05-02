@@ -98,6 +98,30 @@ public class StatisticalController {
         return statisticalService.getLastWeekStatistical();
     }
 
+    @GetMapping("/top")
+    public ResponseEntity<?> findTopProduct(@RequestParam(value = "enddate") String endDateStr,
+                                            @RequestParam(value = "startdate") String startDateStr
+    ){
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        if (startDateStr != null && endDateStr != null) {
+            // Chuyển đổi chuỗi ngày tháng thành đối tượng Instant
+            Instant startInstant = Instant.parse(startDateStr);
+            Instant endInstant = Instant.parse(endDateStr);
+
+            // Chuyển đổi Instant thành đối tượng LocalDateTime
+            startDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
+            endDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
+
+            // Đặt giờ, phút và giây của startDate thành 00:00:00
+            startDateTime = startDateTime.withHour(0).withMinute(0).withSecond(0);
+
+            // Đặt giờ, phút và giây của endDate thành 23:59:59
+            endDateTime = endDateTime.withHour(23).withMinute(59).withSecond(59);
+        }
+        return statisticalService.getTop5ProductSelling(startDateTime, endDateTime);
+    }
+
     @GetMapping("/beforelastweek")
     public ResponseEntity<?> findBeforeLastWeekStatistical() {
         return statisticalService.getBeforeLastWeekStatistical();
