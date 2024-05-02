@@ -3,7 +3,8 @@ import { UserOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@a
 import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import { baseUrl } from "../../lib/functional";
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -18,11 +19,13 @@ export default function LoginPage() {
 
         } else {
             const data = {
-                username: username,
+                email: username,
                 password: password
             }
-            axios.post('', data).then(res => {
+            axios.post(`${baseUrl}/login`, data).then(res => {
                 toast.success('Đăng nhập thành công');
+                console.log(res.data);
+                localStorage.setItem('token', res.data.token);
                 setTimeout(() => {
                     navigate('/')
                 }, 1000)
@@ -34,6 +37,7 @@ export default function LoginPage() {
 
     return (
         <div className="flex justify-center items-center mt-[15%]">
+            <ToastContainer />
             <div className="flex flex-col gap-6 min-w-[40%] text-center">
                 <p className="uppercase text-[40px] text-slate-700">Đăng nhập admin</p>
                 <div className="flex flex-col gap-5">

@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import ListCustomer from '../../components/voucher/listCustomer'
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { set, updateSelected } from '../../redux/features/voucher-selected-item';
+import { set, updateSelected, toggleAll, deselectAll } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
 
@@ -57,7 +57,7 @@ const VoucherPage = () => {
 
     const selectedCustomer = useAppSelector(state => state.voucherReducer.value.selected)
 
-    const [VoucherType, setVoucherType] = useState("0");
+    const [VoucherType, setVoucherType] = useState("1");
 
     const [targetVoucher, setTargetVoucher] = useState();
 
@@ -69,25 +69,34 @@ const VoucherPage = () => {
     const [detail, setDetail] = useState('');
 
     useEffect(() => {
-        axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
-    }, [])
+        axios.get(`${baseUrl}/customer`).then(res => {
+            setListCustomer(res.data);
+            dispatch(set({
+                value: {
+                    selected: res.data.map(cus => {
+                        return {
+                            id: cus.id,
+                            selected: false
+                        }
+                    })
+                }
+            }));
+            if (path && path.id) {
+                axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
+                    setTargetVoucher(res.data);
+                    setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
+                    setDiscountType(res.data.discountType == "0");
+                    setDetail(res.data.detail);
+                    res.data.lstVoucherDetails.map(detail => {
+                        dispatch(updateSelected({ id: Number.parseInt(detail.customer.id), selected: true, disable: detail.status }))
+                    })
+                });
+            }
+        })
+    }, [dispatch, path])
 
 
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
-
-    useEffect(() => {
-        if (path && path.id) {
-            axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
-                setTargetVoucher(res.data);
-                setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
-                setDiscountType(res.data.discountType == "0");
-                setDetail(res.data.detail);
-                res.data.lstVoucherDetails.map(detail => {
-                    dispatch(updateSelected({ id: Number.parseInt(detail.customer.id), selected: true, disable: detail.status }))
-                })
-            });
-        }
-    }, [dispatch, path])
 
     const form = useForm(
         {
@@ -188,6 +197,21 @@ const VoucherPage = () => {
             toast.error('Chỉ voucher chưa diễn ra có thể chỉnh sửa')
         }
     }
+
+    useEffect(() => {
+        let t = selectedCustomer.every(cus => cus.selected)
+        if (t) {
+            setVoucherType("0");
+        } else {
+            setVoucherType("1");
+        }
+    }, [selectedCustomer])
+
+    useEffect(() => {
+        if (VoucherType == "0") {
+            dispatch(toggleAll());
+        }
+    }, [VoucherType, dispatch])
 
     return (
         <>
