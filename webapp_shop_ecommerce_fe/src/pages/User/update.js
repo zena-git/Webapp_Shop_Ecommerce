@@ -18,7 +18,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone'
 import { useParams, useNavigate } from 'react-router-dom'
 import { IoArrowBackSharp } from "react-icons/io5";
-
+import AxiosIns from '../../lib/auth'
 
 const { TextArea } = Input
 const formSchema = z.object({
@@ -61,7 +61,7 @@ export default function Add() {
 
     useEffect(() => {
         if (path.id) {
-            axios.get(`${baseUrl}/user/${path.id}`).then(res => {
+            AxiosIns.get(`v1/user/${path.id}`).then(res => {
                 setTargetUser(res.data);
                 console.log(res.data.status);
                 setStatus(res.data.status);
@@ -256,7 +256,7 @@ export default function Add() {
                     phone: values.phone
                 }
                 setPending(true);
-                axios.put(`${baseUrl}/user/${path.id}`, body).then(res => {
+                AxiosIns.put(`v1/user/${path.id}`, body).then(res => {
                     toast.success('Cập nhật thành công');
                     setPending(false);
                     setTimeout(() => {

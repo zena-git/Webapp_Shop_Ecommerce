@@ -20,6 +20,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useDropzone } from 'react-dropzone'
 import { QrReader } from "react-qr-reader";
 import { regex } from '../../lib/functional';
+import AxiosIns from '../../lib/auth'
 
 const { TextArea } = Input
 
@@ -189,7 +190,7 @@ export default function Add() {
                         imageUrl: imageLink
                     }
 
-                    axios.post(`${baseUrl}/user`, body).then(() => {
+                    AxiosIns.post(`v1/user`, body).then(() => {
                         toast.success("Thêm mới thành công");
                         setPending(false);
                         form.reset();
@@ -215,7 +216,7 @@ export default function Add() {
                         phone: values.phone,
                     }
                     setPending(true);
-                    axios.post(`${baseUrl}/user`, body).then(() => {
+                    AxiosIns.post(`v1/user`, body).then(() => {
                         toast.success("Thêm mới thành công")
                         form.reset();
                         setPending(false);

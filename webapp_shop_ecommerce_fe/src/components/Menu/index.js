@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   AppstoreOutlined,
   TruckOutlined,
@@ -12,7 +12,6 @@ import {
 import { Menu, Switch } from 'antd';
 import { BsBoxSeamFill } from "react-icons/bs";
 import { AiOutlineDashboard } from "react-icons/ai";
-
 import { AiOutlineLayout } from "react-icons/ai";
 
 
@@ -52,9 +51,9 @@ const items = [
   ]),
   // getItem(<Link to="/">Trả Hàng</Link>, '14', <TruckOutlined />),
   getItem(
-    <a href="/logout" target="_blank" rel="noopener noreferrer">
+    <div onClick={() => { localStorage.removeItem("token"); window.location.reload() }} target="_blank" rel="noopener noreferrer">
       Đăng Xuất
-    </a>,
+    </div>,
     'link',
     <LinkOutlined />,
   ),

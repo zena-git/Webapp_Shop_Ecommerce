@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
+
 dayjs.extend(customParseFormat);
 function Brand() {
     const [form] = Form.useForm();
@@ -66,7 +68,7 @@ function Brand() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/brand');
+            const response = await AxiosIns.get('v1/brand');
             console.log(response.data);
             setDataColum(response.data);
         } catch (error) {
@@ -82,7 +84,7 @@ function Brand() {
 
 
     const handleUpDate = () => {
-        axios.put('http://localhost:8080/api/v1/brand/' + dataEntity.id, dataEntity)
+        AxiosIns.put('v1/brand/' + dataEntity.id, dataEntity)
             .then(response => {
 
                 console.log('Update data:', dataEntity);
@@ -100,7 +102,7 @@ function Brand() {
     };
 
     const handleDelete = (id) => {
-        axios.delete('http://localhost:8080/api/v1/brand/' + dataEntity.id)
+        AxiosIns.delete('v1/brand/' + dataEntity.id)
             .then(response => {
                 console.log('Update data:', dataEntity);
                 toast.success("Xóa Thành Công");
@@ -144,7 +146,7 @@ function Brand() {
     };
     const handleOkAdd = () => {
 
-        axios.post('http://localhost:8080/api/v1/brand', {
+        AxiosIns.post('v1/brand', {
             name: valueInputAdd
         })
             .then(response => {

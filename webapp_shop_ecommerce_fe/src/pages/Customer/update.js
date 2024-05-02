@@ -34,6 +34,7 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
 import Table from '../../components/ui/table';
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import AxiosIns from '../../lib/auth'
 
 const { confirm } = Modal;
 const { TextArea } = Input;
@@ -89,7 +90,7 @@ export default function AddCustomer() {
     const [defaultAddress, setDefaultAddress] = useState(1);
 
     useEffect(() => {
-        axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
+        AxiosIns.get(`v1/customer/${path.id}`).then(res => {
             setTargetCustomer(res.data);
             setGender(res.data.gender);
             if (res.data.birthday) {
@@ -484,7 +485,7 @@ export default function AddCustomer() {
                 })
                 const data = { ...values, birthday: birthDay.add(7, 'hour').toDate(), gender: gender, lstAddress: lstAddressData }
                 setPending(true);
-                axios.put(`${baseUrlV3}/customer/${path.id}`, data).then(res => {
+                AxiosIns.put(`v3/customer/${path.id}`, data).then(res => {
                     toast.success('cập nhật khách hàng thành công');
                     setPending(false);
                     setTimeout(() => {

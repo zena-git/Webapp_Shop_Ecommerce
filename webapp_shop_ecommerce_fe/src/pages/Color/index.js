@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
+
 dayjs.extend(customParseFormat);
 function Color() {
     const columns = [
@@ -76,7 +78,7 @@ function Color() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/color');
+            const response = await AxiosIns.get('v1/color');
             console.log(response.data);
             setDataColum(response.data);
         } catch (error) {
@@ -92,7 +94,7 @@ function Color() {
 
 
     const handleUpDate = () => {
-        axios.put('http://localhost:8080/api/v1/color/' + dataEntity.id, dataEntity)
+        AxiosIns.put('v1/color/' + dataEntity.id, dataEntity)
             .then(response => {
 
                 console.log('Update data:', dataEntity);
@@ -109,7 +111,7 @@ function Color() {
     };
 
     const handleDelete = (id) => {
-        axios.delete('http://localhost:8080/api/v1/color/' + dataEntity.id)
+        AxiosIns.delete('v1/color/' + dataEntity.id)
             .then(response => {
                 console.log('Update data:', dataEntity);
                 toast.success("Xóa Thành Công");
@@ -150,7 +152,7 @@ function Color() {
     };
     const handleOkAdd = () => {
 
-        axios.post('http://localhost:8080/api/v1/color', {
+        AxiosIns.post('v1/color', {
             name: valueInputAdd
         })
             .then(response => {

@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { UploadOutlined } from '@ant-design/icons';
+import AxiosIns from '../../lib/auth'
+
 const columns = [
     {
         title: '#',
@@ -139,7 +141,7 @@ const Product = () => {
     const [openImportExcel, setOpenImportExcel] = useState(false);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/product', {
+        axios.get('v1/product', {
             params: {
                 status: valueRadio,
                 search: debounceSearch,
@@ -234,7 +236,7 @@ const Product = () => {
     }, [valueRadio, debounceSearch, valueCategory, valueMaterial, valueBrand, valueStyle, historyData]);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/product/deleted')
+        AxiosIns.get('v1/product/deleted')
             .then(function (response) {
                 const data = response.data.map((data, index) => {
                     let product = {
@@ -331,7 +333,7 @@ const Product = () => {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/category')
+        AxiosIns.get('v1/category')
             .then((response) => {
                 const newCategories = response.data.map(category => ({
                     value: category.name,
@@ -358,7 +360,7 @@ const Product = () => {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/material')
+        AxiosIns.get('v1/material')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -385,7 +387,7 @@ const Product = () => {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/brand')
+        AxiosIns.get('v1/brand')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -412,7 +414,7 @@ const Product = () => {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/style')
+        AxiosIns.get('v1/style')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -437,7 +439,7 @@ const Product = () => {
     const onChangeStatus = (checked, productId) => {
         setLoadingUpdate(true);
         // Gửi yêu cầu API hoặc thực hiện các xử lý cần thiết để cập nhật trạng thái
-        axios.put(`http://localhost:8080/api/v1/product/status/${productId}`, { status: checked ? '0' : '1' })
+        AxiosIns.put(`v1/product/status/${productId}`, { status: checked ? '0' : '1' })
             .then(response => {
                 toast.success("Trạng thái đã được cập nhật thành công.");
                 console.log('Trạng thái đã được cập nhật thành công.');
@@ -458,7 +460,7 @@ const Product = () => {
     const handleDeleteProduct = (id) => {
         setLoadingUpdate(true);
         // Gửi yêu cầu API hoặc thực hiện các xử lý cần thiết để cập nhật trạng thái
-        axios.delete(`http://localhost:8080/api/v1/product/${id}`)
+        AxiosIns.delete(`v1/product/${id}`)
             .then(response => {
                 toast.success("Xóa Sản Phẩm Thành Công.");
                 setHistoryData(response.data)
@@ -476,7 +478,7 @@ const Product = () => {
         // Gửi yêu cầu API hoặc thực hiện các xử lý cần thiết để cập nhật trạng thái
         // setLoadingUpdate(true);
 
-        axios.put(`http://localhost:8080/api/v1/product/recover/${id}`)
+        AxiosIns.put(`v1/product/recover/${id}`)
             .then(response => {
                 toast.success("Recover Sản Phẩm Thành Công.");
                 setHistoryData(response.data)
@@ -524,7 +526,7 @@ const Product = () => {
             console.log(selectedFile);
             setOpenImportExcel(false)
             setLoadingUpdate(true)
-            axios.post('http://localhost:8080/api/v1/product/excell', formData, {
+            AxiosIns.post('v1/product/excell', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

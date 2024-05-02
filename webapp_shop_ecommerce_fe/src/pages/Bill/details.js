@@ -20,6 +20,8 @@ import BillProducts from '~/components/BillProducts';
 import BillProductsBack from '~/components/BillProductsBack';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
+
 dayjs.extend(customParseFormat);
 function BillDetail() {
     const { id } = useParams();
@@ -50,7 +52,7 @@ function BillDetail() {
     }
     const fetchDataBill = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/bill/show/' + id);
+            const response = await AxiosIns.get('v1/bill/show/' + id);
             setBill(response.data);
             console.log(response.data);
         } catch (error) {
@@ -65,7 +67,7 @@ function BillDetail() {
     useEffect(() => {
         const billId = bill?.id;
         if (billId != null) {
-            axios.get(`http://localhost:8080/api/v1/bill/show/${billId}/billdetails/products`)
+            AxiosIns.get(`v1/bill/show/${billId}/billdetails/products`)
                 .then((res) => {
                     const data = res.data;
                     setLstBillDetails(data);
@@ -81,7 +83,7 @@ function BillDetail() {
     useEffect(() => {
         const billId = bill?.id;
         if (billId != null) {
-            axios.get(`http://localhost:8080/api/v1/bill/show/${billId}/billdetails/products/returns`)
+            AxiosIns.get(`v1/bill/show/${billId}/billdetails/products/returns`)
                 .then((res) => {
                     const data = res.data;
                     setLstBillDetailsReturn(data);
@@ -122,7 +124,7 @@ function BillDetail() {
     const handlePrintView = async () => {
         try {
             // Gọi API để lấy dữ liệu hóa đơn
-            const response = await axios.get(`http://localhost:8080/api/v3/print/${bill?.codeBill}`, {
+            const response = await AxiosIns.get(`v3/print/${bill?.codeBill}`, {
                 responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
             });
 
@@ -231,7 +233,7 @@ function BillDetail() {
                             <div className='flex justify-end mt-4 gap-3'>
                                 <Button type='primary' onClick={() => {
                                     setLoadingConfirmRollback(true);
-                                    axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
+                                    AxiosIns.post(`v1/bill/${bill.id}/historyBill`, {
                                         type: Number.parseInt(bill.status) - 1,
                                         description: confirmAcceptOrderDes
                                     }).then(res => {
@@ -275,7 +277,7 @@ function BillDetail() {
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             setLoadingConfirmAcceptOrder(true);
-                                            axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
+                                            AxiosIns.post(`v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.DA_XAC_NHAN,
                                                 description: confirmAcceptOrderDes
                                             }).then(response => {
@@ -317,7 +319,7 @@ function BillDetail() {
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             setLoadingConfirmWaitDelivery(true);
-                                            axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
+                                            AxiosIns.post(`v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.CHO_GIA0,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
@@ -359,7 +361,7 @@ function BillDetail() {
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             setLoadingConfirmDelivery(true);
-                                            axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
+                                            AxiosIns.post(`v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.DANG_GIAO,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
@@ -419,7 +421,7 @@ function BillDetail() {
                                                 return;
                                             }
                                             setLoadingConfirmCompletion(true);
-                                            axios.post(`http://localhost:8080/api/v1/bill/${bill.id}/historyBill`, {
+                                            AxiosIns.post(`v1/bill/${bill.id}/historyBill`, {
                                                 type: TrangThaiBill.HOAN_THANH,
                                                 description: confirmAcceptOrderDes
                                             }).then(res => {
@@ -460,7 +462,7 @@ function BillDetail() {
                                     <div className='flex justify-end mt-4 gap-3'>
                                         <Button type='primary' onClick={() => {
                                             setLoadingCancelling(true);
-                                            axios.put(`http://localhost:8080/api/v1/bill/${bill?.id}/cancelling`, {
+                                            AxiosIns.put(`v1/bill/${bill?.id}/cancelling`, {
                                                 description: confirmAcceptOrderDes
                                             })
                                                 .then(res => {

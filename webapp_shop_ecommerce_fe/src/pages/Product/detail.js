@@ -9,6 +9,8 @@ import { useDebounce } from '~/hooks';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
+
 dayjs.extend(customParseFormat);
 
 const EditableCell = ({
@@ -279,7 +281,7 @@ function ProductDetail() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/v1/product/${id}`, {
+            const response = await AxiosIns.get(`v1/product/${id}`, {
                 params: {
                     size: valueSize,
                     color: valueColor,
@@ -416,7 +418,7 @@ function ProductDetail() {
                 return pro.key !== key;
             })[0];
             console.log(productDetail);
-            axios.put(`http://localhost:8080/api/v1/productDetail/${key}`, {
+            AxiosIns.put(`v1/productDetail/${key}`, {
                 id: key,
                 quantity: row.quantity,
                 price: row.price,
@@ -457,7 +459,7 @@ function ProductDetail() {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/color')
+        AxiosIns.get('v1/color')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -481,7 +483,7 @@ function ProductDetail() {
     }, []);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/size')
+        AxiosIns.get('v1/size')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,

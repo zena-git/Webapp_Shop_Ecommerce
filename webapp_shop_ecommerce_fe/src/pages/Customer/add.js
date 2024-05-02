@@ -34,6 +34,7 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { FaEdit, FaTrash } from 'react-icons/fa'
 import Table from '../../components/ui/table';
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import AxiosIns from '../../lib/auth'
 
 const { confirm } = Modal;
 const { TextArea } = Input;
@@ -444,7 +445,7 @@ export default function AddCustomer() {
                 })
                 const data = { ...values, birthday: birthDay.add(7, 'hour'), password: makeid(), gender: gender, lstAddress: lstAddressData }
                 setPending(true);
-                axios.post(`${baseUrlV3}/customer`, data).then(res => {
+                AxiosIns.post(`v3/customer`, data).then(res => {
                     toast.success('thêm khách hàng thành công');
                     form.reset();
                     setListAddress([]);

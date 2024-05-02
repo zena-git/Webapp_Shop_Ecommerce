@@ -6,6 +6,8 @@ import { Tag } from "antd";
 import ListAdress from '../../components/customer/ListAdress'
 import { useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
+
 export default function CustomerDetail() {
 
     const path = useParams();
@@ -15,7 +17,7 @@ export default function CustomerDetail() {
 
     useEffect(() => {
         if (!path.id) return;
-        axios.get(`${baseUrl}/customer/${path.id}`).then(res => {
+        AxiosIns.get(`v1/customer/${path.id}`).then(res => {
             setTargetCustomer(res.data);
         })
     }, [path])

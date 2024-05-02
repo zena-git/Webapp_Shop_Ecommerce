@@ -89,9 +89,9 @@ export const selectedData = createSlice({
         deselectAll: (state) => {
             state.value.selected.forEach(item => {
                 item.selected = false;
-                if (item.children.some(child => !child.selected)) {
-                    item.selected = false;
-                }
+                item.children.map(child => {
+                    child.selected = false;
+                })
             });
         }
     },

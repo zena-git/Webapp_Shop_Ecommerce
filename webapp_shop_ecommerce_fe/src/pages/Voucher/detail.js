@@ -1,10 +1,10 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { baseUrl } from "../../lib/functional";
 import { Tag, Button } from "antd";
 import ListDetailVoucher from '../../components/voucher/listDetailVoucher'
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
 
 export default function VoucherDetail() {
 
@@ -25,7 +25,7 @@ export default function VoucherDetail() {
 
     useEffect(() => {
         if (!path.id) return;
-        axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
+        AxiosIns.get(`v1/voucher/${path.id}`).then(res => {
             setTargetVoucher({ ...res.data, lstVoucherDetails: res.data.lstVoucherDetails.filter(target => !target.deleted) });
         })
     }, [path])

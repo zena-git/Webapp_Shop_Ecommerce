@@ -1,8 +1,6 @@
 import { DatePicker, InputNumber, Button, Radio, Input } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
 import { makeid } from '~/lib/functional';
 import {
     Form,
@@ -19,10 +17,11 @@ import ReduxProvider from '../../redux/provider'
 import { zodResolver } from "@hookform/resolvers/zod"
 import ListCustomer from '../../components/voucher/listCustomer'
 import { useDispatch } from 'react-redux';
-import { set } from '../../redux/features/voucher-selected-item';
+import { set, toggleAll, deselectAll } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
 
 const { RangePicker } = DatePicker
 const { TextArea } = Input
@@ -54,7 +53,7 @@ const VoucherPage = () => {
     const navigate = useNavigate();
     const selectedCustomer = useAppSelector(state => state.voucherReducer.value.selected)
 
-    const [VoucherType, setVoucherType] = useState("0");
+    const [VoucherType, setVoucherType] = useState("1");
 
     const [discountType, setDiscountType] = useState(false);
     const [listCustomer, setListCustomer] = useState([]);
@@ -70,8 +69,20 @@ const VoucherPage = () => {
     }, [dispatch])
 
     useEffect(() => {
-        axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
-    }, [])
+        AxiosIns.get(`v1/customer`).then(res => {
+            setListCustomer(res.data);
+            dispatch(set({
+                value: {
+                    selected: res.data.map(cus => {
+                        return {
+                            id: cus.id,
+                            selected: false
+                        }
+                    })
+                }
+            }))
+        })
+    }, []);
 
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
 
@@ -109,7 +120,7 @@ const VoucherPage = () => {
             }
             if (VoucherType == "0") {
                 setPending(true);
-                axios.post(`${baseUrl}/voucher`, {
+                AxiosIns.post(`v1/voucher`, {
                     code: values.code,
                     name: values.name,
                     value: values.value,
@@ -138,7 +149,7 @@ const VoucherPage = () => {
             } else {
                 if (selectedCustomer.length > 0) {
                     setPending(true);
-                    axios.post(`${baseUrl}/voucher`, {
+                    AxiosIns.post(`v1/voucher`, {
                         code: values.code,
                         name: values.name,
                         value: values.value,
@@ -170,6 +181,21 @@ const VoucherPage = () => {
             }
         }
     }
+
+    useEffect(() => {
+        let t = selectedCustomer.every(cus => cus.selected)
+        if(t){
+            setVoucherType("0");
+        }else{
+            setVoucherType("1");
+        }
+    }, [selectedCustomer])
+
+    useEffect(() => {
+        if (VoucherType == "0") {
+            dispatch(toggleAll());
+        }
+    }, [VoucherType, dispatch])
 
     return (
         <>

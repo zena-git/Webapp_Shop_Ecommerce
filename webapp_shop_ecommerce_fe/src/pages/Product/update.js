@@ -8,6 +8,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import hexToColorName from "~/ultils/HexToColorName";
 import { PlusOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
+import AxiosIns from '../../lib/auth'
+
 const { TextArea } = Input;
 
 const tagRender = (props) => {
@@ -369,7 +371,7 @@ function ProductUpdate() {
 
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/v1/product/${id}`)
+        AxiosIns.get(`v1/product/${id}`)
             .then(response => {
                 console.log(response.data);
                 setProduct(response.data);
@@ -438,7 +440,7 @@ function ProductUpdate() {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/category')
+        AxiosIns.get('v1/category')
             .then((response) => {
                 const newCategories = response.data.map(category => ({
                     value: category.id,
@@ -456,7 +458,7 @@ function ProductUpdate() {
     const addCategory = (e) => {
         e.preventDefault();
         console.log(valueInputCategory);
-        axios.post('http://localhost:8080/api/v1/category', {
+        AxiosIns.post('v1/category', {
             name: valueInputCategory,
         })
             .then((response) => {
@@ -485,7 +487,7 @@ function ProductUpdate() {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/material')
+        AxiosIns.get('v1/material')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.id,
@@ -503,7 +505,7 @@ function ProductUpdate() {
     const addMaterial = (e) => {
         e.preventDefault();
         console.log(valueInputMaterial);
-        axios.post('http://localhost:8080/api/v1/material', {
+        AxiosIns.post('v1/material', {
             name: valueInputMaterial,
         })
             .then((response) => {
@@ -531,7 +533,7 @@ function ProductUpdate() {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/brand')
+        AxiosIns.get('v1/brand')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.id,
@@ -548,7 +550,7 @@ function ProductUpdate() {
     const addBrand = (e) => {
         e.preventDefault();
         console.log(valueInputBrand);
-        axios.post('http://localhost:8080/api/v1/brand', {
+        AxiosIns.post('v1/brand', {
             name: valueInputBrand,
         })
             .then((response) => {
@@ -575,7 +577,7 @@ function ProductUpdate() {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/style')
+        AxiosIns.get('v1/style')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.id,
@@ -593,7 +595,7 @@ function ProductUpdate() {
     const addStyle = (e) => {
         e.preventDefault();
         console.log(valueInputStyle);
-        axios.post('http://localhost:8080/api/v1/style', {
+        AxiosIns.post('v1/style', {
             name: valueInputStyle,
         })
             .then((response) => {
@@ -621,7 +623,7 @@ function ProductUpdate() {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/size')
+        AxiosIns.get('v1/size')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.id,
@@ -639,7 +641,7 @@ function ProductUpdate() {
     const addSize = (e) => {
         e.preventDefault();
         console.log(valueInputSize);
-        axios.post('http://localhost:8080/api/v1/size', {
+        AxiosIns.post('v1/size', {
             name: valueInputSize,
         })
             .then((response) => {
@@ -668,7 +670,7 @@ function ProductUpdate() {
         console.log(`selected ${value}`);
     };
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/color')
+        AxiosIns.get('v1/color')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
 
@@ -688,7 +690,7 @@ function ProductUpdate() {
 
     const addColor = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8080/api/v1/color', {
+        AxiosIns.post('v1/color', {
             name: valueInputColor,
         })
             .then((response) => {
@@ -845,7 +847,7 @@ function ProductUpdate() {
             });
 
             console.log(lstProductDetails);
-            const response = await axios.put(`http://localhost:8080/api/v1/product/${id}`, {
+            const response = await AxiosIns.put(`v1/product/${id}`, {
                 code: valueCodeProduct,
                 name: valueNameProduct,
                 description: valueDecProduct,
