@@ -25,6 +25,7 @@ public class Authentication {
         try {
             return customerRepository.findById(Long.valueOf(authentication.getName())).orElse(null);
         } catch (NumberFormatException e) {
+            System.out.println("Khong có token");
             // Handle the case where authentication.getName() is not a valid Long
             return customerRepository.findById(Long.valueOf("1")).get();
         }
@@ -33,14 +34,14 @@ public class Authentication {
     public Users getUsers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication instanceof AnonymousAuthenticationToken)) {
-            Users users = Users.builder().fullName("Admin system").build();
+            Users users = Users.builder().fullName("Phung Thi Thuy Hien").build();
             return users;
         }
         try {
-            return usersRepository.findById(Long.valueOf(authentication.getName())).orElse(Users.builder().fullName("Admin system").build());
+            return usersRepository.findById(Long.valueOf(authentication.getName())).orElse(Users.builder().fullName("Phung Thi Thuy Hien").build());
         } catch (NumberFormatException e) {
             // Handle the case where authentication.getName() is not a valid Long
-            return Users.builder().fullName("Admin system").build();
+            return Users.builder().fullName("Phung Thi Thuy Hien").build();
         }
     }
 }
