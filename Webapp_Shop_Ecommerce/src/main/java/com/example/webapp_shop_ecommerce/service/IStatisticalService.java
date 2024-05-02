@@ -14,4 +14,6 @@ public interface IStatisticalService {
 
     ResponseEntity<?> getLastWeekStatistical();
     ResponseEntity<?> getBeforeLastWeekStatistical();
+
+    ResponseEntity<?> getTop5ProductSelling(LocalDateTime  startDate, LocalDateTime endDate);
 }

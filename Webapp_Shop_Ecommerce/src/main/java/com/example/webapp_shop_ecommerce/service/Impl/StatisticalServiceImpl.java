@@ -194,6 +194,7 @@ public class StatisticalServiceImpl implements IStatisticalService {
         }
         return new ResponseEntity<>(resultList, HttpStatus.OK);
     }
+
     @Override
     public ResponseEntity<?> getLastMonthStatistical() {
         List<StatisticalReponse> lst = statisticalRepo.getLastMonthStatistical();
@@ -216,5 +217,10 @@ public class StatisticalServiceImpl implements IStatisticalService {
     public ResponseEntity<?> getBeforeLastWeekStatistical() {
         List<StatisticalReponse> lst = statisticalRepo.getBeforeLastWeekStatistical();
         return new ResponseEntity<>(lst, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getTop5ProductSelling(LocalDateTime startDate, LocalDateTime endDate) {
+        return new ResponseEntity<>(statisticalRepo.getTop5ProductSelling(startDate, endDate), HttpStatus.OK);
     }
 }
