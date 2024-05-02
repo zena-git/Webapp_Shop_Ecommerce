@@ -5,12 +5,14 @@ import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useAppSelector } from '~/redux/storage';
-import axios from 'axios';
 import { baseUrl, baseUrlV3 } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { set, toggleChildren, toggleAll, deselectAll } from '~/redux/features/promotion-selected-item'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
+
+
 const { TextArea } = Input
 
 const { RangePicker } = DatePicker
@@ -35,7 +37,7 @@ function EditPage() {
     const listSelectedProduct = useAppSelector(state => state.promotionReducer.value.selected)
 
     useEffect(() => {
-        axios.get(`${baseUrlV3}/product`).then(res => {
+        AxiosIns.get(`v3/product`).then(res => {
             setListProduct(res.data);
             let temp = []
             res.data.forEach(product => {
@@ -53,7 +55,7 @@ function EditPage() {
                 )
             });
             dispatch(set({ value: { selected: temp } }));
-            axios.get(`${baseUrlV3}/promotion/data?id=${path.id}`).then(resp => {
+            AxiosIns.get(`v3/promotion/data?id=${path.id}`).then(resp => {
                 setTargetPromotion(resp.data);
                 setName(resp.data.name);
                 setValue(resp.data.value);
@@ -106,7 +108,7 @@ function EditPage() {
                         lstProductDetails: PromotionType == "0" ? allPro : lst
                     }
                     setPending(true);
-                    axios.post(`${baseUrlV3}/promotion/update`, t).then(res => {
+                    AxiosIns.post(`v3/promotion/update`, t).then(res => {
                         toast.success("cập nhật thành công");
                         setPending(false);
                         setTimeout(() => {

@@ -1,8 +1,6 @@
 import { DatePicker, InputNumber, Button, Radio, Input } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
 import { makeid } from '~/lib/functional';
 import {
     Form,
@@ -23,6 +21,7 @@ import { set, toggleAll, deselectAll } from '../../redux/features/voucher-select
 import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
 
 const { RangePicker } = DatePicker
 const { TextArea } = Input
@@ -70,7 +69,7 @@ const VoucherPage = () => {
     }, [dispatch])
 
     useEffect(() => {
-        axios.get(`${baseUrl}/customer`).then(res => {
+        AxiosIns.get(`v1/customer`).then(res => {
             setListCustomer(res.data);
             dispatch(set({
                 value: {
@@ -121,7 +120,7 @@ const VoucherPage = () => {
             }
             if (VoucherType == "0") {
                 setPending(true);
-                axios.post(`${baseUrl}/voucher`, {
+                AxiosIns.post(`v1/voucher`, {
                     code: values.code,
                     name: values.name,
                     value: values.value,
@@ -150,7 +149,7 @@ const VoucherPage = () => {
             } else {
                 if (selectedCustomer.length > 0) {
                     setPending(true);
-                    axios.post(`${baseUrl}/voucher`, {
+                    AxiosIns.post(`v1/voucher`, {
                         code: values.code,
                         name: values.name,
                         value: values.value,

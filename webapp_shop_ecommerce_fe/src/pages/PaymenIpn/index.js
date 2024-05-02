@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
-
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { Button, Result } from 'antd';
 import { SmileOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AxiosIns from '../../lib/auth'
+
 function PaymentIpn() {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -43,7 +43,7 @@ function PaymentIpn() {
     }, [countdown]);
 
     const handlePaymentIpn = () => {
-        axios.post(`http://localhost:8080/api/v1/payment/querydr`,
+        AxiosIns.post(`v1/payment/querydr`,
             {
                 vnpTxnRef: vnpTxnRef,
                 vnpPayDate: vnpPayDate,
@@ -70,7 +70,7 @@ function PaymentIpn() {
     const handlePrintView = async () => {
         try {
             // Gọi API để lấy dữ liệu hóa đơn
-            const response = await axios.get(`http://localhost:8080/api/v3/print/${vnpTxnRef}`, {
+            const response = await AxiosIns.get(`v3/print/${vnpTxnRef}`, {
                 responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
             });
 

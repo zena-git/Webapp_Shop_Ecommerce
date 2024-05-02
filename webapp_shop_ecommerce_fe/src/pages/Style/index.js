@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Input, Modal, Popconfirm, Form } from 'antd';
-import axios from 'axios';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -8,6 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
+
 dayjs.extend(customParseFormat);
 function Style() {
     const [form] = Form.useForm();
@@ -66,7 +67,7 @@ function Style() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/style');
+            const response = await AxiosIns.get('v1/style');
             console.log(response.data);
             setDataColum(response.data);
         } catch (error) {
@@ -82,7 +83,7 @@ function Style() {
 
 
     const handleUpDate = () => {
-        axios.put('http://localhost:8080/api/v1/style/' + dataEntity.id, dataEntity)
+        AxiosIns.put('v1/style/' + dataEntity.id, dataEntity)
             .then(response => {
 
                 console.log('Update data:', dataEntity);
@@ -100,7 +101,7 @@ function Style() {
     };
 
     const handleDelete = (id) => {
-        axios.delete('http://localhost:8080/api/v1/style/' + dataEntity.id)
+        AxiosIns.delete('v1/style/' + dataEntity.id)
             .then(response => {
                 console.log('Update data:', dataEntity);
                 toast.success("Xóa Thành Công");
@@ -145,7 +146,7 @@ function Style() {
     };
     const handleOkAdd = () => {
 
-        axios.post('http://localhost:8080/api/v1/style', {
+        AxiosIns.post('v1/style', {
             name: valueInputAdd
         })
             .then(response => {

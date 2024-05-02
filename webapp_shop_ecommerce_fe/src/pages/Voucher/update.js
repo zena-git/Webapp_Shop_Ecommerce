@@ -1,8 +1,6 @@
 import { DatePicker, InputNumber, Button, Input, Radio } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import axios from 'axios';
-import { baseUrl } from '~/lib/functional';
 import { makeid } from '~/lib/functional';
 import {
     Form,
@@ -23,6 +21,7 @@ import { useDispatch } from 'react-redux';
 import { set, updateSelected, toggleAll, deselectAll } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
 
 const { TextArea } = Input
 const { RangePicker } = DatePicker
@@ -69,7 +68,7 @@ const VoucherPage = () => {
     const [detail, setDetail] = useState('');
 
     useEffect(() => {
-        axios.get(`${baseUrl}/customer`).then(res => {
+        AxiosIns.get(`v1/customer`).then(res => {
             setListCustomer(res.data);
             dispatch(set({
                 value: {
@@ -82,7 +81,7 @@ const VoucherPage = () => {
                 }
             }));
             if (path && path.id) {
-                axios.get(`${baseUrl}/voucher/${path.id}`).then(res => {
+                AxiosIns.get(`v1/voucher/${path.id}`).then(res => {
                     setTargetVoucher(res.data);
                     setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
                     setDiscountType(res.data.discountType == "0");
@@ -136,7 +135,7 @@ const VoucherPage = () => {
                 }
                 if (VoucherType == "0") {
                     setPending(true);
-                    axios.put(`${baseUrl}/voucher/${path.id}`, {
+                    AxiosIns.put(`v1/voucher/${path.id}`, {
                         id: path.id,
                         code: values.code,
                         name: values.name,
@@ -163,7 +162,7 @@ const VoucherPage = () => {
                 } else {
                     if (selectedCustomer.length > 0) {
                         setPending(true);
-                        axios.put(`${baseUrl}/voucher/${path.id}`, {
+                        AxiosIns.put(`v1/voucher/${path.id}`, {
                             id: path.id,
                             code: values.code,
                             name: values.name,

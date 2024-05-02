@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react'
-import { baseUrl } from '../../lib/functional';
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useNavigate, useParams } from 'react-router-dom';
+import AxiosIns from '../../lib/auth'
+
 export default function DetailPage() {
 
     const path = useParams();
@@ -11,7 +11,7 @@ export default function DetailPage() {
     const [targetUser, setTargetUser] = useState();
 
     useEffect(() => {
-        axios.get(`${baseUrl}/user/${path.id}`).then(res => {
+        AxiosIns.get(`v1/user/${path.id}`).then(res => {
             setTargetUser(res.data);
         })
     }, [path])

@@ -12,6 +12,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { fixMoney } from '~/ultils/fixMoney';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
+
 dayjs.extend(customParseFormat);
 const { RangePicker } = DatePicker;
 const TrangThaiBill = {
@@ -158,7 +160,7 @@ function Bill() {
   const fetchDataBill = async () => {
 
     try {
-      const response = await axios.get('http://localhost:8080/api/v1/bill'
+      const response = await AxiosIns.get('v1/bill'
         // , {
         //   params: {
         //     status: '',

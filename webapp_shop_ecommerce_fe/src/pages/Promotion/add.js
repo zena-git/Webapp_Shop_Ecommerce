@@ -1,7 +1,6 @@
 import { DatePicker, InputNumber, Button, Input, Radio } from 'antd/lib';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import axios from 'axios';
 import { baseUrl, makeid, baseUrlV3 } from '~/lib/functional';
 import { useNavigate } from 'react-router-dom';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
@@ -11,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { set, toggleAll, deselectAll } from '~/redux/features/promotion-selected-item'
 import { ToastContainer, toast } from 'react-toastify';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
 
 const { TextArea } = Input
 const { RangePicker } = DatePicker
@@ -31,7 +31,7 @@ function EditPage() {
     const [listProduct, setListProduct] = useState([]);
 
     useEffect(() => {
-        axios.get(`${baseUrlV3}/product`).then(res => {
+        AxiosIns.get(`v3/product`).then(res => {
             setListProduct(res.data);
             dispatch(set({
                 value: {
@@ -87,7 +87,7 @@ function EditPage() {
                 listProduct.map(pro => {
                     t.push(...pro.lstProductDetails.map(detail => detail.id))
                 })
-                axios.post(`${baseUrl}/promotion`, {
+                AxiosIns.post(`v1/promotion`, {
                     status: 0,
                     value: value,
                     code: code,

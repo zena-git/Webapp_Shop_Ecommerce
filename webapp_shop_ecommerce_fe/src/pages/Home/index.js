@@ -2,7 +2,6 @@ import { AreaChart, Area, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Cart
 import { DatePicker, Space } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import axios from 'axios';
 import { baseUrl, currentDate, numberToPrice } from '../../lib/functional'
 import Plotly from 'plotly.js-dist'
 import AxiosIns from '../../lib/auth'
@@ -11,7 +10,7 @@ const { RangePicker } = DatePicker;
 
 function Home() {
 
-    const [date, setDate] = useState([dayjs(currentDate()), dayjs(currentDate())])
+    const [date, setDate] = useState([dayjs(currentDate()).add(-7, 'day'), dayjs(currentDate())])
     const [revenueData, setRevenueData] = useState([])
     const [topSale, setTopSale] = useState([])
     const [thisData, setThisData] = useState();

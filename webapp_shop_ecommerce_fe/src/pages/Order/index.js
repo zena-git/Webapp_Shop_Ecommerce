@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tabs } from 'antd';
-import axios from 'axios';
 import OrderProducts from '~/components/OrderProducts';
 import AddressGress from '~/components/AddressDelivery';
 import OrderCustomer from '~/components/OrderCustomer';
@@ -10,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faPlus } from '@fortawesome/free-solid-svg-icons';
-
+import AxiosIns from '../../lib/auth'
 
 function Order() {
   const [activeKey, setActiveKeyBill] = useState();
@@ -22,7 +21,7 @@ function Order() {
 
   const fetchAddBillNew = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/api/v1/counters');
+      const response = await AxiosIns.post('v1/counters');
       console.log(response.data);
       toast.success(response.data.message);
       updateDataLstBill();
@@ -93,7 +92,7 @@ function Order() {
 
 
 
-    axios.delete('http://localhost:8080/api/v1/counters/' + id)
+    AxiosIns.delete('v1/counters/' + id)
       .then(response => {
         toast.success(response.data.message);
         updateDataLstBill()

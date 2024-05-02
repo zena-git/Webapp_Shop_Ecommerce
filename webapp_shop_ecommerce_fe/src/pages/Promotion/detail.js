@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { baseUrlV3 } from '~/lib/functional';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ListDetailPromotion from '../../components/promotion/listDetailPromotion'
 import ReduxProvider from '../../redux/provider'
 import { Button, Tag } from 'antd/lib';
 import { IoArrowBackSharp } from "react-icons/io5";
+import AxiosIns from '../../lib/auth'
 
 function Detail() {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ function Detail() {
 
     useEffect(() => {
         if (path && path.id) {
-            axios.get(`${baseUrlV3}/promotion/data?id=${path.id}`).then(res => {
+            AxiosIns.get(`v3/promotion/data?id=${path.id}`).then(res => {
                 setTargetPromotion({ ...res.data, lstPromotionDetails: res.data.lstPromotionDetails.filter(target => !target.deleted) })
             });
         }

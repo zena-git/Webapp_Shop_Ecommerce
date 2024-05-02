@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '../../lib/auth'
 
 dayjs.extend(customParseFormat);
 function Category() {
@@ -67,7 +68,7 @@ function Category() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/category');
+            const response = await AxiosIns.get('v1/category');
             console.log(response.data);
             setDataColum(response.data);
         } catch (error) {
@@ -83,7 +84,7 @@ function Category() {
 
 
     const handleUpDate = () => {
-        axios.put('http://localhost:8080/api/v1/category/' + dataEntity.id, dataEntity)
+        AxiosIns.put('api/v1/category/' + dataEntity.id, dataEntity)
             .then(response => {
 
                 console.log('Update data:', dataEntity);
@@ -101,7 +102,7 @@ function Category() {
     };
 
     const handleDelete = (id) => {
-        axios.delete('http://localhost:8080/api/v1/category/' + dataEntity.id)
+        AxiosIns.delete('v1/category/' + dataEntity.id)
             .then(response => {
                 console.log('Update data:', dataEntity);
                 toast.success("Xóa Thành Công");
@@ -147,7 +148,7 @@ function Category() {
     };
     const handleOkAdd = () => {
 
-        axios.post('http://localhost:8080/api/v1/category', {
+        AxiosIns.post('v1/category', {
             name: valueInputAdd
         })
             .then(response => {
