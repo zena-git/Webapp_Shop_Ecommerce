@@ -7,4 +7,6 @@ public interface Top5ProductSellingReponse {
     Integer getQuantity();
     String getName();
     String getImageUrl();
+
+    Long getId();
 }

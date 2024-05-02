@@ -29,8 +29,8 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
             nativeQuery = true)
     StatisticalReponse getAllStatistical(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
 
-    @Query(value = "SELECT product.image_url AS 'imageUrl', product.name , SUM(billdetails.quantity) AS 'quantity'FROM product JOIN productdetail ON product.id = productdetail.product_id JOIN billdetails ON productdetail.id = billdetails.product_detail_id GROUP BY product.name, product.image_url ORDER BY quantity DESC LIMIT 5", nativeQuery = true)
-    List<Top5ProductSellingReponse> getTop5ProductSelling();
+    @Query(value = "SELECT Product.image_url AS 'imageUrl', Product.id AS 'id', Product.name , SUM(BillDetails.quantity) AS 'quantity' FROM Product JOIN ProductDetail ON Product.id = ProductDetail.product_id JOIN BillDetails ON ProductDetail.id = BillDetails.product_detail_id JOIN Bill ON Bill.id = bill_id where Bill.status = 4 AND Bill.last_modified_date BETWEEN :startDate AND :endDate GROUP BY Product.name, Product.image_url, Product.id ORDER BY quantity DESC LIMIT 5", nativeQuery = true)
+    List<Top5ProductSellingReponse> getTop5ProductSelling(@Param("startDate") LocalDateTime  startDate, @Param("endDate") LocalDateTime endDate);
 
 
     @Query(value = "SELECT COUNT(sub.completedOrders) AS completedOrders, SUM(sub.revenue) AS revenue " +
