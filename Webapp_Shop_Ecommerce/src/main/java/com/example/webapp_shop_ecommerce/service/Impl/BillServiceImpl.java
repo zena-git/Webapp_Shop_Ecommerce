@@ -1253,7 +1253,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
 //        productDetailsRepo.save(productDetails);
 
         billDetailsRepo.save(billDetails);
-//        updateChangeMoneyBill(idBill);
+        updateChangeMoneyBill(idBill);
         return new ResponseEntity<>(new ResponseObject("success", "Cập Nhật Số Lượng Thành Công", 0, billDetailsRequest), HttpStatus.CREATED);
     }
 
@@ -1300,7 +1300,7 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             Set<BillDetails> lstBillDetails = bill.getLstBillDetails();
             for (BillDetails billDetails : lstBillDetails) {
                 ProductDetails pd = billDetails.getProductDetails();
-                if (pd.getQuantity() <= billDetails.getQuantity()){
+                if (pd.getQuantity() < billDetails.getQuantity()){
                     return new ResponseEntity<>(new ResponseObject("error", "Số Lượng Sản Phẩm "+pd.getProduct().getName()+" Không Đủ", 1, billDetails), HttpStatus.BAD_REQUEST);
                 }
 
