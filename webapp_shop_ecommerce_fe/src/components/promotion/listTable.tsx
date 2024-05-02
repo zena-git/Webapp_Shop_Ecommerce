@@ -17,7 +17,6 @@ import {
 } from "@tanstack/react-table"
 import { PromotionResponse } from "~/lib/type"
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios';
 import { baseUrl, baseUrlV3 } from '~/lib/functional';
 import Table from '../../components/ui/table'
 import { toast, ToastContainer } from 'react-toastify'
@@ -25,6 +24,7 @@ import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import ListDeleted from '~/components/promotion/listDeleted'
 import { useAppSelector } from '../../redux/storage';
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import AxiosIns from '~/lib/auth'
 
 const { confirm } = Modal;
 const dayjs = require('dayjs');
@@ -39,7 +39,7 @@ export default function ListTable() {
     const navigate = useNavigate();
 
     const fillData = () => {
-        axios.get(`${baseUrl}/promotion`).then(res => {
+        AxiosIns.get(`v1/promotion`).then(res => {
             setData(res.data);
         })
     }
@@ -86,7 +86,7 @@ export default function ListTable() {
             okType: 'danger',
             cancelText: 'Không',
             onOk() {
-                axios.put(`${baseUrlV3}/promotion/disable/${id}`).then(res => {
+                AxiosIns.put(`v3/promotion/disable/${id}`).then(res => {
                     toast.success('Đã hủy');
                     fillData();
                 }).catch(err => {
@@ -220,42 +220,6 @@ export default function ListTable() {
             },
         },
     ], [openModal, setOpenModal, fillData]);
-
-
-    // const Recover = () => {
-
-    //     const showModal = () => {
-    //         setIsModalOpen(true);
-    //     };
-
-    //     const handleOk = () => {
-    //         const promises = listPromotionDeleteSelected.map(slt => {
-    //             return axios.put(`${baseUrlV3}/promotion/recover?id=${slt.id}`)
-    //         })
-    //         Promise.all(promises).then(() => {
-    //             setIsModalOpen(false);
-    //             fillData();
-    //             fillDeletedData()
-    //         })
-
-    //     };
-    //     const handleCancel = () => {
-    //         setIsModalOpen(false);
-    //     };
-
-    //     const listPromotionDeleteSelected = useAppSelector(state => state.promotionDeletedReducer.value.selected)
-
-    //     return (
-    //         <>
-    //             <Button danger onClick={showModal} className="flex items-center">
-    //                 <FaTrash />
-    //             </Button>
-    //             <Modal className='min-w-[60vw]' title="Khôi phục lại" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-    //                 {ListDeleted({ data: deletedData })}
-    //             </Modal>
-    //         </>
-    //     );
-    // }
 
     const table = useReactTable({
         data,

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Compressor from 'compressorjs';
-import axios from 'axios';
 
 const useUploadImage = () => {
     const [images, setImages] = useState([]);

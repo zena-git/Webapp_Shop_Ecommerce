@@ -16,7 +16,6 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { VoucherResponse } from "~/lib/type"
-import axios from 'axios'
 import { baseUrl, baseUrlV3 } from '~/lib/functional'
 import { Link, useNavigate } from 'react-router-dom'
 import Table from '../../components/ui/table'
@@ -25,6 +24,7 @@ import { useAppSelector } from '../../redux/storage';
 import ListDeleted from '~/components/voucher/listDeleted'
 import { ToastContainer, toast } from 'react-toastify'
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import AxiosIns from '~/lib/auth'
 
 const { confirm } = Modal;
 const dayjs = require('dayjs');
@@ -39,7 +39,7 @@ export default function ListTable() {
     const navigate = useNavigate();
 
     const fillData = () => {
-        axios.get(`${baseUrl}/voucher`).then(res => {
+        AxiosIns.get(`v1/voucher`).then(res => {
             setData(res.data);
         })
     }
@@ -95,7 +95,7 @@ export default function ListTable() {
             okType: 'danger',
             cancelText: 'Không',
             onOk() {
-                axios.put(`${baseUrlV3}/voucher/disable/${id}`).then(res => {
+                AxiosIns.put(`v3/voucher/disable/${id}`).then(res => {
                     toast.success('Đã hủy');
                     fillData();
                 }).catch(err => {
@@ -270,7 +270,7 @@ export default function ListTable() {
     //     };
     //     const handleOk = () => {
     //         const promises = listVoucherDeleteSelected.map(slt => {
-    //             return axios.put(`${baseUrlV3}/voucher/recover?id=${slt.id}`)
+    //             return AxiosIns.put(`${baseUrlV3}/voucher/recover?id=${slt.id}`)
     //         })
     //         Promise.all(promises).then(() => {
     //             setIsModalOpen(false);

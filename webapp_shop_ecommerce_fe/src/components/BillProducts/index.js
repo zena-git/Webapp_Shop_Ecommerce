@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin, Carousel } from 'antd';
-import axios from 'axios';
+import AxiosIns from '~/lib/auth';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
@@ -425,7 +425,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             return;
         }
         setLoadingTable(true);
-        axios.post(`http://localhost:8080/api/v1/bill/${idBill}/product`, dataBillDetails)
+        AxiosIns.post(`v1/bill/${idBill}/product`, dataBillDetails)
             .then(response => {
                 toast.success(response.data.message);
                 fetchDataBill();
@@ -455,7 +455,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
         }
 
         setLoadingTable(true);
-        axios.put(`http://localhost:8080/api/v1/bill/${idBill}/billDetails/${id}`, {
+        AxiosIns.put(`v1/bill/${idBill}/billDetails/${id}`, {
             quantity: value
         })
             .then(response => {
@@ -486,7 +486,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
             return;
         }
         setLoadingTable(true);
-        axios.delete(`http://localhost:8080/api/v1/bill/${idBill}/billDetails/${id}`)
+        AxiosIns.delete(`v1/bill/${idBill}/billDetails/${id}`)
             .then(response => {
                 toast.success(response.data.message);
                 fetchDataBill();
@@ -532,7 +532,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
 
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/color')
+        AxiosIns.get('v1/color')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -549,7 +549,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     }, []);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/size')
+        AxiosIns.get('v1/size')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -746,7 +746,7 @@ function BillProducts({ bill, fetchDataBill, lstBillDetails }) {
     const handleReturntProduct = (idBillDetail) => {
         console.log(idBillDetail);
         console.log(dataReturntProduct);
-        axios.post(`http://localhost:8080/api/v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`, dataReturntProduct)
+        AxiosIns.post(`v1/returnsOrder/bill/${bill.id}/billDetails/${idBillDetail}`, dataReturntProduct)
             .then(response => {
                 fetchDataBill();
                 toast.success(response.data.message)

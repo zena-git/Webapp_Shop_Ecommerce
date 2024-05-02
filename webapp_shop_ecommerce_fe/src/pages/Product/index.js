@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Table, Radio, Select, Input, Space, Dropdown, Switch, Spin, Popconfirm, Tooltip, Modal, Upload } from 'antd';
-import axios from 'axios';
 import { useDebounce } from '~/hooks';
 import { ToolOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, RedoOutlined, FilterOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';

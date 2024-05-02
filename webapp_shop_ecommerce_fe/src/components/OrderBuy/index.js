@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Button, Modal, Radio, Table, Input, Alert, Switch, InputNumber } from 'antd';
-import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill1, faCreditCard, faTicket } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +10,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { toast } from 'react-toastify';
 import { useDebounce } from '~/hooks';
-
+import AxiosIns from '~/lib/auth'
 dayjs.extend(customParseFormat);
 const { confirm } = Modal
 function OrderBuy({ fetchAddBillNew }) {
@@ -80,7 +79,7 @@ function OrderBuy({ fetchAddBillNew }) {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/voucher/customer/' + customer.id)
+            const response = await AxiosIns.get('v1/voucher/customer/' + customer.id)
             console.log(response.data);
             setLstDataVoucher(response.data)
         } catch (error) {

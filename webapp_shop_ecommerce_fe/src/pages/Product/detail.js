@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Form, Input, InputNumber, Carousel, Popconfirm, Table, Typography, Button, Descriptions, Tag, Slider, Select, Tooltip, Space, ColorPicker } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -367,10 +366,8 @@ function ProductDetail() {
     const dowloadBarcode = () => {
         setLoading(true);
         const downloadBarcode = async () => {
-            const apiUrl = 'http://localhost:8080/api/v1/product/barcode?data=';
-
             try {
-                const response = await axios.get(apiUrl + selectedRowKeys, { responseType: 'blob' });
+                const response = await AxiosIns.get('v1/product/barcode?data=' + selectedRowKeys, { responseType: 'blob' });
                 const currentDate = new Date();
                 // Create a blob URL and initiate the download
                 const url = window.URL.createObjectURL(new Blob([response.data]));

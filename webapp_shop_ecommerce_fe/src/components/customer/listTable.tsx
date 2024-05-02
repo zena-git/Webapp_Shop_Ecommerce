@@ -19,7 +19,7 @@ import {
 import { CustomerResponse } from "~/lib/type"
 import { useAppSelector } from '~/redux/storage'
 import { useDispatch } from "react-redux";
-import axios from 'axios'
+import AxiosIns from '~/lib/auth'
 import { baseUrl, baseUrlV3 } from '~/lib/functional'
 import { Link, useNavigate } from 'react-router-dom'
 import Table from '../../components/ui/table'
@@ -46,11 +46,11 @@ export default function ListTable() {
     const selectedCustomer = useAppSelector((state) => state.voucherDeletedReducer.value.selected)
 
     const fillData = () => {
-        axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
+        AxiosIns.get(`v3/customer`).then(res => { setListCustomer(res.data) })
     }
 
     const fillDeletedData = () => {
-        axios.get(`${baseUrlV3}/customer/deleted`).then(res => { setDeletedData(res.data) })
+        AxiosIns.get(`v3/customer/deleted`).then(res => { setDeletedData(res.data) })
     }
 
     useEffect(() => {
@@ -68,7 +68,7 @@ export default function ListTable() {
             okType: 'danger',
             cancelText: 'Không',
             onOk() {
-                axios.delete(`${baseUrl}/customer/${id}`).then(res => {
+                AxiosIns.delete(`v1/customer/${id}`).then(res => {
                     fillData();
                     fillDeletedData();
                     toast.success('xóa thành công')
@@ -192,7 +192,7 @@ export default function ListTable() {
     const Recover = () => {
         const handleOk = () => {
             const promises = selectedCustomer.map(slt => {
-                return axios.put(`${baseUrlV3}/customer/recover?id=${slt.id}`)
+                return AxiosIns.put(`v3/customer/recover?id=${slt.id}`)
             })
             Promise.all(promises).then(() => {
                 fillData();

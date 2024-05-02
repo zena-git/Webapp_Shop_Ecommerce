@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Button, Modal, Radio, Space, Input, Select, DatePicker, Avatar } from 'antd';
-import axios from "axios";
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { data } from 'autoprefixer';
 import { useDebounce } from '~/hooks';
@@ -12,6 +11,8 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '~/lib/auth'
+
 dayjs.extend(customParseFormat);
 function OrderCustomer() {
 
@@ -36,7 +37,7 @@ function OrderCustomer() {
     const fetchDataCustomer = async () => {
 
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/customer/search', {
+            const response = await AxiosIns.get('v1/customer/search', {
                 params: {
                     keyWord: searchText
                 }
@@ -88,7 +89,7 @@ function OrderCustomer() {
             toast.error('Số điện thoại không hợp lệ');
             return;
         }
-        axios.post('http://localhost:8080/api/v1/customer', customerAdd)
+        AxiosIns.post('v1/customer', customerAdd)
             .then((response) => {
                 toast.success(response.data.message);
                 fetchDataCustomer()

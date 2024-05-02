@@ -8,6 +8,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { fixMoney } from '~/ultils/fixMoney';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '~/lib/auth'
+
 dayjs.extend(customParseFormat);
 
 const { TextArea } = Input;
@@ -362,7 +364,7 @@ function BillAddress({ bill, handleCancelAddress, fetchDataBill, lstBillDetails 
             toast.error('Số điện thoại không hợp lệ');
             return;
         }
-        axios.put(`http://localhost:8080/api/v1/bill/${bill.id}/address`, addressBill)
+        AxiosIns.put(`v1/bill/${bill.id}/address`, addressBill)
             .then((response) => {
                 fetchDataBill()
                 toast.success(response.data.message);

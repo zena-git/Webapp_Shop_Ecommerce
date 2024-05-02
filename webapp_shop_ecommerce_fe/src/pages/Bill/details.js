@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Form, Input, InputNumber, Radio, Table, Typography, Button, Descriptions, Tag, Slider, Select, Tooltip, Space, Modal } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -154,34 +153,6 @@ function BillDetail() {
         }
     };
 
-
-
-    // const handlePrintView = async () => {
-    //     try {
-    //         // Gọi API để lấy dữ liệu hóa đơn
-    //         const response = await axios.get(`http://localhost:8080/api/v3/print/${bill?.codeBill}`, {
-    //             responseType: 'arraybuffer', // Yêu cầu dữ liệu trả về dưới dạng mảng byte
-    //         });
-    //         // Đặt tên tệp Blob dựa trên bill.codeBill
-    //         const pdfBlobName = `${bill?.codeBill}.pdf`;
-
-    //         // Tạo một File từ dữ liệu PDF với tên là bill.codeBill
-    //         const pdfFile = new File([response.data], `${bill?.codeBill}.pdf`, { type: 'application/pdf' });
-
-    //         // Tạo URL tạm thời từ File
-    //         const pdfUrl = URL.createObjectURL(pdfFile);
-    //         // Mở chế độ xem in
-    //         const printWindow = window.open(pdfUrl, '_blank');
-    //         printWindow.addEventListener('unload', function () {
-    //             window.focus();
-    //         });
-    //         printWindow.onload = function () {
-    //             printWindow.print();
-    //         };
-    //     } catch (error) {
-    //         console.error('Error:', error);
-    //     }
-    // };
     return (
         <>
             <div className='max-w-full'>

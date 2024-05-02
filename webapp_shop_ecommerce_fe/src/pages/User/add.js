@@ -40,7 +40,7 @@ const formSchema = z.object({
 })
 const token = 'a98f6e38-f90a-11ee-8529-6a2e06bbae55'
 export default function Add() {
-
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const [pending, setPending] = useState(false);
     const [addProvince, setAddProvince] = useState();
@@ -69,39 +69,43 @@ export default function Add() {
     }, [])
 
     useEffect(() => {
-        if (addProvince) {
-            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${addProvince.ProvinceID}`, {
-                headers: {
-                    token: token
-                }
-            }).then(res => {
-                let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451);
-                setAddDistrict(listFilteredDistrict[0])
-                setListDistricts(listFilteredDistrict);
-                axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0].DistrictID}`, {
+        if (!loading) {
+            if (addProvince) {
+                axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${addProvince.ProvinceID}`, {
                     headers: {
                         token: token
                     }
-                }).then(resp => {
-                    setListWards(resp.data.data);
-                    setAddWard(resp.data.data[0].WardName);
+                }).then(res => {
+                    let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451);
+                    setAddDistrict(listFilteredDistrict[0])
+                    setListDistricts(listFilteredDistrict);
+                    axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${listFilteredDistrict[0].DistrictID}`, {
+                        headers: {
+                            token: token
+                        }
+                    }).then(resp => {
+                        setListWards(resp.data.data);
+                        setAddWard(resp.data.data[0].WardName);
+                    })
                 })
-            })
+            }
         }
-    }, [addProvince])
+    }, [addProvince, loading])
 
     useEffect(() => {
-        if (addDistrict) {
-            axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${addDistrict.DistrictID}`, {
-                headers: {
-                    token: token
-                }
-            }).then(res => {
-                setListWards(res.data.data);
-                setAddWard(res.data.data[0].WardName)
-            })
+        if (!loading) {
+            if (addDistrict) {
+                axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${addDistrict.DistrictID}`, {
+                    headers: {
+                        token: token
+                    }
+                }).then(res => {
+                    setListWards(res.data.data);
+                    setAddWard(res.data.data[0].WardName);
+                })
+            }
         }
-    }, [addDistrict])
+    }, [addDistrict, loading])
 
     const form = useForm(
         {
@@ -247,23 +251,57 @@ export default function Add() {
     function ScanResult(result) {
         if (result) {
             if (result.text) {
-                setWebScan(result);
-                const resultText = result.text;
-                const id = resultText.split("||")[0]
-                const name = resultText.split("||")[1].split("|")[0]
-                const birthday = dayjs(resultText.split("||")[1].split("|")[1], 'DDMMYYYY')
-                const gender = resultText.split("||")[1].split("|")[2] == "Nam" ? false : true;
-                const province = resultText.split("||")[1].split("|")[3].split(", ")[3]
-                const district = resultText.split("||")[1].split("|")[3].split(", ")[2]
-                const commune = resultText.split("||")[1].split("|")[3].split(", ")[1]
-                const detail = resultText.split("||")[1].split("|")[3].split(", ")[0]
-                form.setValue("birthday", birthday)
-                form.setValue("detail", detail)
-                form.setValue("fullName", name)
-                form.setValue("gender", gender)
-                setAddDistrict(district);
-                setAddProvince(province);
-                setAddWard(commune);
+
+                if (!loading) {
+                    console.log(loading);
+                    setLoading(true);
+                    setWebScan(result);
+                    const resultText = result.text;
+                    console.log(resultText);
+                    const id = resultText.split("||")[0]
+                    const name = resultText.split("||")[1].split("|")[0]
+                    const birthday = dayjs(resultText.split("||")[1].split("|")[1], 'DDMMYYYY')
+                    const gender = resultText.split("||")[1].split("|")[2] == "Nam" ? false : true;
+                    const province = resultText.split("||")[1].split("|")[3].split(", ")[3]
+                    const district = resultText.split("||")[1].split("|")[3].split(", ")[2]
+                    const commune = resultText.split("||")[1].split("|")[3].split(", ")[1]
+                    const detail = resultText.split("||")[1].split("|")[3].split(", ")[0]
+
+                    console.log(province + " " + district + " " + commune);
+
+                    form.setValue("birthday", birthday)
+                    form.setValue("detail", detail)
+                    form.setValue("fullName", name)
+                    form.setValue("gender", gender)
+                    const foundProvince = listProvince.find(provincex => {
+                        return provincex.NameExtension.includes(province);
+                    })
+                    setAddProvince(foundProvince);
+                    axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${foundProvince.ProvinceID}`, {
+                        headers: {
+                            token: token
+                        }
+                    }).then(res => {
+                        let listFilteredDistrict = res.data.data.filter(dis => dis.DistrictID != 3451);
+                        setListDistricts(listFilteredDistrict);
+                        const foundDistrict = listFilteredDistrict.find(districtx => {
+                            return districtx.NameExtension.includes(district);
+                        })
+                        setAddDistrict(foundDistrict);
+                        axios.get(`https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${foundDistrict.DistrictID}`, {
+                            headers: {
+                                token: token
+                            }
+                        }).then(resp => {
+                            setListWards(resp.data.data);
+                            const foundWard = resp.data.data.find(ward => {
+                                return ward.NameExtension.includes(commune)
+                            })
+                            console.log(foundWard);
+                            setAddWard(foundWard.WardName);
+                        })
+                    })
+                }
             }
         }
     }
@@ -323,12 +361,13 @@ export default function Add() {
                             </div>
                         </div>
                         <div className="flex-grow flex flex-col gap-2 bg-white shadow-lg rounded-md p-5">
-                            <div className='flex justify-between items-center'>
-                                <p className='text-2xl font-bold'>Thông tin chi tiết</p>
+                            <div className='h-12 text-2xl font-bold'>Thông tin chi tiết</div>
+                            {/* <div className='flex justify-between items-center'>
+                                <p className=''></p>
                                 <Button type="primary" onClick={() => setIsModalOpen(true)}>
                                     Quét mã QR
                                 </Button>
-                                <Modal title="Quét mã QR" open={isModalOpen} onOk={() => { setIsModalOpen(false) }} onCancel={() => { }}>
+                                <Modal title="Quét mã QR" open={isModalOpen} onOk={() => { setIsModalOpen(false); setLoading(false) }} onCancel={() => { setIsModalOpen(false); setLoading(false) }}>
                                     <QrReader
                                         delay={600}
                                         facingMode="user"
@@ -340,7 +379,7 @@ export default function Add() {
                                     />
                                     <p>{webScan && webScan.text}</p>
                                 </Modal>
-                            </div>
+                            </div> */}
                             <div className='bg-slate-600 h-[2px]'></div>
                             <div className='flex flex-col gap-3'>
                                 <div className='grid grid-cols-2 gap-3 items-center'>

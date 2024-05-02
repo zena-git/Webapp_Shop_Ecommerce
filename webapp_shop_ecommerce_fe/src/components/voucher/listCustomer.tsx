@@ -20,9 +20,6 @@ import { CustomerResponse } from "~/lib/type"
 import { useAppSelector } from '~/redux/storage'
 import { set, updateSelected } from '~/redux/features/voucher-selected-item'
 import { useDispatch } from "react-redux";
-import axios from 'axios'
-import { baseUrl, baseUrlV3 } from '~/lib/functional'
-import { Link } from 'react-router-dom'
 import Table from '../../components/ui/table'
 
 export default function ListTable({ listCustomer }: { listCustomer: CustomerResponse[] }) {

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Quagga from 'quagga'
 import { Button,Modal } from 'antd';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 const BarcodeScanner = ({ idBill, handleAddProductDetailsQrCode }) => {
   const [cameraOpen, setCameraOpen] = useState(true)

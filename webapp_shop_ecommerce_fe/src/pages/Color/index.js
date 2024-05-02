@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Input, Modal, Popconfirm, ColorPicker } from 'antd';
-import axios from 'axios';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DeleteOutlined } from '@ant-design/icons';

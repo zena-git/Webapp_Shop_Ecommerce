@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, ColorPicker, Space, Tag, Spin, Carousel } from 'antd';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';
@@ -13,6 +12,8 @@ import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import BarcodeScanner from '../BarcodeScanner';
 import QRScanner from '../QRScanner';
 import { useDebounce } from '~/hooks';
+import AxiosIns from '~/lib/auth'
+
 const { confirm } = Modal;
 const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
@@ -502,7 +503,7 @@ function OrderProducts() {
     const onChangeQuantityProductCart = (value, id) => {
         console.log(value + " " + id);
 
-        axios.put('http://localhost:8080/api/v1/counters/billDetails/' + id, {
+        AxiosIns.put('v1/counters/billDetails/' + id, {
             quantity: value
         })
             .then(response => {
@@ -527,7 +528,7 @@ function OrderProducts() {
 
 
     const handleDeleteProductCart = (id) => {
-        axios.delete('http://localhost:8080/api/v1/counters/billDetails/' + id)
+        AxiosIns.delete('v1/counters/billDetails/' + id)
             .then(response => {
                 toast.success(response.data.message);
                 updateDataProductDetails();
@@ -541,7 +542,7 @@ function OrderProducts() {
     }
 
     const handleDeleteAllProductCart = () => {
-        axios.delete(`http://localhost:8080/api/v1/counters/${idBill}/billDetails/deleteAll`)
+        AxiosIns.delete(`v1/counters/${idBill}/billDetails/deleteAll`)
             .then(response => {
                 toast.success(response.data.message);
                 updateDataProductDetails();
@@ -571,7 +572,7 @@ function OrderProducts() {
             return;
         }
 
-        axios.post(`http://localhost:8080/api/v1/counters/${idBill}/product`, dataBillDetails)
+        AxiosIns.post(`v1/counters/${idBill}/product`, dataBillDetails)
             .then(response => {
                 toast.success(response.data.message);
                 updateDataDataCart();
@@ -593,7 +594,7 @@ function OrderProducts() {
             return;
         }
         try {
-            const response = await axios.post(`http://localhost:8080/api/v1/counters/${idBill}/product/barcode/${barcode}`);
+            const response = await AxiosIns.post(`v1/counters/${idBill}/product/barcode/${barcode}`);
             console.log('API response:', response.data);
             toast.success(response.data.message);
             updateDataDataCart();
@@ -649,7 +650,7 @@ function OrderProducts() {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/color')
+        AxiosIns.get('v1/color')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,
@@ -666,7 +667,7 @@ function OrderProducts() {
     }, []);
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v1/size')
+        AxiosIns.get('v1/size')
             .then((response) => {
                 const newObj = response.data.map(rep => ({
                     value: rep.name,

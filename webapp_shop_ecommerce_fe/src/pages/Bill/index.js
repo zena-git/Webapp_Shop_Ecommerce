@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tabs, Table, DatePicker, Radio, Input, Tag, Badge } from 'antd';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { SearchOutlined } from '@ant-design/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

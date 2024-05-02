@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Modal, Input, InputNumber, Button, Radio } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,6 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { fixMoney } from '~/ultils/fixMoney';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import AxiosIns from '~/lib/auth'
+
 dayjs.extend(customParseFormat);
 const columns = [
   {
@@ -145,7 +146,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
       toast.error("Số tiền thanh toán phải lớn hơn 0")
       return;
     }
-    axios.post(` http://localhost:8080/api/v1/bill/${bill?.id}/payment`, paymentHistory)
+    AxiosIns.post(`v1/bill/${bill?.id}/payment`, paymentHistory)
       .then(response => {
         toast.success(response.data.message)
         fetchDataBill();
@@ -177,7 +178,7 @@ function PaymentHistory({ bill, lstPaymentHistory, fetchDataBill }) {
       return;
     }
 
-    axios.post(` http://localhost:8080/api/v1/bill/${bill?.id}/payment`, dataPayment)
+    AxiosIns.post(`v1/bill/${bill?.id}/payment`, dataPayment)
       .then(response => {
         toast.success(response.data.message)
         fetchDataBill();

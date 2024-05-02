@@ -14,7 +14,6 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
 import AxiosIns from '../../../lib/auth'
 const { Header, Content, Footer, Sider } = Layout;
 const headerStyle = {

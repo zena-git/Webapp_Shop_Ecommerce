@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Tooltip, Modal, Input, Table, InputNumber, Select, Slider, Carousel, Space, Tag, Spin } from 'antd';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { Empty } from 'antd';
 import hexToColorName from '~/ultils/HexToColorName';

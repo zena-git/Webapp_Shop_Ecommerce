@@ -3,6 +3,9 @@ import { Button, Checkbox, Radio, Space, Input, Select, InputNumber } from 'antd
 import axios from "axios";
 import { useSaleData } from '~/provider/OrderDataProvider';
 import { ToastContainer, toast } from 'react-toastify';
+import AxiosIns from '~/lib/auth'
+
+
 const { TextArea } = Input;
 function Address({ goBack, customer, valueAddress, updateDataAddress }) {
 
@@ -192,7 +195,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
 
         // console.log(address);
         if (address?.id == null) {
-            axios.post('http://localhost:8080/api/v1/address', dataAddress)
+            AxiosIns.post('v1/address', dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();
@@ -203,7 +206,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                     toast.error(error.response.data.message);
                 })
         } else {
-            axios.put('http://localhost:8080/api/v1/address/' + address.id, dataAddress)
+            AxiosIns.put('v1/address/' + address.id, dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();

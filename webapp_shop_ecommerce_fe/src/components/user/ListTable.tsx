@@ -18,7 +18,6 @@ import {
 } from "@tanstack/react-table"
 import { useAppSelector } from '../../redux/storage';
 import { User } from "~/lib/type"
-import axios from 'axios'
 import { baseUrlV3, baseUrl } from '~/lib/functional'
 import { useNavigate } from 'react-router-dom'
 import ListDeleted from '../../components/user/listDeleted'
@@ -28,6 +27,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import { FaEdit, FaEye, FaTrash } from "react-icons/fa";
 import { set } from '../../redux/features/voucher-deleted'
 import { ExclamationCircleFilled } from '@ant-design/icons';
+import AxiosIns from '~/lib/auth'
 
 const { confirm } = Modal;
 
@@ -41,7 +41,7 @@ export default function ListTable() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const fillData = () => {
-        axios.get(`${baseUrlV3}/user`).then(res => {
+        AxiosIns.get(`v3/user`).then(res => {
             setData(res.data.filter(d => d.deleted == false));
         })
     }
@@ -80,7 +80,7 @@ export default function ListTable() {
             okType: 'danger',
             cancelText: 'No',
             onOk() {
-                axios.delete(`${baseUrlV3}/user/delete/${id}`).then(res => {
+                AxiosIns.delete(`v3/user/delete/${id}`).then(res => {
                     fillData();
                     fillDeltedData();
                     toast.success('xóa thành công')
@@ -154,7 +154,7 @@ export default function ListTable() {
                     <Switch checkedChildren="Đang làm việc" disabled={pending} unCheckedChildren="Đã nghỉ việc" defaultChecked={row.original.status == 0} onChange={e => {
                         if (!pending) {
                             pending = true;
-                            axios.put(`${baseUrl}/user/${row.original.id}/status`, { ...row.original, status: e ? 0 : 1 }).then(res => {
+                            AxiosIns.put(`v1/user/${row.original.id}/status`, { ...row.original, status: e ? 0 : 1 }).then(res => {
                                 toast.success('Cập nhật thành công');
                                 pending = false;
                                 fillData();
@@ -233,7 +233,7 @@ export default function ListTable() {
     const listUserDeletedSelect = useAppSelector(state => state.voucherDeletedReducer.value.selected);
 
     const fillDeltedData = () => {
-        axios.get(`${baseUrlV3}/user/deleted`).then(res => {
+        AxiosIns.get(`v3/user/deleted`).then(res => {
             setDeletedData(res.data);
         })
     }
@@ -241,7 +241,7 @@ export default function ListTable() {
     const Recover = () => {
         const handleOk = () => {
             const promises = listUserDeletedSelect.map(slt => {
-                return axios.post(`${baseUrlV3}/user/recover?id=${slt.id}`)
+                return AxiosIns.post(`v3/user/recover?id=${slt.id}`)
             })
             Promise.all(promises).then(() => {
                 fillData();

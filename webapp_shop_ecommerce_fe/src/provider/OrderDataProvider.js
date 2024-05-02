@@ -1,5 +1,5 @@
 import { editableInputTypes } from '@testing-library/user-event/dist/utils';
-import axios from 'axios';
+import AxiosIns from '~/lib/auth';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -157,7 +157,7 @@ const OrderDataProvider = ({ children }) => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/counters/' + idBill);
+            const response = await AxiosIns.get('v1/counters/' + idBill);
             console.log(response.data);
             console.log("call lại api cart");
             setLstProductDetailsCart(response.data);
@@ -180,7 +180,7 @@ const OrderDataProvider = ({ children }) => {
 
     const fetchDataProductDetails = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/counters/products');
+            const response = await AxiosIns.get('v1/counters/products');
             console.log(response.data);
             setLstProductDetails(response.data)
 
@@ -202,7 +202,7 @@ const OrderDataProvider = ({ children }) => {
 
     const fetchDataBillNew = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/counters');
+            const response = await AxiosIns.get('v1/counters');
             console.log(response.data);
             setLstBill(response.data);
 
@@ -223,7 +223,7 @@ const OrderDataProvider = ({ children }) => {
             return;
         }
 
-        axios.get('http://localhost:8080/api/v1/bill/' + idBill)
+        AxiosIns.get('v1/bill/' + idBill)
             .then(res => {
                 console.log(res.data.customer);
                 setCustomer(res.data.customer);
@@ -239,7 +239,7 @@ const OrderDataProvider = ({ children }) => {
 
     const updateDataCustomer = useCallback(async (id) => {
         console.log(idBill);
-        axios.put(`http://localhost:8080/api/v1/counters/${idBill}/customer`, {
+        AxiosIns.put(`v1/counters/${idBill}/customer`, {
             customer: id
         })
             .then(response => {
@@ -314,7 +314,7 @@ const OrderDataProvider = ({ children }) => {
         }
         console.log(dataBill);
         setLoadingContent(true);
-        axios.put(`http://localhost:8080/api/v1/counters/${idBill}/payment`, dataBill)
+        AxiosIns.put(`v1/counters/${idBill}/payment`, dataBill)
             .then((response) => {
                 if (response.data.status == "redirect") {
                     window.location.href = response.data.data;
