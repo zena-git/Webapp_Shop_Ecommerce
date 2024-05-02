@@ -47,11 +47,14 @@ function ProductDetail() {
     const [productDetails, setProductDetails] = useState(null)
     const [quantityProduct, setQuantityProduct] = useState(1);
 
+    const [tab, setTab] = useState(0);
+
     async function handleGetProductDetails() {
         const data = await productApis.getProductOne(id);
         console.log(data.data);
         setProduct(data.data);
     }
+
     useEffect(() => {
 
         axios.get('http://localhost:8080/api/v2/product/' + id)
@@ -469,120 +472,64 @@ function ProductDetail() {
                                 </div>
                             </div>
 
-
-
-                            <div>
-                                <div className={styles.nav} style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    borderBottom: "none",
-                                    flexWrap: "nowrap",
-                                    whiteSpace: "nowrap",
-                                    overflow: "auto",
-                                    listStyle: "none",
-                                    margin: "20px 0"
-                                }}>
-                                    <Link to={"/"}>dịch vụ</Link>
-                                    <Link to={"/"}>sản phẩm</Link>
-                                    <Link to={"/"}>bảo quản</Link>
+                            <div className="mt-8">
+                                <div className="flex gap-5">
+                                    <div onClick={() => { setTab(0) }} className={`text-3xl  ${tab == 0 ? 'underline underline-offset-4' : ''} uppercase font-sans font-semibold`}>dịch vụ</div>
+                                    <div onClick={() => { setTab(1) }} className={`text-3xl  ${tab == 1 ? 'underline underline-offset-4' : ''} uppercase font-sans font-semibold`}>sản phẩm</div>
+                                    <div onClick={() => { setTab(2) }} className={`text-3xl  ${tab == 2 ? 'underline underline-offset-4' : ''} uppercase font-sans font-semibold`}>bảo quản</div>
                                 </div>
-                                <p style={{
-                                    marginBottom: "10px",
-                                    lineHeight: "15px",
-                                    color: "#555556",
-                                    fontSize: "100%",
-                                    WebkitTapHighlightColor: "rgba(0,0,0,0)",
-                                    display: "flex",
-                                    flexDirection: "row"
-                                }}>
-                                    <div style={{
-                                        marginRight: "5px"
-                                    }}>
-                                        <MdOutlineLocalShipping />
+                                {tab == 0 &&
+                                    <div className="mt-5">
+                                        <p style={{
+                                            marginBottom: "10px",
+                                            lineHeight: "15px",
+                                            color: "#555556",
+                                            fontSize: "100%",
+                                            WebkitTapHighlightColor: "rgba(0,0,0,0)",
+                                            display: "flex",
+                                            flexDirection: "row"
+                                        }}>
+                                            <div style={{
+                                                marginRight: "5px"
+                                            }}>
+                                                <MdOutlineLocalShipping />
+                                            </div>
+                                            <strong>Giao hàng trên toàn quốc</strong>
+                                        </p>
+                                        <p style={{
+                                            marginBottom: "10px",
+                                            lineHeight: "15px",
+                                            color: "#555556",
+                                            fontSize: "100%",
+                                            WebkitTapHighlightColor: "rgba(0,0,0,0)",
+                                            display: "flex",
+                                            flexDirection: "row"
+                                        }}>
+                                            <div style={{
+                                                marginRight: "5px"
+                                            }}>
+                                                <RiRefund2Line />
+                                            </div>
+                                            <strong>Đổi/Trả dễ dàng trong 3 ngày</strong>
+                                        </p>
                                     </div>
-                                    <strong>Giao hàng trên toàn quốc</strong>
-                                </p>
-                                <p style={{
-                                    color: "#555556"
-                                }}>
-                                    -<strong>
-                                        <a style={{
-                                            color: "#333333",
-                                            textDecoration: "none",
-                                            textTransform: "uppercase"
-                                        }} href="/">
-                                            <span> Miễn phí giao hàng </span>
-                                        </a>
-                                    </strong>
-                                    cho đơn hàng từ {fixMoney(10000)}
-                                </p>
-                                <p style={{
-                                    color: "#555556"
-                                }}>
-                                    - Áp dụng cho mọi đơn hàng tại <strong style={{
-                                        fontWeight: "bold",
-                                        color: "#555556"
-                                    }}>
-                                        website ALICE.VN
-                                    </strong>
-                                </p>
-                                <p style={{
-                                    marginBottom: "10px",
-                                    lineHeight: "15px",
-                                    color: "#555556",
-                                    fontSize: "100%",
-                                    WebkitTapHighlightColor: "rgba(0,0,0,0)",
-                                    display: "flex",
-                                    flexDirection: "row"
-                                }}>
-                                    <div style={{
-                                        marginRight: "5px"
-                                    }}>
-                                        <RiRefund2Line />
+                                }
+                                {
+                                    tab == 1 &&
+                                    <div className="mt-5">
+                                        <div className="my-4 flex gap-3 items-center">
+                                            <p className="text-2xl font-bold">Mô tả:</p>
+                                            <p className="text-slate-500 text-[14px] font-sans">{lstProductDetails ? lstProductDetails[0]?.product.description : ''}</p>
+                                        </div>
+                                        <div className="my-4">
+                                            <p className="text-2xl font-bold font-sans mb-2">Thông tin sản phẩm</p>
+                                            <p className="text-slate-600 text-[14px] font-sans">{lstProductDetails ? '- Chất liệu: ' + lstProductDetails[0]?.product.material.name : ''}</p>
+                                            <p className="text-slate-600 text-[14px] font-sans">{lstProductDetails ? '- Kiểu dáng: ' + lstProductDetails[0]?.product.style.name : ''}</p>
+                                            <p className="text-slate-600 text-[14px] font-sans">{lstProductDetails ? '- Thương hiệu: ' + lstProductDetails[0]?.product.brand.name : ''}</p>
+                                            <p className="text-slate-600 text-[14px] font-sans">{lstProductDetails ? '- Phân loại: ' + lstProductDetails[0]?.product.category.name : ''}</p>
+                                        </div>
                                     </div>
-                                    <strong>Đổi/Trả dễ dàng trong 3 ngày</strong>
-                                </p>
-                                <p style={{
-                                    color: "#555556"
-                                }}>
-                                    Xem thêm tại <strong>
-                                        <a style={{
-                                            color: "#333333",
-                                            textDecoration: "none",
-                                            fontWeight: "bold",
-                                            textTransform: "uppercase"
-                                        }} href="/">
-                                            <span>chính sách đổi trả</span>
-                                        </a>
-                                    </strong>
-                                </p>
-
-                                <p style={{
-                                    marginBottom: "10px",
-                                    lineHeight: "15px",
-                                    color: "#555556",
-                                    fontSize: "100%",
-                                    WebkitTapHighlightColor: "rgba(0,0,0,0)",
-                                    display: "flex",
-                                    flexDirection: "row"
-                                }}>
-                                    <div style={{
-                                        marginRight: "5px"
-                                    }}>
-                                        <CiEdit />
-                                    </div>
-
-                                    <strong>Muốn chỉnh sửa sản phẩm cho phù hợp sở thích của bạn?</strong>
-
-                                </p>
-                                <p>Xem thêm tại <a style={{
-                                    color: "#333333",
-                                    textDecoration: "none",
-                                    fontWeight: "bold",
-                                    textTransform: "uppercase"
-                                }} href="/">
-                                    <span>dịch vụ chỉnh sửa quần áo</span>
-                                </a> của OLV nhé!</p>
+                                }
                             </div>
                         </div>
                     </div>
