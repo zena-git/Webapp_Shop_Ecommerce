@@ -33,8 +33,9 @@ import Customer from '~/pages/Customer'
 import CustomerDetail from '~/pages/Customer/detail'
 import CustomerAdd from '~/pages/Customer/add'
 import CustomerUpdate from '~/pages/Customer/update'
+import LoginPage from '../pages/Login';
 const publicRouter = [
-
+    { path: '/login', component: LoginPage },
 ];
 
 const privateRouter = [

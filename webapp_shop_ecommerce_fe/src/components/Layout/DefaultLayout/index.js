@@ -1,6 +1,6 @@
 import { Layout, theme, Button, Badge, Avatar } from 'antd';
 import Menu from '~/components/Menu';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import {
   MenuFoldOutlined,
@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import { useOrderData } from '~/provider/OrderDataProvider';
+import { useNavigate } from 'react-router-dom';
 const { Header, Content, Footer, Sider } = Layout;
 const headerStyle = {
   color: 'black',
@@ -64,6 +65,15 @@ function DefaultLayout({ children }) {
   } = theme.useToken();
   const { loadingContent, setDataLoadingContent } = useOrderData();
 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if(!token){
+      navigate('/login');
+    }
+  },[navigate])
+
   return (
     <div >
       <Layout hasSider >
@@ -71,7 +81,7 @@ function DefaultLayout({ children }) {
           <div className='flex justify-center content-center	mt-6 mb-6 pt-8 pb-8'>
             <img style={{
               width: '154px',
-            }} src='../logo.png'></img>
+            }} src='/logo.png'></img>
           </div>
           <Menu style={{ width: '100%' }}></Menu>
         </Sider>
@@ -88,11 +98,11 @@ function DefaultLayout({ children }) {
 
               <div className='ml-6 flex items-center'>
                 <div>
-                  <h4> Admin Tạch 2tr3</h4>
+                  <h4>Phung Thi Thuy Hien</h4>
                 </div>
                 <Avatar className='ml-4' size="large" icon={
                   <>
-                    <img src="https://scontent.fhan3-3.fna.fbcdn.net/v/t39.30808-6/248448036_10223354474742706_6850305084773679859_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGbo6-TAFzmZFrU4oXsYmviQDRCYMjUooVANEJgyNSihZ9anpRPbtWdFXfAXlZr5Y0&_nc_ohc=SPBVtBvef6QAX99j0we&_nc_ht=scontent.fhan3-3.fna&oh=00_AfDaFcUiGMw3e34F3rC0eE6wcdilHsGjdqOlSEtAUTE6yw&oe=65FDE7DD" />
+                    <img src="https://res.cloudinary.com/dgxbxvkso/image/upload/v1714527323/y0eh7ykpoys0xhwrxqzv.jpg" />
                   </>
                 } />
               </div>

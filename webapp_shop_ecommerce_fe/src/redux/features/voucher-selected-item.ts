@@ -31,8 +31,18 @@ export const selectedData = createSlice({
                 state.value.selected.push({ id: id, selected: true });
             }
         },
+        toggleAll: (state) => {
+            state.value.selected.forEach(item => {
+                item.selected = true;
+            });
+        },
+        deselectAll: (state) => {
+            state.value.selected.forEach(item => {
+                item.selected = false;
+            });
+        }
     },
 });
 
 export default selectedData.reducer;
-export const { set, updateSelected } = selectedData.actions;
+export const { set, updateSelected, toggleAll, deselectAll } = selectedData.actions;

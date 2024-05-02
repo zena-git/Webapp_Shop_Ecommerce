@@ -114,10 +114,6 @@ function EditPage() {
         }
     }
 
-    useEffect(() => {
-        console.log(listSelectedProduct)
-    }, [listSelectedProduct]);
-
     return (
         <div>
             <div className='w-full flex max-xl:flex-col py-5 gap-5 bg-white'>
@@ -138,7 +134,7 @@ function EditPage() {
                     </label>
                     <label>
                         <p className='mb-1 text-xl text-slate-600'>Giá trị giảm (%)</p>
-                        <InputNumber min={0} max={100} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
+                        <InputNumber min={1} max={100} className='w-full' value={value} onChange={e => { if (e) setValue(e) }} />
                     </label>
                     <label>
                         <p className='mb-1 text-xl text-slate-600'>Mô tả</p>

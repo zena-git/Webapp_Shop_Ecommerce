@@ -19,7 +19,7 @@ import ReduxProvider from '../../redux/provider'
 import { zodResolver } from "@hookform/resolvers/zod"
 import ListCustomer from '../../components/voucher/listCustomer'
 import { useDispatch } from 'react-redux';
-import { set } from '../../redux/features/voucher-selected-item';
+import { set, toggleAll, deselectAll } from '../../redux/features/voucher-selected-item';
 import { ToastContainer, toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBackSharp } from "react-icons/io5";
@@ -54,7 +54,7 @@ const VoucherPage = () => {
     const navigate = useNavigate();
     const selectedCustomer = useAppSelector(state => state.voucherReducer.value.selected)
 
-    const [VoucherType, setVoucherType] = useState("0");
+    const [VoucherType, setVoucherType] = useState("1");
 
     const [discountType, setDiscountType] = useState(false);
     const [listCustomer, setListCustomer] = useState([]);
@@ -70,8 +70,20 @@ const VoucherPage = () => {
     }, [dispatch])
 
     useEffect(() => {
-        axios.get(`${baseUrl}/customer`).then(res => { setListCustomer(res.data) })
-    }, [])
+        axios.get(`${baseUrl}/customer`).then(res => {
+            setListCustomer(res.data);
+            dispatch(set({
+                value: {
+                    selected: res.data.map(cus => {
+                        return {
+                            id: cus.id,
+                            selected: false
+                        }
+                    })
+                }
+            }))
+        })
+    }, []);
 
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
 
@@ -170,6 +182,21 @@ const VoucherPage = () => {
             }
         }
     }
+
+    useEffect(() => {
+        let t = selectedCustomer.every(cus => cus.selected)
+        if(t){
+            setVoucherType("0");
+        }else{
+            setVoucherType("1");
+        }
+    }, [selectedCustomer])
+
+    useEffect(() => {
+        if (VoucherType == "0") {
+            dispatch(toggleAll());
+        }
+    }, [VoucherType, dispatch])
 
     return (
         <>

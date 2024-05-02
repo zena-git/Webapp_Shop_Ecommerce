@@ -5,6 +5,8 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import { baseUrl, currentDate, numberToPrice } from '../../lib/functional'
 import Plotly from 'plotly.js-dist'
+import AxiosIns from '../../lib/auth'
+
 const { RangePicker } = DatePicker;
 
 function Home() {
@@ -15,21 +17,30 @@ function Home() {
     const [thisData, setThisData] = useState();
     const [beforeData, setBeforeData] = useState()
     const [type, setType] = useState(1);
+    const [top, setTop] = useState([])
 
     useEffect(() => {
         if (type == 0) {
-            axios.get(`${baseUrl}/statistical/lastweek`).then(res => {
-                setThisData(res.data[0]);
+            AxiosIns.get(`v1/statistical/lastweek`).then(res => {
+                if (res.data) {
+                    setThisData(res.data[0]);
+                }
             })
-            axios.get(`${baseUrl}/statistical/beforelastweek`).then(res => {
-                setBeforeData(res.data[0]);
+            AxiosIns.get(`v1/statistical/beforelastweek`).then(res => {
+                if (res.data) {
+                    setBeforeData(res.data[0]);
+                }
             })
         } else if (type == 1) {
-            axios.get(`${baseUrl}/statistical/lastmonth`).then(res => {
-                setThisData(res.data[0]);
+            AxiosIns.get(`v1/statistical/lastmonth`).then(res => {
+                if (res.data) {
+                    setThisData(res.data[0]);
+                }
             })
-            axios.get(`${baseUrl}/statistical/beforelastmonth`).then(res => {
-                setBeforeData(res.data[0]);
+            AxiosIns.get(`v1/statistical/beforelastmonth`).then(res => {
+                if (res.data) {
+                    setBeforeData(res.data[0]);
+                }
             })
         } else if (type == 2) {
 
@@ -38,47 +49,56 @@ function Home() {
 
     useEffect(() => {
         if (date) {
-            axios.get(`${baseUrl}/statistical/revenue?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
-                setRevenueData(res.data.map(r => {
-                    if (r.revenue == null) {
-                        return { ...r, revenue: 0 };
-                    }else{
-                        return r;
-                    }
+            AxiosIns.get(`v1/statistical/top?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
+                console.log(res)
+                if (res.data) {
+                    setTop(res.data);
                 }
-                ));
             })
-            axios.get(`${baseUrl}/statistical/product/topsale?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
-                const dates = res.data.map(entry => entry.time + ".");
-                console.log(dates);
-                const products = res.data.reduce((acc, entry) => {
-                    entry.product.forEach(product => {
-                        if (!acc[product.name]) {
-                            acc[product.name] = Array(res.data.length).fill(0);
+            AxiosIns.get(`v1/statistical/revenue?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
+                if (res.data) {
+                    setRevenueData(res.data.map(r => {
+                        if (r.revenue == null) {
+                            return { ...r, revenue: 0 };
+                        } else {
+                            return r;
                         }
-                        acc[product.name][dates.indexOf(entry.time + ".")] = product.quantity;
-                    });
-                    return acc;
-                }, {});
+                    }));
+                }
+            })
+            AxiosIns.get(`/v1/statistical/product/topsale?startdate=${date[0].add(1, 'day').toISOString()}&enddate=${date[1].add(1, 'day').toISOString()}`).then(res => {
+                if (res.data) {
+                    const dates = res.data.map(entry => entry.time + ".");
+                    console.log(dates);
+                    const products = res.data.reduce((acc, entry) => {
+                        entry.product.forEach(product => {
+                            if (!acc[product.name]) {
+                                acc[product.name] = Array(res.data.length).fill(0);
+                            }
+                            acc[product.name][dates.indexOf(entry.time + ".")] = product.quantity;
+                        });
+                        return acc;
+                    }, {});
 
-                const traces = Object.keys(products).map(productName => ({
-                    x: dates,
-                    y: products[productName],
-                    name: productName,
-                    type: 'bar',
-                }));
-                const layout = {
-                    title: '',
-                    xaxis: {
-                        title: 'Ngày',
-                    },
-                    yaxis: {
-                        title: 'Số lượng',
-                    },
-                    barmode: 'group',
-                };
-                Plotly.newPlot('myDivx', traces, layout);
-                setTopSale(res.data);
+                    const traces = Object.keys(products).map(productName => ({
+                        x: dates,
+                        y: products[productName],
+                        name: productName,
+                        type: 'bar',
+                    }));
+                    const layout = {
+                        title: '',
+                        xaxis: {
+                            title: 'Ngày',
+                        },
+                        yaxis: {
+                            title: 'Số lượng',
+                        },
+                        barmode: 'group',
+                    };
+                    Plotly.newPlot('myDivx', traces, layout);
+                    setTopSale(res.data);
+                }
             })
         }
     }, [date])
@@ -208,6 +228,28 @@ function Home() {
                                 <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="#82ca9d" />
                             </AreaChart>
                         </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+            <div className='bg-white shadow-lg p-6'>
+                <div className='grid grid-cols-2 max-xl:grid-cols-1'>
+                    <div className='text-center'>
+                        <p className='text-[18px] font-bold'>Top 5 sản phẩm bán chạy</p>
+                        <div className='grid grid-cols-2 bg-slate-50 py-3'>
+                            <p className='text-2xl font-semibold'>Tên sản phẩm</p>
+                            <p className='text-2xl font-semibold'>Số lượng</p>
+                        </div>
+                        <div className='flex flex-col gap-3'>
+                            {top.map(pro => {
+                                return <div className='w-full px-3 py-5 bg-slate-100 shadow-lg border grid grid-cols-2'>
+                                    <p className='text-start'>{pro.name}</p>
+                                    <p>{pro.quantity}</p>
+                                </div>
+                            })}
+                        </div>
+                    </div>
+                    <div>
+
                     </div>
                 </div>
             </div>
