@@ -42,7 +42,9 @@ const formSchema = z.object({
     discountType: z.number({
         required_error: "Cần lựa chọn 1 loại hình thức",
     }),
-    description: z.string(),
+    description: z.string({
+        invalid_type_error: ''
+    }),
     order_min_value: z.number({ invalid_type_error: 'Giá trị đơn tối thiểu phải là số' }),
     max_discount_value: z.number({ invalid_type_error: 'Giá trị giảm tối đa phải là số' }),
     usage_limit: z.number({ invalid_type_error: 'Số lượng phải là số' })
@@ -130,7 +132,7 @@ const VoucherPage = () => {
                     discountType: discountType ? 0 : 1,
                     maxDiscountValue: discountType ? values.value : values.max_discount_value,
                     orderMinValue: values.order_min_value,
-                    description: values.description,
+                    description: detail,
                     startDate: date[0].add(7, 'hour').toDate(),
                     endDate: date[1].add(7, 'hour').toDate(),
                     lstCustomer: listCustomer.map(val => { return val.id })
@@ -149,7 +151,7 @@ const VoucherPage = () => {
             } else {
                 if (selectedCustomer.length > 0) {
                     setPending(true);
-                    AxiosIns.post(`v1/voucher`, {
+                    const data = {
                         code: values.code,
                         name: values.name,
                         value: values.value,
@@ -163,7 +165,9 @@ const VoucherPage = () => {
                         startDate: date[0].add(7, 'hour').toDate(),
                         endDate: date[1].add(7, 'hour').toDate(),
                         lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
-                    }).then(res => {
+                    }
+                    console.log(data);
+                    AxiosIns.post(`v1/voucher`, data).then(res => {
                         setPending(false);
                         toast.success("Đã tạo voucher thành công")
                         dispatch(set({ value: { selected: [] } }))

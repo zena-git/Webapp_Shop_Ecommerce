@@ -141,7 +141,7 @@ const Product = () => {
     const [openImportExcel, setOpenImportExcel] = useState(false);
 
     useEffect(() => {
-        axios.get('v1/product', {
+        AxiosIns.get('v1/product', {
             params: {
                 status: valueRadio,
                 search: debounceSearch,
@@ -280,10 +280,8 @@ const Product = () => {
     const dowloadExcel = () => {
         setLoading(true);
         const downloadExcel = async () => {
-            const apiUrl = 'http://localhost:8080/api/v1/product/excell?data=';
-
             try {
-                const response = await axios.get(apiUrl + selectedRowKeys, { responseType: 'blob' });
+                const response = await AxiosIns.get('v1/product/excell?data=' + selectedRowKeys, { responseType: 'blob' });
                 const currentDate = new Date();
                 // Create a blob URL and initiate the download
                 const url = window.URL.createObjectURL(new Blob([response.data]));

@@ -14,6 +14,8 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
 import { useOrderData } from '~/provider/OrderDataProvider';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'
+import AxiosIns from '../../../lib/auth'
 const { Header, Content, Footer, Sider } = Layout;
 const headerStyle = {
   color: 'black',
@@ -64,15 +66,22 @@ function DefaultLayout({ children }) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const { loadingContent, setDataLoadingContent } = useOrderData();
+  const [currentProfile, setCurrentProfile] = useState();
 
   const navigate = useNavigate()
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if(!token){
+    if (!token) {
       navigate('/login');
     }
-  },[navigate])
+  }, [navigate])
+
+  useEffect(() => {
+    AxiosIns.get('v1/profile').then(res => {
+      setCurrentProfile(res.data)
+    })
+  }, [])
 
   return (
     <div >
@@ -98,7 +107,7 @@ function DefaultLayout({ children }) {
 
               <div className='ml-6 flex items-center'>
                 <div>
-                  <h4>Phung Thi Thuy Hien</h4>
+                  <h4>{currentProfile?.fullName}</h4>
                 </div>
                 <Avatar className='ml-4' size="large" icon={
                   <>
@@ -126,7 +135,7 @@ function DefaultLayout({ children }) {
                     zIndex: 1,
                   }}
                 >
-                  <div  className='ml-[220px]'>
+                  <div className='ml-[220px]'>
                     <LoadingOutlined className='text-6xl text-rose-500	' />
                   </div>
 

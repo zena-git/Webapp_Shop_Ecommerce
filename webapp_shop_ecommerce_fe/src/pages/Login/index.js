@@ -24,8 +24,9 @@ export default function LoginPage() {
             }
             axios.post(`${baseUrl}/login`, data).then(res => {
                 toast.success('Đăng nhập thành công');
-                console.log(res.data);
-                localStorage.setItem('token', res.data.token);
+                const token = res.data.data.token;
+                console.log(token);
+                localStorage.setItem('token', token);
                 setTimeout(() => {
                     navigate('/')
                 }, 1000)

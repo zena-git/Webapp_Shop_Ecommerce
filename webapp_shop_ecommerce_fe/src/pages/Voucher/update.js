@@ -42,7 +42,9 @@ const formSchema = z.object({
     discountType: z.number({
         required_error: "cần lựa chọn 1 loại hình thức",
     }),
-    description: z.string(),
+    description: z.string({
+        invalid_type_error: ''
+    }),
     order_min_value: z.number(),
     max_discount_value: z.number(),
     usage_limit: z.number()
@@ -85,7 +87,7 @@ const VoucherPage = () => {
                     setTargetVoucher(res.data);
                     setDate([dayjs(res.data.startDate), dayjs(res.data.endDate)])
                     setDiscountType(res.data.discountType == "0");
-                    setDetail(res.data.detail);
+                    setDetail(res.data.description);
                     res.data.lstVoucherDetails.map(detail => {
                         dispatch(updateSelected({ id: Number.parseInt(detail.customer.id), selected: true, disable: detail.status }))
                     })
@@ -145,7 +147,7 @@ const VoucherPage = () => {
                         discountType: discountType ? 0 : 1,
                         maxDiscountValue: discountType ? values.value : values.max_discount_value,
                         orderMinValue: values.order_min_value,
-                        description: values.description,
+                        description: detail,
                         startDate: date[0].add(7, 'hour').toDate(),
                         endDate: date[1].add(7, 'hour').toDate(),
                         lstCustomer: listCustomer.map(val => { return val.id })
@@ -162,7 +164,7 @@ const VoucherPage = () => {
                 } else {
                     if (selectedCustomer.length > 0) {
                         setPending(true);
-                        AxiosIns.put(`v1/voucher/${path.id}`, {
+                        const data = {
                             id: path.id,
                             code: values.code,
                             name: values.name,
@@ -176,7 +178,9 @@ const VoucherPage = () => {
                             startDate: date[0].add(7, 'hour').toDate(),
                             endDate: date[1].add(7, 'hour').toDate(),
                             lstCustomer: selectedCustomer.filter(t => { return t.selected }).map(val => { return val.id })
-                        }).then(res => {
+                        }
+                        console.log(data);
+                        AxiosIns.put(`v1/voucher/${path.id}`, data).then(res => {
                             toast.success('Cập nhật thành công')
                             setPending(false);
                             setTimeout(() => {
@@ -342,7 +346,7 @@ const VoucherPage = () => {
                                             <FormItem>
                                                 <FormLabel>Mô tả</FormLabel>
                                                 <FormControl>
-                                                    <TextArea value={detail} onChange={e => setDetail(e.target.value)} placeholder="mô tả" {...field} />
+                                                    <TextArea  {...field} value={detail} onChange={e => {console.log(e.target.value);setDetail(e.target.value)}} placeholder="mô tả" />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -350,7 +354,7 @@ const VoucherPage = () => {
                                     />
                                     }
                                     <div>
-                                        <p className='my-1 text-xl font-semibold'>Đối tượng áp dụng</p>
+                                        <p className='my-1 text-2xl font-semibold'>Đối tượng áp dụng</p>
                                         <Radio.Group name="radiogroup" defaultValue={"0"} value={VoucherType} onChange={e => setVoucherType(e.target.value)}>
                                             <Radio value={"0"}>Tất cả khách hàng</Radio>
                                             <Radio value={"1"}>Khách hàng chỉ định</Radio>
@@ -359,6 +363,7 @@ const VoucherPage = () => {
 
                                     <div className='mt-1'>
                                         <FormLabel>Ngày bắt đầu {"->"} Ngày kết thúc</FormLabel>
+                                        <div className='h-2'></div>
                                         <RangePicker className='w-full' value={date} onChange={(val) => { if (val) { setDate(val) } }} showTime />
                                     </div>
                                     <div className='flex gap-4'>

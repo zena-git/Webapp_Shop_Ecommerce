@@ -183,10 +183,10 @@ function Home() {
                 </div>
                 <div className='grid grid-cols-2 max-xl:grid-cols-1'>
                     <div className='px-2 w-full flex flex-col gap-4 bg-slate-100'>
-                        <p className='text-2xl font-semibold mt-2'>So sánh số liệu</p>
-                        <div className='flex justify-between px-[5%]'>
-                            <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 0 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(0) }}>Tuần</div>
-                            <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 1 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(1) }}>Tháng</div>
+                        <p className='text-2xl font-bold mt-2'>So sánh số liệu</p>
+                        <div className='flex gap-10 px-[5%]'>
+                            <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 0 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(0) }}>Tuần trước</div>
+                            <div className={`min-w-40 w-1/3 py-4 text-center font-bold cursor-pointer ${type == 1 ? 'bg-blue-400' : 'bg-slate-200'}`} onClick={() => { setType(1) }}>Tháng trước</div>
                         </div>
                         <div className='flex flex-col gap-4 px-4 py-2 bg-slate-50'>
                             <p className='text-2xl font-semibold'>Doanh thu</p>
@@ -244,7 +244,7 @@ function Home() {
                         </div>
                         <div className='flex flex-col gap-3'>
                             {top.map(pro => {
-                                return <div className='w-full px-3 py-5 bg-slate-100 shadow-lg border grid grid-cols-2'>
+                                return <div className='w-full px-5 py-5 bg-slate-100 shadow-lg border grid grid-cols-2 hover:scale-105'>
                                     <p className='text-start'>{pro.name}</p>
                                     <p>{pro.quantity}</p>
                                 </div>
