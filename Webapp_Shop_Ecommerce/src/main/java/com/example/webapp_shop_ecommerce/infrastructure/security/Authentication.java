@@ -33,12 +33,12 @@ public class Authentication {
 
     public Users getUsers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication instanceof AnonymousAuthenticationToken)) {
-            Users users = Users.builder().fullName("Phung Thi Thuy Hien").build();
-            return users;
-        }
+//        if (authentication == null || !(authentication instanceof AnonymousAuthenticationToken)) {
+//            Users users = Users.builder().fullName("Phung Thi Thuy Hien").build();
+//            return users;
+//        }
         try {
-            return usersRepository.findById(Long.valueOf(authentication.getName())).orElse(Users.builder().fullName("Phung Thi Thuy Hien").build());
+            return usersRepository.findById(Long.valueOf(authentication.getName())).orElse(Users.builder().fullName("Phung Thi Thuy Hienn").build());
         } catch (NumberFormatException e) {
             // Handle the case where authentication.getName() is not a valid Long
             return Users.builder().fullName("Phung Thi Thuy Hien").build();

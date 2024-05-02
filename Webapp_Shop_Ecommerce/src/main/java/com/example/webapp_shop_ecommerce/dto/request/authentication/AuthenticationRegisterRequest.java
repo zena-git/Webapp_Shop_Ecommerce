@@ -15,4 +15,7 @@ public class AuthenticationRegisterRequest {
     private String password;
     private String phone;
 
+    private Boolean gender;
+
+
 }

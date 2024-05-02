@@ -35,6 +35,8 @@ public class VoucherRequest {
     private String discountType;
     @NotBlank(message = "Trạng thái không được để trống")
     private String status;
+
+    private String description;
     @NotNull(message = "Số lượng không được để trống")
     @NumberFormat(style = NumberFormat.Style.NUMBER)
     private Integer quantity;
