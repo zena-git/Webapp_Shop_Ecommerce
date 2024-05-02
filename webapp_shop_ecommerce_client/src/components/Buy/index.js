@@ -11,6 +11,7 @@ import { useDebounce } from '~/hooks';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import axiosIns from '~/plugin/axios';
 dayjs.extend(customParseFormat);
 const { confirm } = Modal
 
@@ -77,7 +78,7 @@ function Buy() {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/voucher/customer/' + customer.id)
+            const response = await axiosIns.get('/api/v1/voucher/customer/' + customer.id)
             console.log(response.data);
             setLstDataVoucher(response.data)
         } catch (error) {
@@ -92,14 +93,14 @@ function Buy() {
         const dataTable = lstDataVoucher?.filter(voucher => {
             // Lọc theo tên ,phone
             if (debounceSearch &&
-              !(voucher?.name?.toLowerCase().includes(debounceSearch.toLowerCase()) ||
-              voucher?.code?.toLowerCase().includes(debounceSearch.toLowerCase())
-              )) {
-              return false;
+                !(voucher?.name?.toLowerCase().includes(debounceSearch.toLowerCase()) ||
+                    voucher?.code?.toLowerCase().includes(debounceSearch.toLowerCase())
+                )) {
+                return false;
             }
-     
+
             return true;
-          })
+        })
         fillDateTableVoucher(dataTable)
         setDataVoucher(null)
     }, [lstDataVoucher, totalPrice])
@@ -174,7 +175,7 @@ function Buy() {
     const handleInputSearch = (e) => {
         console.log(e.target.value);
         setSearch(e.target.value);
-      }
+    }
     return (
         <>
             <div className='shadow-md px-6 py-4 bg-white	'>
@@ -215,10 +216,10 @@ function Buy() {
                         }
 
                         <Modal footer={null} width={1000} title="Chọn phiếu giảm giá" open={isModalOpenVoucher} onOk={handleOkVoucher} onCancel={handleCancelVoucher}>
-                        <div className='mt-10 mb-8 w-1/3'>
-                                <Input allowClear placeholder="Tìm kiếm giảm giá" prefix={<SearchOutlined />} 
-                                value={search} onChange={handleInputSearch}
-                                 />
+                            <div className='mt-10 mb-8 w-1/3'>
+                                <Input allowClear placeholder="Tìm kiếm giảm giá" prefix={<SearchOutlined />}
+                                    value={search} onChange={handleInputSearch}
+                                />
 
                             </div>
                             <div>

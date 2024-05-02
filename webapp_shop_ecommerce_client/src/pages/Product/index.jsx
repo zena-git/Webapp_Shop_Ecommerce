@@ -142,7 +142,7 @@ function HomeProduct() {
         setCurrent(page);
     };
 
-    const itemsPerPage = 2;
+    const itemsPerPage = 10;
 
     // Lấy dữ liệu cho trang hiện tại
     const start = (current - 1) * itemsPerPage;

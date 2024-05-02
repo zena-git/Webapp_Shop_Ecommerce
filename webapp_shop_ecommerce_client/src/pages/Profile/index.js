@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axiosIns from '~/plugin/axios';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
@@ -15,8 +16,9 @@ const Profile = () => {
 
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/v2/profile')
+        axiosIns.get('/api/v2/profile')
             .then(response => {
+                console.log(response.data);
                 setCustomer(response.data)
             })
             .catch(err => {
@@ -36,7 +38,7 @@ const Profile = () => {
     };
 
     const handleCustomers = () => {
-        axios.put('http://localhost:8080/api/v2/profile/' + customer.id, customer)
+        axiosIns.put('/api/v2/profile/' + customer.id, customer)
             .then(res => {
                 console.log(res);
                 setHistoryCustomer(res.data)

@@ -8,7 +8,7 @@ import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Scrollbar } from 'react-scrollbars-custom';
-
+import axiosIns from '~/plugin/axios';
 function Address() {
 
     const { setAddressBillClient, customer, addressBill, dataCheckout, totalPrice, setDataShipMoney } = useContext(DataContext);
@@ -47,7 +47,7 @@ function Address() {
 
     const fetchDataLstAddress = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v2/address');
+            const response = await axiosIns.get('/api/v2/address');
             setLstAddress(response.data);
             // Kiểm tra và thiết lập giá trị kiểm tra
             response.data.forEach(address => {
@@ -208,7 +208,7 @@ function Address() {
         }
         // console.log(address);
         if (address?.id == null) {
-            axios.post('http://localhost:8080/api/v1/address', dataAddress)
+            axiosIns.post('/api/v1/address', dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     fetchDataLstAddress();
@@ -221,7 +221,7 @@ function Address() {
                 })
         } else {
 
-            axios.put('http://localhost:8080/api/v1/address/' + address.id, dataAddress)
+            axiosIns.put('/api/v1/address/' + address.id, dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     fetchDataLstAddress();

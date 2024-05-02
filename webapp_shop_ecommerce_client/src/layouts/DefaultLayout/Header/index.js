@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./header.module.css"
 import { FaUser } from "react-icons/fa6";
 import { AiOutlineShoppingCart } from "react-icons/ai";
@@ -31,13 +31,14 @@ function useDebounce(value, delay) {
 }
 
 function Header() {
-
+    const navigate = useNavigate();
     const [searchValue, setSearchValue] = useState('');
     const [searchResult, setSearchResult] = useState([])
     const onSearch = (value, _e, info) => {
         console.log(value)
         setSearchValue(value);
     }
+    const { customer } = useContext(DataContext);
 
     const debouncedSearchValue = useDebounce(searchValue, 500);
 
@@ -78,7 +79,13 @@ function Header() {
         {
             key: '3',
             label: (
-                <Link to="/logout">Đăng Xuất</Link>
+                <div onClick={() => {
+                    localStorage.removeItem("token")
+                    localStorage.removeItem("customer")
+                    navigate("/login")
+                }}>
+                    Đăng Xuất
+                </div>
             ),
         },
     ];
@@ -246,23 +253,25 @@ function Header() {
                             <div style={{
                                 display: "flex",
                                 flexDirection: "row",
-                                marginRight: "28px"
+                                marginRight: "20px",
+                                width: '160px'
                             }}>
 
                                 {isAccount ? <Dropdown menu={{ items }} placement="bottom" arrow={{ pointAtCenter: true }}
                                 >
                                     <span style={{
+
+                                        width: '100%',
                                         letterSpacing: "0.5px",
                                         fontWeight: 500,
                                         lineHeight: "16px",
                                         marginLeft: "6px",
-                                        padding: '8px 12px',
                                         borderRadius: '4px',
                                         cursor: 'pointer',
                                         color: "#555556"
                                     }}><FaUser style={{
                                         marginRight: "5px"
-                                    }} /> Xin chào ? </span>
+                                    }} />Xin chào {customer?.fullName?.split(' ')[customer?.fullName?.split(' ')?.length - 1]} </span>
                                 </Dropdown> :
                                     <Link style={{
                                         textDecoration: "none",

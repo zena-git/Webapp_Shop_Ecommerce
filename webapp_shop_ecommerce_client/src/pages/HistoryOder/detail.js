@@ -7,6 +7,7 @@ import DataContext from "~/DataContext";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useParams, useNavigate } from "react-router-dom";
+import axiosIns from '~/plugin/axios';
 function HistoryOrderDetail() {
     const { id } = useParams();
     const [bill, setBill] = useState(null);
@@ -42,7 +43,7 @@ function HistoryOrderDetail() {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8080/api/v2/bill/codeBill/' + id);
+            const response = await axiosIns.get('/api/v2/bill/codeBill/' + id);
             setBill(response.data);
             console.log(response.data);
             console.log(response.data.lstBillDetails);
@@ -63,7 +64,7 @@ function HistoryOrderDetail() {
         setDataLoading(true);
         let returnUrl = window.location.origin;
 
-        axios.post('http://localhost:8080/api/v1/payment', {
+        axiosIns.post('/api/v1/payment', {
             codeBill: codeBill,
             returnUrl: returnUrl
         })
@@ -85,7 +86,7 @@ function HistoryOrderDetail() {
         }
         setIsModalOpen(false);
         setDataLoading(true);
-        axios.delete('http://localhost:8080/api/v2/bill/codeBill/' + id)
+        axiosIns.delete('/api/v2/bill/codeBill/' + id)
             .then(response => {
                 console.log(response.data);
                 toast.success(response.data.message)

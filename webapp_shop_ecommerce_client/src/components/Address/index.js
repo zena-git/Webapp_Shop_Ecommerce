@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import InnerAddres from '~/components/Address/InnerAddres';
 import { toast } from 'react-toastify';
+import axiosIns from '~/plugin/axios';
 function Address() {
     const { isAccount, setAddressBillClient, customer, addressBill, dataCheckout, totalPrice, setDataShipMoney } = useContext(DataContext);
 
@@ -41,7 +42,7 @@ function Address() {
 
     const fetchDataLstAddress = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v2/address');
+            const response = await axiosIns.get('/api/v2/address');
             setLstAddress(response.data);
             // Kiểm tra và thiết lập giá trị kiểm tra
             response.data.forEach(address => {

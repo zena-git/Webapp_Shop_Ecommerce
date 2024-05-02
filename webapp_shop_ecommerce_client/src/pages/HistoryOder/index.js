@@ -12,6 +12,7 @@ import DataContext from "~/DataContext";
 import axios from "axios";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import axiosIns from '~/plugin/axios';
 dayjs.extend(customParseFormat);
 
 function HistoryOder() {
@@ -95,7 +96,7 @@ function HistoryOder() {
     const fetchDataBill = async () => {
 
         try {
-            const response = await axios.get('http://localhost:8080/api/v2/bill'
+            const response = await axiosIns.get('/api/v2/bill'
                 // , {
                 //     params: {
                 //         status: status
@@ -145,7 +146,7 @@ function HistoryOder() {
         setDataLoading(true);
         let returnUrl = window.location.origin;
 
-        axios.post('http://localhost:8080/api/v1/payment', {
+        axiosIns.post('/api/v1/payment', {
             codeBill: codeBill,
             returnUrl: returnUrl
         })

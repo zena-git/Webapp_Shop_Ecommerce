@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button, Checkbox, Radio, Space, Input, Select } from 'antd';
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
+import axiosIns from '~/plugin/axios';
 const { TextArea } = Input;
 function Address({ goBack, customer, valueAddress, updateDataAddress }) {
 
@@ -189,7 +190,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
             return;
         }
         if (address?.id == null) {
-            axios.post('http://localhost:8080/api/v1/address', dataAddress)
+            axiosIns.post('/api/v1/address', dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();
@@ -200,7 +201,7 @@ function Address({ goBack, customer, valueAddress, updateDataAddress }) {
                     toast.error(error.response.data.message);
                 })
         } else {
-            axios.put('http://localhost:8080/api/v1/address/' + address.id, dataAddress)
+            axiosIns.put('/api/v1/address/' + address.id, dataAddress)
                 .then((response) => {
                     toast.success(response.data.message);
                     updateDataAddress();

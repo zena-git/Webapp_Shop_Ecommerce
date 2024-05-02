@@ -3,10 +3,11 @@ import React, { useEffect, useState, useCallback, } from 'react';
 import { useNavigate } from "react-router-dom";
 import DataContext from '../DataContext';
 import axios from "axios";
+import axiosIns from "../plugin/axios"
 import { ToastContainer, toast } from 'react-toastify';
 const DataProvider = ({ children }) => {
     const navigate = useNavigate();
-    const [isAccount, setIsAccount] = useState(true);
+    const [isAccount, setIsAccount] = useState(false);
     const [customer, setCustomer] = useState()
 
     const [data, setData] = useState([]);
@@ -28,8 +29,17 @@ const DataProvider = ({ children }) => {
 
     const [checkedList, setCheckedList] = useState([]);
     useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) {
+            setIsAccount(true);
+        }else{
+            setIsAccount(false);
+        }
+    })
+
+    useEffect(() => {
         if (isAccount) {
-            axios.get('http://localhost:8080/api/v2/profile')
+            axiosIns.get('/api/v2/profile')
                 .then(response => {
                     setCustomer(response.data)
                     console.log(response.data);
@@ -38,7 +48,7 @@ const DataProvider = ({ children }) => {
 
                 })
         }
-    }, []);
+    }, [isAccount]);
 
     useEffect(() => {
         if (totalPrice <= 0 || voucher == null) {
@@ -78,7 +88,7 @@ const DataProvider = ({ children }) => {
     useEffect(() => {
         if (isAccount) {
             const fetchDataAndSetState = async () => {
-                axios.get('http://localhost:8080/api/v2/cart')
+                axiosIns.get('/api/v2/cart')
                     .then(res => {
                         const dataCart = res.data.lstCartDetails.sort((a, b) => a.id - b.id).map(data => {
                             let price = data?.productDetails?.promotionDetailsActive == null ?
@@ -112,7 +122,7 @@ const DataProvider = ({ children }) => {
             console.log(data);
             localStorage.setItem('cart', JSON.stringify(data));
         }
-    }, [data]);
+    }, [data, isAccount]);
 
     const setAddressBillClient = (newData) => {
         setAddressBill(newData)
@@ -171,7 +181,7 @@ const DataProvider = ({ children }) => {
     const updateData = useCallback(async () => {
 
         if (isAccount) {
-            axios.get('http://localhost:8080/api/v2/cart')
+            axiosIns.get('/api/v2/cart')
                 .then(res => {
                     const dataCart = res.data.lstCartDetails.sort((a, b) => a.id - b.id).map(data => {
                         let price = data?.productDetails?.promotionDetailsActive == null ?
@@ -191,13 +201,13 @@ const DataProvider = ({ children }) => {
                 })
         }
 
-    }, []);
+    }, [isAccount]);
 
 
     const moneyQuantity = useCallback(async (value, idCartdetail) => {
         console.log(value);
         if (isAccount) {
-            axios.put(`http://localhost:8080/api/v2/cartDetails/` + idCartdetail, {
+            axiosIns.put(`/api/v2/cartDetails/` + idCartdetail, {
                 quantity: value
             })
                 .then(res => {
@@ -236,7 +246,7 @@ const DataProvider = ({ children }) => {
     const deleteData = useCallback(async (itemId) => {
 
         if (isAccount) {
-            axios.delete('http://localhost:8080/api/v2/cartDetails/' + itemId)
+            axiosIns.delete('/api/v2/cartDetails/' + itemId)
                 .then(res => {
                     updateData()
                 })
@@ -283,7 +293,7 @@ const DataProvider = ({ children }) => {
         console.log(dataBill);
         setLoading(true);
         if (isAccount) {
-            axios.post('http://localhost:8080/api/v2/bill', dataBill)
+            axiosIns.post('/api/v2/bill', dataBill)
                 .then(res => {
                     updateData()
 
@@ -341,7 +351,7 @@ const DataProvider = ({ children }) => {
                 })
         }
 
-    }, [addressBill, paymentMethods, voucher, dataCheckout, shipMoney,]);
+    }, [addressBill, paymentMethods, voucher, dataCheckout, shipMoney,isAccount]);
 
 
     // thêm giỏ hàng
@@ -360,7 +370,7 @@ const DataProvider = ({ children }) => {
             }
             // console.log(product);
             setLoading(true)
-            axios.post('http://localhost:8080/api/v2/cart', product)
+            axiosIns.post('/api/v2/cart', product)
                 .then(res => {
                     console.log(res.data);
                     toast.success(res.data.message)
@@ -437,7 +447,7 @@ const DataProvider = ({ children }) => {
             }
             // console.log(product);
             setLoading(true)
-            axios.post('http://localhost:8080/api/v2/cart', product)
+            axiosIns.post('/api/v2/cart', product)
                 .then(res => {
                     updateData();
                     console.log(res.data);

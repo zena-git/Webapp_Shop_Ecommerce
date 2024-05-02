@@ -8,6 +8,7 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
 import Address from '../Address';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import axiosIns from '~/plugin/axios';
 dayjs.extend(customParseFormat);
 const { TextArea } = Input;
 function AddressDelivery() {
@@ -134,7 +135,7 @@ function AddressDelivery() {
     const fetchDataLstAddress = async () => {
 
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/customer/' + customer.id);
+            const response = await axiosIns.get('/api/v1/customer/' + customer.id);
             console.log(response.data);
             setLstAddress(response.data.lstAddress);
             // Kiểm tra và thiết lập giá trị kiểm tra
@@ -174,7 +175,7 @@ function AddressDelivery() {
                 console.log(error);
             })
 
-    }, [])
+    }, [addressBill])
 
     //lấy district
     useEffect(() => {

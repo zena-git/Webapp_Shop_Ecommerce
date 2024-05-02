@@ -24,6 +24,8 @@ export default function LoginPage() {
             }
             axios.post('http://localhost:8080/api/v2/login', data).then(res => {
                 toast.success('Đăng nhập thành công');
+                const token = res.data.data.token;
+                localStorage.setItem('token', token);
                 setTimeout(() => {
                     navigate('/')
                 }, 1000)

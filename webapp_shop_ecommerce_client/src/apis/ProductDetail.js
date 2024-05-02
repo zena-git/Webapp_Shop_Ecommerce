@@ -1,6 +1,6 @@
 import axiosIns from "../plugin/axios"
 
-const BASE_URL = '/api/v1'; 
+const BASE_URL = '/api/v2'; 
 
 export const productDetailApis = {
     async findById(id) {
