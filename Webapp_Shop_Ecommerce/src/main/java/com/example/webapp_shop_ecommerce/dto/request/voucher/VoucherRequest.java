@@ -49,4 +49,6 @@ public class VoucherRequest {
     private LocalDateTime endDate;
     @Size(min = 1, message = "Ít nhất phải có một chi tiết sản phẩm")
     private List<Long> lstCustomer;
+    private String description;
+
 }

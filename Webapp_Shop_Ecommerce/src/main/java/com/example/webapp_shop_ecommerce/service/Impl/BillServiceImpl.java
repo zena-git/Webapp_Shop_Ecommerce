@@ -1312,6 +1312,19 @@ public class BillServiceImpl extends BaseServiceImpl<Bill, Long, IBillRepository
             }
         }
 
+
+        if (bill.getStatus().equalsIgnoreCase(TrangThaiBill.DA_XAC_NHAN.getLabel())
+                && bill.getPaymentMethod().equalsIgnoreCase("0")
+                && historyBillRequest.getType().equalsIgnoreCase(TrangThaiBill.CHO_XAC_NHAN.getLabel())
+        ){
+            Set<BillDetails> lstBillDetails = bill.getLstBillDetails();
+            for (BillDetails billDetails : lstBillDetails) {
+                ProductDetails pd = billDetails.getProductDetails();
+                pd.setQuantity(pd.getQuantity() + billDetails.getQuantity());
+                productDetailsRepo.save(pd);
+            }
+        }
+
         HistoryBill historyBill = mapper.map(historyBillRequest, HistoryBill.class);
         historyBill.setBill(bill);
         for (TrangThaiBill trangThai : TrangThaiBill.values()) {

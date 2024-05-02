@@ -11,11 +11,11 @@ public enum TrangThaiBill {
     DA_THANH_TOAN("5"),
 
     HUY("6"),
-    TRA_HANG("10"),
-    DANG_BAN("7"),
     CHO_THANH_TOAN("8"),
     HOAN_TIEN("9"),
 
+    TRA_HANG("10"),
+    DANG_BAN("7"),
     NEW("New");
 
 

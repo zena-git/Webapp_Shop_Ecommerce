@@ -58,18 +58,33 @@ public interface IStatisticalRepository extends JpaRepository<Bill, Long> {
     List<StatisticalReponse> getBeforeLastMonthStatistical();
 
 
-    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
-            "    FROM Bill\n" +
-            "    WHERE Bill.status ='4'\n" +
-            "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 1",
+    @Query(value = "SELECT COUNT(sub.completedOrders) AS completedOrders, SUM(sub.revenue) AS revenue " +
+            "FROM (SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue " +
+            "FROM Bill " +
+            "JOIN BillDetails ON bill_id = Bill.id " +
+            "JOIN ProductDetail ON product_detail_id = ProductDetail.id " +
+            "JOIN Product ON product_id = Product.id " +
+            "WHERE Bill.status ='4' " +
+            "AND Bill.last_modified_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) " +
+            "AND Bill.last_modified_date < NOW() " +
+            "GROUP BY Bill.id) AS sub",
             nativeQuery = true)
     List<StatisticalReponse> getLastWeekStatistical();
 
 
-    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
-            "    FROM Bill\n" +
-            "    WHERE Bill.status ='4'\n" +
-            "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 2",
+    //    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue\n" +
+//            "    FROM Bill\n" +
+//            "    WHERE Bill.status ='4'\n" +
+//            "    AND WEEK(Bill.last_modified_date) = WEEK(NOW()) - 2",
+//            nativeQuery = true)
+    @Query(value = "SELECT COUNT(Bill.id) AS completedOrders, SUM(Bill.into_money) AS revenue " +
+            "FROM Bill " +
+            "JOIN BillDetails ON bill_id = Bill.id " +
+            "JOIN ProductDetail ON product_detail_id = ProductDetail.id " +
+            "JOIN Product ON product_id = Product.id " +
+            "WHERE Bill.status ='4' " +
+            "AND Bill.last_modified_date >= DATE_SUB(DATE_SUB(NOW(), INTERVAL 7 DAY), INTERVAL 7 DAY) " +
+            "AND Bill.last_modified_date < DATE_SUB(NOW(), INTERVAL 7 DAY)",
             nativeQuery = true)
     List<StatisticalReponse> getBeforeLastWeekStatistical();
 }
