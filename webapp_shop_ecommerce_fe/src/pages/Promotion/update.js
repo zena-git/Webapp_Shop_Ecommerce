@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useAppSelector } from '~/redux/storage';
-import { baseUrl, baseUrlV3 } from '~/lib/functional';
 import ListDetailProduct from '~/components/promotion/ListDetailProduct'
 import { set, toggleChildren, toggleAll, deselectAll } from '~/redux/features/promotion-selected-item'
 import { ToastContainer, toast } from 'react-toastify';
@@ -28,7 +27,7 @@ function EditPage() {
     const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState("");
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState(1);
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
     const [PromotionType, setPromotionType] = useState("0");
@@ -128,8 +127,6 @@ function EditPage() {
     useEffect(() => {
         if (PromotionType == "0") {
             dispatch(toggleAll());
-        } else {
-            dispatch(deselectAll());
         }
     }, [PromotionType, dispatch])
 

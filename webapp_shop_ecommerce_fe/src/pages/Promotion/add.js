@@ -19,7 +19,7 @@ function EditPage() {
     const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
     const [code, setCode] = useState(makeid());
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState(1);
     const [description, setDescription] = useState("");
     const [date, setDate] = useState([dayjs(new Date()), dayjs(new Date())]);
 
@@ -58,10 +58,16 @@ function EditPage() {
     useEffect(() => {
         if (PromotionType == "0") {
             dispatch(toggleAll());
-        } else {
-            dispatch(deselectAll());
         }
     }, [PromotionType, dispatch])
+
+    useEffect(() => {
+        if (listSelectedProduct.every(target => target.selected)) {
+            setPromotionType("0");
+        } else {
+            setPromotionType("1");
+        }
+    }, [listSelectedProduct])
 
     const handleSubmitForm = () => {
         if (!pending) {

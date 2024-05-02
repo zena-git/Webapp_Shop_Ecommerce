@@ -183,17 +183,14 @@ export default function ListTable({ data }) {
                                             ))
                                             }
                                         </tr>
-                                        {open[row.original.id] && (
-                                            <tr key={`${row.id}-details`}>
-                                                <td colSpan={columns.length} className="py-4">
-                                                    <ProductDetailTable
-                                                        targetDataId={row.original.id}
-                                                        selected={row.getIsSelected()}
-                                                        belowData={row.original.lstProductDetails}
-                                                    />
-                                                </td>
-                                            </tr>
-                                        )}
+                                        <tr key={`${row.id}-details`} className={`${open[row.original.id] ? '' : 'hidden'}`}>
+                                            <td colSpan={columns.length} className="py-4">
+                                                <ProductDetailTable
+                                                    targetDataId={row.original.id}
+                                                    belowData={row.original.lstProductDetails}
+                                                />
+                                            </td>
+                                        </tr>
                                     </>
                                 ))
                             ) : (
@@ -239,7 +236,7 @@ export default function ListTable({ data }) {
 
 
 
-const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
+const ProductDetailTable = ({ belowData, targetDataId }) => {
     const [belowSorting, setBelowSorting] = useState([])
     const [belowColumnFilters, setBelowColumnFilters] = useState([])
     const [belowColumnVisibility, setBelowColumnVisibility] = useState({})
@@ -332,10 +329,6 @@ const ProductDetailTable = ({ belowData, selected, targetDataId }) => {
             })
         }
     }, [belowRowSelection, belowTable, dispatch, targetDataId])
-
-    useEffect(() => {
-        belowTable.toggleAllRowsSelected(selected);
-    }, [belowTable, selected])
 
     return (
         <>
