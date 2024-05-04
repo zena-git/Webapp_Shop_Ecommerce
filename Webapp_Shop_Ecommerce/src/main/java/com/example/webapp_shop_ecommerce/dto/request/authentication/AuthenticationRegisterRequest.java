@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -14,5 +16,7 @@ public class AuthenticationRegisterRequest {
     private String email;
     private String password;
     private String phone;
+    private Boolean gender;
+    private Date birthday;
 
 }

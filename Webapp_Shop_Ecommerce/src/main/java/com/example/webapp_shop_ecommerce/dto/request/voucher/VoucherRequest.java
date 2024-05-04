@@ -47,7 +47,7 @@ public class VoucherRequest {
     @Future(message = "Ngày kết thúc phải ở tương lai")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
-    @Size(min = 1, message = "Ít nhất phải có một chi tiết sản phẩm")
+    @Size(min = 1, message = "Ít nhất phải có một khách hàng")
     private List<Long> lstCustomer;
     private String description;
 

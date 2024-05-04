@@ -125,6 +125,8 @@ public class CustomnerServiceImpl extends BaseServiceImpl<Customer, Long, ICusto
             customer.setEmail(request.getEmail());
             customer.setPhone(request.getPhone());
             customer.setFullName(request.getCustomerName());
+            customer.setBirthday(request.getBirthday());
+            customer.setGender(request.getGender());
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
             customer.setPassword(passwordEncoder.encode(request.getPassword()));
             createNew(customer);
