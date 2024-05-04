@@ -30,15 +30,16 @@ export default function RegisterPage() {
         } else if (confirmPassword != password) {
             toast.error('Mật khẩu không khớp')
         } else {
+            const dates = dayjs(birthday)?.format("YYYY-MM-DDTHH:mm:ss")
             const data = {
                 customerName: customerName,
                 phone: phone,
                 email: email,
                 password: password,
                 gender: gender,
-                birthday: birthday,
+                birthday: dates,
             }
-            const usernames =/\S+@\S+\.\S+/;
+            const usernames = /\S+@\S+\.\S+/;
             if (!usernames.test(email.trim())) {
                 toast.error('Email không hợp lệ');
                 return;
