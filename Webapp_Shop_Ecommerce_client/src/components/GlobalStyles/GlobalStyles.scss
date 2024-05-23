@@ -1,0 +1,182 @@
+@tailwind components;
+@tailwind utilities;
+@import 'normalize.css';
+
+:root {
+    --primary: #da7493;
+    --black: #000;
+    --white: #fff;
+    --text-color: #161823;
+    --color-primary: #da7493;
+    --color-primary-bold: #dc4975;
+}
+* {
+    box-sizing: border-box !important;
+    margin: 0;
+}
+
+html {
+    font-size: 62.5%;
+}
+body {
+    font-size: 1.6rem !important;
+    font-weight: 400!important;
+    background-color: rgb(243 244 246)!important;
+    line-height: normal !important;
+    letter-spacing: normal !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+//Bỏ thẻ canvas trong quét barcode
+.drawingBuffer {
+    display: none !important;
+}
+
+.ant-btn {
+    font-size: 1.3rem;
+}
+.ant-btn-primary {
+    background-color: var(--color-primary);
+    font-weight: 500;
+    border-radius: 4px;
+}
+
+.ant-menu-item-icon svg {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-default:not(:disabled):not(.ant-btn-disabled):hover {
+    color: var(--color-primary-bold) !important;
+    border-color: var(--color-primary-bold) !important;
+    background: #ffffff;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+    background: var(--color-primary-bold);
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-item-selected {
+    background-color: #ffbadb8b;
+    color: var(--color-primary-bold) !important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-item-selected {
+    font-weight: 500;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu
+    .ant-menu-submenu-selected
+    > .ant-menu-submenu-title {
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-item,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-item,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light > .ant-menu .ant-menu-submenu-title {
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected):hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected):hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected)
+    > .ant-menu-submenu-title:hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu
+    .ant-menu-item:not(.ant-menu-item-selected):not(.ant-menu-submenu-selected)
+    > .ant-menu-submenu-title:hover {
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light:not(.ant-menu-horizontal)
+    .ant-menu-item:not(.ant-menu-item-selected):hover,
+:where(.css-dev-only-do-not-override-1k979oh).ant-menu-light
+    > .ant-menu:not(.ant-menu-horizontal)
+    .ant-menu-item:not(.ant-menu-item-selected):hover {
+    background-color: rgba(248, 41, 151, 0.089);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--color-primary);
+}
+.ant-radio-group-solid
+    :where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(
+        .ant-radio-button-wrapper-disabled
+    ) {
+    border: 1px solid #da7493 !important;
+    background-color: #fff !important;
+    color: var(--color-primary) !important;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper:hover {
+    color: var(--color-primary);
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-tab:hover {
+    color: var(--color-primary);
+}
+
+.ant-table-thead th {
+    background-color: #da749392 !important;
+}
+.ant-drawer-content-wrapper {
+    box-shadow: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-btn-default.ant-btn-dangerous {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    font-weight: 500;
+    border-radius: 4px;
+
+}
+.ant-radio-button-wrapper {
+    border: 2px solid #7e7e7e8a !important;
+    background-color: #fff !important;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before,
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled){
+    border: 2px solid #da7493 !important;
+    background-color: #fff !important;
+    color: var(--color-primary) !important;
+}
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper:not(:first-child)::before,
+:where(.css-dev-only-do-not-override-1k979oh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before{
+    display: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-input-search .ant-input:hover, :where(.css-dev-only-do-not-override-1k979oh).ant-input-search .ant-input:focus{
+    border-color: var(--color-primary)!important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-input-outlined:focus, :where(.css-dev-only-do-not-override-1k979oh).ant-input-outlined:focus-within {
+    box-shadow: 0 0 0 2px rgba(230, 5, 255, 0.1) !important;
+}
+
+:where(.css-dev-only-do-not-override-1k979oh).ant-tabs .ant-tabs-ink-bar{
+    background-color: var(--color-primary)!important;
+}
+.ant-input-number .ant-input-number-input{
+    text-align: center !important;
+}
+.ant-input-number .ant-input-number-input:focus{
+    border-color: var(--color-primary);
+
+}
+.ant-input-number-outlined:hover{
+    border-color: var(--color-primary);
+}
+.ant-input-number-outlined:focus, 
+.ant-input-number-outlined:focus-within{
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(213, 5, 255, 0.1);
+}
+.MuiGrid-root{
+    width: 100%;
+}

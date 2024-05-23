@@ -1,0 +1,57 @@
+.container {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.clearFixRow {
+    display: flex;
+    flex-direction: row;
+    object-fit: cover;
+}
+
+.checkout1 {
+    width: 67%;
+    padding-right: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.checkout1 a {
+    color: #337ab7;
+}
+
+.collection {
+    position: relative;
+}
+
+.checkout1 a button,
+.collection a button {
+    cursor: pointer;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 96px;
+    background: white;
+    font-weight: 500;
+    color: #337ab7;
+    border: unset;
+    height: 37px;
+    font-size: 18px;
+    width: 115px;
+}
+
+.link {
+    position: absolute;
+}
+
+.checkout2 {
+    width: calc(100% - 67%);
+    padding-left: 20px;
+    float: right;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+}
